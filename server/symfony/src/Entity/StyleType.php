@@ -4,34 +4,24 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\StyleTypeRepository")
- * @ORM\Table(name="styleType")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\StyleTypeRepository")]
+#[ORM\Table(name: 'styleType')]
 class StyleType
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer", name="id", options={"unsigned": true, "zerofill": true})
-     * COLUMN: id
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false, name="name")
-     * COLUMN: name
-     */
-    private $name;
-
-    // --- Getters and Setters ---
+    #[ORM\Column(name: 'name', type: 'string', length: 100)]
+    private string $name;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }

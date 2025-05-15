@@ -4,48 +4,31 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\StyleGroupRepository")
- * @ORM\Table(name="styleGroup",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="styleGroup_name", columns={"name"})}
- * )
- */
+#[ORM\Entity(repositoryClass: "App\Repository\StyleGroupRepository")]
+#[ORM\Table(name: 'styleGroup')]
+#[ORM\UniqueConstraint(name: 'styleGroup_name', columns: ['name'])]
 class StyleGroup
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer", name="id", options={"unsigned": true, "zerofill": true})
-     * COLUMN: id
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false, unique=true, name="name")
-     * COLUMN: name
-     */
-    private $name;
+    #[ORM\Column(name: 'name', type: 'string', length: 100, unique: true)]
+    private string $name;
 
-    /**
-     * @ORM\Column(type="text", nullable=true, name="description")
-     * COLUMN: description
-     */
-    private $description;
+    #[ORM\Column(name: 'description', type: 'text', nullable: true)]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true, name="position")
-     * COLUMN: position
-     */
-    private $position;
-
-    // --- Getters and Setters ---
+    #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
+    private ?int $position = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }

@@ -80,9 +80,29 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 
 **This section lists all Doctrine entity attributes in `src/Entity` for onboarding and reference.**
 
+### AclGroup
+- `id_groups`: int (PK, FK to Group)
+- `id_pages`: int (PK, FK to Page)
+- `acl_select`: bool
+- `acl_insert`: bool
+- `acl_update`: bool
+- `acl_delete`: bool
+
+### AclUser
+- `id_users`: int (PK, FK to User)
+- `id_pages`: int (PK, FK to Page)
+- `acl_select`: bool
+- `acl_insert`: bool
+- `acl_update`: bool
+- `acl_delete`: bool
+
 ### Action
 - `id`: int (PK)
 - `name`: string (unique)
+
+### ActivityType
+- `id`: int (PK)
+- `name`: string
 
 ### ApiRoute
 - `id`: int (PK)
@@ -94,24 +114,443 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `params`: json/array (nullable)
 - `version`: string (default 'v1')
 
+### Asset
+- `id`: int (PK)
+- `id_assetTypes`: int (FK to Lookup)
+- `folder`: string (nullable)
+- `file_name`: string (nullable)
+- `file_path`: string
+
+### CallbackLog
+- `id`: int (PK)
+- `callback_date`: datetime
+- `remote_addr`: string (nullable)
+- `redirect_url`: string (nullable)
+- `callback_params`: text (nullable)
+- `status`: string (nullable)
+- `callback_output`: text (nullable)
+
+### Chat
+- `id`: int (PK)
+- `id_snd`: int (FK to User)
+- `id_rcv`: int (nullable, FK to User)
+- `content`: text
+- `timestamp`: datetime
+- `id_rcv_group`: int (FK to Group)
+
+### ChatRecipiant
+- `id_users`: int (PK, FK to User)
+- `id_chat`: int (PK, FK to Chat)
+- `id_room_users`: int (nullable, FK to ChatRoomUser)
+- `is_new`: bool
+
+### ChatRoom
+- `id`: int (PK)
+- `name`: string
+- `description`: string (nullable)
+- `created_at`: datetime
+
+### ChatRoomUser
+- `id`: int (PK)
+- `id_users`: int (FK to User)
+- `id_chatRoom`: int (FK to ChatRoom)
+- `is_admin`: bool
+- `joined_at`: datetime
+
+### CmsPreference
+- `id`: int (PK)
+- `callback_api_key`: string (nullable)
+- `default_language_id`: int (nullable, FK to Language)
+- `anonymous_users`: int
+- `firebase_config`: string (nullable)
+
+### CodesGroup
+- `code`: string (PK, FK to ValidationCode)
+- `id_groups`: int (PK, FK to Group)
+
+### DataCell
+- `id_dataRows`: int (PK, FK to DataRow)
+- `id_dataCols`: int (PK, FK to DataCol)
+- `value`: text
+
+### DataCol
+- `id`: int (PK)
+- `name`: string (nullable)
+- `id_dataTables`: int (nullable, FK to DataTable)
+
+### DataRow
+- `id`: int (PK)
+- `id_dataTables`: int (nullable, FK to DataTable)
+- `timestamp`: datetime
+- `id_users`: int (nullable, FK to User)
+- `id_actionTriggerTypes`: int (nullable, FK to Lookup)
+
+### DataTable
+- `id`: int (PK)
+- `name`: string
+- `timestamp`: datetime
+- `displayName`: string (nullable)
+
+### Field
+- `id`: int (PK)
+- `name`: string
+- `id_type`: int (FK to FieldType)
+- `display`: bool
+
+### FieldType
+- `id`: int (PK)
+- `name`: string
+- `position`: int
+
+### FormAction
+- `id`: int (PK)
+- `name`: string
+- `id_formProjectActionTriggerTypes`: int
+- `config`: text (nullable)
+- `id_dataTables`: int (nullable, FK to DataTable)
+
+### Gender
+- `id`: int (PK)
+- `name`: string
+
+### Group
+- `id`: int (PK)
+- `name`: string
+- `description`: string
+- `id_group_types`: int (nullable, FK to Lookup)
+- `requires_2fa`: bool
+
+### Hook
+- `id`: int (PK)
+- `id_hookTypes`: int (FK to Lookup)
+- `name`: string (nullable)
+- `description`: string (nullable)
+- `class`: string
+- `function`: string
+- `exec_class`: string
+- `exec_function`: string
+- `priority`: int (nullable)
+
+### Language
+- `id`: int (PK)
+- `locale`: string
+- `language`: string
+- `csv_separator`: string
+
+### Library
+- `id`: int (PK)
+- `name`: string (nullable)
+- `version`: string (nullable)
+- `license`: string (nullable)
+- `comments`: string (nullable)
+
+### LogPerformance
+- `id_user_activity`: int (PK, FK to UserActivity)
+- `log`: text (nullable)
+
 ### Lookup
 - `id`: int (PK)
-- `name`: string (unique)
-- `lookup_code`: string
-- `lookup_value`: string
-- `lookup_type`: string
+- `type_code`: string
+- `lookup_code`: string (nullable)
+- `lookup_value`: string (nullable)
+- `lookup_description`: string (nullable)
+
+### MailAttachment
+- `id`: int (PK)
+- `id_mailQueue`: int (FK to MailQueue)
+- `attachment_name`: string (nullable)
+- `attachment_path`: string
+- `attachment_url`: string
+- `template_path`: string
+
+### MailQueue
+- `id`: int (PK)
+- `from_email`: string
+- `from_name`: string
+- `reply_to`: string
+- `recipient_emails`: text
+- `cc_emails`: string (nullable)
+- `bcc_emails`: string (nullable)
+- `subject`: string
+- `body`: text
+- `is_html`: int (nullable)
+
+### Notification
+- `id`: int (PK)
+- `subject`: string
+- `body`: text
+- `url`: string (nullable)
 
 ### Page
 - `id`: int (PK)
-- `name`: string (unique)
 - `keyword`: string (unique)
-- `id_type`: int (FK to PageType)
-- `id_navigation_section`: int (nullable)
-- `parent`: int (nullable)
+- `url`: string (nullable)
+- `protocol`: string (nullable)
+- `id_actions`: int (nullable, FK to Action)
+- `id_navigation_section`: int (nullable, FK to Section)
+- `parent`: int (nullable, FK to Page)
 - `is_headless`: bool
-- `nav_position`: int
-- `footer_position`: int
-- `is_system`: bool
+- `nav_position`: int (nullable)
+- `footer_position`: int (nullable)
+- `id_type`: int (FK to PageType)
+- `id_pageAccessTypes`: int (nullable, FK to Lookup)
+- `is_open_access`: bool (nullable)
+- `is_system`: bool (nullable)
+
+### PageType
+- `id`: int (PK)
+- `name`: string
+
+### PageTypeField
+- `id_pageType`: int (PK, FK to PageType)
+- `id_fields`: int (PK, FK to Field)
+- `default_value`: string (nullable)
+- `help`: text (nullable)
+
+### PagesField
+- `id_pages`: int (PK, FK to Page)
+- `id_fields`: int (PK, FK to Field)
+- `default_value`: string (nullable)
+- `help`: text (nullable)
+
+### PagesFieldsTranslation
+- `id_pages`: int (PK, FK to Page)
+- `id_fields`: int (PK, FK to Field)
+- `id_languages`: int (PK, FK to Language)
+- `content`: text
+
+### PagesSection
+- `id_pages`: int (PK, FK to Page)
+- `id_sections`: int (PK, FK to Section)
+- `position`: int (nullable)
+
+### Plugin
+- `id`: int (PK)
+- `name`: string (nullable)
+- `version`: string (nullable)
+
+### QualtricsAction
+- `id`: int (PK)
+- `id_qualtricsProjects`: int (FK to QualtricsProject)
+- `id_qualtricsSurveys`: int (FK to QualtricsSurvey)
+- `name`: string
+- `id_qualtricsProjectActionTriggerTypes`: int (FK to Lookup)
+- `id_qualtricsActionScheduleTypes`: int (FK to Lookup)
+- `id_qualtricsSurveys_reminder`: int (nullable, FK to QualtricsSurvey)
+- `schedule_info`: text (nullable)
+- `id_qualtricsActions`: int (nullable, FK to QualtricsAction)
+
+### QualtricsActionsFunction
+- `id_qualtricsActions`: int (PK, FK to QualtricsAction)
+- `id_lookups`: int (PK, FK to Lookup)
+
+### QualtricsActionsGroup
+- `id_qualtricsActions`: int (PK, FK to QualtricsAction)
+- `id_groups`: int (PK, FK to Group)
+
+### QualtricsProject
+- `id`: int (PK)
+- `name`: string
+- `description`: string (nullable)
+- `qualtrics_api`: string (nullable)
+- `api_library_id`: string (nullable)
+- `api_mailing_group_id`: string (nullable)
+- `created_on`: datetime
+- `edited_on`: datetime
+
+### QualtricsReminder
+- `id_qualtricsSurveys`: int (PK, FK to QualtricsSurvey)
+- `id_users`: int (PK, FK to User)
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+
+### QualtricsSurvey
+- `id`: int (PK)
+- `name`: string
+- `description`: string (nullable)
+- `qualtrics_survey_id`: string (nullable)
+- `id_qualtricsSurveyTypes`: int (FK to Lookup)
+- `participant_variable`: string (nullable)
+- `group_variable`: int (nullable)
+- `created_on`: datetime
+- `edited_on`: datetime
+- `config`: text (nullable)
+
+### QualtricsSurveysResponse
+- `id`: int (PK)
+- `id_users`: int (FK to User)
+- `id_surveys`: int (FK to QualtricsSurvey)
+- `id_qualtricsProjectActionTriggerTypes`: int (FK to Lookup)
+- `survey_response_id`: string (nullable)
+- `started_on`: datetime
+- `edited_on`: datetime
+### RefreshToken
+- `id`: bigint (PK)
+- `id_users`: bigint
+- `token_hash`: string
+- `expires_at`: datetime
+- `created_at`: datetime (nullable)
+
+### ScheduledJob
+- `id`: int (PK)
+- `id_jobTypes`: int (FK to Lookup)
+- `id_jobStatus`: int (FK to Lookup)
+- `description`: string (nullable)
+- `date_create`: datetime
+- `date_to_be_executed`: datetime (nullable)
+- `date_executed`: datetime (nullable)
+- `config`: string (nullable)
+
+### ScheduledJobsFormAction
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_formActions`: int (PK, FK to FormAction)
+- `id_dataRows`: int (nullable, FK to DataRow)
+
+### ScheduledJobsMailQueue
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_mailQueue`: int (PK, FK to MailQueue)
+
+### ScheduledJobsNotification
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_notifications`: int (PK, FK to Notification)
+
+### ScheduledJobsQualtricsAction
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_qualtricsActions`: int (PK, FK to QualtricsAction)
+
+### ScheduledJobsReminder
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_dataTables`: int (PK, FK to DataTable)
+- `session_start_date`: datetime (nullable)
+- `session_end_date`: datetime (nullable)
+
+### ScheduledJobsTask
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+- `id_tasks`: int (PK, FK to Task)
+
+### ScheduledJobsUser
+- `id_users`: int (PK, FK to User)
+- `id_scheduledJobs`: int (PK, FK to ScheduledJob)
+
+### Section
+- `id`: int (PK)
+- `id_styles`: int (FK to Style)
+- `name`: string
+
+### SectionsFieldsTranslation
+- `id_sections`: int (PK, FK to Section)
+- `id_fields`: int (PK, FK to Field)
+- `id_languages`: int (PK, FK to Language)
+- `id_genders`: int (PK, FK to Gender)
+- `content`: text
+- `meta`: string (nullable)
+
+### SectionsHierarchy
+- `parent`: int (PK, FK to Section)
+- `child`: int (PK, FK to Section)
+- `position`: int (nullable)
+
+### SectionsNavigation
+- `parent`: int (PK, FK to Section)
+- `child`: int (PK, FK to Section)
+- `id_pages`: int (FK to Page)
+- `position`: int
+
+### Style
+- `id`: int (PK)
+- `name`: string
+- `id_type`: int (FK to StyleType)
+- `id_group`: int (FK to StyleGroup)
+- `description`: text (nullable)
+
+### StyleGroup
+- `id`: int (PK)
+- `name`: string
+- `description`: text (nullable)
+- `position`: int (nullable)
+
+### StylesField
+- `id_styles`: int (PK, FK to Style)
+- `id_fields`: int (PK, FK to Field)
+- `default_value`: string (nullable)
+- `help`: text (nullable)
+- `disabled`: bool
+- `hidden`: int (nullable)
+
+### StyleType
+- `id`: int (PK)
+- `name`: string
+
+### Task
+- `id`: int (PK)
+- `config`: text (nullable)
+
+### Transaction
+- `id`: int (PK)
+- `transaction_time`: datetime
+- `id_transactionTypes`: int (nullable, FK to Lookup)
+- `id_transactionBy`: int (nullable, FK to Lookup)
+- `id_users`: int (nullable, FK to User)
+- `table_name`: string (nullable)
+- `id_table_name`: int (nullable)
+- `transaction_log`: text (nullable)
+
+### User
+- `id`: int (PK)
+- `email`: string
+- `name`: string (nullable)
+- `password`: string (nullable)
+- `id_genders`: int (nullable, FK to Gender)
+- `blocked`: bool
+- `id_status`: int (nullable, FK to UserStatus)
+- `intern`: bool
+- `token`: string (nullable)
+- `id_languages`: int (nullable, FK to Language)
+- `is_reminded`: bool
+- `last_login`: date (nullable)
+- `last_url`: string (nullable)
+- `device_id`: string (nullable)
+- `device_token`: string (nullable)
+- `security_questions`: string (nullable)
+- `user_name`: string (nullable)
+- `id_userTypes`: int (FK to Lookup)
+
+### UserActivity
+- `id`: int (PK)
+- `id_users`: int (FK to User)
+- `url`: string
+- `timestamp`: datetime
+- `id_type`: int (FK to ActivityType)
+- `exec_time`: decimal (nullable)
+- `keyword`: string (nullable)
+- `params`: string (nullable)
+- `mobile`: bool (nullable)
+
+### Users2faCode
+- `id`: int (PK)
+- `id_users`: int (FK to User)
+- `code`: string
+- `created_at`: datetime
+- `expires_at`: datetime
+- `is_used`: bool
+
+### UsersGroup
+- `id_users`: int (PK, FK to User)
+- `id_groups`: int (PK, FK to Group)
+
+### UserStatus
+- `id`: int (PK)
+- `name`: string
+- `description`: string
+
+### ValidationCode
+- `code`: string (PK)
+- `id_users`: int (nullable, FK to User)
+- `created`: datetime
+- `consumed`: datetime (nullable)
+
+### Version
+- `id`: int (PK)
+- `version`: string (nullable)
 
 ### PageType
 - `id`: int (PK)
