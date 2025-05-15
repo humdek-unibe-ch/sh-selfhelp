@@ -46,7 +46,6 @@ class AdminController extends AbstractController
     {
         $sections = $this->pageService->getPageSections($page_keyword);
         return $this->createApiResponse([
-            'message' => 'Admin get page sections endpoint (placeholder)',
             'page_keyword' => $page_keyword,
             'sections' => $sections
         ]);

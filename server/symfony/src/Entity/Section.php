@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Style;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  * @ORM\Table(name="sections",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="name", columns={"name"})},
  *     indexes={
- *         @ORM\Index(name="id_styles", columns={"id_styles"}),
- *         @ORM\Index(name="owner", columns={"owner"})
+ *         @ORM\Index(name="id_styles", columns={"id_styles"})
  *     }
  * )
  */
@@ -20,17 +20,20 @@ class Section
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer", name="id", options={"unsigned": true, "zerofill": true})
+     * COLUMN: id
      */
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Style")
+     * @ORM\ManyToOne(targetEntity="App\\Entity\\Style")
      * @ORM\JoinColumn(name="id_styles", referencedColumnName="id", nullable=false, onDelete="CASCADE", onUpdate="CASCADE")
+     * COLUMN: id_styles
      */
     private $style;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=false, unique=true)
+     * @ORM\Column(type="string", length=100, nullable=false, unique=true, name="name")
+     * COLUMN: name
      */
     private $name;
 
@@ -41,12 +44,12 @@ class Section
         return $this->id;
     }
 
-    public function getStyle(): ?int
+    public function getStyle(): ?Style
     {
         return $this->style;
     }
 
-    public function setStyle(?int $style): self
+    public function setStyle(?Style $style): self
     {
         $this->style = $style;
         return $this;

@@ -2,11 +2,9 @@
 
 namespace App\Service;
 
-use App\Entity\Page;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -23,8 +21,8 @@ class PageService
         private readonly EntityManagerInterface $entityManager,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
-        private readonly Security $security,
-        private readonly ACLService $aclService
+        private readonly ACLService $aclService,
+        private readonly UserContextService $userContextService
     ) {
     }
 
@@ -72,19 +70,42 @@ class PageService
     public function getPageSections(string $pageKeyword): array
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-        
         if (!$page) {
             throw new \Exception('Page not found');
         }
-        
+
         // Check if user has access to the page
-        $user = $this->security->getUser();
-        $userIdentifier = $user ? $user->getUserIdentifier() : null;
-        if (!$this->aclService->hasAccess($userIdentifier, $page->getId(), 'select')) {
+        if (!$this->aclService->hasAccess($this->userContextService->getCurrentUser()->getId(), $page->getId(), 'select')) {
             throw new AccessDeniedException('Access denied');
         }
-        
-        // Get hierarchical sections
-        return $this->sectionRepository->findHierarchicalSections($page->getId());
+
+        // Call stored procedure for hierarchical sections
+        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+        return $this->buildNestedSections($flatSections);
+    }
+
+    /**
+     * Build a nested section structure from a flat list.
+     *
+     * @param array $sections
+     * @return array
+     */
+    private function buildNestedSections(array $sections): array
+    {
+        $tree = [];
+        $refs = [];
+        foreach ($sections as $section) {
+            $section['children'] = [];
+            $refs[$section['id']] = $section;
+        }
+        foreach ($refs as $id => &$section) {
+            if (isset($section['parent_id']) && $section['parent_id'] && isset($refs[$section['parent_id']])) {
+                $refs[$section['parent_id']]['children'][] = &$section;
+            } else {
+                $tree[] = &$section;
+            }
+        }
+        unset($section);
+        return $tree;
     }
 }

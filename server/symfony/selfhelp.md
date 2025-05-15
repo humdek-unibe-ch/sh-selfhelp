@@ -74,6 +74,35 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `requirements`: (Optional) JSON string for parameter requirements (e.g., `{ "page_keyword": "[A-Za-z0-9_-]+" }`)
 - `version`: The API version (e.g., `v1`, `v2`)
 
+## ACL Integration (2025-05-15)
+
+### Canonical ACL Source: get_user_acl Stored Procedure
+
+### Global User Context Service
+- Use `App\Service\UserContextService` to get the current authenticated user entity anywhere in Symfony.
+- Call `$this->userContext->getCurrentUser()` to get the `App\Entity\User|null`.
+- This avoids duplicating user-casting logic and is the recommended pattern for all services and controllers.
+- Example:
+  ```php
+  public function __construct(UserContextService $userContext) { ... }
+  $user = $this->userContext->getCurrentUser();
+  ```
+
+- All access checks in Symfony now use the stored procedure `get_user_acl(user_id, page_id)`.
+- The procedure returns columns: acl_select, acl_insert, acl_update, acl_delete, etc.
+- The access type (`select`, `insert`, `update`, `delete`) is mapped to the corresponding column.
+- The check is: if the column value is `1`, access is granted; otherwise, denied.
+- This matches the core logic from the legacy PHP implementation and is now the canonical approach for ACL in this project.
+- Example:
+  ```php
+  // In ACLService
+  $sql = 'CALL get_user_acl(:userId, :pageId)';
+  $stmt = $connection->prepare($sql);
+  $result = $stmt->executeQuery(['userId' => $userId, 'pageId' => $pageId])->fetchAssociative();
+  $hasAccess = ((int)$result['acl_select'] === 1); // for 'select' access
+  ```
+- This is documented in project memory for all contributors.
+
 ## Dynamic API Route Management
 
 All API routes are dynamically loaded from the `api_routes` database table. Developers manage routes by inserting/updating records in this table. There is no need to use YAML, PHP, fixtures, or import commands for route registration. The only supported method is direct SQL/database insertion.

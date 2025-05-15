@@ -37,6 +37,28 @@ class DynamicControllerService extends AbstractController
                 sprintf('Route "%s" not found', $routeName)
             );
         }
+
+        // --- ACL INTEGRATION START ---
+        // Example: If the route requires page access, check ACL
+        $pageId = $request->attributes->get('page_id') ?? ($attributes['page_id'] ?? null);
+        $accessMode = $request->attributes->get('access_mode') ?? ($attributes['access_mode'] ?? 'select');
+        $isGroup = $request->attributes->get('is_group') ?? ($attributes['is_group'] ?? false);
+        // Only perform ACL check if pageId is present (customize as needed per your route requirements)
+        if ($pageId !== null) {
+            /** @var \App\Service\ACLService $aclService */
+            $aclService = $this->container->get(\App\Service\ACLService::class);
+            $security = $this->container->get('security.helper');
+            $user = $security->getUser();
+            $userId = ($user instanceof \App\Entity\User) ? $user->getId() : null;
+            if (!$aclService->hasAccess($userId, $pageId, $accessMode, $isGroup)) {
+                return $this->createApiResponse(
+                    null,
+                    Response::HTTP_FORBIDDEN,
+                    'Access denied by ACL'
+                );
+            }
+        }
+        // --- ACL INTEGRATION END ---
         
         // Parse controller string (e.g., "App\Controller\AuthController::login")
         [$controllerClass, $method] = explode('::', $route['controller']);

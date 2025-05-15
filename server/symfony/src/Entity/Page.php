@@ -2,8 +2,7 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -15,233 +14,85 @@ class Page
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private ?string $title = null;
-
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(name: 'keyword', type: 'string', length: 100, unique: true)]
     private ?string $keyword = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $description = null;
+    #[ORM\Column(name: 'url', type: 'string', length: 255, nullable: true)]
+    private ?string $url = null;
 
-    #[ORM\Column(type: 'boolean')]
-    private bool $active = true;
+    #[ORM\Column(name: 'protocol', type: 'string', length: 100, nullable: true, options: ['comment' => 'pipe separated list of HTTP Methods (GET|POST)'])]
+    private ?string $protocol = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column(name: 'id_actions', type: 'integer', nullable: true)]
+    private ?int $id_actions = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
+    #[ORM\Column(name: 'id_navigation_section', type: 'integer', nullable: true)]
+    private ?int $id_navigation_section = null;
 
-    #[ORM\OneToMany(mappedBy: 'page', targetEntity: PageField::class, cascade: ['persist', 'remove'])]
-    private Collection $fields;
+    #[ORM\Column(name: 'parent', type: 'integer', nullable: true)]
+    private ?int $parent = null;
 
-    #[ORM\OneToMany(mappedBy: 'page', targetEntity: PageSection::class, cascade: ['persist', 'remove'])]
-    #[ORM\OrderBy(['position' => 'ASC'])]
-    private Collection $sections;
+    #[ORM\Column(name: 'is_headless', type: 'boolean', options: ['default' => 0])]
+    private bool $is_headless = false;
 
-    public function __construct()
-    {
-        $this->fields = new ArrayCollection();
-        $this->sections = new ArrayCollection();
-        $this->createdAt = new \DateTime();
-    }
+    #[ORM\Column(name: 'nav_position', type: 'integer', nullable: true)]
+    private ?int $nav_position = null;
 
-    /**
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column(name: 'footer_position', type: 'integer', nullable: true)]
+    private ?int $footer_position = null;
 
-    /**
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
+    #[ORM\Column(name: 'id_type', type: 'integer')]
+    private int $id_type;
 
-    /**
-     * @param string $title
-     * @return $this
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
+    #[ORM\Column(name: 'id_pageAccessTypes', type: 'integer', nullable: true)]
+    private ?int $id_pageAccessTypes = null;
 
-        return $this;
-    }
+    #[ORM\Column(name: 'is_open_access', type: 'boolean', options: ['default' => 0], nullable: true)]
+    private ?bool $is_open_access = false;
 
-    /**
-     * @return string|null
-     */
-    public function getKeyword(): ?string
-    {
-        return $this->keyword;
-    }
+    #[ORM\Column(name: 'is_system', type: 'boolean', options: ['default' => 0], nullable: true)]
+    private ?bool $is_system = false;
 
-    /**
-     * @param string $keyword
-     * @return $this
-     */
-    public function setKeyword(string $keyword): self
-    {
-        $this->keyword = $keyword;
+    // Getters and setters
+    public function getId(): ?int { return $this->id; }
 
-        return $this;
-    }
+    public function getKeyword(): ?string { return $this->keyword; }
+    public function setKeyword(string $keyword): self { $this->keyword = $keyword; return $this; }
 
-    /**
-     * @return string|null
-     */
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
+    public function getUrl(): ?string { return $this->url; }
+    public function setUrl(?string $url): self { $this->url = $url; return $this; }
 
-    /**
-     * @param string|null $description
-     * @return $this
-     */
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
+    public function getProtocol(): ?string { return $this->protocol; }
+    public function setProtocol(?string $protocol): self { $this->protocol = $protocol; return $this; }
 
-        return $this;
-    }
+    public function getIdActions(): ?int { return $this->id_actions; }
+    public function setIdActions(?int $id_actions): self { $this->id_actions = $id_actions; return $this; }
 
-    /**
-     * @return bool
-     */
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
+    public function getIdNavigationSection(): ?int { return $this->id_navigation_section; }
+    public function setIdNavigationSection(?int $id_navigation_section): self { $this->id_navigation_section = $id_navigation_section; return $this; }
 
-    /**
-     * @param bool $active
-     * @return $this
-     */
-    public function setActive(bool $active): self
-    {
-        $this->active = $active;
+    public function getParent(): ?int { return $this->parent; }
+    public function setParent(?int $parent): self { $this->parent = $parent; return $this; }
 
-        return $this;
-    }
+    public function isHeadless(): bool { return $this->is_headless; }
+    public function setIsHeadless(bool $is_headless): self { $this->is_headless = $is_headless; return $this; }
 
-    /**
-     * @return \DateTimeInterface|null
-     */
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
+    public function getNavPosition(): ?int { return $this->nav_position; }
+    public function setNavPosition(?int $nav_position): self { $this->nav_position = $nav_position; return $this; }
 
-    /**
-     * @param \DateTimeInterface $createdAt
-     * @return $this
-     */
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
+    public function getFooterPosition(): ?int { return $this->footer_position; }
+    public function setFooterPosition(?int $footer_position): self { $this->footer_position = $footer_position; return $this; }
 
-        return $this;
-    }
+    public function getIdType(): int { return $this->id_type; }
+    public function setIdType(int $id_type): self { $this->id_type = $id_type; return $this; }
 
-    /**
-     * @return \DateTimeInterface|null
-     */
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
+    public function getIdPageAccessTypes(): ?int { return $this->id_pageAccessTypes; }
+    public function setIdPageAccessTypes(?int $id_pageAccessTypes): self { $this->id_pageAccessTypes = $id_pageAccessTypes; return $this; }
 
-    /**
-     * @param \DateTimeInterface|null $updatedAt
-     * @return $this
-     */
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
+    public function isOpenAccess(): ?bool { return $this->is_open_access; }
+    public function setIsOpenAccess(?bool $is_open_access): self { $this->is_open_access = $is_open_access; return $this; }
 
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PageField>
-     */
-    public function getFields(): Collection
-    {
-        return $this->fields;
-    }
-
-    /**
-     * @param PageField $field
-     * @return $this
-     */
-    public function addField(PageField $field): self
-    {
-        if (!$this->fields->contains($field)) {
-            $this->fields->add($field);
-            $field->setPage($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param PageField $field
-     * @return $this
-     */
-    public function removeField(PageField $field): self
-    {
-        if ($this->fields->removeElement($field)) {
-            // set the owning side to null (unless already changed)
-            if ($field->getPage() === $this) {
-                $field->setPage(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PageSection>
-     */
-    public function getSections(): Collection
-    {
-        return $this->sections;
-    }
-
-    /**
-     * @param PageSection $section
-     * @return $this
-     */
-    public function addSection(PageSection $section): self
-    {
-        if (!$this->sections->contains($section)) {
-            $this->sections->add($section);
-            $section->setPage($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param PageSection $section
-     * @return $this
-     */
-    public function removeSection(PageSection $section): self
-    {
-        if ($this->sections->removeElement($section)) {
-            // set the owning side to null (unless already changed)
-            if ($section->getPage() === $this) {
-                $section->setPage(null);
-            }
-        }
-
-        return $this;
-    }
+    public function isSystem(): ?bool { return $this->is_system; }
+    public function setIsSystem(?bool $is_system): self { $this->is_system = $is_system; return $this; }
 }
+// ENTITY RULE
