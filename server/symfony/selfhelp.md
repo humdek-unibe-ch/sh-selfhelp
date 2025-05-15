@@ -2,7 +2,31 @@
 
 This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. **All routes are now dynamically loaded from the database.** You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
 
-## JWT Key Pair Generation for Token Authentication
+## JWT Key Generation and Configuration
+
+### JWT Firewall and User Provider Configuration
+
+- The `security.yaml` file configures a `cms_api` firewall for `/cms-api` endpoints. This firewall uses the `jwt: ~` authenticator from LexikJWTAuthenticationBundle.
+- The user provider is set to use the `App\Entity\User` entity, and the property is `username` (which should match the `username` claim in your JWT token, typically the user's email).
+- Example JWT payload:
+  ```json
+  {
+    "iat": 1747236586,
+    "exp": 1747240186,
+    "roles": ["ROLE_USER"],
+    "username": "user@email.com"
+  }
+  ```
+- For `/cms-api` endpoints, always send the JWT as:
+  ```
+  Authorization: Bearer <token>
+  ```
+- If `$this->getUser()` in a controller returns `null`, check that:
+    - The `cms_api` firewall covers your route (pattern: `^/cms-api`).
+    - The provider property matches the JWT claim (e.g., `username`).
+    - The JWT is valid and not expired.
+
+### JWT Key Pair Generation for Token Authentication
 
 If you encounter errors like `Unable to create a signed JWT from the given configuration`, you must generate the required PEM keys for JWT authentication.
 

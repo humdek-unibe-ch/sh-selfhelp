@@ -91,7 +91,7 @@ class User implements UserInterface
     public function isTwoFactorRequired(): bool { return $this->twoFactorRequired; }
     public function setTwoFactorRequired(bool $required): self { $this->twoFactorRequired = $required; return $this; }
 
-    public function getRoles(): array { return ['ROLE_USER']; }
+    public function getRoles(): array { return ['IS_AUTHENTICATED_FULLY']; }
     public function eraseCredentials(): void { }
     public function getUserIdentifier(): string { return $this->email; }
 }
