@@ -14,13 +14,18 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+
 class JWTAuthenticator extends AbstractAuthenticator
 {
     private JWTService $jwtService;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(JWTService $jwtService)
+    public function __construct(JWTService $jwtService, EntityManagerInterface $entityManager)
     {
         $this->jwtService = $jwtService;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -33,9 +38,9 @@ class JWTAuthenticator extends AbstractAuthenticator
     {
         // Skip authentication for login, register, and token refresh routes
         $excludedRoutes = [
-            '/api/auth/login',
-            '/api/auth/register',
-            '/api/auth/refresh_token'
+            '/cms-api/v1/auth/login',
+            '/cms-api/v1/auth/register',
+            '/cms-api/v1/auth/refresh_token'
         ];
 
         $path = $request->getPathInfo();
@@ -60,17 +65,19 @@ class JWTAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('No JWT token found');
         }
 
-        $userData = $this->jwtService->validateRefreshToken($token);
-        if (false === $userData) {
+        $userData = $this->jwtService->validateAccessToken($token); // Use access token validation
+        if (false === $userData || !isset($userData['username'])) {
             throw new CustomUserMessageAuthenticationException('Invalid JWT token');
         }
 
-        // Using a UserBadge with a custom user loader
         return new SelfValidatingPassport(
-            new UserBadge($userData['username'], function ($userIdentifier) use ($userData) {
-                // TODO: Get the user from the database or create a User object
-                // For now, we'll use a simple array as the user
-                return $userData;
+            new UserBadge($userData['username'], function ($userIdentifier) {
+                // Load the User entity from the database
+                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userIdentifier]);
+                if (!$user) {
+                    throw new CustomUserMessageAuthenticationException('User not found');
+                }
+                return $user;
             })
         );
     }

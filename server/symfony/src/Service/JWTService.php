@@ -15,6 +15,25 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class JWTService
 {
+    /**
+     * Validate an access token
+     *
+     * @param string $token The JWT access token to validate
+     * @return array|false The token payload if valid, false otherwise
+     */
+    public function validateAccessToken(string $token): array|false
+    {
+        try {
+            $payload = $this->jwtManager->decode($token);
+            if (!$payload || !isset($payload['exp']) || $payload['exp'] < time()) {
+                return false;
+            }
+            return $payload;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     private const ACCESS_TOKEN_EXPIRATION = 3600; // 1 hour
     private const REFRESH_TOKEN_EXPIRATION = 2592000; // 30 days
     
