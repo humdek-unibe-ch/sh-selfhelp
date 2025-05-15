@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends AbstractController
 {
+    private PageService $pageService;
+
+    public function __construct(PageService $pageService)
+    {
+        $this->pageService = $pageService;
+    }
     /**
      * Get all pages for admin
      */
@@ -37,10 +44,11 @@ class AdminController extends AbstractController
      */
     public function getPageSections(string $page_keyword, Request $request): JsonResponse
     {
-        // Empty implementation for now
+        $sections = $this->pageService->getPageSections($page_keyword);
         return $this->createApiResponse([
             'message' => 'Admin get page sections endpoint (placeholder)',
-            'page_keyword' => $page_keyword
+            'page_keyword' => $page_keyword,
+            'sections' => $sections
         ]);
     }
 

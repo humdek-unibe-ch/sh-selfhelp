@@ -21,9 +21,9 @@ class PageService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        // private readonly PageRepository $pageRepository,
-        // private readonly SectionRepository $sectionRepository,
-        // private readonly Security $security,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly Security $security,
         private readonly ACLService $aclService
     ) {
     }
@@ -71,21 +71,20 @@ class PageService
      */
     public function getPageSections(string $pageKeyword): array
     {
-        // $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         
-        // if (!$page) {
-        //     throw new \Exception('Page not found');
-        // }
+        if (!$page) {
+            throw new \Exception('Page not found');
+        }
         
-        // // Check if user has access to the page
-        // $user = $this->security->getUser();
-        // $userIdentifier = $user ? $user->getUserIdentifier() : null;
-        // if (!$this->aclService->hasAccess($userIdentifier, $page->getId(), 'select')) {
-        //     throw new AccessDeniedException('Access denied');
-        // }
+        // Check if user has access to the page
+        $user = $this->security->getUser();
+        $userIdentifier = $user ? $user->getUserIdentifier() : null;
+        if (!$this->aclService->hasAccess($userIdentifier, $page->getId(), 'select')) {
+            throw new AccessDeniedException('Access denied');
+        }
         
-        // // Get hierarchical sections
-        // return $this->sectionRepository->findHierarchicalSections($page->getId());
-        return [];
+        // Get hierarchical sections
+        return $this->sectionRepository->findHierarchicalSections($page->getId());
     }
 }

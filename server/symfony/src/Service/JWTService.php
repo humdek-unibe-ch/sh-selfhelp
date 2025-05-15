@@ -6,6 +6,7 @@ use App\Entity\RefreshToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,10 +22,16 @@ class JWTService
      * @param string $token The JWT access token to validate
      * @return array|false The token payload if valid, false otherwise
      */
+    /**
+     * Validate an access token (JWT string)
+     *
+     * @param string $token The JWT access token to validate
+     * @return array|false The token payload if valid, false otherwise
+     */
     public function validateAccessToken(string $token): array|false
     {
         try {
-            $payload = $this->jwtManager->decode($token);
+            $payload = $this->jwtEncoder->decode($token);
             if (!$payload || !isset($payload['exp']) || $payload['exp'] < time()) {
                 return false;
             }
@@ -42,7 +49,8 @@ class JWTService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly JWTTokenManagerInterface $jwtManager
+        private readonly JWTTokenManagerInterface $jwtManager,
+        private readonly JWTEncoderInterface $jwtEncoder
     ) {
     }
 
@@ -62,7 +70,7 @@ class JWTService
         }
         
         // Check if token is expired
-        if ($refreshToken->isExpired()) {
+        if ($refreshToken->getExpiresAt() < new \DateTime()) {
             $this->entityManager->remove($refreshToken);
             $this->entityManager->flush();
             return null;
@@ -135,7 +143,7 @@ class JWTService
      * Extract token from request
      * 
      * @param Request $request
-     * @return string|null
+     * @return string|null The JWT token string if found, or null
      */
     public function getTokenFromRequest(Request $request): ?string
     {
