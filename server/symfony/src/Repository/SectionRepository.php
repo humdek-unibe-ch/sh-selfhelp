@@ -2,9 +2,9 @@
 
 namespace App\Repository;
 
-use App\Entity\Section;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Section;
 
 /**
  * @extends ServiceEntityRepository<Section>

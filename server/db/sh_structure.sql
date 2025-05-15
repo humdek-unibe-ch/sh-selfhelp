@@ -89,6 +89,28 @@ CREATE TABLE `activityType` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `api_routes`
+--
+
+DROP TABLE IF EXISTS `api_routes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_routes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `route_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `version` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'v1',
+  `path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `controller` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `methods` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `requirements` json DEFAULT NULL,
+  `params` json DEFAULT NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_route_name_version` (`route_name`,`version`),
+  UNIQUE KEY `uniq_version_path` (`version`,`path`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `assets`
 --
 
@@ -244,7 +266,7 @@ CREATE TABLE `dataCols` (
   UNIQUE KEY `unique_name_id_dataTables` (`name`,`id_dataTables`),
   KEY `id_uploadTables` (`id_dataTables`),
   CONSTRAINT `uploadCols_fk_id_uploadTables` FOREIGN KEY (`id_dataTables`) REFERENCES `dataTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -268,7 +290,7 @@ CREATE TABLE `dataRows` (
   CONSTRAINT `uploadRows_fk_id_actionTriggerTypes` FOREIGN KEY (`id_actionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `uploadRows_fk_id_uploadTables` FOREIGN KEY (`id_dataTables`) REFERENCES `dataTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `uploadRows_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +308,7 @@ CREATE TABLE `dataTables` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uploadTables_name` (`name`),
   KEY `idx_uploadTables_name_timestamp` (`name`,`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -509,7 +531,7 @@ CREATE TABLE `mailQueue` (
   `body` longtext NOT NULL,
   `is_html` int DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -562,7 +584,7 @@ CREATE TABLE `pages` (
   CONSTRAINT `pages_fk_id_pacgeAccessTypes` FOREIGN KEY (`id_pageAccessTypes`) REFERENCES `lookups` (`id`),
   CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -850,7 +872,7 @@ CREATE TABLE `refreshTokens` (
   PRIMARY KEY (`id`),
   KEY `idx_token_hash` (`token_hash`),
   KEY `idx_user_id` (`id_users`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -874,7 +896,7 @@ CREATE TABLE `scheduledJobs` (
   KEY `scheduledJobs_fk_id_jobStatus` (`id_jobStatus`),
   CONSTRAINT `scheduledJobs_fk_id_jobStatus` FOREIGN KEY (`id_jobStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `scheduledJobs_fk_id_jobTypes` FOREIGN KEY (`id_jobTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1199,7 +1221,7 @@ CREATE TABLE `transactions` (
   CONSTRAINT `transactions_fk_id_transactionBy` FOREIGN KEY (`id_transactionBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactionTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1224,7 +1246,7 @@ CREATE TABLE `user_activity` (
   KEY `id_type` (`id_type`),
   CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1262,7 +1284,7 @@ CREATE TABLE `users` (
   CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userStatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2861,11 +2883,14 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user_acl`(param_user_id INT, param_page_id INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user_acl`(
+    IN param_user_id INT,
+    IN param_page_id INT  -- -1 means “all pages”
+)
 BEGIN
 
     SELECT
-        param_user_id AS id_users,
+        param_user_id  AS id_users,
         id_pages,
         MAX(acl_select) AS acl_select,
         MAX(acl_insert) AS acl_insert,
@@ -2883,91 +2908,86 @@ BEGIN
         id_type,
         id_pageAccessTypes
     FROM
-        (
-            -- UNION part 1: users_groups and acl_groups
-            SELECT
-                ug.id_users,
-                acl.id_pages,
-                acl.acl_select,
-                acl.acl_insert,
-                acl.acl_update,
-                acl.acl_delete,
-                p.keyword,
-                p.url,
-                p.protocol,
-                p.id_actions,
-                p.id_navigation_section,
-                p.parent,
-                p.is_headless,
-                p.nav_position,
-                p.footer_position,
-                p.id_type,
-                p.id_pageAccessTypes
-            FROM
-                users u
-            INNER JOIN users_groups AS ug ON ug.id_users = u.id
-            INNER JOIN acl_groups acl ON acl.id_groups = ug.id_groups
-            INNER JOIN pages p ON acl.id_pages = p.id
-            WHERE
-                ug.id_users = param_user_id
-                AND (param_page_id = -1 OR acl.id_pages = param_page_id)
+    (
+        -- 1) Group‐based ACL
+        SELECT
+            ug.id_users,
+            acl.id_pages,
+            acl.acl_select,
+            acl.acl_insert,
+            acl.acl_update,
+            acl.acl_delete,
+            p.keyword,
+            p.url,
+            p.protocol,
+            p.id_actions,
+            p.id_navigation_section,
+            p.parent,
+            p.is_headless,
+            p.nav_position,
+            p.footer_position,
+            p.id_type,
+            p.id_pageAccessTypes
+        FROM users_groups ug
+        JOIN users u             ON ug.id_users   = u.id
+        JOIN acl_groups acl      ON acl.id_groups = ug.id_groups
+        JOIN pages p             ON p.id           = acl.id_pages
+        WHERE ug.id_users = param_user_id
+          AND (param_page_id = -1 OR acl.id_pages = param_page_id)
 
-            UNION ALL
+        UNION ALL
 
-            -- UNION part 2: acl_users
-            SELECT
-                acl.id_users,
-                acl.id_pages,
-                acl.acl_select,
-                acl.acl_insert,
-                acl.acl_update,
-                acl.acl_delete,
-                p.keyword,
-                p.url,
-                p.protocol,
-                p.id_actions,
-                p.id_navigation_section,
-                p.parent,
-                p.is_headless,
-                p.nav_position,
-                p.footer_position,
-                p.id_type,
-                p.id_pageAccessTypes
-            FROM
-                acl_users acl
-            INNER JOIN pages p ON acl.id_pages = p.id
-            WHERE
-                acl.id_users = param_user_id
-                AND (param_page_id = -1 OR acl.id_pages = param_page_id)
+        -- 2) User‐specific ACL
+        SELECT
+            acl.id_users,
+            acl.id_pages,
+            acl.acl_select,
+            acl.acl_insert,
+            acl.acl_update,
+            acl.acl_delete,
+            p.keyword,
+            p.url,
+            p.protocol,
+            p.id_actions,
+            p.id_navigation_section,
+            p.parent,
+            p.is_headless,
+            p.nav_position,
+            p.footer_position,
+            p.id_type,
+            p.id_pageAccessTypes
+        FROM acl_users acl
+        JOIN pages p ON p.id = acl.id_pages
+        WHERE acl.id_users = param_user_id
+          AND (param_page_id = -1 OR acl.id_pages = param_page_id)
 
-            UNION ALL
+        UNION ALL
 
-            -- UNION part 3: open access pages
-            SELECT
-                param_user_id AS id_users,
-                p.id AS id_pages,
-                1 AS acl_select,
-                0 AS acl_insert,
-                0 AS acl_update,
-                0 AS acl_delete,
-                p.keyword,
-                p.url,
-                p.protocol,
-                p.id_actions,
-                p.id_navigation_section,
-                p.parent,
-                p.is_headless,
-                p.nav_position,
-                p.footer_position,
-                p.id_type,
-                p.id_pageAccessTypes
-            FROM
-                pages p
-            WHERE
-                p.is_open_access = 1
-        ) AS combined_acl
+        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it’s open)
+        SELECT
+            param_user_id       AS id_users,
+            p.id                AS id_pages,
+            1                   AS acl_select,
+            0                   AS acl_insert,
+            0                   AS acl_update,
+            0                   AS acl_delete,
+            p.keyword,
+            p.url,
+            p.protocol,
+            p.id_actions,
+            p.id_navigation_section,
+            p.parent,
+            p.is_headless,
+            p.nav_position,
+            p.footer_position,
+            p.id_type,
+            p.id_pageAccessTypes
+        FROM pages p
+        WHERE p.is_open_access = 1
+          AND (param_page_id = -1 OR p.id = param_page_id)
+
+    ) AS combined_acl
     GROUP BY
-        param_user_id,
         id_pages,
         keyword,
         url,
@@ -3551,4 +3571,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-14 11:26:27
+-- Dump completed on 2025-05-15 16:57:37
