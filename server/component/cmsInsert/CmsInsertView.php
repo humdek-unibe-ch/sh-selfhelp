@@ -99,7 +99,7 @@ class CmsInsertView extends BaseView
      */
     private function get_action_types()
     {
-        $sql = "SELECT id, lookup_code, lookup_value FROM lookups WHERE type_code = 'actions'";
+        $sql = "SELECT id, lookup_code, lookup_value FROM lookups WHERE type_code = '" . pageActions . "'";
         $types = $this->model->get_services()->get_db()->query_db($sql, array());
         
         // Define the preferred order

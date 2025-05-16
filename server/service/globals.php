@@ -94,13 +94,7 @@ define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS', 'email_delete_profile_email_addr
 define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY', 'email_delete_profile_email_address_notification_copy');
 define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 
-/* Page actions */
-define('PAGE_ACTION_BACKEND', 'backend');
-define('PAGE_ACTION_NAVIGATION', 'navigation');
-define('PAGE_ACTION_SECTIONS', 'sections');
-define('PAGE_ACTION_COMPONENT', 'component');
-define('PAGE_ACTION_AJAX', 'ajax');
-define('PAGE_ACTION_CMS_API', 'cms-api');
+
 
 /* Entry modes */
 define('INSERT', 'insert');
@@ -139,6 +133,7 @@ define('hookTypes', 'hookTypes');
 define('assetTypes', 'assetTypes');
 define('groupTypes', 'groupTypes');
 define('userTypes', 'userTypes');
+define('pageActions', 'pageActions');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -208,6 +203,13 @@ define('assetTypes_static', 'static');
 define('groupTypes_db_role', 'db_role');
 define('groupTypes_group', 'group');
 define('userTypes_user', 'user');
+/* Page actions lookups */
+define('PAGE_ACTION_BACKEND', 'backend');
+define('PAGE_ACTION_NAVIGATION', 'navigation');
+define('PAGE_ACTION_SECTIONS', 'sections');
+define('PAGE_ACTION_COMPONENT', 'component');
+define('PAGE_ACTION_AJAX', 'ajax');
+define('PAGE_ACTION_CMS_API', 'cms-api');
 
 /* Action config */
 define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');

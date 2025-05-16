@@ -180,10 +180,10 @@ class NavModel extends BaseModel
         if($this->router->route && isset($this->router->route['name'])){
             $page_info = $this->db->fetch_page_info($this->router->route['name']);
             if($page_info && isset($page_info['action'])){
-                $backend = ($page_info['action'] == $this->db->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND) || $page_info['action'] == $this->db->get_lookup_id_by_value('pageAction', PAGE_ACTION_COMPONENT));
+                $backend = ($page_info['action'] == PAGE_ACTION_BACKEND || $page_info['action'] == PAGE_ACTION_COMPONENT);
             }
         }
-        $backend_id_sql = '((SELECT id FROM lookups WHERE type_code = "actions" AND `lookup_code` = "' . $this->db->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND) . '"),(SELECT id FROM lookups WHERE type_code = "actions" AND `lookup_code` = "' . $this->db->get_lookup_id_by_value('pageAction', PAGE_ACTION_COMPONENT)  . '"))';
+        $backend_id_sql = '((SELECT id FROM lookups WHERE type_code = "' . pageActions . '" AND `lookup_code` = "' . PAGE_ACTION_BACKEND . '"),(SELECT id FROM lookups WHERE type_code = "' . pageActions . '" AND `lookup_code` = "' . PAGE_ACTION_COMPONENT  . '"))';
         if ($backend) {
             $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND (id_actions IN ' . $backend_id_sql . ' OR IFNULL(id_actions, -1) = -1)';
         } else {

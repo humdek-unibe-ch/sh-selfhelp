@@ -540,7 +540,7 @@ BEGIN
     WHERE table_schema = DATABASE() AND table_name = 'actions'
   ) THEN
     INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
-    SELECT 'actions', name, name, NULL
+    SELECT 'pageActions', name, name, NULL
       FROM actions;
 
 	CALL drop_foreign_key('pages', 'pages_fk_id_actions');
@@ -754,7 +754,7 @@ BEGIN
                  FROM pages p
                  LEFT JOIN lookups AS a 
                    ON a.id = p.id_actions 
-                  AND a.type_code = ''actions''
+                  AND a.type_code = "pageActions"
                  LEFT JOIN pageType_fields AS ptf 
                    ON ptf.id_pageType = p.id_type 
                  LEFT JOIN fields AS f 
@@ -786,7 +786,7 @@ END
 
 DELIMITER ;
 
-INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actions', 'navigation', 'Navigation', 'Navigation section page');
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('pageActions', 'navigation', 'Navigation', 'Navigation section page');
 
 
 

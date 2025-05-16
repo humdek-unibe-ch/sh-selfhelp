@@ -168,7 +168,7 @@ class CmsView extends BaseView
 
         $pages = $this->model->get_pages();
         $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
-        $pages = $this->remove_item_by_key_value($pages, 'action', array($this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND), $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_AJAX)));  
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND, PAGE_ACTION_AJAX));  
         $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("global-page-list", "Configuration", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
@@ -597,7 +597,7 @@ class CmsView extends BaseView
         $url_edit = "";
         if($this->model->get_mode() == "update")
         {
-            if ($this->page_info && $this->page_info['id_actions'] == 1) {
+            if ($this->page_info && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
                 // if page is custom remove the option for editing some fields
                 $fields = $this->remove_item_by_key_value($fields, 'name', array("keyword", "id_pageAccessTypes","is_headless", "icon", "title", "description"));
             }
@@ -735,7 +735,7 @@ class CmsView extends BaseView
             if (!$this->model->get_id_root_section()) {
                 // if there is no root section it is page
                 // add page reordering and header positions    
-                if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                if ($this->page_info && $this->page_info['action'] != PAGE_ACTION_BACKEND) {
                     $properties[] = new BaseStyleComponent("descriptionItem", array(
                         "gender" => '',
                         "title" => 'Header Position',
@@ -780,7 +780,7 @@ class CmsView extends BaseView
                     $form_items[] = $new_field;
                 }                
             }
-            if ($this->page_info && $this->page_info['id_actions'] > 1 && !$this->model->get_id_root_section()) {
+            if ($this->page_info && $this->page_info['action'] != PAGE_ACTION_BACKEND && !$this->model->get_id_root_section()) {
                 $form_items[] = new BaseStyleComponent("descriptionItem", array(
                     "gender" => '',
                     "title" => 'Header Position',
@@ -827,7 +827,7 @@ class CmsView extends BaseView
                 )),
                 $export_btn
             );
-            if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            if ($this->page_info && $this->page_info['action'] != PAGE_ACTION_BACKEND) {
                 $buttons[] = $delete_btn;
             }
             $form_items[] = new BaseStyleComponent("div", array(
@@ -1101,7 +1101,7 @@ class CmsView extends BaseView
                 "live_search" => 1,
                 "is_required" => 0,
                 "allow_clear" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => $this->model->get_db()->get_lookup_id_by_value(pageActions, PAGE_ACTION_SECTIONS)))
             ));
         } else if ($field['type'] == "color") {
             $children[] = new BaseStyleComponent("input", array(
@@ -1220,7 +1220,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => $this->model->get_db()->get_lookup_id_by_value(pageActions, PAGE_ACTION_SECTIONS)))
             ));
         } else if ($field['type'] == "password") {
             // hide the password
@@ -1372,7 +1372,7 @@ class CmsView extends BaseView
      */
     private function output_page_preview_button()
     {
-        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+        if ($this->page_info && $this->page_info['action'] != PAGE_ACTION_BACKEND) {
             $this->output_local_component("page_preview");
         }
     }
@@ -1470,7 +1470,7 @@ class CmsView extends BaseView
      */
     private function output_page_preview()
     {
-        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+        if ($this->page_info && $this->page_info['action'] != PAGE_ACTION_BACKEND) {
             if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
                 require __DIR__ . "/tpl_intro_nav.php";
             else {
@@ -1601,7 +1601,7 @@ class CmsView extends BaseView
      */
     public function output_ui_middle()
     {
-        if (isset($this->page_info['action']) && $this->page_info['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
             // do not load
         } else {
             require __DIR__ . "/tpl_new_ui/tpl_ui_middle.php";
@@ -1609,7 +1609,7 @@ class CmsView extends BaseView
     }
 
     public function expand_ui_properties(){
-        if (isset($this->page_info['action']) && $this->page_info['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
             return 'flex-grow-1';
         } else {
             return '';

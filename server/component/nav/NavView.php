@@ -94,7 +94,7 @@ class NavView extends BaseView
         if($nav_child !== null)
             $params['nav'] = $nav_child;        
         $icon = $this->get_icon($page['icon']);
-        $url = ($page['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND) && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_item.php";
     }
 
@@ -142,7 +142,7 @@ class NavView extends BaseView
         if($nav_child !== null)
             $params['nav'] = $nav_child;
         $icon = $this->get_icon($page['icon']);
-        $url = ($page['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND) && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_menu_item.php";
     }
 

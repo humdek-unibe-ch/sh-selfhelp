@@ -43,7 +43,7 @@ BEGIN
                  FROM pages p
                  LEFT JOIN lookups AS a 
                    ON a.id = p.id_actions 
-                  AND a.type_code = ''actions''
+                  AND a.type_code = "pageActions"
                  LEFT JOIN pageType_fields AS ptf 
                    ON ptf.id_pageType = p.id_type 
                  LEFT JOIN fields AS f 
