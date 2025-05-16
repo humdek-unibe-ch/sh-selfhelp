@@ -158,8 +158,8 @@ class Services
      */
     private function init_router_routes()
     {
-        $sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword FROM pages AS p
-            LEFT JOIN actions AS a ON a.id = p.id_actions
+        $sql = "SELECT p.protocol, p.url, l.lookup_code AS action, p.keyword FROM pages AS p
+            LEFT JOIN lookups AS l ON l.id = p.id_actions AND l.type_code = 'actions'
             WHERE protocol IS NOT NULL";
         $pages = $this->db->query_db($sql, array());
         foreach($pages as $page)

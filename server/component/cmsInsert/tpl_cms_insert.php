@@ -20,29 +20,28 @@
                     <small class="form-text text-body-secondary">The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b></small>                    
                 </div>
                 <div class="mb-3">
-                    <div>
+                    <div class="d-flex justify-content-between align-items-center">
                         <label class="form-label">Page Type</label>
+                        <div class="form-check form-check-inline mb-2">
+                            <input class="form-check-input" type="checkbox" id="advanced-options">
+                            <label class="form-check-label form-label">Advanced</label>
+                        </div>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="type" value="3" checked>
-                        <label class="form-check-label form-label">Sections</label>
+                    <?php
+                    $action_types = $this->get_action_types();
+                    $enabled_types = [PAGE_ACTION_SECTIONS, PAGE_ACTION_NAVIGATION];
+                    $first = true;
+                    foreach ($action_types as $action_type) {
+                        $disabled = !in_array($action_type['lookup_code'], $enabled_types) ? 'disabled' : '';
+                        $checked = $first && in_array($action_type['lookup_code'], $enabled_types) ? 'checked' : '';
+                        if ($checked) $first = false;
+                        $action_class = in_array($action_type['lookup_code'], $enabled_types) ? '' : 'advanced-action';
+                    ?>
+                    <div class="form-check form-check-inline <?php echo $action_class; ?>">
+                        <input class="form-check-input action-type-radio" type="radio" name="type" value="<?php echo $action_type['id']; ?>" <?php echo $disabled; ?> <?php echo $checked; ?>>
+                        <label class="form-check-label form-label"><?php echo $action_type['lookup_value']; ?></label>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="type" value="4">
-                        <label class="form-check-label form-label">Navigation</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="type" value="2" disabled>
-                        <label class="form-check-label form-label">Component</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="type" value="1" disabled>
-                        <label class="form-check-label form-label">Backend</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="type" value="5" disabled>
-                        <label class="form-check-label form-label">Ajax</label>
-                    </div>
+                    <?php } ?>
                     <small class="d-block form-text text-body-secondary">The page type specified how the page content will be assembled. It is recommended to either use the type <code>Sections</code> or <code>Navigation</code>. Pages of type <code>Component</code> and <code>Custom</code> require PHP programming and cannot be handled by the CMS.</small>
                 </div>
                 <div id="header-position" class="mb-3 d-flex flex-column">

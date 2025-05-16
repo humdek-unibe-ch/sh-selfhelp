@@ -90,6 +90,47 @@ class CmsInsertView extends BaseView
         ));
         $access_types->output_content();
     }
+    
+    /**
+     * Get action types from the lookups table.
+     * 
+     * @return array
+     *  An array of action types with their IDs and values, ordered with sections and navigation first.
+     */
+    private function get_action_types()
+    {
+        $sql = "SELECT id, lookup_code, lookup_value FROM lookups WHERE type_code = 'actions'";
+        $types = $this->model->get_services()->get_db()->query_db($sql, array());
+        
+        // Define the preferred order
+        $preferred_order = [PAGE_ACTION_SECTIONS, PAGE_ACTION_NAVIGATION];
+        
+        // Sort the array to put sections and navigation first
+        usort($types, function($a, $b) use ($preferred_order) {
+            $a_index = array_search($a['lookup_code'], $preferred_order);
+            $b_index = array_search($b['lookup_code'], $preferred_order);
+            
+            // If both are in preferred order, sort by their position in preferred_order
+            if ($a_index !== false && $b_index !== false) {
+                return $a_index - $b_index;
+            }
+            
+            // If only a is in preferred order, a comes first
+            if ($a_index !== false) {
+                return -1;
+            }
+            
+            // If only b is in preferred order, b comes first
+            if ($b_index !== false) {
+                return 1;
+            }
+            
+            // If neither is in preferred order, maintain original order
+            return 0;
+        });
+        
+        return $types;
+    }
 
     /* Public Methods *********************************************************/
 

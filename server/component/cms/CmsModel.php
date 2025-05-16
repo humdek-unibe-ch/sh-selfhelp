@@ -616,7 +616,7 @@ class CmsModel extends BaseModel
             $url = $this->get_cms_item_url($id);
             $title = $item['keyword'];
             if($item['nav_position'] != ''){
-                if($item['action'] == PAGE_ACTION_BACKEND){
+                if($item['action'] == $this->db->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)){
                     $title = '<i class="fas fa-tools"></i> ' . $item['keyword']; // add backend icon for the pages that are in the menu
                 }else{
                     $title = '<i class="fas fa-bars"></i> ' . $item['keyword']; // add menu icon for the pages that are in the menu
@@ -1105,9 +1105,9 @@ class CmsModel extends BaseModel
     {
         $nav_id = null;
         $page_type = EXPERIMENT_PAGE_ID;
-        if($action == 4)
+        if($action == $this->db->get_lookup_id_by_value("actions", PAGE_ACTION_NAVIGATION))
         {
-            $action = 3;
+            $action = $this->db->get_lookup_id_by_value("actions", PAGE_ACTION_SECTIONS);
             $nav_id = $this->create_new_navigation_section($keyword);
         }
         $pid = $this->db->insert("pages", array(
@@ -2177,7 +2177,7 @@ class CmsModel extends BaseModel
      * Return the global pages
      */
     public function get_global_pages(){
-        return $this->db->fetch_pages(-1, $_SESSION['language'], 'AND IFNULL(id_actions,-1) = (SELECT id FROM actions WHERE `name` = "backend") AND parent = (SELECT id FROM pages WHERE keyword = "sh_globals")', 'ORDER BY nav_position');
+        return $this->db->fetch_pages(-1, $_SESSION['language'], 'AND IFNULL(id_actions,-1) = (SELECT id FROM lookups WHERE type_code = "actions" AND `lookup_code` = "' . PAGE_ACTION_BACKEND . '") AND parent = (SELECT id FROM pages WHERE keyword = "sh_globals")', 'ORDER BY nav_position');
     }
 
     /**

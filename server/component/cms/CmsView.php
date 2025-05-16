@@ -168,7 +168,7 @@ class CmsView extends BaseView
 
         $pages = $this->model->get_pages();
         $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
-        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND, PAGE_ACTION_AJAX));  
+        $pages = $this->remove_item_by_key_value($pages, 'action', array($this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND), $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_AJAX)));  
         $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("global-page-list", "Configuration", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
@@ -1601,7 +1601,7 @@ class CmsView extends BaseView
      */
     public function output_ui_middle()
     {
-        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
             // do not load
         } else {
             require __DIR__ . "/tpl_new_ui/tpl_ui_middle.php";
@@ -1609,7 +1609,7 @@ class CmsView extends BaseView
     }
 
     public function expand_ui_properties(){
-        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == $this->model->get_services()->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
             return 'flex-grow-1';
         } else {
             return '';

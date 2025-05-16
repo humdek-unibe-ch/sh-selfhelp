@@ -35,8 +35,27 @@ $(document).ready(function() {
         $url_input.val("/" + keyword + nav);
         $('#sections-field-new > .label').text($(this).val());
     });
+    // Handle the advanced options checkbox
+    $('#advanced-options').change(function() {
+        if($(this).is(':checked')) {
+            // Enable all action type radio buttons
+            $('.action-type-radio').prop('disabled', false);
+        } else {
+            // Disable advanced action types
+            $('.advanced-action .action-type-radio').prop('disabled', true);
+            
+            // If a disabled option was selected, select the first enabled option
+            if($('.action-type-radio:checked').prop('disabled')) {
+                $('.action-type-radio:not(:disabled)').first().prop('checked', true).trigger('change');
+            }
+        }
+    });
+    
+    // Handle action type change
     $('input[name="type"]').change(function() {
-        if($(this).val() == 4)
+        // Check if the selected value is for navigation (lookup_code = 'navigation')
+        // We need to check the data attribute or use a known ID since we're now using dynamic IDs
+        if($(this).closest('.form-check-inline').find('.form-check-label').text().toLowerCase() === 'navigation')
         {
             nav = "/[i:nav]";
             $check_pos_list.prop("checked", false);

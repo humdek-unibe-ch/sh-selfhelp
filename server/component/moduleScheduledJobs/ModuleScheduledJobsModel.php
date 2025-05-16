@@ -198,7 +198,7 @@ class ModuleScheduledJobsModel extends BaseModel
                 FROM users u 
                 LEFT JOIN validation_codes c on (c.id_users = u.id)
                 WHERE id_status = :active_status";
-        $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
+        $users = $this->db->query_db($sql, array(':active_status' => $this->db->get_lookup_id_by_value('userStatus', 'active')));
         foreach ($users as $val) {
             array_push($arr, array("value" => ('user_' . intval($val['id'])), "text" => ("[" . $val['code'] . '] ' . $val['email']) . ' - ' . $val['name']));
         }

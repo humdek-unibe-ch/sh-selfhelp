@@ -39,11 +39,6 @@ define('ADMIN_GROUP_ID', 1);
 define('NAVIGATION_STYLE_ID', 33);
 define('NAVIGATION_CONTAINER_STYLE_ID', 30);
 
-define('LABEL_FIELD_ID', 8);
-define('NAME_FIELD_ID', 57);
-define('TYPE_INPUT_FIELD_ID', 54);
-define('EMAIL_TYPE_ID', 11);
-
 define('STYLE_GROUP_INTERN_ID', 1);
 
 define('MALE_GENDER_ID', 1);
@@ -55,13 +50,7 @@ define('EXPERIMENTER_GROUP_ID', 2);
 define('SUBJECT_GROUP_ID', 3);
 
 define('INTERNAL_PAGE_ID', 1);
-define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);
-
-/* User Status code from table userStatus */
-define('USER_STATUS_INTERESTED', 1);
-define('USER_STATUS_INVITED', 2);
-define('USER_STATUS_ACTIVE', 3);
 
 /* Controller session messages */
 define('CONTROLLER_SUCCESS', 'CONTROLLER_SUCCESS');
@@ -85,8 +74,6 @@ define('SH_TWO_FACTOR_AUTHENTICATION', 'two-factor-authentication');
 define('SH_LOGIN', 'login');
 define('SH_HOME', 'home');
 
-/* Style Types */
-define('STYLE_TYPE_INTERNAL', 'internal');
 
 /* Page fields */
 define('PF_GLOBAL_VALUES', 'global_values');
@@ -109,6 +96,8 @@ define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 
 /* Page actions */
 define('PAGE_ACTION_BACKEND', 'backend');
+define('PAGE_ACTION_NAVIGATION', 'navigation');
+define('PAGE_ACTION_SECTIONS', 'sections');
 define('PAGE_ACTION_COMPONENT', 'component');
 define('PAGE_ACTION_AJAX', 'ajax');
 define('PAGE_ACTION_CMS_API', 'cms-api');

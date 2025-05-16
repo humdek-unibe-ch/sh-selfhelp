@@ -58,8 +58,8 @@ class RegisterModel extends StyleModel
         $sql = "SELECT vc.* 
                 FROM validation_codes vc
                 LEFT JOIN users u ON (vc.id_users = u.id)
-                LEFT JOIN userStatus us ON (u.id_status = us.id)
-                WHERE (id_users is NULL || us.name = 'auto_created') AND code = :code";
+                LEFT JOIN lookups us ON (u.id_status = us.id)
+                WHERE (id_users is NULL || us.lookup_code = 'auto_created') AND code = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         if($res) return true;
         else return false;

@@ -38,7 +38,7 @@ class PageDb extends BaseDb
     function __construct($server, $dbname, $username, $password, $clockwork = null ) {
         parent::__construct( $server, $dbname, $username, $password, $clockwork );
         // $res = apcu_cache_info();
-        // $this->cache->clear_cache();
+        $this->cache->clear_cache();
         // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 
@@ -72,9 +72,9 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.`name` AS `action`, nav_position
+            $sql = "SELECT p.id, p.keyword, p.url, p.parent, l.`lookup_code` AS `action`, nav_position
             FROM pages AS p
-            LEFT JOIN actions AS a ON p.id_actions = a.id
+            LEFT JOIN lookups AS l ON p.id_actions = l.id AND l.type_code = 'actions'
             WHERE p.id_type != :type
             ORDER BY -nav_position desc, p.keyword";
             $res = $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
@@ -422,7 +422,7 @@ class PageDb extends BaseDb
                 LEFT JOIN 
                     styles AS st ON st.id = s.id_styles
                 LEFT JOIN 
-                    styleType AS t ON t.id = st.id_type
+                    lookups AS lt ON lt.id = st.id_type AND lt.type_code = 'styleType'
                 WHERE 
                     s.id = :id;";
 
@@ -686,9 +686,9 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT s.name, t.name AS type
+            $sql = "SELECT s.name, lt.lookup_code AS type
             FROM styles AS s
-            LEFT JOIN styleType AS t ON t.id = s.id_type
+            LEFT JOIN lookups AS lt ON lt.id = s.id_type AND lt.type_code = 'styleType'
             LEFT JOIN sections AS sec ON sec.id_styles = s.id
             WHERE sec.id = :id";
             $res = $this->query_db_first($sql, array(":id" => $id));

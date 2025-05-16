@@ -203,23 +203,23 @@ class Selfhelp
                 $res['two_factor_auth'] = isset($_SESSION['2fa_user']);
                 $res['two_factor_auth_link'] = $router->get_link_url(SH_TWO_FACTOR_AUTHENTICATION);
                 echo json_encode($res, JSON_UNESCAPED_UNICODE);
-            } else if ($router->route['target'] == "component") {
+            } else if ($router->route['target'] == PAGE_ACTION_COMPONENT) {
                 $page = new ComponentPage(
                     $services,
                     $router->route['name'],
                     $router->route['params']
                 );
                 $page->output();
-            } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
+            } else if ($router->route['target'] == $db->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
                 $function_name = "create_" . $router->route['name'] . "_page";
                 if (is_callable($function_name)) {
                     call_user_func_array($function_name, array_merge(array("services" => $services), $router->route['params']));
                 } else {
                     throw new Exception("Cannot call custom function '$function_name'");
                 }
-            } else if ($router->route['target'] == PAGE_ACTION_AJAX) {
+            } else if ($router->route['target'] == $db->get_lookup_id_by_value('pageAction', PAGE_ACTION_AJAX)) {
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
-            } else if ($router->route['target'] == PAGE_ACTION_CMS_API) {
+            } else if ($router->route['target'] == $db->get_lookup_id_by_value('pageAction', PAGE_ACTION_CMS_API)) {
                 $this->create_cms_api_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity 
@@ -249,14 +249,14 @@ class Selfhelp
                     $router->route['params']
                 );
                 $page->output();
-            } else if ($router->route['target'] == "component") {
+            } else if ($router->route['target'] == PAGE_ACTION_COMPONENT) {
                 $page = new ComponentPage(
                     $services,
                     $router->route['name'],
                     $router->route['params']
                 );
                 $page->output();
-            } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
+            } else if ($router->route['target'] == $services->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_BACKEND)) {
                 $function_name = "create_" . $router->route['name'] . "_page";
                 if (is_callable($function_name)) {
                     call_user_func_array($function_name, array_merge(array("services" => $services), $router->route['params']));
@@ -265,9 +265,9 @@ class Selfhelp
                     $page->output();
                     throw new Exception("Cannot call custom function '$function_name'");
                 }
-            } else if ($router->route['target'] == PAGE_ACTION_AJAX) {
+            } else if ($router->route['target'] == $services->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_AJAX)) {
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
-            } else if ($router->route['target'] == PAGE_ACTION_CMS_API) {
+            } else if ($router->route['target'] == $services->get_db()->get_lookup_id_by_value('pageAction', PAGE_ACTION_CMS_API)) {
                 $this->create_cms_api_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity

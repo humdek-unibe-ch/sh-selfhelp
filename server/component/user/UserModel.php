@@ -352,10 +352,10 @@ class UserModel extends BaseModel
         }
         if ($uid > 0) {
             // user is in status interested  or auto_created; change it to invited and assign the token for activation    
-            $this->set_user_status($uid, $token, USER_STATUS_INVITED, $email);
+            $this->set_user_status($uid, $token, $this->db->get_lookup_id_by_value('userStatus', 'invited'), $email);
         } else {
             // if the user is not already interested (in database), create a new one
-            $uid = $this->insert_new_user($email, $token, 2);
+            $uid = $this->insert_new_user($email, $token, $this->db->get_lookup_id_by_value('userStatus', 'invited'));
         }
         if ($code_exists) {
             //this option is used for auto_created users
@@ -417,7 +417,7 @@ class UserModel extends BaseModel
                 "token" => $token,
                 "name" => $user_name,
                 "user_name" => $user_name,
-                "id_status" => USER_STATUS_INVITED,
+                "id_status" => $this->db->get_lookup_id_by_value('userStatus', 'invited'),
                 "security_questions" => json_encode($security_questions)
             ));
             if ($uid && $this->claim_validation_code($code, $uid) !== false) {
@@ -446,7 +446,7 @@ class UserModel extends BaseModel
     {
         return $this->db->insert("users", array(
             "email" => $email,
-            "id_status" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id'],
+            "id_status" => $this->db->get_lookup_id_by_value('userStatus', 'auto_created'),
         ));
     }
 
@@ -844,7 +844,7 @@ class UserModel extends BaseModel
         WHERE email = :email AND id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status_interested" => USER_STATUS_INTERESTED
+            ":user_status_interested" => $this->db->get_lookup_id_by_value('userStatus', 'interested')
         ));
         if ($res) {
             $user_id = $res['id'];
@@ -868,7 +868,7 @@ class UserModel extends BaseModel
         WHERE email = :email AND id_status = :user_status_invited";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status_invited" => USER_STATUS_INVITED
+            ":user_status_invited" => $this->db->get_lookup_id_by_value('userStatus', 'invited')
         ));
         return $res;
     }
@@ -890,7 +890,7 @@ class UserModel extends BaseModel
         where vc.code = :code and id_status = :user_status_auto_created";
         $res = $this->db->query_db_first($sql, array(
             ":code" => $code,
-            ":user_status_auto_created" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id']));
+            ":user_status_auto_created" => $this->db->get_lookup_id_by_value('userStatus', 'auto_created')));
         if($res){
             $user_id = $res['id'];
         }
