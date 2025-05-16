@@ -8,6 +8,8 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Service\ACLService;
+use App\Service\UserContextService;
 
 /**
  * Service for dynamically handling API route requests
@@ -18,7 +20,9 @@ class DynamicControllerService extends AbstractController
 
     public function __construct(
         private ApiRouteRepository $apiRouteRepository,
-        protected ContainerInterface $container
+        protected ContainerInterface $container,
+        private UserContextService $userContextService,
+        private ACLService $aclService
     ) {
     }
 
@@ -45,12 +49,8 @@ class DynamicControllerService extends AbstractController
         $isGroup = $request->attributes->get('is_group') ?? ($attributes['is_group'] ?? false);
         // Only perform ACL check if pageId is present (customize as needed per your route requirements)
         if ($pageId !== null) {
-            /** @var \App\Service\ACLService $aclService */
-            $aclService = $this->container->get(\App\Service\ACLService::class);
-            $security = $this->container->get('security.helper');
-            $user = $security->getUser();
-            $userId = ($user instanceof \App\Entity\User) ? $user->getId() : null;
-            if (!$aclService->hasAccess($userId, $pageId, $accessMode, $isGroup)) {
+            $userId = $this->userContextService->getCurrentUser()->getId();
+            if (!$this->aclService->hasAccess($userId, $pageId, $accessMode)) {
                 return $this->createApiResponse(
                     null,
                     Response::HTTP_FORBIDDEN,
