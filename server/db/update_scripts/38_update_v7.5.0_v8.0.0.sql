@@ -527,6 +527,53 @@ SET @sql := IF(
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- drop chat tables if the plugin is not installed
+-- 1) Check plugin
+SELECT COUNT(*) INTO @cnt
+  FROM plugins
+ WHERE name = 'chat';
+
+-- 2) Flag whether it’s missing
+SET @plugin_missing = (@cnt = 0);
+
+-- 3a) If missing, disable FK checks
+SET @sql := IF(
+  @plugin_missing,
+  'SET FOREIGN_KEY_CHECKS = 0;',
+  'SELECT "Plugin exists. Nothing dropped."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 3b) Drop each table in correct order
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `chat`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `chatRecipiants`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `chatRoom`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 3c) Finally, if we did drop, re-enable FK checks
+SET @sql := IF(
+  @plugin_missing,
+  'SET FOREIGN_KEY_CHECKS = 1;',
+  'SELECT "Nothing to re-enable."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 
 
 
