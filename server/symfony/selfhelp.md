@@ -458,7 +458,7 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 ### Style
 - `id`: int (PK)
 - `name`: string
-- `id_type`: int (FK to StyleType)
+- `id_type`: int (FK to Lookup with type_code = 'styleType')
 - `id_group`: int (FK to StyleGroup)
 - `description`: text (nullable)
 
@@ -475,10 +475,6 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `help`: text (nullable)
 - `disabled`: bool
 - `hidden`: int (nullable)
-
-### StyleType
-- `id`: int (PK)
-- `name`: string
 
 ### Task
 - `id`: int (PK)

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Lookup;
 
 #[ORM\Entity(repositoryClass: "App\Repository\StyleRepository")]
 #[ORM\Table(name: 'styles')]
@@ -26,9 +27,9 @@ class Style
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(targetEntity: StyleType::class)]
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
     #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?StyleType $type = null;
+    private ?Lookup $type = null;
 
     #[ORM\ManyToOne(targetEntity: StyleGroup::class)]
     #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', onDelete: 'CASCADE')]
@@ -83,12 +84,12 @@ class Style
         return $this;
     }
 
-    public function getType(): ?StyleType
+    public function getType(): ?Lookup
     {
         return $this->type;
     }
 
-    public function setType(?StyleType $type): self
+    public function setType(?Lookup $type): self
     {
         $this->type = $type;
         return $this;
