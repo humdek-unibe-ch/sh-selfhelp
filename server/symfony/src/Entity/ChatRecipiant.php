@@ -30,5 +30,10 @@ class ChatRecipiant
     public function setIdRoomUsers(?int $idRoomUsers): self { $this->idRoomUsers = $idRoomUsers; return $this; }
     public function getIsNew(): bool { return $this->isNew; }
     public function setIsNew(bool $isNew): self { $this->isNew = $isNew; return $this; }
+
+    public function isNew(): ?bool
+    {
+        return $this->isNew;
+    }
 }
 // ENTITY RULE

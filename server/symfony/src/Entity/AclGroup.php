@@ -46,5 +46,25 @@ class AclGroup
 
     public function getAclDelete(): bool { return $this->aclDelete; }
     public function setAclDelete(bool $aclDelete): self { $this->aclDelete = $aclDelete; return $this; }
+
+    public function isAclSelect(): ?bool
+    {
+        return $this->aclSelect;
+    }
+
+    public function isAclInsert(): ?bool
+    {
+        return $this->aclInsert;
+    }
+
+    public function isAclUpdate(): ?bool
+    {
+        return $this->aclUpdate;
+    }
+
+    public function isAclDelete(): ?bool
+    {
+        return $this->aclDelete;
+    }
 }
 // ENTITY RULE

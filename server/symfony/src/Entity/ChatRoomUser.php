@@ -46,5 +46,10 @@ class ChatRoomUser
     public function setUser(?User $user): self { $this->user = $user; return $this; }
     public function getChatRoom(): ?ChatRoom { return $this->chatRoom; }
     public function setChatRoom(?ChatRoom $chatRoom): self { $this->chatRoom = $chatRoom; return $this; }
+
+    public function isAdmin(): ?bool
+    {
+        return $this->isAdmin;
+    }
 }
 // ENTITY RULE

@@ -45,5 +45,10 @@ class Users2faCode
     public function setIsUsed(bool $isUsed): self { $this->isUsed = $isUsed; return $this; }
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): self { $this->user = $user; return $this; }
+
+    public function isUsed(): ?bool
+    {
+        return $this->isUsed;
+    }
 }
 // ENTITY RULE
