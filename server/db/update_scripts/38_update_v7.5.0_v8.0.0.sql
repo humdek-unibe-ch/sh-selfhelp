@@ -424,6 +424,111 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\AdminController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\AdminController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL);
 
+-- drop qualtrics tables if the plugin is not installed
+-- 1) Check plugin
+SELECT COUNT(*) INTO @cnt
+  FROM plugins
+ WHERE name = 'qualtrics';
+
+-- 2) Flag whether it’s missing
+SET @plugin_missing = (@cnt = 0);
+
+-- 3a) If missing, disable FK checks
+SET @sql := IF(
+  @plugin_missing,
+  'SET FOREIGN_KEY_CHECKS = 0;',
+  'SELECT "Plugin exists. Nothing dropped."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 3b) Drop each table in correct order
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsActions_functions`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsActions_groups`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsSurveysResponses`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `scheduledJobs_qualtricsActions`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsReminders`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsActions`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsProjects`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP TABLE IF EXISTS `qualtricsSurveys`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP VIEW IF EXISTS `view_qualtricsActions`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP VIEW IF EXISTS `view_qualtricsSurveys`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @plugin_missing,
+  'DROP VIEW IF EXISTS `view_qualtricsReminders`;',
+  'SELECT "Skipping drop."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 3c) Finally, if we did drop, re-enable FK checks
+SET @sql := IF(
+  @plugin_missing,
+  'SET FOREIGN_KEY_CHECKS = 1;',
+  'SELECT "Nothing to re-enable."'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+
+
 
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field
@@ -436,3 +541,7 @@ INNER JOIN `fields` f ON pft.id_fields = f.id
 INNER JOIN `fieldType` ft ON ft.id = f.id_type
 LEFT JOIN `pages_fields` pf ON (pf.id_pages = pft.id_pages AND pf.id_fields = f.id)
 WHERE pft.id_pages = 96
+
+
+-- drop qualtrics and all not needed deprecated tbles or these coming from plugins
+-- php bin/console doctrine:schema:update --dump-sql --verbose adjust 

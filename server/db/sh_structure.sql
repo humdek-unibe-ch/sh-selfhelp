@@ -107,7 +107,7 @@ CREATE TABLE `api_routes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_route_name_version` (`route_name`,`version`),
   UNIQUE KEY `uniq_version_path` (`version`,`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -193,6 +193,22 @@ CREATE TABLE `chatRecipiants` (
   CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatRoom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `chatRecipiants_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chatRoom`
+--
+
+DROP TABLE IF EXISTS `chatRoom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chatRoom` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -699,164 +715,6 @@ CREATE TABLE `plugins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `qualtricsActions`
---
-
-DROP TABLE IF EXISTS `qualtricsActions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsActions` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `id_qualtricsProjects` int(10) unsigned zerofill NOT NULL,
-  `id_qualtricsSurveys` int(10) unsigned zerofill NOT NULL,
-  `name` varchar(200) NOT NULL,
-  `id_qualtricsProjectActionTriggerTypes` int(10) unsigned zerofill NOT NULL,
-  `id_qualtricsActionScheduleTypes` int(10) unsigned zerofill NOT NULL,
-  `id_qualtricsSurveys_reminder` int(10) unsigned zerofill DEFAULT NULL,
-  `schedule_info` text,
-  `id_qualtricsActions` int(10) unsigned zerofill DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
-  KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
-  KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
-  KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
-  KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`),
-  CONSTRAINT `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_fk_id_qualtricsActionScheduleTypes` FOREIGN KEY (`id_qualtricsActionScheduleTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys_reminder` FOREIGN KEY (`id_qualtricsSurveys_reminder`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsActions_functions`
---
-
-DROP TABLE IF EXISTS `qualtricsActions_functions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsActions_functions` (
-  `id_qualtricsActions` int(10) unsigned zerofill NOT NULL,
-  `id_lookups` int(10) unsigned zerofill NOT NULL,
-  PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
-  KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  KEY `id_lookups` (`id_lookups`),
-  CONSTRAINT `qualtricsActions_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_functions_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsActions_groups`
---
-
-DROP TABLE IF EXISTS `qualtricsActions_groups`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsActions_groups` (
-  `id_qualtricsActions` int(10) unsigned zerofill NOT NULL,
-  `id_groups` int(10) unsigned zerofill NOT NULL,
-  PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
-  KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  KEY `id_groups` (`id_groups`),
-  CONSTRAINT `qualtricsActions_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsActions_groups_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsProjects`
---
-
-DROP TABLE IF EXISTS `qualtricsProjects`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsProjects` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` varchar(1000) DEFAULT NULL,
-  `qualtrics_api` varchar(100) DEFAULT NULL,
-  `api_library_id` varchar(100) DEFAULT NULL,
-  `api_mailing_group_id` varchar(100) DEFAULT NULL,
-  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsReminders`
---
-
-DROP TABLE IF EXISTS `qualtricsReminders`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsReminders` (
-  `id_qualtricsSurveys` int(10) unsigned zerofill NOT NULL,
-  `id_users` int(10) unsigned zerofill NOT NULL,
-  `id_scheduledJobs` int(10) unsigned zerofill NOT NULL,
-  PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_scheduledJobs`),
-  KEY `qualtricsReminders_fk_id_users` (`id_users`),
-  KEY `qualtricsReminders_fk_id_scheduledJobs` (`id_scheduledJobs`),
-  CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsSurveys`
---
-
-DROP TABLE IF EXISTS `qualtricsSurveys`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsSurveys` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` varchar(1000) DEFAULT NULL,
-  `qualtrics_survey_id` varchar(100) DEFAULT NULL,
-  `id_qualtricsSurveyTypes` int(10) unsigned zerofill NOT NULL,
-  `participant_variable` varchar(100) DEFAULT NULL,
-  `group_variable` int DEFAULT '0',
-  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `config` longtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
-  KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`),
-  CONSTRAINT `qualtricsSurveys_fk_id_qualtricsSurveyTypes` FOREIGN KEY (`id_qualtricsSurveyTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `qualtricsSurveysResponses`
---
-
-DROP TABLE IF EXISTS `qualtricsSurveysResponses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `qualtricsSurveysResponses` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `id_users` int(10) unsigned zerofill NOT NULL,
-  `id_surveys` int(10) unsigned zerofill NOT NULL,
-  `id_qualtricsProjectActionTriggerTypes` int(10) unsigned zerofill NOT NULL,
-  `survey_response_id` varchar(100) DEFAULT NULL,
-  `started_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `survey_response_id` (`survey_response_id`),
-  KEY `qSurveysResponses_fk_id_users` (`id_users`),
-  KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
-  KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`),
-  CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`),
-  CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `qSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `refreshTokens`
 --
 
@@ -872,7 +730,7 @@ CREATE TABLE `refreshTokens` (
   PRIMARY KEY (`id`),
   KEY `idx_token_hash` (`token_hash`),
   KEY `idx_user_id` (`id_users`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -954,23 +812,6 @@ CREATE TABLE `scheduledJobs_notifications` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `scheduledJobs_qualtricsActions`
---
-
-DROP TABLE IF EXISTS `scheduledJobs_qualtricsActions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `scheduledJobs_qualtricsActions` (
-  `id_scheduledJobs` int(10) unsigned zerofill NOT NULL,
-  `id_qualtricsActions` int(10) unsigned zerofill NOT NULL,
-  PRIMARY KEY (`id_scheduledJobs`,`id_qualtricsActions`),
-  KEY `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` (`id_qualtricsActions`),
-  CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `scheduledJobs_reminders`
 --
 
@@ -1038,7 +879,7 @@ CREATE TABLE `sections` (
   UNIQUE KEY `name` (`name`),
   KEY `id_styles` (`id_styles`),
   CONSTRAINT `sections_fk_id_styles` FOREIGN KEY (`id_styles`) REFERENCES `styles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1221,7 +1062,7 @@ CREATE TABLE `transactions` (
   CONSTRAINT `transactions_fk_id_transactionBy` FOREIGN KEY (`id_transactionBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactionTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1246,7 +1087,7 @@ CREATE TABLE `user_activity` (
   KEY `id_type` (`id_type`),
   CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1610,93 +1451,6 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `config`,
  1 AS `id_dataRows`,
  1 AS `dataTables_name`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary view structure for view `view_qualtricsactions`
---
-
-DROP TABLE IF EXISTS `view_qualtricsactions`;
-/*!50001 DROP VIEW IF EXISTS `view_qualtricsactions`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `view_qualtricsactions` AS SELECT 
- 1 AS `id`,
- 1 AS `action_name`,
- 1 AS `project_id`,
- 1 AS `project_name`,
- 1 AS `qualtrics_api`,
- 1 AS `participant_variable`,
- 1 AS `api_mailing_group_id`,
- 1 AS `survey_id`,
- 1 AS `qualtrics_survey_id`,
- 1 AS `survey_name`,
- 1 AS `id_qualtricsSurveyTypes`,
- 1 AS `group_variable`,
- 1 AS `survey_type`,
- 1 AS `survey_type_code`,
- 1 AS `id_qualtricsProjectActionTriggerTypes`,
- 1 AS `trigger_type`,
- 1 AS `trigger_type_code`,
- 1 AS `groups`,
- 1 AS `id_groups`,
- 1 AS `functions`,
- 1 AS `functions_code`,
- 1 AS `id_functions`,
- 1 AS `schedule_info`,
- 1 AS `id_qualtricsActionScheduleTypes`,
- 1 AS `action_schedule_type_code`,
- 1 AS `action_schedule_type`,
- 1 AS `id_qualtricsSurveys_reminder`,
- 1 AS `survey_reminder_name`,
- 1 AS `id_qualtricsActions`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary view structure for view `view_qualtricsreminders`
---
-
-DROP TABLE IF EXISTS `view_qualtricsreminders`;
-/*!50001 DROP VIEW IF EXISTS `view_qualtricsreminders`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `view_qualtricsreminders` AS SELECT 
- 1 AS `user_id`,
- 1 AS `email`,
- 1 AS `user_name`,
- 1 AS `code`,
- 1 AS `id_scheduledJobs`,
- 1 AS `status_code`,
- 1 AS `status`,
- 1 AS `id_qualtricsSurveys`,
- 1 AS `qualtrics_survey_id`,
- 1 AS `id_qualtricsActions`,
- 1 AS `session_start_date`,
- 1 AS `valid`,
- 1 AS `valid_till`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary view structure for view `view_qualtricssurveys`
---
-
-DROP TABLE IF EXISTS `view_qualtricssurveys`;
-/*!50001 DROP VIEW IF EXISTS `view_qualtricssurveys`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `view_qualtricssurveys` AS SELECT 
- 1 AS `id`,
- 1 AS `name`,
- 1 AS `description`,
- 1 AS `qualtrics_survey_id`,
- 1 AS `id_qualtricsSurveyTypes`,
- 1 AS `participant_variable`,
- 1 AS `group_variable`,
- 1 AS `created_on`,
- 1 AS `edited_on`,
- 1 AS `config`,
- 1 AS `survey_type`,
- 1 AS `survey_type_code`*/;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -3329,60 +3083,6 @@ DELIMITER ;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `view_qualtricsactions`
---
-
-/*!50001 DROP VIEW IF EXISTS `view_qualtricsactions`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_qualtricsactions` AS select `st`.`id` AS `id`,`st`.`name` AS `action_name`,`st`.`id_qualtricsProjects` AS `project_id`,`p`.`name` AS `project_name`,`p`.`qualtrics_api` AS `qualtrics_api`,`s`.`participant_variable` AS `participant_variable`,`p`.`api_mailing_group_id` AS `api_mailing_group_id`,`st`.`id_qualtricsSurveys` AS `survey_id`,`s`.`qualtrics_survey_id` AS `qualtrics_survey_id`,`s`.`name` AS `survey_name`,`s`.`id_qualtricsSurveyTypes` AS `id_qualtricsSurveyTypes`,`s`.`group_variable` AS `group_variable`,`typ`.`lookup_value` AS `survey_type`,`typ`.`lookup_code` AS `survey_type_code`,`st`.`id_qualtricsProjectActionTriggerTypes` AS `id_qualtricsProjectActionTriggerTypes`,`trig`.`lookup_value` AS `trigger_type`,`trig`.`lookup_code` AS `trigger_type_code`,group_concat(distinct `g`.`name` separator '; ') AS `groups`,group_concat(distinct (`g`.`id` * 1) separator ', ') AS `id_groups`,group_concat(distinct `l`.`lookup_value` separator '; ') AS `functions`,group_concat(distinct `l`.`lookup_code` separator ';') AS `functions_code`,group_concat(distinct `l`.`id` separator '; ') AS `id_functions`,`st`.`schedule_info` AS `schedule_info`,`st`.`id_qualtricsActionScheduleTypes` AS `id_qualtricsActionScheduleTypes`,`action_type`.`lookup_code` AS `action_schedule_type_code`,`action_type`.`lookup_value` AS `action_schedule_type`,`st`.`id_qualtricsSurveys_reminder` AS `id_qualtricsSurveys_reminder`,(case when (`action_type`.`lookup_value` = 'Reminder') then `s_reminder`.`name` else NULL end) AS `survey_reminder_name`,`st`.`id_qualtricsActions` AS `id_qualtricsActions` from ((((((((((`qualtricsactions` `st` join `qualtricsprojects` `p` on((`st`.`id_qualtricsProjects` = `p`.`id`))) join `qualtricssurveys` `s` on((`st`.`id_qualtricsSurveys` = `s`.`id`))) join `lookups` `typ` on((`typ`.`id` = `s`.`id_qualtricsSurveyTypes`))) join `lookups` `trig` on((`trig`.`id` = `st`.`id_qualtricsProjectActionTriggerTypes`))) join `lookups` `action_type` on((`action_type`.`id` = `st`.`id_qualtricsActionScheduleTypes`))) left join `qualtricssurveys` `s_reminder` on((`st`.`id_qualtricsSurveys_reminder` = `s_reminder`.`id`))) left join `qualtricsactions_groups` `sg` on((`sg`.`id_qualtricsActions` = `st`.`id`))) left join `groups` `g` on((`sg`.`id_groups` = `g`.`id`))) left join `qualtricsactions_functions` `f` on((`f`.`id_qualtricsActions` = `st`.`id`))) left join `lookups` `l` on((`f`.`id_lookups` = `l`.`id`))) group by `st`.`id`,`st`.`name`,`st`.`id_qualtricsProjects`,`p`.`name`,`st`.`id_qualtricsSurveys`,`s`.`name`,`s`.`id_qualtricsSurveyTypes`,`typ`.`lookup_value`,`st`.`id_qualtricsProjectActionTriggerTypes`,`trig`.`lookup_value` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `view_qualtricsreminders`
---
-
-/*!50001 DROP VIEW IF EXISTS `view_qualtricsreminders`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_qualtricsreminders` AS select `u`.`id` AS `user_id`,`u`.`email` AS `email`,`u`.`name` AS `user_name`,`u`.`code` AS `code`,`sj`.`id` AS `id_scheduledJobs`,`sj`.`status_code` AS `status_code`,`sj`.`status` AS `status`,`r`.`id_qualtricsSurveys` AS `id_qualtricsSurveys`,`s`.`qualtrics_survey_id` AS `qualtrics_survey_id`,`qa`.`id_qualtricsActions` AS `id_qualtricsActions`,(select `sess`.`date_to_be_executed` from ((`scheduledjobs` `sess` join `scheduledjobs_qualtricsactions` `sj_qa2` on((`sj_qa2`.`id_scheduledJobs` = `sess`.`id`))) join `qualtricsactions` `qa2` on((`qa2`.`id` = `sj_qa2`.`id_qualtricsActions`))) where (`qa2`.`id` = `qa`.`id_qualtricsActions`) order by `sess`.`date_to_be_executed` desc limit 0,1) AS `session_start_date`,(select cast(json_extract(`qa2`.`schedule_info`,'$.valid') as unsigned) from `qualtricsactions` `qa2` where (`qa2`.`id` = `qa`.`id_qualtricsActions`)) AS `valid`,((select `sess`.`date_to_be_executed` from ((`scheduledjobs` `sess` join `scheduledjobs_qualtricsactions` `sj_qa2` on((`sj_qa2`.`id_scheduledJobs` = `sess`.`id`))) join `qualtricsactions` `qa2` on((`qa2`.`id` = `sj_qa2`.`id_qualtricsActions`))) where (`qa2`.`id` = `qa`.`id_qualtricsActions`) order by `sess`.`date_to_be_executed` desc limit 0,1) + interval (select cast(json_extract(`qa2`.`schedule_info`,'$.valid') as unsigned) from `qualtricsactions` `qa2` where (`qa2`.`id` = `qa`.`id_qualtricsActions`)) minute) AS `valid_till` from (((((`qualtricsreminders` `r` join `view_users` `u` on((`u`.`id` = `r`.`id_users`))) join `qualtricssurveys` `s` on((`s`.`id` = `r`.`id_qualtricsSurveys`))) left join `view_scheduledjobs` `sj` on((`sj`.`id` = `r`.`id_scheduledJobs`))) left join `scheduledjobs_qualtricsactions` `sj_qa` on((`sj_qa`.`id_scheduledJobs` = `sj`.`id`))) left join `qualtricsactions` `qa` on((`qa`.`id` = `sj_qa`.`id_qualtricsActions`))) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `view_qualtricssurveys`
---
-
-/*!50001 DROP VIEW IF EXISTS `view_qualtricssurveys`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_qualtricssurveys` AS select `s`.`id` AS `id`,`s`.`name` AS `name`,`s`.`description` AS `description`,`s`.`qualtrics_survey_id` AS `qualtrics_survey_id`,`s`.`id_qualtricsSurveyTypes` AS `id_qualtricsSurveyTypes`,`s`.`participant_variable` AS `participant_variable`,`s`.`group_variable` AS `group_variable`,`s`.`created_on` AS `created_on`,`s`.`edited_on` AS `edited_on`,`s`.`config` AS `config`,`typ`.`lookup_value` AS `survey_type`,`typ`.`lookup_code` AS `survey_type_code` from (`qualtricssurveys` `s` join `lookups` `typ` on((`typ`.`id` = `s`.`id_qualtricsSurveyTypes`))) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
 -- Final view structure for view `view_scheduledjobs`
 --
 
@@ -3571,4 +3271,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-15 16:57:37
+-- Dump completed on 2025-05-16  9:49:30
