@@ -44,81 +44,6 @@ DELIMITER ;
 
 CALL add_table_column('pages', 'is_open_access', 'TINYINT DEFAULT 0');
 
--- add unique index for actions
-CALL add_index('actions', 'idx_pageActions_name', 'name', true);
-
--- add action `cms-api` for api calls
-INSERT IGNORE INTO `actions`(`name`) VALUES('cms-api');
-
--- add page api_v1_content_get_all_routes
-SET @page_keyword = 'cms-api_v1_content_get_all_routes';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[content:class]/[all_routes:method]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Navigation Pages');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Navigation Pages');
-
--- make `home` page open access
-INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (1, (SELECT id FROM pages WHERE keyword = 'home'), '1', '0', '0', '0');
-
-
--- add page api_v1_content_get_page
-SET @page_keyword = 'cms-api_v1_content_get_page';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Page');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Page');
-
--- add page api_v1_content_put_page
---  Used to update an existing resource or create a resource if it does not exist.
-SET @page_keyword = 'cms-api_v1_content_put_page';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]', 'PUT', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Put Data to Page');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Put Data to Page');
-
--- add page cms-api_v1_auth_login
-SET @page_keyword = 'cms-api_v1_auth_login';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[login:method]', 'POST', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Login');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Login');
-
--- add page cms-api_v1_auth_two-factor-verify
-SET @page_keyword = 'cms-api_v1_auth_two-factor-verify';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[two_factor_verify:method]', 'POST', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Two Factor Authenitcation');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Two Factor Authenitcation');
-
--- add page cms-api_v1_auth_refresh_token
-SET @page_keyword = 'cms-api_v1_auth_refresh_token';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[refresh_token:method]', 'POST', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Refresh Token');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Refresh Token');
-
--- add page cms-api_v1_auth_logout
-SET @page_keyword = 'cms-api_v1_auth_logout';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[logout:method]', 'POST', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 1);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Logout');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Logout');
-
--- add page cms-api_v1_admin
-SET @page_keyword = 'cms-api_v1_admin_get_access';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[access:method]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 0);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Admin - get access');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Admin - get access');
-INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = 'cms-api_v1_admin_get_access'), '1', '0', '0', '0');
-
--- add page cms-api_v1_admin_get_pages
-SET @page_keyword = 'cms-api_v1_admin_get_pages';
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[pages:method]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 0);
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Admin - get pages');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Admin - get pages');
-INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = 'cms-api_v1_admin_get_pages'), '1', '0', '0', '0');
 
 DELIMITER //
 
@@ -282,23 +207,6 @@ WHERE id_type = (
 DELETE FROM pageType
 WHERE name = 'open';
 
--- Register the new API endpoint for retrieving page sections
-SET @page_keyword = 'cms-api_v1_admin_page_fields';
-
--- Add the page entry for the new API endpoint
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_fields:method]/[slug:page_keyword]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 0);
-
--- Add translations for the page title in English
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
-VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Fields');
-
--- Add translations for the page title in German
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
-VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Fields');
-
-INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = @page_keyword), '1', '0', '0', '0');
-
 -- add column `is_system`, where if enabled the page is system and it should not be delete it or change its properties. Only its content fields can be edited
 CALL add_table_column('pages', 'is_system', 'TINYINT DEFAULT 0');
 
@@ -308,23 +216,6 @@ WHERE keyword IN ("login", "home", "profile", "missing", "no_access", "no_access
 
 CALL drop_foreign_key('sections', 'sections_fk_owner');
 CALL drop_table_column('sections', 'owner');
-
--- Register the new API endpoint for retrieving page sections
-SET @page_keyword = 'cms-api_v1_admin_page_sections';
-
--- Add the page entry for the new API endpoint
-INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
-VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_sections:method]/[slug:page_keyword]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 0);
-
--- Add translations for the page title in English
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
-VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Sections');
-
--- Add translations for the page title in German
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
-VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Sections');
-
-INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = @page_keyword), '1', '0', '0', '0');
 
 DELIMITER //
 
@@ -381,11 +272,45 @@ END //
 
 DELIMITER ;
 
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS `add_primary_key` $$
+CREATE PROCEDURE `add_primary_key`(
+  IN `param_table`   VARCHAR(100),
+  IN `param_columns` VARCHAR(500)  -- e.g. 'col1, col2'
+)
+BEGIN
+  DECLARE cnt INT DEFAULT 0;
+
+  -- Check if a PRIMARY KEY already exists on the table
+  SELECT COUNT(*) INTO cnt
+    FROM information_schema.TABLE_CONSTRAINTS
+   WHERE table_schema    = DATABASE()
+     AND table_name      = param_table
+     AND constraint_type = 'PRIMARY KEY';
+
+  -- Build the appropriate statement
+  IF cnt = 0 THEN
+    SET @sqlstmt = CONCAT(
+      'ALTER TABLE `', param_table,
+      '` ADD PRIMARY KEY (', param_columns, ');'
+    );
+  ELSE
+    SET @sqlstmt = "SELECT 'Primary key already exists on table.'";
+  END IF;
+
+  -- Execute it
+  PREPARE st FROM @sqlstmt;
+  EXECUTE st;
+  DEALLOCATE PREPARE st;
+END$$
+
+DELIMITER ;
+
 
 CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables');
 CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_scheduledJobs');
-ALTER TABLE scheduledJobs_reminders
-ADD PRIMARY KEY (id_scheduledJobs, id_dataTables);
+CALL add_primary_key('scheduledJobs_reminders', 'id_scheduledJobs, id_dataTables');
 CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
 CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_scheduledJobs', 'id_scheduledJobs', '`scheduledJobs` (`id`)');        
 
@@ -574,21 +499,647 @@ SET @sql := IF(
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS `MigrateDomainToLookups`$$
+CREATE PROCEDURE `MigrateDomainToLookups`()
+BEGIN
+  -- 1) userStatus → lookups + users.id_status
+  IF EXISTS (
+    SELECT 1 FROM information_schema.TABLES
+    WHERE table_schema = DATABASE() AND table_name = 'userStatus'
+  ) THEN
+    -- a) upsert into lookups
+    INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
+    SELECT 'userStatus', name, name, description
+      FROM userStatus;
+      
+	CALL drop_foreign_key('users', 'fk_users_id_status');
+    
+    -- b) re-point users.id_status
+    UPDATE users u
+    JOIN userStatus us ON u.id_status = us.id
+    JOIN lookups l    ON l.type_code   = 'userStatus'
+                     AND l.lookup_code = us.name
+    SET u.id_status = l.id;
+
+    -- c) swap FKs
+    
+    CALL add_foreign_key('users',
+                         'fk_users_id_status',
+                         'id_status',
+                         'lookups(id)');
+
+    -- d) drop domain table
+    DROP TABLE IF EXISTS `userStatus`;
+  END IF;
+
+  -- 2) actions → lookups + pages.id_actions
+  IF EXISTS (
+    SELECT 1 FROM information_schema.TABLES
+    WHERE table_schema = DATABASE() AND table_name = 'actions'
+  ) THEN
+    INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
+    SELECT 'actions', name, name, NULL
+      FROM actions;
+
+	CALL drop_foreign_key('pages', 'pages_fk_id_actions');
+
+    UPDATE pages p
+    JOIN actions a ON p.id_actions = a.id
+    JOIN lookups l ON l.type_code   = 'actions'
+                  AND l.lookup_code = a.name
+    SET p.id_actions = l.id;
+    
+    CALL add_foreign_key('pages',
+                         'pages_fk_id_actions',
+                         'id_actions',
+                         'lookups(id)');
+
+    DROP TABLE IF EXISTS `actions`;
+  END IF;
+
+  -- 3) activityType → lookups + user_activity.id_type
+  IF EXISTS (
+    SELECT 1 FROM information_schema.TABLES
+    WHERE table_schema = DATABASE() AND table_name = 'activityType'
+  ) THEN
+    INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
+    SELECT 'activityType', name, name, NULL
+      FROM activityType;
+
+	CALL drop_foreign_key('user_activity', 'fk_user_activity_fk_id_type');
+
+    UPDATE user_activity ua
+    JOIN activityType at ON ua.id_type = at.id
+    JOIN lookups l       ON l.type_code   = 'activityType'
+                       AND l.lookup_code = at.name
+    SET ua.id_type = l.id;
+    
+    CALL add_foreign_key('user_activity',
+                         'fk_user_activity_fk_id_type',
+                         'id_type',
+                         'lookups(id)');
+
+    DROP TABLE IF EXISTS `activityType`;
+  END IF;
+
+  -- 4) styleType → lookups + styles.id_type
+  IF EXISTS (
+    SELECT 1 FROM information_schema.TABLES
+    WHERE table_schema = DATABASE() AND table_name = 'styleType'
+  ) THEN
+    INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
+    SELECT 'styleType', name, name, NULL
+      FROM styleType;
+
+	CALL drop_foreign_key('styles', 'styles_fk_id_type');
+
+    UPDATE styles s
+    JOIN styleType st ON s.id_type = st.id
+    JOIN lookups l     ON l.type_code   = 'styleType'
+                      AND l.lookup_code = st.name
+    SET s.id_type = l.id;
+    
+    CALL add_foreign_key('styles',
+                         'styles_fk_id_type',
+                         'id_type',
+                         'lookups(id)');
+
+    DROP TABLE IF EXISTS `styleType`;
+  END IF;
+
+END$$
+
+DELIMITER ;
+
+-- Install once:
+CALL MigrateDomainToLookups();
+
+-- You can safely call it repeatedly; already-migrated tables are skipped.
+
+DROP PROCEDURE IF EXISTS `MigrateDomainToLookups`;
+
+DROP VIEW IF EXISTS `view_styles`;
+CREATE VIEW `view_styles` AS
+SELECT
+  CAST(s.id AS UNSIGNED) AS style_id,
+  s.name AS style_name,
+  s.description AS style_description,
+  CAST(lst.id AS UNSIGNED) AS style_type_id,
+  lst.lookup_value AS style_type,
+  CAST(sg.id AS UNSIGNED) AS style_group_id,
+  sg.name AS style_group,
+  sg.description AS style_group_description,
+  sg.position AS style_group_position
+FROM styles s
+LEFT JOIN lookups lst
+  ON s.id_type = lst.id
+  AND lst.type_code = 'styleType'
+LEFT JOIN styleGroup sg
+  ON s.id_group = sg.id;
+
+DROP VIEW IF EXISTS `view_users`;
+CREATE VIEW `view_users` AS
+SELECT
+  u.id AS id,
+  u.email AS email,
+  u.name AS name,
+  IFNULL(
+    CONCAT(
+      u.last_login,
+      ' (',
+      TO_DAYS(NOW()) - TO_DAYS(u.last_login),
+      ' days ago)'
+    ),
+    'never'
+  ) AS last_login,
+  usl.lookup_value       AS status,
+  usl.lookup_description AS description,
+  u.blocked              AS blocked,
+  (CASE
+     WHEN u.name = 'admin' THEN 'admin'
+     WHEN u.name = 'tpf'   THEN 'tpf'
+     ELSE IFNULL(vc.code, '-')
+   END)                  AS code,
+  GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
+  ua.activity_count     AS user_activity,
+  ua.distinct_url_count AS ac,
+  u.intern              AS intern,
+  u.id_userTypes        AS id_userTypes,
+  lut.lookup_code       AS user_type_code,
+  lut.lookup_value      AS user_type
+FROM users u
+LEFT JOIN lookups usl
+  ON usl.id = u.id_status
+  AND usl.type_code = 'userStatus'
+LEFT JOIN users_groups ug
+  ON ug.id_users = u.id
+LEFT JOIN `groups` g
+  ON g.id = ug.id_groups
+LEFT JOIN validation_codes vc
+  ON u.id = vc.id_users
+JOIN lookups lut
+  ON lut.id = u.id_userTypes
+LEFT JOIN (
+  SELECT
+    ua.id_users AS id_users,
+    COUNT(*)    AS activity_count,
+    COUNT(DISTINCT CASE WHEN ua.id_type = 1 THEN ua.url END) AS distinct_url_count
+  FROM user_activity ua
+  GROUP BY ua.id_users
+) AS ua
+  ON ua.id_users = u.id
+WHERE u.intern <> 1
+  AND u.id_status > 0
+GROUP BY
+  u.id,
+  u.email,
+  u.name,
+  u.last_login,
+  usl.lookup_value,
+  usl.lookup_description,
+  u.blocked,
+  vc.code,
+  ua.activity_count,
+  ua.distinct_url_count,
+  u.intern,
+  u.id_userTypes,
+  lut.lookup_code,
+  lut.lookup_value
+ORDER BY u.email;
 
 
 
 -- shoudl remove is_fluid from container style
--- create new page onpen access use new field
 -- reowork all form data to use drop down for table selection. First the table should be registered by the user. Assign ACL to these dataTables.
 -- remove the gender
 -- pages should be moved to routes, then create link to lages, then link to pages_configurations (something else), refactor types, actions and all. Check this sql
-SELECT pft.id_fields, f.`name` AS field_name, pft.id_languages, pft.content, f.display, ft.id as field_id, ft.`name` as style_name, ft.position, pf.*, pft.*
-FROM pages_fields_translation pft
-INNER JOIN `fields` f ON pft.id_fields = f.id
-INNER JOIN `fieldType` ft ON ft.id = f.id_type
-LEFT JOIN `pages_fields` pf ON (pf.id_pages = pft.id_pages AND pf.id_fields = f.id)
-WHERE pft.id_pages = 96
+
+-- for old to work and test:
+-- register action `cms-api` in lookups instead of actions table
+INSERT IGNORE INTO `lookups` (`type_code`,`lookup_code`,`lookup_value`,`lookup_description`)
+VALUES ('actions','cms-api','cms-api',NULL);
+
+-- add page api_v1_content_get_all_routes
+SET @page_keyword = 'cms-api_v1_content_get_all_routes';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+) 
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[content:class]/[all_routes:method]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Get Navigation Pages'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Get Navigation Pages'
+);
+
+-- make `home` page open access
+INSERT IGNORE INTO `acl_users` (
+  `id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`
+)
+VALUES (
+  1,
+  (SELECT `id` FROM `pages` WHERE `keyword` = 'home'),
+  '1','0','0','0'
+);
+
+-- add page api_v1_content_get_page
+SET @page_keyword = 'cms-api_v1_content_get_page';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Get Page'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Get Page'
+);
+
+-- add page api_v1_content_put_page
+SET @page_keyword = 'cms-api_v1_content_put_page';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]',
+  'PUT',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Put Data to Page'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Put Data to Page'
+);
+
+-- add page cms-api_v1_auth_login
+SET @page_keyword = 'cms-api_v1_auth_login';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[auth:class]/[login:method]',
+  'POST',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Login'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Login'
+);
+
+-- add page cms-api_v1_auth_two-factor-verify
+SET @page_keyword = 'cms-api_v1_auth_two-factor-verify';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[auth:class]/[two_factor_verify:method]',
+  'POST',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Two Factor Authentication'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Two Factor Authentication'
+);
+
+-- add page cms-api_v1_auth_refresh_token
+SET @page_keyword = 'cms-api_v1_auth_refresh_token';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[auth:class]/[refresh_token:method]',
+  'POST',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Refresh Token'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Refresh Token'
+);
+
+-- add page cms-api_v1_auth_logout
+SET @page_keyword = 'cms-api_v1_auth_logout';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[auth:class]/[logout:method]',
+  'POST',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  1
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Logout'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Logout'
+);
+
+-- add page cms-api_v1_admin_get_access
+SET @page_keyword = 'cms-api_v1_admin_get_access';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[admin:class]/[access:method]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  0
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Admin - get access'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Admin - get access'
+);
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+VALUES (
+  (SELECT `id` FROM `groups` WHERE `name` = 'admin'),
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  '1','0','0','0'
+);
+
+-- add page cms-api_v1_admin_get_pages
+SET @page_keyword = 'cms-api_v1_admin_get_pages';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[admin:class]/[pages:method]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  0
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Admin - get pages'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Admin - get pages'
+);
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+VALUES (
+  (SELECT `id` FROM `groups` WHERE `name` = 'admin'),
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  '1','0','0','0'
+);
+
+-- register page cms-api_v1_admin_page_fields
+SET @page_keyword = 'cms-api_v1_admin_page_fields';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[admin:class]/[page_fields:method]/[slug:page_keyword]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  0
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Get Page Fields'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Get Page Fields'
+);
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+VALUES (
+  (SELECT `id` FROM `groups` WHERE `name` = 'admin'),
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  '1','0','0','0'
+);
+
+-- register page cms-api_v1_admin_page_sections
+SET @page_keyword = 'cms-api_v1_admin_page_sections';
+INSERT IGNORE INTO `pages` (
+  `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`,
+  `parent`, `is_headless`, `nav_position`, `footer_position`,
+  `id_type`, `id_pageAccessTypes`, `is_open_access`
+)
+VALUES (
+  @page_keyword,
+  '/cms-api/v1/[admin:class]/[page_sections:method]/[slug:page_keyword]',
+  'GET',
+  (SELECT `id` FROM `lookups` WHERE `type_code` = 'actions' AND `lookup_code` = 'cms-api' LIMIT 1),
+  NULL,
+  NULL,
+  '0',
+  NULL,
+  NULL,
+  (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1),
+  (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1),
+  0
+);
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+VALUES (
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000001',
+  'Get Page Sections'
+),
+(
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  get_field_id('title'),
+  '0000000002',
+  'Get Page Sections'
+);
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+VALUES (
+  (SELECT `id` FROM `groups` WHERE `name` = 'admin'),
+  (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword),
+  '1','0','0','0'
+);
 
 
--- drop qualtrics and all not needed deprecated tbles or these coming from plugins
--- php bin/console doctrine:schema:update --dump-sql --verbose adjust 
+
+

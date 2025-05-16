@@ -12,6 +12,7 @@
  - remove column `owner` from `sections`
  - add function `get_page_sections_hierarchical` in `SQL` and use it in `AdminPageDetailApi.php`
  - add `slug` type in the `router`
+ - migrate tables: `actions`,`activityType`,`styleType` and `userStatus` to `lookups`
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller

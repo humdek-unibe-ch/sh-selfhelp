@@ -1,9 +1,18 @@
-drop view if exists view_styles;
-create view view_styles
-as
-select cast(s.id as unsigned) as style_id, s.name as style_name, s.description as style_description,
-cast(st.id as unsigned) as style_type_id, st.name as style_type, cast(sg.id as unsigned) as style_group_id,
-sg.name as style_group, sg.description as style_group_description, sg.position as style_group_position
-from styles s
-left join styleType st on (s.id_type = st.id)
-left join styleGroup sg on (s.id_group = sg.id);
+DROP VIEW IF EXISTS `view_styles`;
+CREATE VIEW `view_styles` AS
+SELECT
+  CAST(s.id AS UNSIGNED) AS style_id,
+  s.name AS style_name,
+  s.description AS style_description,
+  CAST(lst.id AS UNSIGNED) AS style_type_id,
+  lst.lookup_value AS style_type,
+  CAST(sg.id AS UNSIGNED) AS style_group_id,
+  sg.name AS style_group,
+  sg.description AS style_group_description,
+  sg.position AS style_group_position
+FROM styles s
+LEFT JOIN lookups lst
+  ON s.id_type = lst.id
+  AND lst.type_code = 'styleType'
+LEFT JOIN styleGroup sg
+  ON s.id_group = sg.id;
