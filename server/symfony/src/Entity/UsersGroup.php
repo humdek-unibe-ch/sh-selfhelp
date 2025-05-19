@@ -16,7 +16,7 @@ class UsersGroup
     #[ORM\Column(name: 'id_groups', type: 'integer')]
     private int $idGroups;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'usersGroups')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 

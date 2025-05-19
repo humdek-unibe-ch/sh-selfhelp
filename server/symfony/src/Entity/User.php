@@ -11,6 +11,35 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'users')]
 class User implements UserInterface
 {
+    // --- RELATIONSHIPS ---
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserActivity::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $userActivities;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $transactions;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: RefreshToken::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $refreshTokens;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersGroup::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $usersGroups;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ScheduledJobsUser::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $scheduledJobsUsers;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ValidationCode::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $validationCodes;
+
+    public function __construct()
+    {
+        $this->userActivities = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->transactions = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->refreshTokens = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -226,4 +255,156 @@ class User implements UserInterface
     public function getRoles(): array { return ['IS_AUTHENTICATED_FULLY']; }
     public function eraseCredentials(): void { }
     public function getUserIdentifier(): string { return $this->email; }
+
+    // --- RELATIONSHIP GETTERS & SETTERS ---
+    /**
+     * @return \Doctrine\Common\Collections\Collection|UserActivity[]
+     */
+    public function getUserActivities(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->userActivities;
+    }
+    public function addUserActivity(UserActivity $userActivity): self
+    {
+        if (!$this->userActivities->contains($userActivity)) {
+            $this->userActivities[] = $userActivity;
+            $userActivity->setUser($this);
+        }
+        return $this;
+    }
+    public function removeUserActivity(UserActivity $userActivity): self
+    {
+        if ($this->userActivities->removeElement($userActivity)) {
+            if ($userActivity->getUser() === $this) {
+                $userActivity->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|Transaction[]
+     */
+    public function getTransactions(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->transactions;
+    }
+    public function addTransaction(Transaction $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setUser($this);
+        }
+        return $this;
+    }
+    public function removeTransaction(Transaction $transaction): self
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            if ($transaction->getUser() === $this) {
+                $transaction->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|RefreshToken[]
+     */
+    public function getRefreshTokens(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->refreshTokens;
+    }
+    public function addRefreshToken(RefreshToken $refreshToken): self
+    {
+        if (!$this->refreshTokens->contains($refreshToken)) {
+            $this->refreshTokens[] = $refreshToken;
+            $refreshToken->setUser($this);
+        }
+        return $this;
+    }
+    public function removeRefreshToken(RefreshToken $refreshToken): self
+    {
+        if ($this->refreshTokens->removeElement($refreshToken)) {
+            if ($refreshToken->getUser() === $this) {
+                $refreshToken->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|UsersGroup[]
+     */
+    public function getUsersGroups(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->usersGroups;
+    }
+    public function addUsersGroup(UsersGroup $usersGroup): self
+    {
+        if (!$this->usersGroups->contains($usersGroup)) {
+            $this->usersGroups[] = $usersGroup;
+            $usersGroup->setUser($this);
+        }
+        return $this;
+    }
+    public function removeUsersGroup(UsersGroup $usersGroup): self
+    {
+        if ($this->usersGroups->removeElement($usersGroup)) {
+            if ($usersGroup->getUser() === $this) {
+                $usersGroup->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|ScheduledJobsUser[]
+     */
+    public function getScheduledJobsUsers(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->scheduledJobsUsers;
+    }
+    public function addScheduledJobsUser(ScheduledJobsUser $scheduledJobsUser): self
+    {
+        if (!$this->scheduledJobsUsers->contains($scheduledJobsUser)) {
+            $this->scheduledJobsUsers[] = $scheduledJobsUser;
+            $scheduledJobsUser->setUser($this);
+        }
+        return $this;
+    }
+    public function removeScheduledJobsUser(ScheduledJobsUser $scheduledJobsUser): self
+    {
+        if ($this->scheduledJobsUsers->removeElement($scheduledJobsUser)) {
+            if ($scheduledJobsUser->getUser() === $this) {
+                $scheduledJobsUser->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|ValidationCode[]
+     */
+    public function getValidationCodes(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->validationCodes;
+    }
+    public function addValidationCode(ValidationCode $validationCode): self
+    {
+        if (!$this->validationCodes->contains($validationCode)) {
+            $this->validationCodes[] = $validationCode;
+            $validationCode->setUser($this);
+        }
+        return $this;
+    }
+    public function removeValidationCode(ValidationCode $validationCode): self
+    {
+        if ($this->validationCodes->removeElement($validationCode)) {
+            if ($validationCode->getUser() === $this) {
+                $validationCode->setUser(null);
+            }
+        }
+        return $this;
+    }
 }
+// ENTITY RULE

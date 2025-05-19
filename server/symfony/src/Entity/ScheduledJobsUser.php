@@ -16,7 +16,7 @@ class ScheduledJobsUser
     #[ORM\Column(name: 'id_scheduledJobs', type: 'integer')]
     private int $idScheduledJobs;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'scheduledJobsUsers')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 

@@ -43,7 +43,7 @@ class Transaction
     #[ORM\JoinColumn(name: 'id_transactionBy', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Lookup $transactionBy = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transactions')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 

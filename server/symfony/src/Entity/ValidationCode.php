@@ -21,7 +21,7 @@ class ValidationCode
     #[ORM\Column(name: 'consumed', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $consumed = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'validationCodes')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 

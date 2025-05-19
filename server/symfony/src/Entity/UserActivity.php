@@ -38,7 +38,7 @@ class UserActivity
     #[ORM\Column(name: 'mobile', type: 'boolean', nullable: true)]
     private ?bool $mobile = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userActivities')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 
