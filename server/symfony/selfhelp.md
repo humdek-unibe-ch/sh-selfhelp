@@ -1061,6 +1061,23 @@ INSERT INTO `api_routes` (`route_name`,`version`,`path`,...) VALUES
 
 ### Entities
 
+### Page Entity Update (Step 879)
+- Aligned the `Page` entity with the latest `pages` table schema in `sh_structure.sql`.
+- Removed legacy fields `id_type` and `id_pageAccessTypes` (and their getters/setters) which were not needed as properties, since relationships are handled via Doctrine ORM attributes.
+- Ensured all ORM attributes match the SQL table, including column types, nullability, and relationships:
+  - ManyToOne relationships for `action` (Lookup), `navigationSection` (Section), `parentPage` (self-referencing Page), `pageType` (PageType), and `pageAccessType` (Lookup).
+  - All columns (`keyword`, `url`, `protocol`, `is_headless`, `nav_position`, `footer_position`, `is_open_access`, `is_system`) are present and use correct types.
+- All required getters and setters are present and up-to-date, following ENTITY RULE and Symfony best practice.
+- Ready for further use in the application and for Doctrine migrations (manual run only).
+
+### AclGroup Entity Update (Step 892)
+- Refactored `AclGroup` entity to use `ManyToOne` associations for foreign keys:
+  - `group` property references `Group` entity via `id_groups` (CASCADE delete).
+  - `page` property references `Page` entity via `id_pages` (CASCADE delete).
+- Composite primary key is now object-based (`group` and `page`).
+- Removed old int properties for keys, updated all getters/setters to use object associations.
+- Fully aligned with DB schema and ENTITY RULE for maintainability and best practice.
+
 ### DataTable, DataRow, DataCol, DataCell Refactor (2024-xx-xx)
 
 #### Summary

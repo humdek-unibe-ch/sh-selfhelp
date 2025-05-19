@@ -9,12 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 class AclGroup
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_groups', type: 'integer')]
-    private int $idGroups;
+    #[ORM\ManyToOne(targetEntity: Group::class)]
+    #[ORM\JoinColumn(name: 'id_groups', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Group $group = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_pages', type: 'integer')]
-    private int $idPages;
+    #[ORM\ManyToOne(targetEntity: Page::class)]
+    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Page $page = null;
 
     #[ORM\Column(name: 'acl_select', type: 'boolean', options: ['default' => 1])]
     private bool $aclSelect = true;
@@ -28,17 +30,25 @@ class AclGroup
     #[ORM\Column(name: 'acl_delete', type: 'boolean', options: ['default' => 0])]
     private bool $aclDelete = false;
 
-    public function getIdGroups(): ?int
+    public function getGroup(): ?Group
     {
-        return $this->idGroups;
+        return $this->group;
     }
-    public function setIdGroups(int $idGroups): self { $this->idGroups = $idGroups; return $this; }
+    public function setGroup(?Group $group): self
+    {
+        $this->group = $group;
+        return $this;
+    }
 
-    public function getIdPages(): ?int
+    public function getPage(): ?Page
     {
-        return $this->idPages;
+        return $this->page;
     }
-    public function setIdPages(int $idPages): self { $this->idPages = $idPages; return $this; }
+    public function setPage(?Page $page): self
+    {
+        $this->page = $page;
+        return $this;
+    }
 
     public function getAclSelect(): bool { return $this->aclSelect; }
 

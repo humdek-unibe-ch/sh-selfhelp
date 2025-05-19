@@ -9,12 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 class AclUser
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_users', type: 'integer')]
-    private int $idUsers;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_pages', type: 'integer')]
-    private int $idPages;
+    #[ORM\ManyToOne(targetEntity: Page::class)]
+    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Page $page = null;
 
     #[ORM\Column(name: 'acl_select', type: 'boolean', options: ['default' => 1])]
     private bool $aclSelect = true;

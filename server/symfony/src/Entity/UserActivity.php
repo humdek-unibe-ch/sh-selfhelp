@@ -42,9 +42,9 @@ class UserActivity
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: ActivityType::class)]
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
     #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?ActivityType $activityType = null;
+    private ?Lookup $activityType = null;
 
     #[ORM\OneToOne(mappedBy: 'userActivity', targetEntity: LogPerformance::class)]
     private ?LogPerformance $logPerformance = null;
@@ -162,12 +162,12 @@ class UserActivity
         return $this;
     }
 
-    public function getActivityType(): ?ActivityType
+    public function getActivityType(): ?Lookup
     {
         return $this->activityType;
     }
 
-    public function setActivityType(?ActivityType $activityType): static
+    public function setActivityType(?Lookup $activityType): static
     {
         $this->activityType = $activityType;
 

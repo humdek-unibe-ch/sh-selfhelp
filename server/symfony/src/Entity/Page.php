@@ -192,29 +192,6 @@ class Page
         return $this;
     }
 
-    public function getIdType(): ?int
-    {
-        return $this->id_type;
-    }
-
-    public function setIdType(int $id_type): static
-    {
-        $this->id_type = $id_type;
-
-        return $this;
-    }
-
-    public function getIdPageAccessTypes(): ?int
-    {
-        return $this->id_pageAccessTypes;
-    }
-
-    public function setIdPageAccessTypes(?int $id_pageAccessTypes): static
-    {
-        $this->id_pageAccessTypes = $id_pageAccessTypes;
-
-        return $this;
-    }
 
     public function isOpenAccess(): ?bool
     {
