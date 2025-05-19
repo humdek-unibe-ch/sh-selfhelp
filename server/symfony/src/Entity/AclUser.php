@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 class AclUser
 {
     #[ORM\Id]
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
@@ -30,17 +31,6 @@ class AclUser
     #[ORM\Column(name: 'acl_delete', type: 'boolean', options: ['default' => 0])]
     private bool $aclDelete = false;
 
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-    public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-
-    public function getIdPages(): ?int
-    {
-        return $this->idPages;
-    }
-    public function setIdPages(int $idPages): self { $this->idPages = $idPages; return $this; }
 
     public function getAclSelect(): bool { return $this->aclSelect; }
 
