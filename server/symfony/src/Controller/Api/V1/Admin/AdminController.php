@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\V1\Admin;
 
 use App\Exception\ServiceException;
 use App\Service\Core\ApiResponseFormatter;
@@ -10,18 +10,27 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * API V1 Admin Controller
+ * 
+ * Handles admin-related endpoints for API v1
+ */
 class AdminController extends AbstractController
 {
-    private AdminPageService $pageService;
-    private ApiResponseFormatter $responseFormatter;
-
-    public function __construct(AdminPageService $pageService, ApiResponseFormatter $responseFormatter)
-    {
-        $this->pageService = $pageService;
-        $this->responseFormatter = $responseFormatter;
+    /**
+     * Constructor
+     */
+    public function __construct(
+        private readonly AdminPageService $pageService,
+        private readonly ApiResponseFormatter $responseFormatter
+    ) {
     }
+
     /**
      * Get all pages for admin
+     * 
+     * @route /admin/pages
+     * @method GET
      */
     public function getPages(Request $request): JsonResponse
     {
@@ -41,34 +50,17 @@ class AdminController extends AbstractController
 
     /**
      * Get page fields
+     * 
+     * @route /admin/pages/{page_keyword}/fields
+     * @method GET
      */
     public function getPageFields(string $page_keyword, Request $request): JsonResponse
     {
         try {
-            // Empty implementation for now
-            return $this->responseFormatter->formatSuccess([
-                'message' => 'Admin get page fields endpoint (placeholder)',
-                'page_keyword' => $page_keyword
-            ]);
-        } catch (\Exception $e) {
-            return $this->responseFormatter->formatError(
-                $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                $this->getUser() !== null
-            );
-        }
-    }
-
-    /**
-     * Get page sections
-     */
-    public function getPageSections(string $page_keyword, Request $request): JsonResponse
-    {
-        try {
-            $sections = $this->pageService->getPageSections($page_keyword);
+            $fields = $this->pageService->getPageFields($page_keyword);
             return $this->responseFormatter->formatSuccess([
                 'page_keyword' => $page_keyword,
-                'sections' => $sections
+                'fields' => $fields
             ]);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e, $this->getUser() !== null);
@@ -82,17 +74,19 @@ class AdminController extends AbstractController
     }
 
     /**
-     * Get all methods should follow this pattern for exception handling
+     * Get page sections
+     * 
+     * @route /admin/pages/{page_keyword}/sections
+     * @method GET
      */
-    private function executeServiceMethod(callable $serviceMethod, array $additionalData = []): JsonResponse
+    public function getPageSections(string $page_keyword, Request $request): JsonResponse
     {
         try {
-            $result = $serviceMethod();
-            $data = $additionalData;
-            if ($result !== null) {
-                $data = array_merge($data, ['result' => $result]);
-            }
-            return $this->responseFormatter->formatSuccess($data);
+            $sections = $this->pageService->getPageSections($page_keyword);
+            return $this->responseFormatter->formatSuccess([
+                'page_keyword' => $page_keyword,
+                'sections' => $sections
+            ]);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e, $this->getUser() !== null);
         } catch (\Exception $e) {

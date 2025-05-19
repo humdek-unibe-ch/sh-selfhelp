@@ -30,35 +30,78 @@ class ApiRouteLoader extends Loader
 
         $routes = new RouteCollection();
         
-        // Load routes from database
-        $dbRoutes = $this->apiRouteRepository->findAllRoutesByVersion('v1');
+        // Get all available versions
+        $versions = $this->apiRouteRepository->findAllVersions();
         
-        foreach ($dbRoutes as $dbRoute) {
-            // Always prepend version to the path
-            $version = $dbRoute->getVersion();
-            $path = $version . $dbRoute->getPath();
-            $defaults = [
-                '_controller' => $dbRoute->getController(),
-            ];
+        foreach ($versions as $version) {
+            // Load routes for this version
+            $dbRoutes = $this->apiRouteRepository->findAllRoutesByVersion($version);
             
-            // Parse methods (GET, POST, etc.)
-            $methods = explode(',', $dbRoute->getMethods());
+            foreach ($dbRoutes as $dbRoute) {
+                // Always prepend version to the path
+                $path = '/' . $version . $dbRoute->getPath();
+                
+                // Map controller to versioned namespace
+                $controller = $this->mapControllerToVersionedNamespace($dbRoute->getController(), $version);
+                
+                $defaults = [
+                    '_controller' => $controller,
+                    '_version' => $version,
+                ];
+                
+                // Parse methods (GET, POST, etc.)
+                $methods = explode(',', $dbRoute->getMethods());
 
-            // Requirements and params are now arrays
-            $requirements = $dbRoute->getRequirements() ?? [];
-            $params = $dbRoute->getParams() ?? [];
+                // Requirements and params are now arrays
+                $requirements = $dbRoute->getRequirements() ?? [];
+                $params = $dbRoute->getParams() ?? [];
 
-            // Attach params as a default for controller access
-            $defaults['_params'] = $params;
+                // Attach params as a default for controller access
+                $defaults['_params'] = $params;
 
-            // Create the route
-            $route = new Route($path, $defaults, $requirements, [], '', [], $methods);
-            $routes->add($dbRoute->getRouteName(), $route);
+                // Create the route
+                $route = new Route($path, $defaults, $requirements, [], '', [], $methods);
+                $routes->add($dbRoute->getRouteName() . '_' . $version, $route);
+            }
         }
 
         $this->isLoaded = true;
 
         return $routes;
+    }
+    
+    /**
+     * Maps a controller from the database to the versioned namespace
+     * 
+     * @param string $controller The controller string from the database (e.g., App\Controller\AuthController::login)
+     * @param string $version The API version (e.g., v1)
+     * @return string The mapped controller string (e.g., App\Controller\Api\V1\Auth\AuthController::login)
+     */
+    private function mapControllerToVersionedNamespace(string $controller, string $version): string
+    {
+        // Skip if already using the versioned namespace
+        if (str_contains($controller, '\\Controller\\Api\\')) {
+            return $controller;
+        }
+        
+        // Parse controller string (e.g., "App\Controller\AuthController::login")
+        [$controllerClass, $method] = explode('::', $controller);
+        
+        // Extract controller name and domain
+        $parts = explode('\\', $controllerClass);
+        $controllerName = end($parts);
+        
+        // Determine domain from controller name
+        $domain = str_replace('Controller', '', $controllerName);
+        
+        // Map to versioned namespace
+        $versionedClass = sprintf('App\\Controller\\Api\\%s\\%s\\%sController', 
+            ucfirst(strtolower($version)),
+            ucfirst($domain),
+            ucfirst($domain)
+        );
+        
+        return $versionedClass . '::' . $method;
     }
 
     public function supports(mixed $resource, string $type = null): bool

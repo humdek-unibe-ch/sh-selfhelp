@@ -36,7 +36,7 @@ class JWTService
     {
         $refreshToken = new RefreshToken();
         $refreshToken->setUser($user);
-        $refreshToken->setToken(bin2hex(random_bytes(32)));
+        $refreshToken->setTokenHash(bin2hex(random_bytes(32)));
         $refreshToken->setExpiresAt(new \DateTime('+30 days'));
         
         $this->entityManager->persist($refreshToken);

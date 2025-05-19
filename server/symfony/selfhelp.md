@@ -1,5 +1,47 @@
 # SH-Selfhelp Symfony Backend Documentation
 
+## Controller Structure and API Versioning
+
+### Directory Structure
+```
+src/Controller/
+├── Api/                     # API controllers
+│   ├── BaseApiController.php # Base controller for all API controllers
+│   ├── ApiVersionResolver.php # Resolves API versions
+│   └── V1/                  # API v1 controllers
+│       ├── Admin/           # Admin controllers
+│       │   └── AdminController.php
+│       ├── Auth/            # Authentication controllers
+│       │   └── AuthController.php
+│       └── Content/         # Content controllers
+│           └── ContentController.php
+└── [Legacy controllers]     # Legacy controllers (to be migrated)
+```
+
+### API Versioning
+
+The API supports versioning to maintain backward compatibility while evolving the API. Versions can be specified in two ways:
+
+1. **URL Path**: `/cms-api/v1/...`
+2. **Accept Header**: `Accept: application/vnd.selfhelp.v1+json`
+
+If no version is specified, the default version (v1) is used.
+
+### Controller Hierarchy
+
+- **BaseApiController**: Provides common functionality for all API controllers
+- **Version-specific controllers**: Implement endpoints for specific API versions
+
+### Adding a New API Version
+
+To add a new API version:
+
+1. Create a new directory under `src/Controller/Api/` (e.g., `V2/`)
+2. Create subdirectories for each controller domain (Admin, Auth, Content, etc.)
+3. Create controllers in each subdirectory
+4. Update `ApiVersionResolver::AVAILABLE_VERSIONS` to include the new version
+5. Update the API routes database table with the new version
+
 ## Service Layer Organization
 
 ### Directory Structure
@@ -65,9 +107,39 @@ All API responses follow a standardized format:
 }
 ```
 
-## Adding API Routes to the Database
+## API Versioning and Database-Driven Routing
 
-This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. **All routes are now dynamically loaded from the database.** You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
+### Database-Driven Routing
+
+All API routes are dynamically loaded from the database. You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
+
+```sql
+CREATE TABLE `api_routes` (
+  `id`           INT             NOT NULL AUTO_INCREMENT,
+  `route_name`   VARCHAR(100)    NOT NULL,
+  `version`      VARCHAR(10)     NOT NULL DEFAULT 'v1',
+  `path`         VARCHAR(255)    NOT NULL,
+  `controller`   VARCHAR(255)    NOT NULL,
+  `methods`      VARCHAR(50)     NOT NULL,
+  `requirements` JSON            NULL,
+  `params`       JSON            NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
+  UNIQUE KEY `uniq_version_path` (`version`, `path`)
+);
+```
+
+### Controller Mapping
+
+The system automatically maps controllers from the database to the versioned namespace structure:
+
+```
+Database controller: App\Controller\AuthController::login
+↓
+Actual controller: App\Controller\Api\V1\Auth\AuthController::login
+```
+
+This mapping is handled by the `ApiRouteLoader::mapControllerToVersionedNamespace()` method.
 
 ## JWT Key Generation and Configuration
 
