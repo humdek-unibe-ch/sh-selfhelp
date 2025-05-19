@@ -8,6 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'groups')]
 class Group
 {
+    #[ORM\OneToMany(mappedBy: 'group', targetEntity: UsersGroup::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $usersGroups;
+
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer')]
@@ -25,10 +30,53 @@ class Group
     #[ORM\Column(name: 'requires_2fa', type: 'boolean')]
     private bool $requires2fa = false;
 
+    public function __construct()
+    {
+        $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|UsersGroup[]
+     */
+    public function getUsersGroups(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->usersGroups;
+    }
+
+    public function addUsersGroup(UsersGroup $usersGroup): self
+    {
+        if (!$this->usersGroups->contains($usersGroup)) {
+            $this->usersGroups[] = $usersGroup;
+            $usersGroup->setGroup($this);
+        }
+        return $this;
+    }
+
+    public function removeUsersGroup(UsersGroup $usersGroup): self
+    {
+        if ($this->usersGroups->removeElement($usersGroup)) {
+            if ($usersGroup->getGroup() === $this) {
+                $usersGroup->setGroup(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|User[]
+     */
+    public function getUsers(): \Doctrine\Common\Collections\Collection
+    {
+        return new \Doctrine\Common\Collections\ArrayCollection(
+            array_map(fn($ug) => $ug->getUser(), $this->usersGroups->toArray())
+        );
+    } // Returns users only via UsersGroup entity. No direct $users property.
+
 
     public function getName(): ?string
     {
@@ -79,3 +127,4 @@ class Group
     }
 }
 // ENTITY RULE
+

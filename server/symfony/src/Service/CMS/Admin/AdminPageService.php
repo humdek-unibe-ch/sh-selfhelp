@@ -22,7 +22,7 @@ class AdminPageService extends UserContextAwareService
     private const CMS_SELECT_PAGE_KEYWORD = 'cmsSelect';
 
     /************************* END ADMIN PAGES *************************/
-    
+
     /**
      * Constructor
      */
@@ -46,16 +46,16 @@ class AdminPageService extends UserContextAwareService
     public function getPageFields(string $pageKeyword): array
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-        
+
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
-        
+
         // Check if user has access to the page
         if (!$this->hasAccess($page->getId(), 'select')) {
             $this->throwForbidden('Access denied');
-        }                
-        
+        }
+
         // Return raw data - no wrapping in API response structure
         return [
             'fields' => [], // Future implementation will populate this
@@ -63,7 +63,7 @@ class AdminPageService extends UserContextAwareService
             'page_keyword' => $page->getKeyword()
         ];
     }
-    
+
     /**
      * Get page sections
      * 
@@ -74,13 +74,18 @@ class AdminPageService extends UserContextAwareService
      */
     public function getPageSections(string $pageKeyword): array
     {
+        // Check if user has admin access to cms
+        if (!$this->hasAccess($this->pageRepository->findOneBy(['keyword' => self::CMS_SELECT_PAGE_KEYWORD])->getId(), 'select')) {
+            $this->throwForbidden('Access denied');
+        }
+
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
 
         // Check if user has access to the page
-        if (!$this->hasAccess($page->getId(), 'select') || !$this->hasAccess($this->pageRepository->findOneBy(['keyword' => self::CMS_SELECT_PAGE_KEYWORD])->getId(), 'select')) {
+        if (!$this->hasAccess($page->getId(), 'select')) {
             $this->throwForbidden('Access denied');
         }
 
@@ -101,17 +106,17 @@ class AdminPageService extends UserContextAwareService
         // Create a map of sections by ID for quick lookup
         $sectionsById = [];
         $rootSections = [];
-        
+
         // First pass: index all sections by ID
         foreach ($sections as $section) {
             $section['children'] = [];
             $sectionsById[$section['id']] = $section;
         }
-        
+
         // Second pass: build the hierarchy
         foreach ($sections as $section) {
             $id = $section['id'];
-            
+
             // If it's a root section (level 0), add to root array
             if ($section['level'] === 0) {
                 $rootSections[] = &$sectionsById[$id];
@@ -120,7 +125,7 @@ class AdminPageService extends UserContextAwareService
                 $pathParts = explode(',', $section['path']);
                 if (count($pathParts) >= 2) {
                     $parentId = (int)$pathParts[count($pathParts) - 2];
-                    
+
                     // If parent exists, add this as its child
                     if (isset($sectionsById[$parentId])) {
                         $sectionsById[$parentId]['children'][] = &$sectionsById[$id];
@@ -128,7 +133,7 @@ class AdminPageService extends UserContextAwareService
                 }
             }
         }
-        
+
         return $rootSections;
     }
 }

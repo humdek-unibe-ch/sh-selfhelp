@@ -11,7 +11,40 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'users')]
 class User implements UserInterface
 {
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersGroup::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $usersGroups;
+
     // --- RELATIONSHIPS ---
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|Group[]
+     */
+    public function getGroups(): \Doctrine\Common\Collections\Collection
+    {
+        return new \Doctrine\Common\Collections\ArrayCollection(
+            array_map(fn($ug) => $ug->getGroup(), $this->usersGroups->toArray())
+        );
+    }
+
+    public function addUsersGroup(UsersGroup $usersGroup): self
+    {
+        if (!$this->usersGroups->contains($usersGroup)) {
+            $this->usersGroups[] = $usersGroup;
+            $usersGroup->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeUsersGroup(UsersGroup $usersGroup): self
+    {
+        if ($this->usersGroups->removeElement($usersGroup)) {
+            if ($usersGroup->getUser() === $this) {
+                $usersGroup->setUser(null);
+            }
+        }
+        return $this;
+    }
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserActivity::class, orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $userActivities;
 
@@ -21,9 +54,6 @@ class User implements UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: RefreshToken::class, orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $refreshTokens;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersGroup::class, orphanRemoval: true)]
-    private \Doctrine\Common\Collections\Collection $usersGroups;
-
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ScheduledJobsUser::class, orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $scheduledJobsUsers;
 
@@ -32,10 +62,10 @@ class User implements UserInterface
 
     public function __construct()
     {
+        $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
         $this->userActivities = new \Doctrine\Common\Collections\ArrayCollection();
         $this->transactions = new \Doctrine\Common\Collections\ArrayCollection();
         $this->refreshTokens = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
         $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
         $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
     }
@@ -332,30 +362,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return \Doctrine\Common\Collections\Collection|UsersGroup[]
-     */
-    public function getUsersGroups(): \Doctrine\Common\Collections\Collection
-    {
-        return $this->usersGroups;
-    }
-    public function addUsersGroup(UsersGroup $usersGroup): self
-    {
-        if (!$this->usersGroups->contains($usersGroup)) {
-            $this->usersGroups[] = $usersGroup;
-            $usersGroup->setUser($this);
-        }
-        return $this;
-    }
-    public function removeUsersGroup(UsersGroup $usersGroup): self
-    {
-        if ($this->usersGroups->removeElement($usersGroup)) {
-            if ($usersGroup->getUser() === $this) {
-                $usersGroup->setUser(null);
-            }
-        }
-        return $this;
-    }
 
     /**
      * @return \Doctrine\Common\Collections\Collection|ScheduledJobsUser[]
