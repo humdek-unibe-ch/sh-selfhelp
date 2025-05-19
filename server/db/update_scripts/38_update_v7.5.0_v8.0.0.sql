@@ -322,8 +322,8 @@ DROP TABLE IF EXISTS `deprecated_user_input_record`;
 DROP VIEW IF EXISTS view_form;
 DROP VIEW IF EXISTS view_user_input;
 
-DROP TABLE IF EXISTS `api_routes`;
-CREATE TABLE `api_routes` (
+-- DROP TABLE IF EXISTS `api_routes`;
+CREATE TABLE IF NOT EXISTS `api_routes` (
   `id`           INT             NOT NULL AUTO_INCREMENT,
   `route_name`   VARCHAR(100)    NOT NULL,
   `version`      VARCHAR(10)     NOT NULL DEFAULT 'v1',
@@ -793,6 +793,22 @@ DELIMITER ;
 
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('pageActions', 'navigation', 'Navigation', 'Navigation section page');
 
+CREATE TABLE IF NOT EXISTS `apiRequestLogs` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `route_name` VARCHAR(255) DEFAULT NULL,
+  `path` VARCHAR(255) NOT NULL,
+  `method` VARCHAR(10) NOT NULL,
+  `status_code` INT NOT NULL,
+  `user_id` INT DEFAULT NULL,
+  `ip_address` VARCHAR(45) DEFAULT NULL,
+  `request_time` DATETIME NOT NULL,
+  `response_time` DATETIME NOT NULL,
+  `duration_ms` INT NOT NULL,
+  `request_params` TEXT DEFAULT NULL,
+  `request_headers` TEXT DEFAULT NULL,
+  `response_data` TEXT DEFAULT NULL,
+  `error_message` TEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 

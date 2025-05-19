@@ -40,36 +40,39 @@ class Style
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
-    public function getIdType(): int
+    public function getIdType(): ?int
     {
         return $this->idType;
     }
 
-    public function setIdType(int $idType): self
+    public function setIdType(int $idType): static
     {
         $this->idType = $idType;
+
         return $this;
     }
 
-    public function getIdGroup(): int
+    public function getIdGroup(): ?int
     {
         return $this->idGroup;
     }
 
-    public function setIdGroup(int $idGroup): self
+    public function setIdGroup(int $idGroup): static
     {
         $this->idGroup = $idGroup;
+
         return $this;
     }
 
@@ -78,9 +81,10 @@ class Style
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -89,9 +93,10 @@ class Style
         return $this->type;
     }
 
-    public function setType(?Lookup $type): self
+    public function setType(?Lookup $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -100,9 +105,10 @@ class Style
         return $this->group;
     }
 
-    public function setGroup(?StyleGroup $group): self
+    public function setGroup(?StyleGroup $group): static
     {
         $this->group = $group;
+
         return $this;
     }
 }

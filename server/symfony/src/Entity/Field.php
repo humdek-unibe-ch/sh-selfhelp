@@ -22,12 +22,45 @@ class Field
     #[ORM\Column(name: 'display', type: 'boolean')]
     private bool $display = true;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
-    public function getIdType(): int { return $this->idType; }
-    public function setIdType(int $idType): self { $this->idType = $idType; return $this; }
-    public function isDisplay(): bool { return $this->display; }
-    public function setDisplay(bool $display): self { $this->display = $display; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getIdType(): ?int
+    {
+        return $this->idType;
+    }
+
+    public function setIdType(int $idType): static
+    {
+        $this->idType = $idType;
+
+        return $this;
+    }
+
+    public function isDisplay(): ?bool
+    {
+        return $this->display;
+    }
+
+    public function setDisplay(bool $display): static
+    {
+        $this->display = $display;
+
+        return $this;
+    }
 }
 // ENTITY RULE

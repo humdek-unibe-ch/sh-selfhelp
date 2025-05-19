@@ -20,11 +20,28 @@ class DataCell
     #[ORM\Column(name: 'value', type: 'text')]
     private string $value;
 
-    public function getIdDataRows(): int { return $this->idDataRows; }
+    public function getIdDataRows(): ?int
+    {
+        return $this->idDataRows;
+    }
     public function setIdDataRows(int $idDataRows): self { $this->idDataRows = $idDataRows; return $this; }
-    public function getIdDataCols(): int { return $this->idDataCols; }
+
+    public function getIdDataCols(): ?int
+    {
+        return $this->idDataCols;
+    }
     public function setIdDataCols(int $idDataCols): self { $this->idDataCols = $idDataCols; return $this; }
-    public function getValue(): string { return $this->value; }
-    public function setValue(string $value): self { $this->value = $value; return $this; }
+
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setValue(string $value): static
+    {
+        $this->value = $value;
+
+        return $this;
+    }
 }
 // ENTITY RULE

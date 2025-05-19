@@ -19,11 +19,28 @@ class ScheduledJobsFormAction
     #[ORM\Column(name: 'id_dataRows', type: 'integer', nullable: true)]
     private ?int $idDataRows = null;
 
-    public function getIdScheduledJobs(): int { return $this->idScheduledJobs; }
+    public function getIdScheduledJobs(): ?int
+    {
+        return $this->idScheduledJobs;
+    }
     public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
-    public function getIdFormActions(): int { return $this->idFormActions; }
+
+    public function getIdFormActions(): ?int
+    {
+        return $this->idFormActions;
+    }
     public function setIdFormActions(int $idFormActions): self { $this->idFormActions = $idFormActions; return $this; }
-    public function getIdDataRows(): ?int { return $this->idDataRows; }
-    public function setIdDataRows(?int $idDataRows): self { $this->idDataRows = $idDataRows; return $this; }
+
+    public function getIdDataRows(): ?int
+    {
+        return $this->idDataRows;
+    }
+
+    public function setIdDataRows(?int $idDataRows): static
+    {
+        $this->idDataRows = $idDataRows;
+
+        return $this;
+    }
 }
 // ENTITY RULE

@@ -32,19 +32,78 @@ class Users2faCode
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id')]
     private ?User $user = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdUsers(): int { return $this->idUsers; }
-    public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getCode(): string { return $this->code; }
-    public function setCode(string $code): self { $this->code = $code; return $this; }
-    public function getCreatedAt(): \DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
-    public function getExpiresAt(): \DateTimeInterface { return $this->expiresAt; }
-    public function setExpiresAt(\DateTimeInterface $expiresAt): self { $this->expiresAt = $expiresAt; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
+
+    public function setIdUsers(int $idUsers): static
+    {
+        $this->idUsers = $idUsers;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): static
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getExpiresAt(): ?\DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(\DateTime $expiresAt): static
+    {
+        $this->expiresAt = $expiresAt;
+
+        return $this;
+    }
     public function isIsUsed(): bool { return $this->isUsed; }
-    public function setIsUsed(bool $isUsed): self { $this->isUsed = $isUsed; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
+
+    public function setIsUsed(bool $isUsed): static
+    {
+        $this->isUsed = $isUsed;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 
     public function isUsed(): ?bool
     {

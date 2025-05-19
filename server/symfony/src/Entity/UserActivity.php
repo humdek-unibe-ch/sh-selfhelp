@@ -49,28 +49,151 @@ class UserActivity
     #[ORM\OneToOne(mappedBy: 'userActivity', targetEntity: LogPerformance::class)]
     private ?LogPerformance $logPerformance = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdUsers(): int { return $this->idUsers; }
-    public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getUrl(): string { return $this->url; }
-    public function setUrl(string $url): self { $this->url = $url; return $this; }
-    public function getTimestamp(): \DateTimeInterface { return $this->timestamp; }
-    public function setTimestamp(\DateTimeInterface $timestamp): self { $this->timestamp = $timestamp; return $this; }
-    public function getIdType(): int { return $this->idType; }
-    public function setIdType(int $idType): self { $this->idType = $idType; return $this; }
-    public function getExecTime(): ?string { return $this->execTime; }
-    public function setExecTime(?string $execTime): self { $this->execTime = $execTime; return $this; }
-    public function getKeyword(): ?string { return $this->keyword; }
-    public function setKeyword(?string $keyword): self { $this->keyword = $keyword; return $this; }
-    public function getParams(): ?string { return $this->params; }
-    public function setParams(?string $params): self { $this->params = $params; return $this; }
-    public function isMobile(): ?bool { return $this->mobile; }
-    public function setMobile(?bool $mobile): self { $this->mobile = $mobile; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
-    public function getActivityType(): ?ActivityType { return $this->activityType; }
-    public function setActivityType(?ActivityType $activityType): self { $this->activityType = $activityType; return $this; }
-    public function getLogPerformance(): ?LogPerformance { return $this->logPerformance; }
-    public function setLogPerformance(?LogPerformance $logPerformance): self { $this->logPerformance = $logPerformance; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
+
+    public function setIdUsers(int $idUsers): static
+    {
+        $this->idUsers = $idUsers;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): static
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    public function getTimestamp(): ?\DateTime
+    {
+        return $this->timestamp;
+    }
+
+    public function setTimestamp(\DateTime $timestamp): static
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    public function getIdType(): ?int
+    {
+        return $this->idType;
+    }
+
+    public function setIdType(int $idType): static
+    {
+        $this->idType = $idType;
+
+        return $this;
+    }
+
+    public function getExecTime(): ?string
+    {
+        return $this->execTime;
+    }
+
+    public function setExecTime(?string $execTime): static
+    {
+        $this->execTime = $execTime;
+
+        return $this;
+    }
+
+    public function getKeyword(): ?string
+    {
+        return $this->keyword;
+    }
+
+    public function setKeyword(?string $keyword): static
+    {
+        $this->keyword = $keyword;
+
+        return $this;
+    }
+
+    public function getParams(): ?string
+    {
+        return $this->params;
+    }
+
+    public function setParams(?string $params): static
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
+    public function isMobile(): ?bool
+    {
+        return $this->mobile;
+    }
+
+    public function setMobile(?bool $mobile): static
+    {
+        $this->mobile = $mobile;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getActivityType(): ?ActivityType
+    {
+        return $this->activityType;
+    }
+
+    public function setActivityType(?ActivityType $activityType): static
+    {
+        $this->activityType = $activityType;
+
+        return $this;
+    }
+
+    public function getLogPerformance(): ?LogPerformance
+    {
+        return $this->logPerformance;
+    }
+
+    public function setLogPerformance(?LogPerformance $logPerformance): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($logPerformance === null && $this->logPerformance !== null) {
+            $this->logPerformance->setUserActivity(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($logPerformance !== null && $logPerformance->getUserActivity() !== $this) {
+            $logPerformance->setUserActivity($this);
+        }
+
+        $this->logPerformance = $logPerformance;
+
+        return $this;
+    }
 }
 // ENTITY RULE

@@ -28,24 +28,53 @@ class AclUser
     #[ORM\Column(name: 'acl_delete', type: 'boolean', options: ['default' => 0])]
     private bool $aclDelete = false;
 
-    // Getters and setters
-    public function getIdUsers(): int { return $this->idUsers; }
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
     public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
 
-    public function getIdPages(): int { return $this->idPages; }
+    public function getIdPages(): ?int
+    {
+        return $this->idPages;
+    }
     public function setIdPages(int $idPages): self { $this->idPages = $idPages; return $this; }
 
     public function getAclSelect(): bool { return $this->aclSelect; }
-    public function setAclSelect(bool $aclSelect): self { $this->aclSelect = $aclSelect; return $this; }
+
+    public function setAclSelect(bool $aclSelect): static
+    {
+        $this->aclSelect = $aclSelect;
+
+        return $this;
+    }
 
     public function getAclInsert(): bool { return $this->aclInsert; }
-    public function setAclInsert(bool $aclInsert): self { $this->aclInsert = $aclInsert; return $this; }
+
+    public function setAclInsert(bool $aclInsert): static
+    {
+        $this->aclInsert = $aclInsert;
+
+        return $this;
+    }
 
     public function getAclUpdate(): bool { return $this->aclUpdate; }
-    public function setAclUpdate(bool $aclUpdate): self { $this->aclUpdate = $aclUpdate; return $this; }
+
+    public function setAclUpdate(bool $aclUpdate): static
+    {
+        $this->aclUpdate = $aclUpdate;
+
+        return $this;
+    }
 
     public function getAclDelete(): bool { return $this->aclDelete; }
-    public function setAclDelete(bool $aclDelete): self { $this->aclDelete = $aclDelete; return $this; }
+
+    public function setAclDelete(bool $aclDelete): static
+    {
+        $this->aclDelete = $aclDelete;
+
+        return $this;
+    }
 
     public function isAclSelect(): ?bool
     {

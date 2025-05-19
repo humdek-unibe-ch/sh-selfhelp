@@ -29,9 +29,10 @@ class Lookup
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -40,9 +41,10 @@ class Lookup
         return $this->lookup_code;
     }
 
-    public function setLookupCode(?string $lookup_code): self
+    public function setLookupCode(?string $lookup_code): static
     {
         $this->lookup_code = $lookup_code;
+
         return $this;
     }
 }

@@ -28,3 +28,16 @@ services:
         tags: [routing.loader]
         arguments:
             $env: '%kernel.environment%'
+    
+    # API Request Logger Services
+    App\Service\Core\ApiRequestLoggerService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $tokenStorage: '@security.token_storage'
+    
+    # API Request Logger Listener
+    App\EventListener\ApiRequestLoggerListener:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            $loggerService: '@App\Service\Core\ApiRequestLoggerService'

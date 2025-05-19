@@ -32,18 +32,81 @@ class CallbackLog
     #[ORM\Column(name: 'callback_output', type: 'text', nullable: true)]
     private ?string $callbackOutput = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getCallbackDate(): ?\DateTimeInterface { return $this->callbackDate; }
-    public function setCallbackDate(?\DateTimeInterface $callbackDate): self { $this->callbackDate = $callbackDate; return $this; }
-    public function getRemoteAddr(): ?string { return $this->remoteAddr; }
-    public function setRemoteAddr(?string $remoteAddr): self { $this->remoteAddr = $remoteAddr; return $this; }
-    public function getRedirectUrl(): ?string { return $this->redirectUrl; }
-    public function setRedirectUrl(?string $redirectUrl): self { $this->redirectUrl = $redirectUrl; return $this; }
-    public function getCallbackParams(): ?string { return $this->callbackParams; }
-    public function setCallbackParams(?string $callbackParams): self { $this->callbackParams = $callbackParams; return $this; }
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(?string $status): self { $this->status = $status; return $this; }
-    public function getCallbackOutput(): ?string { return $this->callbackOutput; }
-    public function setCallbackOutput(?string $callbackOutput): self { $this->callbackOutput = $callbackOutput; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getCallbackDate(): ?\DateTime
+    {
+        return $this->callbackDate;
+    }
+
+    public function setCallbackDate(?\DateTime $callbackDate): static
+    {
+        $this->callbackDate = $callbackDate;
+
+        return $this;
+    }
+
+    public function getRemoteAddr(): ?string
+    {
+        return $this->remoteAddr;
+    }
+
+    public function setRemoteAddr(?string $remoteAddr): static
+    {
+        $this->remoteAddr = $remoteAddr;
+
+        return $this;
+    }
+
+    public function getRedirectUrl(): ?string
+    {
+        return $this->redirectUrl;
+    }
+
+    public function setRedirectUrl(?string $redirectUrl): static
+    {
+        $this->redirectUrl = $redirectUrl;
+
+        return $this;
+    }
+
+    public function getCallbackParams(): ?string
+    {
+        return $this->callbackParams;
+    }
+
+    public function setCallbackParams(?string $callbackParams): static
+    {
+        $this->callbackParams = $callbackParams;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCallbackOutput(): ?string
+    {
+        return $this->callbackOutput;
+    }
+
+    public function setCallbackOutput(?string $callbackOutput): static
+    {
+        $this->callbackOutput = $callbackOutput;
+
+        return $this;
+    }
 }
 // ENTITY RULE

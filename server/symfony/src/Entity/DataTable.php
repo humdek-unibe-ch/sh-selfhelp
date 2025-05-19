@@ -22,12 +22,45 @@ class DataTable
     #[ORM\Column(name: 'displayName', type: 'string', length: 1000, nullable: true)]
     private ?string $displayName = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
-    public function getTimestamp(): \DateTimeInterface { return $this->timestamp; }
-    public function setTimestamp(\DateTimeInterface $timestamp): self { $this->timestamp = $timestamp; return $this; }
-    public function getDisplayName(): ?string { return $this->displayName; }
-    public function setDisplayName(?string $displayName): self { $this->displayName = $displayName; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getTimestamp(): ?\DateTime
+    {
+        return $this->timestamp;
+    }
+
+    public function setTimestamp(\DateTime $timestamp): static
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(?string $displayName): static
+    {
+        $this->displayName = $displayName;
+
+        return $this;
+    }
 }
 // ENTITY RULE

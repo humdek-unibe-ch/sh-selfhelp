@@ -16,9 +16,16 @@ class CodesGroup
     #[ORM\Column(name: 'id_groups', type: 'integer')]
     private int $idGroups;
 
-    public function getCode(): string { return $this->code; }
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
     public function setCode(string $code): self { $this->code = $code; return $this; }
-    public function getIdGroups(): int { return $this->idGroups; }
+
+    public function getIdGroups(): ?int
+    {
+        return $this->idGroups;
+    }
     public function setIdGroups(int $idGroups): self { $this->idGroups = $idGroups; return $this; }
 }
 // ENTITY RULE

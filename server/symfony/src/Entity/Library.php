@@ -25,14 +25,57 @@ class Library
     #[ORM\Column(name: 'comments', type: 'string', length: 1000, nullable: true)]
     private ?string $comments = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getVersion(): ?string { return $this->version; }
-    public function setVersion(?string $version): self { $this->version = $version; return $this; }
-    public function getLicense(): ?string { return $this->license; }
-    public function setLicense(?string $license): self { $this->license = $license; return $this; }
-    public function getComments(): ?string { return $this->comments; }
-    public function setComments(?string $comments): self { $this->comments = $comments; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getVersion(): ?string
+    {
+        return $this->version;
+    }
+
+    public function setVersion(?string $version): static
+    {
+        $this->version = $version;
+
+        return $this;
+    }
+
+    public function getLicense(): ?string
+    {
+        return $this->license;
+    }
+
+    public function setLicense(?string $license): static
+    {
+        $this->license = $license;
+
+        return $this;
+    }
+
+    public function getComments(): ?string
+    {
+        return $this->comments;
+    }
+
+    public function setComments(?string $comments): static
+    {
+        $this->comments = $comments;
+
+        return $this;
+    }
 }
 // ENTITY RULE

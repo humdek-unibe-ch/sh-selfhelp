@@ -24,13 +24,40 @@ class ScheduledJobsUser
     #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?ScheduledJob $scheduledJob = null;
 
-    public function getIdUsers(): int { return $this->idUsers; }
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
     public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getIdScheduledJobs(): int { return $this->idScheduledJobs; }
+
+    public function getIdScheduledJobs(): ?int
+    {
+        return $this->idScheduledJobs;
+    }
     public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
-    public function getScheduledJob(): ?ScheduledJob { return $this->scheduledJob; }
-    public function setScheduledJob(?ScheduledJob $scheduledJob): self { $this->scheduledJob = $scheduledJob; return $this; }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getScheduledJob(): ?ScheduledJob
+    {
+        return $this->scheduledJob;
+    }
+
+    public function setScheduledJob(?ScheduledJob $scheduledJob): static
+    {
+        $this->scheduledJob = $scheduledJob;
+
+        return $this;
+    }
 }
 // ENTITY RULE

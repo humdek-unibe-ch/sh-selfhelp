@@ -17,8 +17,21 @@ class Task
     #[ORM\Column(name: 'config', type: 'text', nullable: true)]
     private ?string $config = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getConfig(): ?string { return $this->config; }
-    public function setConfig(?string $config): self { $this->config = $config; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getConfig(): ?string
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?string $config): static
+    {
+        $this->config = $config;
+
+        return $this;
+    }
 }
 // ENTITY RULE

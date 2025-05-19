@@ -47,25 +47,100 @@ class SectionsFieldsTranslation
     #[ORM\JoinColumn(name: 'id_genders', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Gender $gender = null;
 
-    public function getIdSections(): int { return $this->idSections; }
+    public function getIdSections(): ?int
+    {
+        return $this->idSections;
+    }
     public function setIdSections(int $idSections): self { $this->idSections = $idSections; return $this; }
-    public function getIdFields(): int { return $this->idFields; }
+
+    public function getIdFields(): ?int
+    {
+        return $this->idFields;
+    }
     public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
-    public function getIdLanguages(): int { return $this->idLanguages; }
+
+    public function getIdLanguages(): ?int
+    {
+        return $this->idLanguages;
+    }
     public function setIdLanguages(int $idLanguages): self { $this->idLanguages = $idLanguages; return $this; }
-    public function getIdGenders(): int { return $this->idGenders; }
+
+    public function getIdGenders(): ?int
+    {
+        return $this->idGenders;
+    }
     public function setIdGenders(int $idGenders): self { $this->idGenders = $idGenders; return $this; }
-    public function getContent(): string { return $this->content; }
-    public function setContent(string $content): self { $this->content = $content; return $this; }
-    public function getMeta(): ?string { return $this->meta; }
-    public function setMeta(?string $meta): self { $this->meta = $meta; return $this; }
-    public function getSection(): ?Section { return $this->section; }
-    public function setSection(?Section $section): self { $this->section = $section; return $this; }
-    public function getField(): ?Field { return $this->field; }
-    public function setField(?Field $field): self { $this->field = $field; return $this; }
-    public function getLanguage(): ?Language { return $this->language; }
-    public function setLanguage(?Language $language): self { $this->language = $language; return $this; }
-    public function getGender(): ?Gender { return $this->gender; }
-    public function setGender(?Gender $gender): self { $this->gender = $gender; return $this; }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): static
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    public function getMeta(): ?string
+    {
+        return $this->meta;
+    }
+
+    public function setMeta(?string $meta): static
+    {
+        $this->meta = $meta;
+
+        return $this;
+    }
+
+    public function getSection(): ?Section
+    {
+        return $this->section;
+    }
+
+    public function setSection(?Section $section): static
+    {
+        $this->section = $section;
+
+        return $this;
+    }
+
+    public function getField(): ?Field
+    {
+        return $this->field;
+    }
+
+    public function setField(?Field $field): static
+    {
+        $this->field = $field;
+
+        return $this;
+    }
+
+    public function getLanguage(): ?Language
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?Language $language): static
+    {
+        $this->language = $language;
+
+        return $this;
+    }
+
+    public function getGender(): ?Gender
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?Gender $gender): static
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
 }
 // ENTITY RULE

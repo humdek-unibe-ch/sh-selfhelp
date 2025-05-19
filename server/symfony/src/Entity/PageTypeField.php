@@ -31,17 +31,64 @@ class PageTypeField
     #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Field $field = null;
 
-    public function getIdPageType(): int { return $this->idPageType; }
+    public function getIdPageType(): ?int
+    {
+        return $this->idPageType;
+    }
     public function setIdPageType(int $idPageType): self { $this->idPageType = $idPageType; return $this; }
-    public function getIdFields(): int { return $this->idFields; }
+
+    public function getIdFields(): ?int
+    {
+        return $this->idFields;
+    }
     public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
-    public function getDefaultValue(): ?string { return $this->defaultValue; }
-    public function setDefaultValue(?string $defaultValue): self { $this->defaultValue = $defaultValue; return $this; }
-    public function getHelp(): ?string { return $this->help; }
-    public function setHelp(?string $help): self { $this->help = $help; return $this; }
-    public function getPageType(): ?PageType { return $this->pageType; }
-    public function setPageType(?PageType $pageType): self { $this->pageType = $pageType; return $this; }
-    public function getField(): ?Field { return $this->field; }
-    public function setField(?Field $field): self { $this->field = $field; return $this; }
+
+    public function getDefaultValue(): ?string
+    {
+        return $this->defaultValue;
+    }
+
+    public function setDefaultValue(?string $defaultValue): static
+    {
+        $this->defaultValue = $defaultValue;
+
+        return $this;
+    }
+
+    public function getHelp(): ?string
+    {
+        return $this->help;
+    }
+
+    public function setHelp(?string $help): static
+    {
+        $this->help = $help;
+
+        return $this;
+    }
+
+    public function getPageType(): ?PageType
+    {
+        return $this->pageType;
+    }
+
+    public function setPageType(?PageType $pageType): static
+    {
+        $this->pageType = $pageType;
+
+        return $this;
+    }
+
+    public function getField(): ?Field
+    {
+        return $this->field;
+    }
+
+    public function setField(?Field $field): static
+    {
+        $this->field = $field;
+
+        return $this;
+    }
 }
 // ENTITY RULE

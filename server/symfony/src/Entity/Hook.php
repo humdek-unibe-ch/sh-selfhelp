@@ -37,22 +37,105 @@ class Hook
     #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 10])]
     private int $priority = 10;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdHookTypes(): int { return $this->idHookTypes; }
-    public function setIdHookTypes(int $idHookTypes): self { $this->idHookTypes = $idHookTypes; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): self { $this->description = $description; return $this; }
-    public function getClass(): string { return $this->class; }
-    public function setClass(string $class): self { $this->class = $class; return $this; }
-    public function getFunction(): string { return $this->function; }
-    public function setFunction(string $function): self { $this->function = $function; return $this; }
-    public function getExecClass(): string { return $this->execClass; }
-    public function setExecClass(string $execClass): self { $this->execClass = $execClass; return $this; }
-    public function getExecFunction(): string { return $this->execFunction; }
-    public function setExecFunction(string $execFunction): self { $this->execFunction = $execFunction; return $this; }
-    public function getPriority(): int { return $this->priority; }
-    public function setPriority(int $priority): self { $this->priority = $priority; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdHookTypes(): ?int
+    {
+        return $this->idHookTypes;
+    }
+
+    public function setIdHookTypes(int $idHookTypes): static
+    {
+        $this->idHookTypes = $idHookTypes;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getClass(): ?string
+    {
+        return $this->class;
+    }
+
+    public function setClass(string $class): static
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
+    public function getFunction(): ?string
+    {
+        return $this->function;
+    }
+
+    public function setFunction(string $function): static
+    {
+        $this->function = $function;
+
+        return $this;
+    }
+
+    public function getExecClass(): ?string
+    {
+        return $this->execClass;
+    }
+
+    public function setExecClass(string $execClass): static
+    {
+        $this->execClass = $execClass;
+
+        return $this;
+    }
+
+    public function getExecFunction(): ?string
+    {
+        return $this->execFunction;
+    }
+
+    public function setExecFunction(string $execFunction): static
+    {
+        $this->execFunction = $execFunction;
+
+        return $this;
+    }
+
+    public function getPriority(): ?int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): static
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
 }
 // ENTITY RULE

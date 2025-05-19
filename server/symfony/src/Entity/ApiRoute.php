@@ -45,9 +45,10 @@ class ApiRoute
         return $this->route_name;
     }
 
-    public function setRouteName(string $route_name): self
+    public function setRouteName(string $route_name): static
     {
         $this->route_name = $route_name;
+
         return $this;
     }
 
@@ -56,9 +57,10 @@ class ApiRoute
         return $this->path;
     }
 
-    public function setPath(string $path): self
+    public function setPath(string $path): static
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -67,9 +69,10 @@ class ApiRoute
         return $this->controller;
     }
 
-    public function setController(string $controller): self
+    public function setController(string $controller): static
     {
         $this->controller = $controller;
+
         return $this;
     }
 
@@ -78,9 +81,10 @@ class ApiRoute
         return $this->methods;
     }
 
-    public function setMethods(string $methods): self
+    public function setMethods(string $methods): static
     {
         $this->methods = $methods;
+
         return $this;
     }
 
@@ -89,9 +93,10 @@ class ApiRoute
         return $this->requirements;
     }
 
-    public function setRequirements(?array $requirements): self
+    public function setRequirements(?array $requirements): static
     {
         $this->requirements = $requirements;
+
         return $this;
     }
 
@@ -100,9 +105,10 @@ class ApiRoute
         return $this->params;
     }
 
-    public function setParams(?array $params): self
+    public function setParams(?array $params): static
     {
         $this->params = $params;
+
         return $this;
     }
 
@@ -111,9 +117,10 @@ class ApiRoute
         return $this->version;
     }
 
-    public function setVersion(string $version): self
+    public function setVersion(string $version): static
     {
         $this->version = $version;
+
         return $this;
     }
 }

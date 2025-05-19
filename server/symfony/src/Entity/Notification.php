@@ -23,12 +23,45 @@ class Notification
     #[ORM\Column(name: 'url', type: 'string', length: 100, nullable: true)]
     private ?string $url = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getSubject(): string { return $this->subject; }
-    public function setSubject(string $subject): self { $this->subject = $subject; return $this; }
-    public function getBody(): string { return $this->body; }
-    public function setBody(string $body): self { $this->body = $body; return $this; }
-    public function getUrl(): ?string { return $this->url; }
-    public function setUrl(?string $url): self { $this->url = $url; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(string $subject): static
+    {
+        $this->subject = $subject;
+
+        return $this;
+    }
+
+    public function getBody(): ?string
+    {
+        return $this->body;
+    }
+
+    public function setBody(string $body): static
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): static
+    {
+        $this->url = $url;
+
+        return $this;
+    }
 }
 // ENTITY RULE

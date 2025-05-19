@@ -19,10 +19,33 @@ class UserStatus
     #[ORM\Column(name: 'description', type: 'string', length: 500)]
     private string $description;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
-    public function getDescription(): string { return $this->description; }
-    public function setDescription(string $description): self { $this->description = $description; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
 }
 // ENTITY RULE

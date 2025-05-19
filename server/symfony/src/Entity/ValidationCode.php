@@ -25,15 +25,58 @@ class ValidationCode
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    public function getCode(): string { return $this->code; }
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
     public function setCode(string $code): self { $this->code = $code; return $this; }
-    public function getIdUsers(): ?int { return $this->idUsers; }
-    public function setIdUsers(?int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getCreated(): \DateTimeInterface { return $this->created; }
-    public function setCreated(\DateTimeInterface $created): self { $this->created = $created; return $this; }
-    public function getConsumed(): ?\DateTimeInterface { return $this->consumed; }
-    public function setConsumed(?\DateTimeInterface $consumed): self { $this->consumed = $consumed; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
+
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
+
+    public function setIdUsers(?int $idUsers): static
+    {
+        $this->idUsers = $idUsers;
+
+        return $this;
+    }
+
+    public function getCreated(): ?\DateTime
+    {
+        return $this->created;
+    }
+
+    public function setCreated(\DateTime $created): static
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    public function getConsumed(): ?\DateTime
+    {
+        return $this->consumed;
+    }
+
+    public function setConsumed(?\DateTime $consumed): static
+    {
+        $this->consumed = $consumed;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }
 // ENTITY RULE

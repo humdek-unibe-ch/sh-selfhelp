@@ -58,35 +58,166 @@ class User implements UserInterface
     // Not persisted: for 2FA runtime state
     private bool $twoFactorRequired = false;
 
-    // --- Getters and Setters ---
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getId(): ?int { return $this->id; }
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(?string $email): self { $this->email = $email; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getPassword(): ?string { return $this->password; }
-    public function setPassword(?string $password): self { $this->password = $password; return $this; }
-    public function getIdGenders(): ?int { return $this->id_genders; }
-    public function setIdGenders(?int $id_genders): self { $this->id_genders = $id_genders; return $this; }
-    public function isBlocked(): bool { return $this->blocked; }
-    public function setBlocked(bool $blocked): self { $this->blocked = $blocked; return $this; }
-    public function getIdStatus(): ?int { return $this->id_status; }
-    public function setIdStatus(?int $id_status): self { $this->id_status = $id_status; return $this; }
-    public function isIntern(): bool { return $this->intern; }
-    public function setIntern(bool $intern): self { $this->intern = $intern; return $this; }
-    public function getToken(): ?string { return $this->token; }
-    public function setToken(?string $token): self { $this->token = $token; return $this; }
-    public function getIdLanguages(): ?int { return $this->id_languages; }
-    public function setIdLanguages(?int $id_languages): self { $this->id_languages = $id_languages; return $this; }
-    public function isReminded(): bool { return $this->is_reminded; }
-    public function setIsReminded(bool $is_reminded): self { $this->is_reminded = $is_reminded; return $this; }
-    public function getLastLogin(): ?\DateTimeInterface { return $this->last_login; }
-    public function setLastLogin(?\DateTimeInterface $last_login): self { $this->last_login = $last_login; return $this; }
-    public function getLastUrl(): ?string { return $this->last_url; }
-    public function setLastUrl(?string $last_url): self { $this->last_url = $last_url; return $this; }
-    public function getUserName(): ?string { return $this->user_name; }
-    public function setUserName(?string $user_name): self { $this->user_name = $user_name; return $this; }
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(?string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getIdGenders(): ?int
+    {
+        return $this->id_genders;
+    }
+
+    public function setIdGenders(?int $id_genders): static
+    {
+        $this->id_genders = $id_genders;
+
+        return $this;
+    }
+
+    public function isBlocked(): ?bool
+    {
+        return $this->blocked;
+    }
+
+    public function setBlocked(bool $blocked): static
+    {
+        $this->blocked = $blocked;
+
+        return $this;
+    }
+
+    public function getIdStatus(): ?int
+    {
+        return $this->id_status;
+    }
+
+    public function setIdStatus(?int $id_status): static
+    {
+        $this->id_status = $id_status;
+
+        return $this;
+    }
+
+    public function isIntern(): ?bool
+    {
+        return $this->intern;
+    }
+
+    public function setIntern(bool $intern): static
+    {
+        $this->intern = $intern;
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): static
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    public function getIdLanguages(): ?int
+    {
+        return $this->id_languages;
+    }
+
+    public function setIdLanguages(?int $id_languages): static
+    {
+        $this->id_languages = $id_languages;
+
+        return $this;
+    }
+
+    public function isReminded(): ?bool
+    {
+        return $this->is_reminded;
+    }
+
+    public function setIsReminded(bool $is_reminded): static
+    {
+        $this->is_reminded = $is_reminded;
+
+        return $this;
+    }
+
+    public function getLastLogin(): ?\DateTime
+    {
+        return $this->last_login;
+    }
+
+    public function setLastLogin(?\DateTime $last_login): static
+    {
+        $this->last_login = $last_login;
+
+        return $this;
+    }
+
+    public function getLastUrl(): ?string
+    {
+        return $this->last_url;
+    }
+
+    public function setLastUrl(?string $last_url): static
+    {
+        $this->last_url = $last_url;
+
+        return $this;
+    }
+
+    public function getUserName(): ?string
+    {
+        return $this->user_name;
+    }
+
+    public function setUserName(?string $user_name): static
+    {
+        $this->user_name = $user_name;
+
+        return $this;
+    }
 
     // 2FA runtime property
     public function isTwoFactorRequired(): bool { return $this->twoFactorRequired; }

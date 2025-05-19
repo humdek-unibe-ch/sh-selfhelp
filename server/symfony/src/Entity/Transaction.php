@@ -47,26 +47,129 @@ class Transaction
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getTransactionTime(): \DateTimeInterface { return $this->transactionTime; }
-    public function setTransactionTime(\DateTimeInterface $transactionTime): self { $this->transactionTime = $transactionTime; return $this; }
-    public function getIdTransactionTypes(): ?int { return $this->idTransactionTypes; }
-    public function setIdTransactionTypes(?int $idTransactionTypes): self { $this->idTransactionTypes = $idTransactionTypes; return $this; }
-    public function getIdTransactionBy(): ?int { return $this->idTransactionBy; }
-    public function setIdTransactionBy(?int $idTransactionBy): self { $this->idTransactionBy = $idTransactionBy; return $this; }
-    public function getIdUsers(): ?int { return $this->idUsers; }
-    public function setIdUsers(?int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getTableName(): ?string { return $this->tableName; }
-    public function setTableName(?string $tableName): self { $this->tableName = $tableName; return $this; }
-    public function getIdTableName(): ?int { return $this->idTableName; }
-    public function setIdTableName(?int $idTableName): self { $this->idTableName = $idTableName; return $this; }
-    public function getTransactionLog(): ?string { return $this->transactionLog; }
-    public function setTransactionLog(?string $transactionLog): self { $this->transactionLog = $transactionLog; return $this; }
-    public function getTransactionType(): ?Lookup { return $this->transactionType; }
-    public function setTransactionType(?Lookup $transactionType): self { $this->transactionType = $transactionType; return $this; }
-    public function getTransactionBy(): ?Lookup { return $this->transactionBy; }
-    public function setTransactionBy(?Lookup $transactionBy): self { $this->transactionBy = $transactionBy; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTransactionTime(): ?\DateTime
+    {
+        return $this->transactionTime;
+    }
+
+    public function setTransactionTime(\DateTime $transactionTime): static
+    {
+        $this->transactionTime = $transactionTime;
+
+        return $this;
+    }
+
+    public function getIdTransactionTypes(): ?int
+    {
+        return $this->idTransactionTypes;
+    }
+
+    public function setIdTransactionTypes(?int $idTransactionTypes): static
+    {
+        $this->idTransactionTypes = $idTransactionTypes;
+
+        return $this;
+    }
+
+    public function getIdTransactionBy(): ?int
+    {
+        return $this->idTransactionBy;
+    }
+
+    public function setIdTransactionBy(?int $idTransactionBy): static
+    {
+        $this->idTransactionBy = $idTransactionBy;
+
+        return $this;
+    }
+
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
+
+    public function setIdUsers(?int $idUsers): static
+    {
+        $this->idUsers = $idUsers;
+
+        return $this;
+    }
+
+    public function getTableName(): ?string
+    {
+        return $this->tableName;
+    }
+
+    public function setTableName(?string $tableName): static
+    {
+        $this->tableName = $tableName;
+
+        return $this;
+    }
+
+    public function getIdTableName(): ?int
+    {
+        return $this->idTableName;
+    }
+
+    public function setIdTableName(?int $idTableName): static
+    {
+        $this->idTableName = $idTableName;
+
+        return $this;
+    }
+
+    public function getTransactionLog(): ?string
+    {
+        return $this->transactionLog;
+    }
+
+    public function setTransactionLog(?string $transactionLog): static
+    {
+        $this->transactionLog = $transactionLog;
+
+        return $this;
+    }
+
+    public function getTransactionType(): ?Lookup
+    {
+        return $this->transactionType;
+    }
+
+    public function setTransactionType(?Lookup $transactionType): static
+    {
+        $this->transactionType = $transactionType;
+
+        return $this;
+    }
+
+    public function getTransactionBy(): ?Lookup
+    {
+        return $this->transactionBy;
+    }
+
+    public function setTransactionBy(?Lookup $transactionBy): static
+    {
+        $this->transactionBy = $transactionBy;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }
 // ENTITY RULE

@@ -19,10 +19,33 @@ class Plugin
     #[ORM\Column(name: 'version', type: 'string', length: 500, nullable: true)]
     private ?string $version = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getVersion(): ?string { return $this->version; }
-    public function setVersion(?string $version): self { $this->version = $version; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getVersion(): ?string
+    {
+        return $this->version;
+    }
+
+    public function setVersion(?string $version): static
+    {
+        $this->version = $version;
+
+        return $this;
+    }
 }
 // ENTITY RULE

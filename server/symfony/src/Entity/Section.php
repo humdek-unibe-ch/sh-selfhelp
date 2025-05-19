@@ -23,12 +23,45 @@ class Section
     #[ORM\JoinColumn(name: 'id_styles', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Style $style = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdStyles(): int { return $this->idStyles; }
-    public function setIdStyles(int $idStyles): self { $this->idStyles = $idStyles; return $this; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
-    public function getStyle(): ?Style { return $this->style; }
-    public function setStyle(?Style $style): self { $this->style = $style; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdStyles(): ?int
+    {
+        return $this->idStyles;
+    }
+
+    public function setIdStyles(int $idStyles): static
+    {
+        $this->idStyles = $idStyles;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getStyle(): ?Style
+    {
+        return $this->style;
+    }
+
+    public function setStyle(?Style $style): static
+    {
+        $this->style = $style;
+
+        return $this;
+    }
 }
 // ENTITY RULE

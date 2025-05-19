@@ -41,24 +41,117 @@ class MailQueue
     #[ORM\Column(name: 'is_html', type: 'boolean')]
     private bool $isHtml = true;
 
-    public function getId(): ?int { return $this->id; }
-    public function getFromEmail(): string { return $this->fromEmail; }
-    public function setFromEmail(string $fromEmail): self { $this->fromEmail = $fromEmail; return $this; }
-    public function getFromName(): string { return $this->fromName; }
-    public function setFromName(string $fromName): self { $this->fromName = $fromName; return $this; }
-    public function getReplyTo(): string { return $this->replyTo; }
-    public function setReplyTo(string $replyTo): self { $this->replyTo = $replyTo; return $this; }
-    public function getRecipientEmails(): string { return $this->recipientEmails; }
-    public function setRecipientEmails(string $recipientEmails): self { $this->recipientEmails = $recipientEmails; return $this; }
-    public function getCcEmails(): ?string { return $this->ccEmails; }
-    public function setCcEmails(?string $ccEmails): self { $this->ccEmails = $ccEmails; return $this; }
-    public function getBccEmails(): ?string { return $this->bccEmails; }
-    public function setBccEmails(?string $bccEmails): self { $this->bccEmails = $bccEmails; return $this; }
-    public function getSubject(): string { return $this->subject; }
-    public function setSubject(string $subject): self { $this->subject = $subject; return $this; }
-    public function getBody(): string { return $this->body; }
-    public function setBody(string $body): self { $this->body = $body; return $this; }
-    public function isHtml(): bool { return $this->isHtml; }
-    public function setIsHtml(bool $isHtml): self { $this->isHtml = $isHtml; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getFromEmail(): ?string
+    {
+        return $this->fromEmail;
+    }
+
+    public function setFromEmail(string $fromEmail): static
+    {
+        $this->fromEmail = $fromEmail;
+
+        return $this;
+    }
+
+    public function getFromName(): ?string
+    {
+        return $this->fromName;
+    }
+
+    public function setFromName(string $fromName): static
+    {
+        $this->fromName = $fromName;
+
+        return $this;
+    }
+
+    public function getReplyTo(): ?string
+    {
+        return $this->replyTo;
+    }
+
+    public function setReplyTo(string $replyTo): static
+    {
+        $this->replyTo = $replyTo;
+
+        return $this;
+    }
+
+    public function getRecipientEmails(): ?string
+    {
+        return $this->recipientEmails;
+    }
+
+    public function setRecipientEmails(string $recipientEmails): static
+    {
+        $this->recipientEmails = $recipientEmails;
+
+        return $this;
+    }
+
+    public function getCcEmails(): ?string
+    {
+        return $this->ccEmails;
+    }
+
+    public function setCcEmails(?string $ccEmails): static
+    {
+        $this->ccEmails = $ccEmails;
+
+        return $this;
+    }
+
+    public function getBccEmails(): ?string
+    {
+        return $this->bccEmails;
+    }
+
+    public function setBccEmails(?string $bccEmails): static
+    {
+        $this->bccEmails = $bccEmails;
+
+        return $this;
+    }
+
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(string $subject): static
+    {
+        $this->subject = $subject;
+
+        return $this;
+    }
+
+    public function getBody(): ?string
+    {
+        return $this->body;
+    }
+
+    public function setBody(string $body): static
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    public function isHtml(): ?bool
+    {
+        return $this->isHtml;
+    }
+
+    public function setIsHtml(bool $isHtml): static
+    {
+        $this->isHtml = $isHtml;
+
+        return $this;
+    }
 }
 // ENTITY RULE

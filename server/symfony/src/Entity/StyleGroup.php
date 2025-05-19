@@ -29,14 +29,15 @@ class StyleGroup
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -45,9 +46,10 @@ class StyleGroup
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -56,9 +58,10 @@ class StyleGroup
         return $this->position;
     }
 
-    public function setPosition(?int $position): self
+    public function setPosition(?int $position): static
     {
         $this->position = $position;
+
         return $this;
     }
 }

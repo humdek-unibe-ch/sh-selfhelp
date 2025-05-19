@@ -37,21 +37,88 @@ class StylesField
     #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Field $field = null;
 
-    public function getIdStyles(): int { return $this->idStyles; }
+    public function getIdStyles(): ?int
+    {
+        return $this->idStyles;
+    }
     public function setIdStyles(int $idStyles): self { $this->idStyles = $idStyles; return $this; }
-    public function getIdFields(): int { return $this->idFields; }
+
+    public function getIdFields(): ?int
+    {
+        return $this->idFields;
+    }
     public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
-    public function getDefaultValue(): ?string { return $this->defaultValue; }
-    public function setDefaultValue(?string $defaultValue): self { $this->defaultValue = $defaultValue; return $this; }
-    public function getHelp(): ?string { return $this->help; }
-    public function setHelp(?string $help): self { $this->help = $help; return $this; }
-    public function isDisabled(): bool { return $this->disabled; }
-    public function setDisabled(bool $disabled): self { $this->disabled = $disabled; return $this; }
-    public function getHidden(): ?int { return $this->hidden; }
-    public function setHidden(?int $hidden): self { $this->hidden = $hidden; return $this; }
-    public function getStyle(): ?Style { return $this->style; }
-    public function setStyle(?Style $style): self { $this->style = $style; return $this; }
-    public function getField(): ?Field { return $this->field; }
-    public function setField(?Field $field): self { $this->field = $field; return $this; }
+
+    public function getDefaultValue(): ?string
+    {
+        return $this->defaultValue;
+    }
+
+    public function setDefaultValue(?string $defaultValue): static
+    {
+        $this->defaultValue = $defaultValue;
+
+        return $this;
+    }
+
+    public function getHelp(): ?string
+    {
+        return $this->help;
+    }
+
+    public function setHelp(?string $help): static
+    {
+        $this->help = $help;
+
+        return $this;
+    }
+
+    public function isDisabled(): ?bool
+    {
+        return $this->disabled;
+    }
+
+    public function setDisabled(bool $disabled): static
+    {
+        $this->disabled = $disabled;
+
+        return $this;
+    }
+
+    public function getHidden(): ?int
+    {
+        return $this->hidden;
+    }
+
+    public function setHidden(?int $hidden): static
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    public function getStyle(): ?Style
+    {
+        return $this->style;
+    }
+
+    public function setStyle(?Style $style): static
+    {
+        $this->style = $style;
+
+        return $this;
+    }
+
+    public function getField(): ?Field
+    {
+        return $this->field;
+    }
+
+    public function setField(?Field $field): static
+    {
+        $this->field = $field;
+
+        return $this;
+    }
 }
 // ENTITY RULE

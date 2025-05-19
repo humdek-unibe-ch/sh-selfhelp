@@ -25,14 +25,57 @@ class DataRow
     #[ORM\Column(name: 'id_actionTriggerTypes', type: 'integer', nullable: true)]
     private ?int $idActionTriggerTypes = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdDataTables(): ?int { return $this->idDataTables; }
-    public function setIdDataTables(?int $idDataTables): self { $this->idDataTables = $idDataTables; return $this; }
-    public function getTimestamp(): \DateTimeInterface { return $this->timestamp; }
-    public function setTimestamp(\DateTimeInterface $timestamp): self { $this->timestamp = $timestamp; return $this; }
-    public function getIdUsers(): ?int { return $this->idUsers; }
-    public function setIdUsers(?int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-    public function getIdActionTriggerTypes(): ?int { return $this->idActionTriggerTypes; }
-    public function setIdActionTriggerTypes(?int $idActionTriggerTypes): self { $this->idActionTriggerTypes = $idActionTriggerTypes; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdDataTables(): ?int
+    {
+        return $this->idDataTables;
+    }
+
+    public function setIdDataTables(?int $idDataTables): static
+    {
+        $this->idDataTables = $idDataTables;
+
+        return $this;
+    }
+
+    public function getTimestamp(): ?\DateTime
+    {
+        return $this->timestamp;
+    }
+
+    public function setTimestamp(\DateTime $timestamp): static
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    public function getIdUsers(): ?int
+    {
+        return $this->idUsers;
+    }
+
+    public function setIdUsers(?int $idUsers): static
+    {
+        $this->idUsers = $idUsers;
+
+        return $this;
+    }
+
+    public function getIdActionTriggerTypes(): ?int
+    {
+        return $this->idActionTriggerTypes;
+    }
+
+    public function setIdActionTriggerTypes(?int $idActionTriggerTypes): static
+    {
+        $this->idActionTriggerTypes = $idActionTriggerTypes;
+
+        return $this;
+    }
 }
 // ENTITY RULE

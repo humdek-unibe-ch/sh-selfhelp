@@ -25,14 +25,57 @@ class Asset
     #[ORM\Column(name: 'file_path', type: 'string', length: 1000)]
     private string $filePath;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdAssetTypes(): int { return $this->idAssetTypes; }
-    public function setIdAssetTypes(int $idAssetTypes): self { $this->idAssetTypes = $idAssetTypes; return $this; }
-    public function getFolder(): ?string { return $this->folder; }
-    public function setFolder(?string $folder): self { $this->folder = $folder; return $this; }
-    public function getFileName(): ?string { return $this->fileName; }
-    public function setFileName(?string $fileName): self { $this->fileName = $fileName; return $this; }
-    public function getFilePath(): string { return $this->filePath; }
-    public function setFilePath(string $filePath): self { $this->filePath = $filePath; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdAssetTypes(): ?int
+    {
+        return $this->idAssetTypes;
+    }
+
+    public function setIdAssetTypes(int $idAssetTypes): static
+    {
+        $this->idAssetTypes = $idAssetTypes;
+
+        return $this;
+    }
+
+    public function getFolder(): ?string
+    {
+        return $this->folder;
+    }
+
+    public function setFolder(?string $folder): static
+    {
+        $this->folder = $folder;
+
+        return $this;
+    }
+
+    public function getFileName(): ?string
+    {
+        return $this->fileName;
+    }
+
+    public function setFileName(?string $fileName): static
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath(string $filePath): static
+    {
+        $this->filePath = $filePath;
+
+        return $this;
+    }
 }
 // ENTITY RULE

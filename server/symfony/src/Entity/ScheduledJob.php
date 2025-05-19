@@ -34,20 +34,93 @@ class ScheduledJob
     #[ORM\Column(name: 'config', type: 'string', length: 1000, nullable: true)]
     private ?string $config = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdJobTypes(): int { return $this->idJobTypes; }
-    public function setIdJobTypes(int $idJobTypes): self { $this->idJobTypes = $idJobTypes; return $this; }
-    public function getIdJobStatus(): int { return $this->idJobStatus; }
-    public function setIdJobStatus(int $idJobStatus): self { $this->idJobStatus = $idJobStatus; return $this; }
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): self { $this->description = $description; return $this; }
-    public function getDateCreate(): \DateTimeInterface { return $this->dateCreate; }
-    public function setDateCreate(\DateTimeInterface $dateCreate): self { $this->dateCreate = $dateCreate; return $this; }
-    public function getDateToBeExecuted(): ?\DateTimeInterface { return $this->dateToBeExecuted; }
-    public function setDateToBeExecuted(?\DateTimeInterface $dateToBeExecuted): self { $this->dateToBeExecuted = $dateToBeExecuted; return $this; }
-    public function getDateExecuted(): ?\DateTimeInterface { return $this->dateExecuted; }
-    public function setDateExecuted(?\DateTimeInterface $dateExecuted): self { $this->dateExecuted = $dateExecuted; return $this; }
-    public function getConfig(): ?string { return $this->config; }
-    public function setConfig(?string $config): self { $this->config = $config; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getIdJobTypes(): ?int
+    {
+        return $this->idJobTypes;
+    }
+
+    public function setIdJobTypes(int $idJobTypes): static
+    {
+        $this->idJobTypes = $idJobTypes;
+
+        return $this;
+    }
+
+    public function getIdJobStatus(): ?int
+    {
+        return $this->idJobStatus;
+    }
+
+    public function setIdJobStatus(int $idJobStatus): static
+    {
+        $this->idJobStatus = $idJobStatus;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDateCreate(): ?\DateTime
+    {
+        return $this->dateCreate;
+    }
+
+    public function setDateCreate(\DateTime $dateCreate): static
+    {
+        $this->dateCreate = $dateCreate;
+
+        return $this;
+    }
+
+    public function getDateToBeExecuted(): ?\DateTime
+    {
+        return $this->dateToBeExecuted;
+    }
+
+    public function setDateToBeExecuted(?\DateTime $dateToBeExecuted): static
+    {
+        $this->dateToBeExecuted = $dateToBeExecuted;
+
+        return $this;
+    }
+
+    public function getDateExecuted(): ?\DateTime
+    {
+        return $this->dateExecuted;
+    }
+
+    public function setDateExecuted(?\DateTime $dateExecuted): static
+    {
+        $this->dateExecuted = $dateExecuted;
+
+        return $this;
+    }
+
+    public function getConfig(): ?string
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?string $config): static
+    {
+        $this->config = $config;
+
+        return $this;
+    }
 }
 // ENTITY RULE

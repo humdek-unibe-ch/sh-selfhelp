@@ -27,15 +27,52 @@ class SectionsHierarchy
     #[ORM\JoinColumn(name: 'child', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Section $childSection = null;
 
-    public function getParent(): int { return $this->parent; }
+    public function getParent(): ?int
+    {
+        return $this->parent;
+    }
     public function setParent(int $parent): self { $this->parent = $parent; return $this; }
-    public function getChild(): int { return $this->child; }
+
+    public function getChild(): ?int
+    {
+        return $this->child;
+    }
     public function setChild(int $child): self { $this->child = $child; return $this; }
-    public function getPosition(): ?int { return $this->position; }
-    public function setPosition(?int $position): self { $this->position = $position; return $this; }
-    public function getParentSection(): ?Section { return $this->parentSection; }
-    public function setParentSection(?Section $parentSection): self { $this->parentSection = $parentSection; return $this; }
-    public function getChildSection(): ?Section { return $this->childSection; }
-    public function setChildSection(?Section $childSection): self { $this->childSection = $childSection; return $this; }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?int $position): static
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    public function getParentSection(): ?Section
+    {
+        return $this->parentSection;
+    }
+
+    public function setParentSection(?Section $parentSection): static
+    {
+        $this->parentSection = $parentSection;
+
+        return $this;
+    }
+
+    public function getChildSection(): ?Section
+    {
+        return $this->childSection;
+    }
+
+    public function setChildSection(?Section $childSection): static
+    {
+        $this->childSection = $childSection;
+
+        return $this;
+    }
 }
 // ENTITY RULE

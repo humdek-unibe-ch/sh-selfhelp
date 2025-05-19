@@ -16,9 +16,16 @@ class ScheduledJobsMailQueue
     #[ORM\Column(name: 'id_mailQueue', type: 'integer')]
     private int $idMailQueue;
 
-    public function getIdScheduledJobs(): int { return $this->idScheduledJobs; }
+    public function getIdScheduledJobs(): ?int
+    {
+        return $this->idScheduledJobs;
+    }
     public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
-    public function getIdMailQueue(): int { return $this->idMailQueue; }
+
+    public function getIdMailQueue(): ?int
+    {
+        return $this->idMailQueue;
+    }
     public function setIdMailQueue(int $idMailQueue): self { $this->idMailQueue = $idMailQueue; return $this; }
 }
 // ENTITY RULE

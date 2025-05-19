@@ -25,14 +25,57 @@ class Group
     #[ORM\Column(name: 'requires_2fa', type: 'boolean')]
     private bool $requires2fa = false;
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
-    public function getDescription(): string { return $this->description; }
-    public function setDescription(string $description): self { $this->description = $description; return $this; }
-    public function getIdGroupTypes(): ?int { return $this->idGroupTypes; }
-    public function setIdGroupTypes(?int $idGroupTypes): self { $this->idGroupTypes = $idGroupTypes; return $this; }
-    public function isRequires2fa(): bool { return $this->requires2fa; }
-    public function setRequires2fa(bool $requires2fa): self { $this->requires2fa = $requires2fa; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getIdGroupTypes(): ?int
+    {
+        return $this->idGroupTypes;
+    }
+
+    public function setIdGroupTypes(?int $idGroupTypes): static
+    {
+        $this->idGroupTypes = $idGroupTypes;
+
+        return $this;
+    }
+
+    public function isRequires2fa(): ?bool
+    {
+        return $this->requires2fa;
+    }
+
+    public function setRequires2fa(bool $requires2fa): static
+    {
+        $this->requires2fa = $requires2fa;
+
+        return $this;
+    }
 }
 // ENTITY RULE
