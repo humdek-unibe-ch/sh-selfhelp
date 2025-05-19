@@ -1,44 +1,66 @@
 <?php
 
-namespace App\Controller\Api\V1\Content;
+namespace App\Controller\Api\V1\Admin;
 
 use App\Exception\ServiceException;
 use App\Service\Core\ApiResponseFormatter;
-use App\Service\CMS\Frontend\PageService;
+use App\Service\CMS\Admin\AdminPageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * API V1 Content Controller
+ * API V1 Admin Controller
  * 
- * Handles content-related endpoints for API v1
+ * Handles admin-related endpoints for API v1
  */
-class ContentController extends AbstractController
+class AdminPageController extends AbstractController
 {
     /**
      * Constructor
      */
     public function __construct(
-        private readonly PageService $pageService,
+        private readonly AdminPageService $pageService,
         private readonly ApiResponseFormatter $responseFormatter
     ) {
     }
 
     /**
-     * Get all pages
+     * Get all pages for admin
      * 
-     * @route /pages
+     * @route /admin/pages
      * @method GET
      */
-    public function getAllPages(Request $request): JsonResponse
+    public function getPages(Request $request): JsonResponse
     {
         try {
-            // This would be implemented to return all published pages
+            // Empty implementation for now
             return $this->responseFormatter->formatSuccess([
-                'message' => 'Get all pages endpoint (placeholder)',
-                'pages' => []
+                'message' => 'Admin get pages endpoint (placeholder)'
+            ]);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $this->getUser() !== null
+            );
+        }
+    }
+
+    /**
+     * Get page fields
+     * 
+     * @route /admin/pages/{page_keyword}/fields
+     * @method GET
+     */
+    public function getPageFields(string $page_keyword, Request $request): JsonResponse
+    {
+        try {
+            $fields = $this->pageService->getPageFields($page_keyword);
+            return $this->responseFormatter->formatSuccess([
+                'page_keyword' => $page_keyword,
+                'fields' => $fields
             ]);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e, $this->getUser() !== null);
@@ -52,49 +74,18 @@ class ContentController extends AbstractController
     }
 
     /**
-     * Get page by keyword
+     * Get page sections
      * 
-     * @route /pages/{page_keyword}
+     * @route /admin/pages/{page_keyword}/sections
      * @method GET
      */
-    public function getPage(string $page_keyword, Request $request): JsonResponse
+    public function getPageSections(string $page_keyword, Request $request): JsonResponse
     {
         try {
-            $page = $this->pageService->renderPage($page_keyword);
-            return $this->responseFormatter->formatSuccess($page);
-        } catch (ServiceException $e) {
-            return $this->responseFormatter->formatException($e, $this->getUser() !== null);
-        } catch (\Exception $e) {
-            return $this->responseFormatter->formatError(
-                $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                $this->getUser() !== null
-            );
-        }
-    }
-
-    /**
-     * Update page
-     * 
-     * @route /pages/{page_keyword}
-     * @method PUT
-     */
-    public function updatePage(string $page_keyword, Request $request): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            
-            if (!$data) {
-                return $this->responseFormatter->formatError(
-                    'Invalid request body',
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-            
-            // This would be implemented to update a page
+            $sections = $this->pageService->getPageSections($page_keyword);
             return $this->responseFormatter->formatSuccess([
-                'message' => 'Update page endpoint (placeholder)',
-                'page_keyword' => $page_keyword
+                'page_keyword' => $page_keyword,
+                'sections' => $sections
             ]);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e, $this->getUser() !== null);

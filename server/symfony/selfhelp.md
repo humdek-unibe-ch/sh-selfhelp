@@ -13,7 +13,7 @@ src/Controller/
 │       │   └── AdminController.php
 │       ├── Auth/            # Authentication controllers
 │       │   └── AuthController.php
-│       └── Content/         # Content controllers
+│       └── Frontend/         # Frontend controllers
 │           └── ContentController.php
 └── [Legacy controllers]     # Legacy controllers (to be migrated)
 ```
@@ -109,6 +109,24 @@ All API responses follow a standardized format:
 
 ## API Versioning and Database-Driven Routing
 
+### API Versioning System
+
+The API supports versioning to maintain backward compatibility while evolving the API. The versioning system consists of several components:
+
+1. **ApiVersionResolver**: Detects API versions from requests
+2. **ApiVersionListener**: Integrates version detection into the request flow
+3. **ApiRouteLoader**: Loads routes from the database and maps them to versioned controllers
+4. **Versioned Controllers**: Implement API endpoints for specific versions
+
+### Version Detection
+
+API versions can be specified in two ways:
+
+1. **URL Path**: `/cms-api/v1/...`
+2. **Accept Header**: `Accept: application/vnd.selfhelp.v1+json`
+
+If no version is specified, the default version (v1) is used.
+
 ### Database-Driven Routing
 
 All API routes are dynamically loaded from the database. You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
@@ -140,6 +158,40 @@ Actual controller: App\Controller\Api\V1\Auth\AuthController::login
 ```
 
 This mapping is handled by the `ApiRouteLoader::mapControllerToVersionedNamespace()` method.
+
+### Route Structure Best Practices
+
+Routes should follow these best practices:
+
+1. **Group by Domain**: Group routes by their domain (Auth, Content, Admin, etc.)
+2. **Use Consistent Naming**: Use consistent route naming conventions
+3. **Use RESTful Patterns**: Follow RESTful patterns for resource operations
+4. **Version All Routes**: Always specify a version for each route
+
+### Example Route Registration
+
+```sql
+INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+-- Auth routes
+('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
+
+-- Frontend routes
+('content_pages','v1','/pages','App\\Controller\\Api\\V1\\Content\\ContentController::getAllPages','GET',NULL,NULL),
+
+-- Admin routes
+('admin_get_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminController::getPages','GET',NULL,NULL);
+```
+
+### Adding a New API Version
+
+To add a new API version (e.g., v2):
+
+1. Create a new directory structure under `src/Controller/Api/` (e.g., `V2/`)
+2. Create controllers in the appropriate subdirectories
+3. Add routes to the database with the new version
+4. Update `ApiVersionResolver::AVAILABLE_VERSIONS` to include the new version
+
+The system will automatically load and map the routes to the correct controllers.
 
 ## JWT Key Generation and Configuration
 
