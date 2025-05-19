@@ -8,13 +8,25 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'dataRows')]
 class DataRow
 {
+    #[ORM\ManyToOne(targetEntity: DataTable::class, inversedBy: 'dataRows')]
+    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true)]
+    private ?DataTable $dataTable = null;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection<int, DataCell>
+     */
+    #[ORM\OneToMany(mappedBy: 'dataRow', targetEntity: DataCell::class, cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $dataCells;
+
+    public function __construct()
+    {
+        $this->dataCells = new \Doctrine\Common\Collections\ArrayCollection();
+    }
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_dataTables', type: 'integer', nullable: true)]
-    private ?int $idDataTables = null;
 
     #[ORM\Column(name: 'timestamp', type: 'datetime')]
     private \DateTimeInterface $timestamp;
@@ -30,15 +42,38 @@ class DataRow
         return $this->id;
     }
 
-    public function getIdDataTables(): ?int
+    public function getDataTable(): ?DataTable
     {
-        return $this->idDataTables;
+        return $this->dataTable;
+    }
+    public function setDataTable(?DataTable $dataTable): static
+    {
+        $this->dataTable = $dataTable;
+        return $this;
     }
 
-    public function setIdDataTables(?int $idDataTables): static
+    /**
+     * @return \Doctrine\Common\Collections\Collection|DataCell[]
+     */
+    public function getDataCells(): \Doctrine\Common\Collections\Collection
     {
-        $this->idDataTables = $idDataTables;
-
+        return $this->dataCells;
+    }
+    public function addDataCell(DataCell $dataCell): self
+    {
+        if (!$this->dataCells->contains($dataCell)) {
+            $this->dataCells[] = $dataCell;
+            $dataCell->setDataRow($this);
+        }
+        return $this;
+    }
+    public function removeDataCell(DataCell $dataCell): self
+    {
+        if ($this->dataCells->removeElement($dataCell)) {
+            if ($dataCell->getDataRow() === $this) {
+                $dataCell->setDataRow(null);
+            }
+        }
         return $this;
     }
 

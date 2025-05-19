@@ -10,27 +10,37 @@ use Doctrine\ORM\Mapping as ORM;
 class DataCell
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_dataRows', type: 'integer')]
-    private int $idDataRows;
+    #[ORM\ManyToOne(targetEntity: DataRow::class, inversedBy: 'dataCells')]
+    #[ORM\JoinColumn(name: 'id_dataRows', referencedColumnName: 'id')]
+    private ?DataRow $dataRow = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_dataCols', type: 'integer')]
-    private int $idDataCols;
+    #[ORM\ManyToOne(targetEntity: DataCol::class, inversedBy: 'dataCells')]
+    #[ORM\JoinColumn(name: 'id_dataCols', referencedColumnName: 'id')]
+    private ?DataCol $dataCol = null;
 
     #[ORM\Column(name: 'value', type: 'text')]
     private string $value;
 
-    public function getIdDataRows(): ?int
+    public function getDataRow(): ?DataRow
     {
-        return $this->idDataRows;
+        return $this->dataRow;
     }
-    public function setIdDataRows(int $idDataRows): self { $this->idDataRows = $idDataRows; return $this; }
+    public function setDataRow(?DataRow $dataRow): static
+    {
+        $this->dataRow = $dataRow;
+        return $this;
+    }
 
-    public function getIdDataCols(): ?int
+    public function getDataCol(): ?DataCol
     {
-        return $this->idDataCols;
+        return $this->dataCol;
     }
-    public function setIdDataCols(int $idDataCols): self { $this->idDataCols = $idDataCols; return $this; }
+    public function setDataCol(?DataCol $dataCol): static
+    {
+        $this->dataCol = $dataCol;
+        return $this;
+    }
 
     public function getValue(): ?string
     {

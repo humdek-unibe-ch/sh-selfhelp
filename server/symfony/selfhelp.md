@@ -1059,13 +1059,43 @@ INSERT INTO `api_routes` (`route_name`,`version`,`path`,...) VALUES
     ```
 4. **Loader**: The loader/repository (`ApiRouteRepository`) should filter by version (e.g., `findAllRoutesByVersion('v2')`).
 
+### Entities
+
+### DataTable, DataRow, DataCol, DataCell Refactor (2024-xx-xx)
+
+#### Summary
+The entity relationships for tabular data have been refactored to follow Doctrine ORM and Symfony best practices, as per ENTITY RULE and MEMORY_RULE. This enables robust, maintainable, and navigable associations for all tabular data in the system.
+
+#### Relationships
+- **DataTable**
+  - `OneToMany` to `DataRow` (dataRows)
+  - `OneToMany` to `DataCol` (dataCols)
+- **DataRow**
+  - `ManyToOne` to `DataTable` (dataTable)
+  - `OneToMany` to `DataCell` (dataCells)
+- **DataCol**
+  - `ManyToOne` to `DataTable` (dataTable)
+  - `OneToMany` to `DataCell` (dataCells)
+- **DataCell**
+  - Composite PK: (`dataRow`, `dataCol`)
+  - `ManyToOne` to `DataRow` (dataRow)
+  - `ManyToOne` to `DataCol` (dataCol)
+
+#### Implementation Notes
+- All integer FK fields were replaced by proper Doctrine ORM relations using PHP 8 attributes.
+- Navigation methods (getter/setter/add/remove) were implemented for all entity relationships.
+- DataCell now uses a composite primary key of (`dataRow`, `dataCol`) and only one property per relation.
+- All changes follow ENTITY RULE and have been tested for bidirectional navigation.
+
+#### Manual Migration Required
+After these changes, you must manually run doctrine:migrations:diff and doctrine:migrations:migrate to update the database schema.
+
 ### Entity and Loader
 - The `ApiRoute` entity has a `version` property.
 - The loader queries only the routes for the requested version.
 
 ### Best Practices
 - Always specify the correct version when adding or updating routes.
-- Keep controller code organized by version for clarity and maintainability.
 - Document route changes and new versions for your team.
 
 ## How to Add a Route
