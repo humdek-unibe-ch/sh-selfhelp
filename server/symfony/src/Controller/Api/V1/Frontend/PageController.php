@@ -1,14 +1,10 @@
 <?php
 
-namespace App\Controller\Api\V1\Content;
+namespace App\Controller\Api\V1\Frontend;
 
-use App\Exception\ServiceException;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\CMS\Frontend\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * API V1 Content Controller

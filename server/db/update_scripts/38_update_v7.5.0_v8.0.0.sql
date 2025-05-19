@@ -337,17 +337,22 @@ CREATE TABLE `api_routes` (
   UNIQUE KEY `uniq_version_path` (`version`, `path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Insert API routes with proper versioned controllers
 INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
-('auth_login','v1','/auth/login','App\\Controller\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
-('auth_two_factor_verify','v1','/auth/two-factor-verify','App\\Controller\\AuthController::two_factor_verify','POST',NULL,JSON_OBJECT('code',JSON_OBJECT('in','body','required',true),'id_users',JSON_OBJECT('in','body','required',true))),
-('auth_refresh_token','v1','/auth/refresh-token','App\\Controller\\AuthController::refresh_token','POST',NULL,JSON_OBJECT('refresh_token',JSON_OBJECT('in','body','required',true))),
-('auth_logout','v1','/auth/logout','App\\Controller\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
-('content_pages','v1','/pages','App\\Controller\\ContentController::getAllPages','GET',NULL,NULL),
-('content_page','v1','/pages/{page_keyword}','App\\Controller\\ContentController::getPage','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
-('content_update_page','v1','/pages/{page_keyword}','App\\Controller\\ContentController::updatePage','PUT',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),JSON_OBJECT('body',JSON_OBJECT('in','body','required',true))),
-('admin_get_pages','v1','/admin/pages','App\\Controller\\AdminController::getPages','GET',NULL,NULL),
-('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\AdminController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
-('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\AdminController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL);
+-- Auth routes
+('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
+('auth_two_factor_verify','v1','/auth/two-factor-verify','App\\Controller\\Api\\V1\\Auth\\AuthController::twoFactorVerify','POST',NULL,JSON_OBJECT('code',JSON_OBJECT('in','body','required',true),'id_users',JSON_OBJECT('in','body','required',true))),
+('auth_refresh_token','v1','/auth/refresh-token','App\\Controller\\Api\\V1\\Auth\\AuthController::refreshToken','POST',NULL,JSON_OBJECT('refresh_token',JSON_OBJECT('in','body','required',true))),
+('auth_logout','v1','/auth/logout','App\\Controller\\Api\\V1\\Auth\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
+
+-- Admin routes
+('admin_get_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
+('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL);
+
+-- Example of a v2 API route (for future use)
+-- INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+-- ('auth_login','v2','/auth/login','App\\Controller\\Api\\V2\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('email',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true)));
 
 -- drop qualtrics tables if the plugin is not installed
 -- 1) Check plugin
