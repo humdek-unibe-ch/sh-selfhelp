@@ -82,28 +82,46 @@ class PageService extends UserContextAwareService
         return $this->buildNestedSections($flatSections);
     }
 
+    /** Private methods */
     /**
-     * Build a nested section structure from a flat list.
-     *
-     * @param array $sections
-     * @return array
+     * @brief Transforms a flat array of sections into a nested hierarchical structure
+     * 
+     * @param array $sections Flat array of section objects with level and path properties
+     * @return array Nested array with children properly nested under their parents
      */
     private function buildNestedSections(array $sections): array
     {
-        $tree = [];
-        $refs = [];
+        // Create a map of sections by ID for quick lookup
+        $sectionsById = [];
+        $rootSections = [];
+        
+        // First pass: index all sections by ID
         foreach ($sections as $section) {
             $section['children'] = [];
-            $refs[$section['id']] = $section;
+            $sectionsById[$section['id']] = $section;
         }
-        foreach ($refs as $id => &$section) {
-            if (isset($section['parent_id']) && $section['parent_id'] && isset($refs[$section['parent_id']])) {
-                $refs[$section['parent_id']]['children'][] = &$section;
+        
+        // Second pass: build the hierarchy
+        foreach ($sections as $section) {
+            $id = $section['id'];
+            
+            // If it's a root section (level 0), add to root array
+            if ($section['level'] === 0) {
+                $rootSections[] = &$sectionsById[$id];
             } else {
-                $tree[] = &$section;
+                // Find parent using the path
+                $pathParts = explode(',', $section['path']);
+                if (count($pathParts) >= 2) {
+                    $parentId = (int)$pathParts[count($pathParts) - 2];
+                    
+                    // If parent exists, add this as its child
+                    if (isset($sectionsById[$parentId])) {
+                        $sectionsById[$parentId]['children'][] = &$sectionsById[$id];
+                    }
+                }
             }
         }
-        unset($section);
-        return $tree;
+        
+        return $rootSections;
     }
 }
