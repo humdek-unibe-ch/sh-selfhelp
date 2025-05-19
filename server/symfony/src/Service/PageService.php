@@ -2,9 +2,11 @@
 
 namespace App\Service;
 
+use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -12,7 +14,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * 
  * Handles page-related operations
  */
-class PageService
+class PageService extends UserContextAwareService
 {
     /**
      * Constructor
@@ -21,9 +23,10 @@ class PageService
         private readonly EntityManagerInterface $entityManager,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
-        private readonly ACLService $aclService,
-        private readonly UserContextService $userContextService
+        ACLService $aclService,
+        UserContextService $userContextService
     ) {
+        parent::__construct($userContextService, $aclService);
     }
 
     /**
@@ -31,32 +34,27 @@ class PageService
      * 
      * @param string $pageKeyword The page keyword
      * @return array The page fields
-     * @throws AccessDeniedException If user doesn't have access to the page
-     * @throws \Exception If page not found
+     * @throws ServiceException If page not found or access denied
      */
     public function getPageFields(string $pageKeyword): array
     {
-        // $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         
-        // if (!$page) {
-        //     throw new \Exception('Page not found');
-        // }
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
         
-        // // Check if user has access to the page
-        // $user = $this->security->getUser();
-        // $userIdentifier = $user ? $user->getUserIdentifier() : null;
-        // if (!$this->aclService->hasAccess($userIdentifier, $page->getId(), 'select')) {
-        //     throw new AccessDeniedException('Access denied');
-        // }                
+        // Check if user has access to the page
+        if (!$this->hasAccess($page->getId(), 'select')) {
+            $this->throwForbidden('Access denied');
+        }                
         
-        // return [
-        //     'page' => [
-        //         'fields' => [],
-        //         'page_id' => $page->getId(),
-        //         'page_keyword' => $page->getKeyword()
-        //     ]
-        // ];
-        return [];
+        // Return raw data - no wrapping in API response structure
+        return [
+            'fields' => [], // Future implementation will populate this
+            'page_id' => $page->getId(),
+            'page_keyword' => $page->getKeyword()
+        ];
     }
     
     /**
@@ -71,12 +69,12 @@ class PageService
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         if (!$page) {
-            throw new \Exception('Page not found');
+            $this->throwNotFound('Page not found');
         }
 
         // Check if user has access to the page
-        if (!$this->aclService->hasAccess($this->userContextService->getCurrentUser()->getId(), $page->getId(), 'select')) {
-            throw new AccessDeniedException('Access denied');
+        if (!$this->hasAccess($page->getId(), 'select')) {
+            $this->throwForbidden('Access denied');
         }
 
         // Call stored procedure for hierarchical sections

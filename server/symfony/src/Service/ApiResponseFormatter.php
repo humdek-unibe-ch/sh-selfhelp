@@ -41,9 +41,10 @@ class ApiResponseFormatter
      * @param string $error The error message
      * @param int $status The HTTP status code
      * @param bool $loggedIn Whether the user is logged in
+     * @param mixed $data Additional error data
      * @return JsonResponse The formatted response
      */
-    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, bool $loggedIn = true): JsonResponse
+    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, bool $loggedIn = true, $data = null): JsonResponse
     {
         return new JsonResponse([
             'status' => $status,
@@ -54,7 +55,24 @@ class ApiResponseFormatter
                 'version' => 'v1',
                 'timestamp' => (new \DateTime())->format('c')
             ],
-            'data' => null
+            'data' => $data
         ], $status);
+    }
+    
+    /**
+     * Format a service exception response
+     * 
+     * @param \App\Exception\ServiceException $exception The exception
+     * @param bool $loggedIn Whether the user is logged in
+     * @return JsonResponse The formatted response
+     */
+    public function formatException(\App\Exception\ServiceException $exception, bool $loggedIn = true): JsonResponse
+    {
+        return $this->formatError(
+            $exception->getMessage(),
+            $exception->getCode(),
+            $loggedIn,
+            $exception->getData()
+        );
     }
 }
