@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'styleGroup_name', columns: ['name'])]
 class StyleGroup
 {
+    #[ORM\OneToMany(mappedBy: 'group', targetEntity: Style::class)]
+    private ?\Doctrine\Common\Collections\Collection $styles = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
@@ -62,6 +64,34 @@ class StyleGroup
     {
         $this->position = $position;
 
+        return $this;
+    }
+
+    public function getStyles(): ?\Doctrine\Common\Collections\Collection
+    {
+        return $this->styles;
+    }
+
+    public function addStyle(Style $style): static
+    {
+        if (!$this->styles) {
+            $this->styles = new \Doctrine\Common\Collections\ArrayCollection();
+        }
+        if (!$this->styles->contains($style)) {
+            $this->styles[] = $style;
+            $style->setGroup($this);
+        }
+        return $this;
+    }
+
+    public function removeStyle(Style $style): static
+    {
+        if ($this->styles && $this->styles->contains($style)) {
+            $this->styles->removeElement($style);
+            if ($style->getGroup() === $this) {
+                $style->setGroup(null);
+            }
+        }
         return $this;
     }
 }

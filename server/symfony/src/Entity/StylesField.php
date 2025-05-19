@@ -10,12 +10,25 @@ use Doctrine\ORM\Mapping as ORM;
 class StylesField
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_styles', type: 'integer')]
-    private int $idStyles;
+    #[ORM\ManyToOne(targetEntity: Field::class, inversedBy: 'stylesFields')]
+    #[ORM\JoinColumn(name: 'idFields', referencedColumnName: 'id', nullable: false)]
+    private ?Field $field = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_fields', type: 'integer')]
-    private int $idFields;
+    #[ORM\ManyToOne(targetEntity: Style::class, inversedBy: 'stylesFields')]
+    #[ORM\JoinColumn(name: 'idStyles', referencedColumnName: 'id', nullable: false)]
+    private ?Style $style = null;
+
+    public function getStyle(): ?Style
+    {
+        return $this->style;
+    }
+
+    public function setStyle(?Style $style): static
+    {
+        $this->style = $style;
+        return $this;
+    }
 
     #[ORM\Column(name: 'default_value', type: 'string', length: 100, nullable: true)]
     private ?string $defaultValue = null;
@@ -28,26 +41,6 @@ class StylesField
 
     #[ORM\Column(name: 'hidden', type: 'integer', nullable: true)]
     private ?int $hidden = 0;
-
-    #[ORM\ManyToOne(targetEntity: Style::class)]
-    #[ORM\JoinColumn(name: 'id_styles', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Style $style = null;
-
-    #[ORM\ManyToOne(targetEntity: Field::class)]
-    #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Field $field = null;
-
-    public function getIdStyles(): ?int
-    {
-        return $this->idStyles;
-    }
-    public function setIdStyles(int $idStyles): self { $this->idStyles = $idStyles; return $this; }
-
-    public function getIdFields(): ?int
-    {
-        return $this->idFields;
-    }
-    public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
 
     public function getDefaultValue(): ?string
     {
@@ -93,18 +86,6 @@ class StylesField
     public function setHidden(?int $hidden): static
     {
         $this->hidden = $hidden;
-
-        return $this;
-    }
-
-    public function getStyle(): ?Style
-    {
-        return $this->style;
-    }
-
-    public function setStyle(?Style $style): static
-    {
-        $this->style = $style;
 
         return $this;
     }

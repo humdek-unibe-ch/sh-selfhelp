@@ -8,6 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'fields')]
 class Field
 {
+    #[ORM\OneToMany(mappedBy: 'field', targetEntity: StylesField::class)]
+    private ?\Doctrine\Common\Collections\Collection $stylesFields = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer')]
@@ -16,8 +18,9 @@ class Field
     #[ORM\Column(name: 'name', type: 'string', length: 100)]
     private string $name;
 
-    #[ORM\Column(name: 'id_type', type: 'integer')]
-    private int $idType;
+    #[ORM\ManyToOne(targetEntity: FieldType::class, inversedBy: 'fields')]
+    #[ORM\JoinColumn(name: 'idType', referencedColumnName: 'id', nullable: false)]
+    private ?FieldType $type = null;
 
     #[ORM\Column(name: 'display', type: 'boolean')]
     private bool $display = true;
@@ -39,15 +42,43 @@ class Field
         return $this;
     }
 
-    public function getIdType(): ?int
+    public function getType(): ?FieldType
     {
-        return $this->idType;
+        return $this->type;
     }
 
-    public function setIdType(int $idType): static
+    public function setType(?FieldType $type): static
     {
-        $this->idType = $idType;
+        $this->type = $type;
 
+        return $this;
+    }
+
+    public function getStylesFields(): ?\Doctrine\Common\Collections\Collection
+    {
+        return $this->stylesFields;
+    }
+
+    public function addStylesField(StylesField $stylesField): static
+    {
+        if (!$this->stylesFields) {
+            $this->stylesFields = new \Doctrine\Common\Collections\ArrayCollection();
+        }
+        if (!$this->stylesFields->contains($stylesField)) {
+            $this->stylesFields[] = $stylesField;
+            $stylesField->setField($this);
+        }
+        return $this;
+    }
+
+    public function removeStylesField(StylesField $stylesField): static
+    {
+        if ($this->stylesFields && $this->stylesFields->contains($stylesField)) {
+            $this->stylesFields->removeElement($stylesField);
+            if ($stylesField->getField() === $this) {
+                $stylesField->setField(null);
+            }
+        }
         return $this;
     }
 

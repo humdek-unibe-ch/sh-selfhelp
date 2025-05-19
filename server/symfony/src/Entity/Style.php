@@ -10,6 +10,12 @@ use App\Entity\Lookup;
 #[ORM\Table(name: 'styles')]
 class Style
 {
+    public function __construct()
+    {
+        $this->stylesFields = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+    #[ORM\OneToMany(mappedBy: 'style', targetEntity: StylesField::class, cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $stylesFields;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
@@ -27,11 +33,11 @@ class Style
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Lookup $type = null;
+    #[ORM\ManyToOne(targetEntity: StyleType::class, inversedBy: 'styles')]
+    #[ORM\JoinColumn(name: 'idType', referencedColumnName: 'id', nullable: false)]
+    private ?StyleType $type = null;
 
-    #[ORM\ManyToOne(targetEntity: StyleGroup::class)]
+    #[ORM\ManyToOne(targetEntity: StyleGroup::class, inversedBy: 'styles')]
     #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?StyleGroup $group = null;
 
@@ -88,15 +94,14 @@ class Style
         return $this;
     }
 
-    public function getType(): ?Lookup
+    public function getType(): ?StyleType
     {
         return $this->type;
     }
 
-    public function setType(?Lookup $type): static
+    public function setType(?StyleType $type): static
     {
         $this->type = $type;
-
         return $this;
     }
 
@@ -109,6 +114,34 @@ class Style
     {
         $this->group = $group;
 
+        return $this;
+    }
+
+    public function getStylesFields(): ?\Doctrine\Common\Collections\Collection
+    {
+        return $this->stylesFields;
+    }
+
+    public function addStylesField(StylesField $stylesField): static
+    {
+        if (!$this->stylesFields) {
+            $this->stylesFields = new \Doctrine\Common\Collections\ArrayCollection();
+        }
+        if (!$this->stylesFields->contains($stylesField)) {
+            $this->stylesFields[] = $stylesField;
+            $stylesField->setStyle($this);
+        }
+        return $this;
+    }
+
+    public function removeStylesField(StylesField $stylesField): static
+    {
+        if ($this->stylesFields && $this->stylesFields->contains($stylesField)) {
+            $this->stylesFields->removeElement($stylesField);
+            if ($stylesField->getStyle() === $this) {
+                $stylesField->setStyle(null);
+            }
+        }
         return $this;
     }
 }
