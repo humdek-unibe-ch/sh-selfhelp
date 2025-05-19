@@ -8,6 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'validation_codes')]
 class ValidationCode
 {
+    #[ORM\ManyToOne(targetEntity: CodesGroup::class, inversedBy: 'validationCodes')]
+    #[ORM\JoinColumn(name: 'code', referencedColumnName: 'code')]
+    #[ORM\JoinColumn(name: 'id_groups', referencedColumnName: 'id_groups')]
+    private ?CodesGroup $codesGroup = null;
+
     #[ORM\Id]
     #[ORM\Column(name: 'code', type: 'string', length: 16)]
     private string $code;
@@ -76,6 +81,16 @@ class ValidationCode
     {
         $this->user = $user;
 
+        return $this;
+    }
+    public function getCodesGroup(): ?CodesGroup
+    {
+        return $this->codesGroup;
+    }
+
+    public function setCodesGroup(?CodesGroup $codesGroup): static
+    {
+        $this->codesGroup = $codesGroup;
         return $this;
     }
 }

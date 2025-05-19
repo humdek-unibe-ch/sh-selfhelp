@@ -16,8 +16,9 @@ class CmsPreference
     #[ORM\Column(name: 'callback_api_key', type: 'string', length: 500, nullable: true)]
     private ?string $callbackApiKey = null;
 
-    #[ORM\Column(name: 'default_language_id', type: 'integer', nullable: true)]
-    private ?int $defaultLanguageId = null;
+    #[ORM\ManyToOne(targetEntity: Language::class)]
+    #[ORM\JoinColumn(name: 'default_language_id', referencedColumnName: 'id', nullable: true)]
+    private ?Language $defaultLanguage = null;
 
     #[ORM\Column(name: 'anonymous_users', type: 'integer', options: ['default' => 0])]
     private int $anonymousUsers = 0;
@@ -42,15 +43,14 @@ class CmsPreference
         return $this;
     }
 
-    public function getDefaultLanguageId(): ?int
+    public function getDefaultLanguage(): ?Language
     {
-        return $this->defaultLanguageId;
+        return $this->defaultLanguage;
     }
 
-    public function setDefaultLanguageId(?int $defaultLanguageId): static
+    public function setDefaultLanguage(?Language $language): static
     {
-        $this->defaultLanguageId = $defaultLanguageId;
-
+        $this->defaultLanguage = $language;
         return $this;
     }
 
