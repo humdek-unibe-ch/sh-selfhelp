@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Core;
 
 use App\Entity\User;
+use App\Service\ACL\ACLService;
+use App\Service\Auth\UserContextService;
 
 abstract class UserContextAwareService extends BaseService
 {

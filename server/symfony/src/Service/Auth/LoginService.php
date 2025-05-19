@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Auth;
 
 use App\Entity\User;
 use Doctrine\DBAL\Connection;
@@ -102,13 +102,36 @@ class LoginService
 
     private function generate2faCode(array $user): void
     {
-        // Implement your 2FA code generation logic here (e.g., insert into users_2fa_codes, send email)
-        // This should be handled in a dedicated service in production for separation of concerns.
+        $code = random_int(100000, 999999);
+        $sql = "UPDATE users SET 2fa_code = :code, 2fa_expires = DATE_ADD(NOW(), INTERVAL 10 MINUTE) WHERE id = :id";
+        $this->db->executeStatement($sql, [
+            'code' => $code,
+            'id' => $user['id']
+        ]);
     }
 
     private function updateTimestamp(int $userId): void
     {
         $sql = "UPDATE users SET last_login = NOW() WHERE id = :id";
         $this->db->executeStatement($sql, ['id' => $userId]);
+    }
+
+    /**
+     * Verify 2FA code for a user
+     */
+    public function verify2faCode(int $userId, string $code): bool
+    {
+        $sql = "SELECT id FROM users WHERE id = :id AND 2fa_code = :code AND 2fa_expires > NOW()";
+        $result = $this->db->fetchAssociative($sql, [
+            'id' => $userId,
+            'code' => $code
+        ]);
+        
+        if ($result) {
+            $this->updateTimestamp($userId);
+            return true;
+        }
+        
+        return false;
     }
 }

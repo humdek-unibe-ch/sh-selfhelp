@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Core;
 
+use App\Exception\ServiceException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -62,11 +63,11 @@ class ApiResponseFormatter
     /**
      * Format a service exception response
      * 
-     * @param \App\Exception\ServiceException $exception The exception
+     * @param ServiceException $exception The exception
      * @param bool $loggedIn Whether the user is logged in
      * @return JsonResponse The formatted response
      */
-    public function formatException(\App\Exception\ServiceException $exception, bool $loggedIn = true): JsonResponse
+    public function formatException(ServiceException $exception, bool $loggedIn = true): JsonResponse
     {
         return $this->formatError(
             $exception->getMessage(),

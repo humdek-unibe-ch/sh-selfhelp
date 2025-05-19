@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\ApiResponseFormatter;
+use App\Service\Core\ApiResponseFormatter;
 use App\Service\CMS\Frontend\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

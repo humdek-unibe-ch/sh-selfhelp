@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Auth;
 
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\User;

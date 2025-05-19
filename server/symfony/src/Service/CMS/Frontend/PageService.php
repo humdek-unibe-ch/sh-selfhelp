@@ -5,7 +5,7 @@ namespace App\Service\CMS\Frontend;
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
-use App\Service\BaseService;
+use App\Service\Core\BaseService;
 
 /**
  * Service for handling page rendering and content delivery

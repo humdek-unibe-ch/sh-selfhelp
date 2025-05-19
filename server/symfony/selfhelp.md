@@ -1,4 +1,71 @@
-# Adding API Routes to the Database
+# SH-Selfhelp Symfony Backend Documentation
+
+## Service Layer Organization
+
+### Directory Structure
+```
+src/Service/
+├── Auth/                     # Authentication related services
+│   ├── JWTService.php        # JWT token handling
+│   ├── LoginService.php      # Login functionality
+│   └── UserContextService.php # Current user context
+├── CMS/                      # Content Management System
+│   ├── Admin/                # Admin-specific services
+│   │   └── AdminPageService.php
+│   └── Frontend/             # Frontend-specific services
+│       └── PageService.php
+├── ACL/                      # Access Control
+│   └── ACLService.php        # Permissions and access control
+├── Core/                     # Core framework services
+│   ├── BaseService.php       # Base service functionality
+│   ├── UserContextAwareService.php # User context for services
+│   └── ApiResponseFormatter.php # Response formatting
+└── Dynamic/                  # Dynamic components
+    └── DynamicControllerService.php # Dynamic routing
+```
+
+### Key Principles
+1. **Domain-Driven Design**: Services are organized by their domain/responsibility
+2. **Separation of Concerns**: Clear boundaries between different parts of the system
+3. **Discoverability**: Easier to find related services
+4. **Maintainability**: Simpler to maintain and extend
+5. **Scalability**: New services can be added to the appropriate domain
+
+### Service Categories
+
+#### Auth Services
+Services related to authentication, user context, and security.
+
+#### CMS Services
+Services for content management, split into Admin (backend management) and Frontend (public-facing content delivery).
+
+#### ACL Services
+Services for access control and permissions management.
+
+#### Core Services
+Foundational services that provide base functionality for other services.
+
+#### Dynamic Services
+Services for dynamic routing and controller handling.
+
+## API Response Structure
+All API responses follow a standardized format:
+
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "error": null,
+    "logged_in": true,
+    "meta": {
+        "version": "v1",
+        "timestamp": "2025-05-19T10:50:41+02:00"
+    },
+    "data": {} // Your response data here
+}
+```
+
+## Adding API Routes to the Database
 
 This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. **All routes are now dynamically loaded from the database.** You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
 

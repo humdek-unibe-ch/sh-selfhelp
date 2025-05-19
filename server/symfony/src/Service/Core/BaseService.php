@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Core;
 
 use App\Exception\ServiceException;
 use Symfony\Component\HttpFoundation\Response;

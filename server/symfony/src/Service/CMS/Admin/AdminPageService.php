@@ -5,10 +5,10 @@ namespace App\Service\CMS\Admin;
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
-use App\Service\UserContextAwareService;
-use App\Service\UserContextService;
+use App\Service\ACL\ACLService;
+use App\Service\Auth\UserContextService;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\ACLService;
 
 /**
  * Service for handling page-related operations in the admin panel

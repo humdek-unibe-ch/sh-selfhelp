@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\ACL;
 
 use Doctrine\DBAL\Connection;
 

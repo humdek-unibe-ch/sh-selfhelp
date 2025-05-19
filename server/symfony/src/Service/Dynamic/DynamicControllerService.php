@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Dynamic;
 
 use App\Repository\ApiRouteRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Service\ACL\ACLService;
+use App\Service\Auth\UserContextService;
 use Psr\Container\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Service\ACLService;
-use App\Service\UserContextService;
 
 /**
  * Service for dynamically handling API route requests
@@ -99,24 +99,28 @@ class DynamicControllerService extends AbstractController
     }
     
     /**
-     * Get cached route info
+     * Get route information from database
      */
     private function getRouteInfo(string $routeName): ?array
     {
-        if (!isset($this->routeCache[$routeName])) {
-            $route = $this->apiRouteRepository->findOneBy(['name' => $routeName]);
-            
-            if (!$route) {
-                return null;
-            }
-            
-            $this->routeCache[$routeName] = [
-                'path' => $route->getPath(),
-                'controller' => $route->getController(),
-                'methods' => $route->getMethods(),
-                'requirements' => $route->getRequirementsArray()
-            ];
+        // Check cache first
+        if (isset($this->routeCache[$routeName])) {
+            return $this->routeCache[$routeName];
         }
+        
+        // Get from database
+        $route = $this->apiRouteRepository->findOneBy(['name' => $routeName]);
+        
+        if (!$route) {
+            return null;
+        }
+        
+        // Cache the result
+        $this->routeCache[$routeName] = [
+            'controller' => $route->getController(),
+            'method' => $route->getMethod(),
+            'path' => $route->getPath(),
+        ];
         
         return $this->routeCache[$routeName];
     }
@@ -133,11 +137,10 @@ class DynamicControllerService extends AbstractController
             'status' => $status,
             'message' => $status === 200 ? 'OK' : Response::$statusTexts[$status] ?? 'Unknown status',
             'error' => $error,
-            'logged_in' => false, // We don't have user info here
+            'logged_in' => $this->userContextService->getCurrentUser() !== null,
             'meta' => [
                 'version' => 'v1',
-                'timestamp' => (new \DateTime())->format('c'),
-                'dynamic' => true
+                'timestamp' => (new \DateTime())->format('c')
             ],
             'data' => $data
         ];
