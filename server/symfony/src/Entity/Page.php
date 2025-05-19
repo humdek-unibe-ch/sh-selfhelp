@@ -23,14 +23,26 @@ class Page
     #[ORM\Column(name: 'protocol', type: 'string', length: 100, nullable: true, options: ['comment' => 'pipe separated list of HTTP Methods (GET|POST)'])]
     private ?string $protocol = null;
 
-    #[ORM\Column(name: 'id_actions', type: 'integer', nullable: true)]
-    private ?int $id_actions = null;
+    // --- RELATIONSHIPS (ENTITY RULE) ---
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_actions', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Lookup $action = null;
 
-    #[ORM\Column(name: 'id_navigation_section', type: 'integer', nullable: true)]
-    private ?int $id_navigation_section = null;
+    #[ORM\ManyToOne(targetEntity: Section::class)]
+    #[ORM\JoinColumn(name: 'id_navigation_section', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Section $navigationSection = null;
 
-    #[ORM\Column(name: 'parent', type: 'integer', nullable: true)]
-    private ?int $parent = null;
+    #[ORM\ManyToOne(targetEntity: Page::class)]
+    #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Page $parentPage = null;
+
+    #[ORM\ManyToOne(targetEntity: PageType::class)]
+    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?PageType $pageType = null;
+
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_pageAccessTypes', referencedColumnName: 'id', nullable: true)]
+    private ?Lookup $pageAccessType = null;
 
     #[ORM\Column(name: 'is_headless', type: 'boolean', options: ['default' => 0])]
     private bool $is_headless = false;
@@ -40,12 +52,6 @@ class Page
 
     #[ORM\Column(name: 'footer_position', type: 'integer', nullable: true)]
     private ?int $footer_position = null;
-
-    #[ORM\Column(name: 'id_type', type: 'integer')]
-    private int $id_type;
-
-    #[ORM\Column(name: 'id_pageAccessTypes', type: 'integer', nullable: true)]
-    private ?int $id_pageAccessTypes = null;
 
     #[ORM\Column(name: 'is_open_access', type: 'boolean', options: ['default' => 0], nullable: true)]
     private ?bool $is_open_access = false;
@@ -94,39 +100,59 @@ class Page
         return $this;
     }
 
-    public function getIdActions(): ?int
+    // --- RELATIONSHIP GETTERS/SETTERS (ENTITY RULE) ---
+    public function getAction(): ?Lookup
     {
-        return $this->id_actions;
+        return $this->action;
     }
 
-    public function setIdActions(?int $id_actions): static
+    public function setAction(?Lookup $action): static
     {
-        $this->id_actions = $id_actions;
-
+        $this->action = $action;
         return $this;
     }
 
-    public function getIdNavigationSection(): ?int
+    public function getNavigationSection(): ?Section
     {
-        return $this->id_navigation_section;
+        return $this->navigationSection;
     }
 
-    public function setIdNavigationSection(?int $id_navigation_section): static
+    public function setNavigationSection(?Section $navigationSection): static
     {
-        $this->id_navigation_section = $id_navigation_section;
-
+        $this->navigationSection = $navigationSection;
         return $this;
     }
 
-    public function getParent(): ?int
+    public function getParentPage(): ?Page
     {
-        return $this->parent;
+        return $this->parentPage;
     }
 
-    public function setParent(?int $parent): static
+    public function setParentPage(?Page $parentPage): static
     {
-        $this->parent = $parent;
+        $this->parentPage = $parentPage;
+        return $this;
+    }
 
+    public function getPageType(): ?PageType
+    {
+        return $this->pageType;
+    }
+
+    public function setPageType(?PageType $pageType): static
+    {
+        $this->pageType = $pageType;
+        return $this;
+    }
+
+    public function getPageAccessType(): ?Lookup
+    {
+        return $this->pageAccessType;
+    }
+
+    public function setPageAccessType(?Lookup $pageAccessType): static
+    {
+        $this->pageAccessType = $pageAccessType;
         return $this;
     }
 

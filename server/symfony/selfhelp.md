@@ -396,9 +396,9 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 ### FormAction
 - `id`: int (PK)
 - `name`: string
-- `id_formProjectActionTriggerTypes`: int
+- `actionTriggerType`: object (ManyToOne to Lookup)
+- `dataTable`: object (ManyToOne to DataTable)
 - `config`: text (nullable)
-- `id_dataTables`: int (nullable, FK to DataTable)
 
 ### Gender
 - `id`: int (PK)

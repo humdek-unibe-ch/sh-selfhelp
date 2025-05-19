@@ -17,14 +17,16 @@ class FormAction
     #[ORM\Column(name: 'name', type: 'string', length: 200)]
     private string $name;
 
-    #[ORM\Column(name: 'id_formProjectActionTriggerTypes', type: 'integer')]
-    private int $idFormProjectActionTriggerTypes;
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_formProjectActionTriggerTypes', referencedColumnName: 'id', nullable: false)]
+    private ?Lookup $actionTriggerType = null; // ENTITY RULE
 
     #[ORM\Column(name: 'config', type: 'text', nullable: true)]
     private ?string $config = null;
 
-    #[ORM\Column(name: 'id_dataTables', type: 'integer', nullable: true)]
-    private ?int $idDataTables = null;
+    #[ORM\ManyToOne(targetEntity: DataTable::class)]
+    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true)]
+    private ?DataTable $dataTable = null; // ENTITY RULE
 
     public function getId(): ?int
     {
@@ -43,17 +45,17 @@ class FormAction
         return $this;
     }
 
-    public function getIdFormProjectActionTriggerTypes(): ?int
+    public function getActionTriggerType(): ?Lookup
     {
-        return $this->idFormProjectActionTriggerTypes;
+        return $this->actionTriggerType;
     }
 
-    public function setIdFormProjectActionTriggerTypes(int $idFormProjectActionTriggerTypes): static
+    public function setActionTriggerType(?Lookup $actionTriggerType): static
     {
-        $this->idFormProjectActionTriggerTypes = $idFormProjectActionTriggerTypes;
-
+        $this->actionTriggerType = $actionTriggerType;
         return $this;
     }
+    // ENTITY RULE
 
     public function getConfig(): ?string
     {
@@ -67,16 +69,16 @@ class FormAction
         return $this;
     }
 
-    public function getIdDataTables(): ?int
+    public function getDataTable(): ?DataTable
     {
-        return $this->idDataTables;
+        return $this->dataTable;
     }
 
-    public function setIdDataTables(?int $idDataTables): static
+    public function setDataTable(?DataTable $dataTable): static
     {
-        $this->idDataTables = $idDataTables;
-
+        $this->dataTable = $dataTable;
         return $this;
     }
+    // ENTITY RULE
 }
 // ENTITY RULE

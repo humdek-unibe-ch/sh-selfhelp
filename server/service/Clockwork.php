@@ -19,7 +19,7 @@ use Clockwork\Support\Vanilla\Clockwork;
  * ClockworkService - A service class for Clockwork debugging integration
  * 
  * This class provides a simplified interface for using Clockwork in the SelfHelp application,
- * particularly for debugging the Mobisense module's SSH and database operations.
+ * particularly for debugging database operations.
  */
 class ClockworkService
 {
