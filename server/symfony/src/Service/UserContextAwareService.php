@@ -36,7 +36,7 @@ abstract class UserContextAwareService extends BaseService
     /**
      * Check if the current user has access to a resource
      */
-    protected function hasAccess(int $resourceId, string $permission = 'select'): bool
+    protected function hasAccess(int $pageId, string $permission = 'select'): bool
     {
         $user = $this->getCurrentUser();
         if (!$user) {
@@ -44,7 +44,7 @@ abstract class UserContextAwareService extends BaseService
         }
         
         if ($this->aclService instanceof ACLService) {
-            return $this->aclService->hasAccess($user->getId(), $resourceId, $permission);
+            return $this->aclService->hasAccess($user->getId(), $pageId, $permission);
         }
         
         return false;

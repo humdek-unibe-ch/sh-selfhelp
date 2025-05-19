@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Exception\ServiceException;
 use App\Service\ApiResponseFormatter;
-use App\Service\PageService;
+use App\Service\CMS\Admin\AdminPageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,10 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends AbstractController
 {
-    private PageService $pageService;
+    private AdminPageService $pageService;
     private ApiResponseFormatter $responseFormatter;
 
-    public function __construct(PageService $pageService, ApiResponseFormatter $responseFormatter)
+    public function __construct(AdminPageService $pageService, ApiResponseFormatter $responseFormatter)
     {
         $this->pageService = $pageService;
         $this->responseFormatter = $responseFormatter;

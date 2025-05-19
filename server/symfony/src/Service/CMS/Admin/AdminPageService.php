@@ -1,21 +1,28 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\CMS\Admin;
 
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
+use App\Service\UserContextAwareService;
+use App\Service\UserContextService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use App\Service\ACLService;
 
 /**
- * Page service
- * 
- * Handles page-related operations
+ * Service for handling page-related operations in the admin panel
  */
-class PageService extends UserContextAwareService
+class AdminPageService extends UserContextAwareService
 {
+    /************************* START ADMIN PAGES *************************/
+    /**
+     * CMS select page keyword
+     */
+    private const CMS_SELECT_PAGE_KEYWORD = 'cmsSelect';
+
+    /************************* END ADMIN PAGES *************************/
+    
     /**
      * Constructor
      */
@@ -73,7 +80,7 @@ class PageService extends UserContextAwareService
         }
 
         // Check if user has access to the page
-        if (!$this->hasAccess($page->getId(), 'select')) {
+        if (!$this->hasAccess($page->getId(), 'select') || !$this->hasAccess($this->pageRepository->findOneBy(['keyword' => self::CMS_SELECT_PAGE_KEYWORD])->getId(), 'select')) {
             $this->throwForbidden('Access denied');
         }
 
