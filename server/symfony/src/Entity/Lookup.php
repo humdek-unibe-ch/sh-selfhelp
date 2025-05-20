@@ -10,79 +10,72 @@ use Doctrine\Common\Collections\Collection;
 #[ORM\Table(name: 'lookups')]
 class Lookup
 {
-    #[ORM\OneToMany(mappedBy: 'type', targetEntity: Style::class)]
-    private ?Collection $styles;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    public function __construct()
-    {
-        $this->styles = new ArrayCollection();
-    }
+    #[ORM\Column(name: 'type_code', type: 'string', length: 100)]
+    private string $typeCode;
 
-    #[ORM\Column(type: 'string', length: 100, unique: true)]
-    private ?string $name = null;
+    #[ORM\Column(name: 'lookup_code', type: 'string', length: 100, nullable: true)]
+    private ?string $lookupCode = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $lookup_code = null;
+    #[ORM\Column(name: 'lookup_value', type: 'string', length: 200, nullable: true)]
+    private ?string $lookupValue = null;
+
+    #[ORM\Column(name: 'lookup_description', type: 'string', length: 500, nullable: true)]
+    private ?string $lookupDescription = null;
+
+
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return \Doctrine\Common\Collections\Collection|Style[]|null
-     */
-    public function getStyles(): ?\Doctrine\Common\Collections\Collection
+    public function getTypeCode(): string
     {
-        return $this->styles;
+        return $this->typeCode;
     }
 
-    public function addStyle(?Style $style): static
+    public function setTypeCode(string $typeCode): static
     {
-        if ($style && !$this->styles->contains($style)) {
-            $this->styles[] = $style;
-            $style->setType($this);
-        }
-        return $this;
-    }
-
-    public function removeStyle(?Style $style): static
-    {
-        if ($style && $this->styles->contains($style)) {
-            $this->styles->removeElement($style);
-            if ($style->getType() === $this) {
-                $style->setType(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
+        $this->typeCode = $typeCode;
         return $this;
     }
 
     public function getLookupCode(): ?string
     {
-        return $this->lookup_code;
+        return $this->lookupCode;
     }
 
-    public function setLookupCode(?string $lookup_code): static
+    public function setLookupCode(?string $lookupCode): static
     {
-        $this->lookup_code = $lookup_code;
+        $this->lookupCode = $lookupCode;
+        return $this;
+    }
 
+    public function getLookupValue(): ?string
+    {
+        return $this->lookupValue;
+    }
+
+    public function setLookupValue(?string $lookupValue): static
+    {
+        $this->lookupValue = $lookupValue;
+        return $this;
+    }
+
+    public function getLookupDescription(): ?string
+    {
+        return $this->lookupDescription;
+    }
+
+    public function setLookupDescription(?string $lookupDescription): static
+    {
+        $this->lookupDescription = $lookupDescription;
         return $this;
     }
 }

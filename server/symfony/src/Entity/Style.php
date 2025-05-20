@@ -32,7 +32,7 @@ class Style
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(targetEntity: Lookup::class, inversedBy: 'styles')]
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
     #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false)]
     private ?Lookup $type = null;
 

@@ -111,6 +111,19 @@ class User implements UserInterface
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $last_url = null;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $device_id = null;
+
+    #[ORM\Column(type: 'string', length: 200, nullable: true)]
+    private ?string $device_token = null;
+
+    #[ORM\Column(type: 'string', length: 1000, nullable: true)]
+    private ?string $security_questions = null;
+
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_userTypes', referencedColumnName: 'id', nullable: false)]
+    private ?Lookup $userType = null;
+
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
     private ?string $user_name = null;
 
@@ -155,6 +168,17 @@ class User implements UserInterface
     {
         $this->password = $password;
 
+        return $this;
+    }
+
+    public function getUserType(): ?Lookup
+    {
+        return $this->userType;
+    }
+
+    public function setUserType(?Lookup $userType): self
+    {
+        $this->userType = $userType;
         return $this;
     }
 
@@ -266,21 +290,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getUserName(): ?string
-    {
-        return $this->user_name;
-    }
-
-    public function setUserName(?string $user_name): static
-    {
-        $this->user_name = $user_name;
-
-        return $this;
-    }
-
-    // 2FA runtime property
-    public function isTwoFactorRequired(): bool { return $this->twoFactorRequired; }
-    public function setTwoFactorRequired(bool $required): self { $this->twoFactorRequired = $required; return $this; }
 
     public function getRoles(): array { return ['IS_AUTHENTICATED_FULLY']; }
     public function eraseCredentials(): void { }

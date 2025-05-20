@@ -19,7 +19,7 @@ class Field
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: FieldType::class, inversedBy: 'fields')]
-    #[ORM\JoinColumn(name: 'idType', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false)]
     private ?FieldType $type = null;
 
     #[ORM\Column(name: 'display', type: 'boolean')]
