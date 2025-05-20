@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 class AclUser
 {
     #[ORM\Id]
-    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
