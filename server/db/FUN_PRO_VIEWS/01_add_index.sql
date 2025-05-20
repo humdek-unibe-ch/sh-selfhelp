@@ -21,11 +21,11 @@ BEGIN
             IF(param_is_unique, 'UNIQUE ', ''),
             'INDEX ', 
             param_index_name, 
-            ' ON ', 
+            ' ON `', 
             param_table, 
-            ' (', 
+            '` (`', 
             param_index_column, 
-            ');'
+            '`);'
         )
     ));
 	PREPARE st FROM @sqlstmt;

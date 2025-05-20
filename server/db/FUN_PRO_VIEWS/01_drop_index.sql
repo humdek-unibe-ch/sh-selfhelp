@@ -10,7 +10,7 @@ BEGIN
 			AND `table_name` = param_table
             AND `index_name` = param_index_name
 		) > 0,        
-        CONCAT('ALTER TABLE ', param_table, ' DROP INDEX ', param_index_name),
+        CONCAT('ALTER TABLE `', param_table, '` DROP INDEX ', param_index_name),
         "SELECT 'The index does not exists in the table'"
     ));
 	PREPARE st FROM @sqlstmt;

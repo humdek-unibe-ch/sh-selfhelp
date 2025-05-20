@@ -11,7 +11,7 @@ BEGIN
             AND `constraint_name` = fk_name
 		) > 0,
         "SELECT 'The foreign key already exists in the table'",
-        CONCAT('ALTER TABLE ', param_table, ' ADD CONSTRAINT ', fk_name, ' FOREIGN KEY (', fk_column, ') REFERENCES ', fk_references, ' ON DELETE CASCADE ON UPDATE CASCADE;')
+        CONCAT('ALTER TABLE ', param_table, ' ADD CONSTRAINT ', fk_name, ' FOREIGN KEY (', fk_column, ') REFERENCES ', fk_references, ' ON DELETE CASCADE;')
     ));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
