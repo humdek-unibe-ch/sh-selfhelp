@@ -11,6 +11,9 @@ class Group
     #[ORM\OneToMany(mappedBy: 'group', targetEntity: UsersGroup::class, orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $usersGroups;
 
+    #[ORM\OneToMany(mappedBy: 'group', targetEntity: ValidationCode::class, orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $validationCodes;
+
 
 
     #[ORM\Id]
@@ -33,6 +36,7 @@ class Group
     public function __construct()
     {
         $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getId(): ?int
@@ -123,6 +127,33 @@ class Group
     {
         $this->requires2fa = $requires2fa;
 
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection|ValidationCode[]
+     */
+    public function getValidationCodes(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->validationCodes;
+    }
+
+    public function addValidationCode(ValidationCode $validationCode): self
+    {
+        if (!$this->validationCodes->contains($validationCode)) {
+            $this->validationCodes[] = $validationCode;
+            $validationCode->setGroup($this);
+        }
+        return $this;
+    }
+
+    public function removeValidationCode(ValidationCode $validationCode): self
+    {
+        if ($this->validationCodes->removeElement($validationCode)) {
+            if ($validationCode->getGroup() === $this) {
+                $validationCode->setGroup(null);
+            }
+        }
         return $this;
     }
 }

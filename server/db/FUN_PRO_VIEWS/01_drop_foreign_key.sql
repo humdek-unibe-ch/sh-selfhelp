@@ -11,7 +11,7 @@ BEGIN
             AND `constraint_name` = fk_name
 		) = 0,
         "SELECT 'Foreign key does not exist'",
-        CONCAT('ALTER TABLE ', param_table, ' DROP FOREIGN KEY ', fk_name, ' ;')
+        CONCAT('ALTER TABLE `', param_table, '` DROP FOREIGN KEY ', fk_name, ' ;')
     ));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;

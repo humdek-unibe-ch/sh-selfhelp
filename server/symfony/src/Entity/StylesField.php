@@ -9,12 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
 class StylesField
 {
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Style::class)]
+    #[ORM\ManyToOne(targetEntity: Style::class, inversedBy: 'stylesFields')]
     #[ORM\JoinColumn(name: 'id_styles', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Style $style = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Field::class)]
+    #[ORM\ManyToOne(targetEntity: Field::class, inversedBy: 'stylesFields')]
     #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Field $field = null;
 
