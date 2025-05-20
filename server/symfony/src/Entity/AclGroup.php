@@ -3,12 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Index;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'acl_groups')]
-#[Index(name: "id_groups_idx", columns: ["id_groups"])]
-#[Index(name: "id_pages_idx", columns: ["id_pages"])]
 class AclGroup
 {
     #[ORM\Id]
