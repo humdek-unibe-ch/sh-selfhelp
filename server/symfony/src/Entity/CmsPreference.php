@@ -17,7 +17,7 @@ class CmsPreference
     private ?string $callbackApiKey = null;
 
     #[ORM\ManyToOne(targetEntity: Language::class)]
-    #[ORM\JoinColumn(name: 'default_language_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'default_language_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Language $defaultLanguage = null;
 
     #[ORM\Column(name: 'anonymous_users', type: 'integer', options: ['default' => 0])]

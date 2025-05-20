@@ -17,7 +17,7 @@ class Style
     private \Doctrine\Common\Collections\Collection $stylesFields;
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
+    #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(name: 'name', type: 'string', length: 100, unique: true)]
@@ -33,11 +33,11 @@ class Style
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Lookup $type = null;
 
     #[ORM\ManyToOne(targetEntity: StyleGroup::class, inversedBy: 'styles')]
-    #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?StyleGroup $group = null;
 
     public function getId(): ?int

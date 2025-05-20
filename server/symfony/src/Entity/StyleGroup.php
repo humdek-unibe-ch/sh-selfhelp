@@ -14,7 +14,7 @@ class StyleGroup
     private ?\Doctrine\Common\Collections\Collection $styles = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true, 'zerofill' => true])]
+    #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(name: 'name', type: 'string', length: 100, unique: true)]

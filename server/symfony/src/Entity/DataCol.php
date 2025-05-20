@@ -8,8 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'dataCols')]
 class DataCol
 {
-    #[ORM\ManyToOne(targetEntity: DataTable::class, inversedBy: 'dataCols')]
-    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: DataTable::class, inversedBy: 'dataCols', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?DataTable $dataTable = null;
 
     /**

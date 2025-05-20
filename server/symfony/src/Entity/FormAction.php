@@ -18,14 +18,14 @@ class FormAction
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_formProjectActionTriggerTypes', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_formProjectActionTriggerTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Lookup $actionTriggerType = null; // ENTITY RULE
 
     #[ORM\Column(name: 'config', type: 'text', nullable: true)]
     private ?string $config = null;
 
     #[ORM\ManyToOne(targetEntity: DataTable::class)]
-    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?DataTable $dataTable = null; // ENTITY RULE
 
     public function getId(): ?int

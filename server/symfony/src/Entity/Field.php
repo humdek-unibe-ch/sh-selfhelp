@@ -18,8 +18,8 @@ class Field
     #[ORM\Column(name: 'name', type: 'string', length: 100)]
     private string $name;
 
-    #[ORM\ManyToOne(targetEntity: FieldType::class, inversedBy: 'fields')]
-    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: FieldType::class, inversedBy: 'fields', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?FieldType $type = null;
 
     #[ORM\Column(name: 'display', type: 'boolean')]

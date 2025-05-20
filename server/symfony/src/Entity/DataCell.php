@@ -10,13 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 class DataCell
 {
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: DataRow::class, inversedBy: 'dataCells')]
-    #[ORM\JoinColumn(name: 'id_dataRows', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: DataRow::class, inversedBy: 'dataCells', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_dataRows', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?DataRow $dataRow = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: DataCol::class, inversedBy: 'dataCells')]
-    #[ORM\JoinColumn(name: 'id_dataCols', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: DataCol::class, inversedBy: 'dataCells', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_dataCols', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?DataCol $dataCol = null;
 
     #[ORM\Column(name: 'value', type: 'text')]

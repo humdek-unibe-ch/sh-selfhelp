@@ -8,10 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'validation_codes')]
 class ValidationCode
 {
-    #[ORM\ManyToOne(targetEntity: CodesGroup::class, inversedBy: 'validationCodes')]
-    #[ORM\JoinColumn(name: 'code', referencedColumnName: 'code')]
-    #[ORM\JoinColumn(name: 'id_groups', referencedColumnName: 'id_groups')]
-    private ?CodesGroup $codesGroup = null;
 
     #[ORM\Id]
     #[ORM\Column(name: 'code', type: 'string', length: 16)]
@@ -26,9 +22,13 @@ class ValidationCode
     #[ORM\Column(name: 'consumed', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $consumed = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'validationCodes')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'validationCodes', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(targetEntity: Group::class, inversedBy: 'validationCodes', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_groups', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Group $group = null;
 
     public function getCode(): ?string
     {
@@ -83,14 +83,14 @@ class ValidationCode
 
         return $this;
     }
-    public function getCodesGroup(): ?CodesGroup
+    public function getGroup(): ?Group
     {
-        return $this->codesGroup;
+        return $this->group;
     }
 
-    public function setCodesGroup(?CodesGroup $codesGroup): static
+    public function setGroup(?Group $group): static
     {
-        $this->codesGroup = $codesGroup;
+        $this->group = $group;
         return $this;
     }
 }

@@ -33,7 +33,7 @@ class Page
     private ?Section $navigationSection = null;
 
     #[ORM\ManyToOne(targetEntity: Page::class)]
-    #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Page $parentPage = null;
 
     #[ORM\ManyToOne(targetEntity: PageType::class)]
@@ -41,7 +41,7 @@ class Page
     private ?PageType $pageType = null;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_pageAccessTypes', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'id_pageAccessTypes', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Lookup $pageAccessType = null;
 
     #[ORM\Column(name: 'is_headless', type: 'boolean', options: ['default' => 0])]
