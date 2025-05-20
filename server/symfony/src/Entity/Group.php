@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'groups')]
+#[ORM\Table(name: '`groups`')]
 class Group
 {
     #[ORM\OneToMany(mappedBy: 'group', targetEntity: UsersGroup::class, orphanRemoval: true)]

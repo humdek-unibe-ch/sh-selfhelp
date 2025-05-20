@@ -1302,6 +1302,24 @@ CALL add_foreign_key('pages', 'FK_2074E57534643D90', 'id_pageAccessTypes', 'look
 CALL add_foreign_key('sections', 'FK_2B964398906D4F18', 'id_styles', 'styles (id)');
 CALL add_foreign_key('validation_codes', 'FK_DBEC45ED65A8C9D', 'id_groups', '`groups` (id)');
 
+SET @user_type_user_id = (
+  SELECT id
+    FROM lookups
+   WHERE type_code    = 'userTypes'
+     AND lookup_value = 'user'
+);
+
+-- 2) build and run an ALTER TABLE to set the DEFAULT
+SET @sql = CONCAT(
+  'ALTER TABLE users ',
+  'MODIFY id_userTypes INT NOT NULL ',
+  'DEFAULT ', @user_type_user_id, ';'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- --------------------------- DOCTRINE ------------------------------------------------------------------------
 
 

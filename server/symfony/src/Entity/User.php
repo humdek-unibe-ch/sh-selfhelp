@@ -68,6 +68,10 @@ class User implements UserInterface
         $this->refreshTokens = new \Doctrine\Common\Collections\ArrayCollection();
         $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
         $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
+        
+        // Set default userType in service layer or controller when creating new users
+        // The default value should be the 'user' type from lookups table
+        // This cannot be set directly in the entity as it requires database access
     }
 
     #[ORM\Id]
@@ -121,13 +125,14 @@ class User implements UserInterface
     private ?string $security_questions = null;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_userTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_userTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE', options: ['default' => 72])] //TODO: set default value to user type dynamically
     private ?Lookup $userType = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
     private ?string $user_name = null;
 
     // Not persisted: for 2FA runtime state
+    // This property is used for 2FA runtime state and is not stored in the database
     private bool $twoFactorRequired = false;
 
     public function getId(): ?int
@@ -421,5 +426,43 @@ class User implements UserInterface
         }
         return $this;
     }
+
+    /**
+     * Check if two-factor authentication is required for this user
+     * This is determined by checking if any of the user's groups require 2FA
+     * 
+     * @return bool True if 2FA is required, false otherwise
+     */
+    public function isTwoFactorRequired(): bool 
+    { 
+        // First check if it's already set (for performance)
+        if ($this->twoFactorRequired) {
+            return true;
+        }
+        
+        // Check if any of the user's groups require 2FA
+        foreach ($this->usersGroups as $userGroup) {
+            $group = $userGroup->getGroup();
+            if ($group && $group->isRequires2fa()) {
+                $this->twoFactorRequired = true;
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Set the two-factor authentication requirement flag
+     * 
+     * @param bool $required Whether 2FA is required
+     * @return self
+     */
+    public function setTwoFactorRequired(bool $required): self 
+    { 
+        $this->twoFactorRequired = $required; 
+        return $this; 
+    }
+    
 }
 // ENTITY RULE

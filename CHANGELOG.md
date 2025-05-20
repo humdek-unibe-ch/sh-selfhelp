@@ -15,6 +15,7 @@
  - migrate tables: `actions`,`activityType`,`styleType` and `userStatus` to `lookups`
  - add `ApiRequestLog` table where all the requests to the `cms-api` are logged
  - foreign keys only cascade on delete and not on update
+ - full `doctrine` DB mapping
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
