@@ -5,81 +5,56 @@ namespace App\Service\CMS\Frontend;
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
-use App\Service\Core\BaseService;
+use App\Repository\LookupRepository;
+use App\Service\Auth\UserContextService;
+use App\Service\ACL\ACLService;
+use App\Service\Core\LookupTypes;
+use App\Service\Core\UserContextAwareService;
 
-/**
- * Service for handling page rendering and content delivery
- */
-class PageService extends BaseService
+class PageService extends UserContextAwareService
 {
     public function __construct(
         private readonly PageRepository $pageRepository,
-        private readonly SectionRepository $sectionRepository
+        private readonly SectionRepository $sectionRepository,
+        private readonly LookupRepository $lookupRepository,
+        UserContextService $userContextService,
+        ?ACLService $aclService = null
     ) {
+        parent::__construct($userContextService, $aclService);
     }
 
     /**
-     * Render a page for public view
-     * 
-     * @throws ServiceException If page not found or access denied
+     * Get all published pages for the current user, filtered by mode and ACL
+     *
+     * @param string $mode Either 'web' or 'mobile'
+     * @return array
      */
-    public function renderPage(string $pageKeyword): array
+    public function getAllAccessiblePagesForUser(string $mode): array
     {
-        $page = $this->pageRepository->findOneBy([
-            'keyword' => $pageKeyword,
-            'isPublished' => true
-        ]);
-
-        if (!$page) {
-            $this->throwNotFound('Page not found or not published');
+        $user = $this->getCurrentUser();
+        if (!$user) {
+            throw new ServiceException('User not authenticated');
         }
 
-        // Get only published sections
-        $sections = $this->sectionRepository->findPublishedSectionsByPage($page->getId());
-        
-        return [
-            'page' => [
-                'id' => $page->getId(),
-                'title' => $page->getTitle(),
-                'keyword' => $page->getKeyword(),
-                'sections' => $this->buildNestedSections($sections)
-            ]
-        ];
-    }
+        // Call stored procedure to get all pages with ACL for the user
+        $conn = $this->pageRepository->getEntityManager()->getConnection();
+        $sql = "CALL get_user_acl(:uid, -1)";
+        $allPages = $conn->executeQuery($sql, ['uid' => $user->getId()])->fetchAllAssociative();
 
-    /**
-     * Build a nested section structure for frontend display
-     */
-    private function buildNestedSections(array $sections): array
-    {
-        // Similar to AdminPageService but with frontend-specific transformations
-        $sectionsById = [];
-        $rootSections = [];
-        
-        // First pass: index all sections by ID
-        foreach ($sections as $section) {
-            $section['children'] = [];
-            $sectionsById[$section['id']] = $section;
-        }
-        
-        // Second pass: build the hierarchy
-        foreach ($sections as $section) {
-            $id = $section['id'];
-            
-            if ($section['level'] === 0) {
-                $rootSections[] = &$sectionsById[$id];
-            } else {
-                $pathParts = explode(',', $section['path']);
-                if (count($pathParts) >= 2) {
-                    $parentId = (int)$pathParts[count($pathParts) - 2];
-                    
-                    if (isset($sectionsById[$parentId])) {
-                        $sectionsById[$parentId]['children'][] = &$sectionsById[$id];
-                    }
-                }
-            }
-        }
-        
-        return $rootSections;
+        // Determine which type to remove based on mode
+        $removeType = $mode === LookupTypes::PAGE_ACCESS_TYPES_MOBILE ? LookupTypes::PAGE_ACCESS_TYPES_WEB : LookupTypes::PAGE_ACCESS_TYPES_MOBILE;
+        $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACCESS_TYPES, $removeType);
+        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACTIONS, LookupTypes::PAGE_ACTIONS_SECTIONS);        
+
+        // Filter pages
+        $pages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId) {
+            return $item['id_pageAccessTypes'] != $removeTypeId &&
+                $item['acl_select'] == 1 &&
+                $item['id_actions'] == $sectionsTypeId &&
+                in_array($item['id_type'], ['2', '3', '4']) &&
+                $item['url'] != '';
+        }));
+
+        return $pages;
     }
 }

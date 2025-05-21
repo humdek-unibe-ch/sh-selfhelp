@@ -322,38 +322,6 @@ DROP TABLE IF EXISTS `deprecated_user_input_record`;
 DROP VIEW IF EXISTS view_form;
 DROP VIEW IF EXISTS view_user_input;
 
--- DROP TABLE IF EXISTS `api_routes`;
-CREATE TABLE IF NOT EXISTS `api_routes` (
-  `id`           INT             NOT NULL AUTO_INCREMENT,
-  `route_name`   VARCHAR(100)    NOT NULL,
-  `version`      VARCHAR(10)     NOT NULL DEFAULT 'v1',
-  `path`         VARCHAR(255)    NOT NULL,
-  `controller`   VARCHAR(255)    NOT NULL,
-  `methods`      VARCHAR(50)     NOT NULL,
-  `requirements` JSON            NULL,
-  `params`       JSON            NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
-  UNIQUE KEY `uniq_version_path` (`version`, `path`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Insert API routes with proper versioned controllers
-INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
--- Auth routes
-('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
-('auth_two_factor_verify','v1','/auth/two-factor-verify','App\\Controller\\Api\\V1\\Auth\\AuthController::twoFactorVerify','POST',NULL,JSON_OBJECT('code',JSON_OBJECT('in','body','required',true),'id_users',JSON_OBJECT('in','body','required',true))),
-('auth_refresh_token','v1','/auth/refresh-token','App\\Controller\\Api\\V1\\Auth\\AuthController::refreshToken','POST',NULL,JSON_OBJECT('refresh_token',JSON_OBJECT('in','body','required',true))),
-('auth_logout','v1','/auth/logout','App\\Controller\\Api\\V1\\Auth\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
-
--- Admin routes
-('admin_get_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
-('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
-('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL);
-
--- Example of a v2 API route (for future use)
--- INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
--- ('auth_login','v2','/auth/login','App\\Controller\\Api\\V2\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('email',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true)));
-
 -- drop qualtrics tables if the plugin is not installed
 -- 1) Check plugin
 SELECT COUNT(*) INTO @cnt
@@ -1321,6 +1289,43 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- --------------------------- DOCTRINE ------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `api_routes`;
+CREATE TABLE IF NOT EXISTS `api_routes` (
+  `id`           INT             NOT NULL AUTO_INCREMENT,
+  `route_name`   VARCHAR(100)    NOT NULL,
+  `version`      VARCHAR(10)     NOT NULL DEFAULT 'v1',
+  `path`         VARCHAR(255)    NOT NULL,
+  `controller`   VARCHAR(255)    NOT NULL,
+  `methods`      VARCHAR(50)     NOT NULL,
+  `requirements` JSON            NULL,
+  `params`       JSON            NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
+  UNIQUE KEY `uniq_version_path` (`version`, `path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert API routes with proper versioned controllers
+INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+-- Auth routes
+('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
+('auth_two_factor_verify','v1','/auth/two-factor-verify','App\\Controller\\Api\\V1\\Auth\\AuthController::twoFactorVerify','POST',NULL,JSON_OBJECT('code',JSON_OBJECT('in','body','required',true),'id_users',JSON_OBJECT('in','body','required',true))),
+('auth_refresh_token','v1','/auth/refresh-token','App\\Controller\\Api\\V1\\Auth\\AuthController::refreshToken','POST',NULL,JSON_OBJECT('refresh_token',JSON_OBJECT('in','body','required',true))),
+('auth_logout','v1','/auth/logout','App\\Controller\\Api\\V1\\Auth\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
+
+-- Admin routes
+('admin_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
+('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+
+-- Public pages route
+('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL);
+
+
+-- Example of a v2 API route (for future use)
+-- INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+-- ('auth_login','v2','/auth/login','App\\Controller\\Api\\V2\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('email',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true)));
+
 
 
 -- shoudl remove is_fluid from container style

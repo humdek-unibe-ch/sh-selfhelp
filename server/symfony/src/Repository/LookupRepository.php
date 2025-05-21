@@ -43,4 +43,51 @@ class LookupRepository extends ServiceEntityRepository
     {
         return $this->findByTypeAndValue('userTypes', 'user');
     }
+
+    /**
+     * Get all lookups for a given type.
+     *
+     * @param string $typeCode
+     * @return Lookup[]
+     */
+    public function getLookups(string $typeCode): array
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.typeCode = :typeCode')
+            ->setParameter('typeCode', $typeCode)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get the ID of a lookup by value.
+     *
+     * @param string $typeCode
+     * @param string $lookupValue
+     * @return int|null
+     */
+    public function getLookupIdByValue(string $typeCode, string $lookupValue): ?int
+    {
+        $lookup = $this->findByTypeAndValue($typeCode, $lookupValue);
+        return $lookup ? $lookup->getId() : null;
+    }
+
+    /**
+     * Get the ID of a lookup by code.
+     *
+     * @param string $typeCode
+     * @param string $lookupCode
+     * @return int|null
+     */
+    public function getLookupIdByCode(string $typeCode, string $lookupCode): ?int
+    {
+        $lookup = $this->createQueryBuilder('l')
+            ->where('l.typeCode = :typeCode')
+            ->andWhere('l.lookupCode = :lookupCode')
+            ->setParameter('typeCode', $typeCode)
+            ->setParameter('lookupCode', $lookupCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+        return $lookup ? $lookup->getId() : null;
+    }
 }

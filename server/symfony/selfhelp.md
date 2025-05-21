@@ -109,6 +109,50 @@ All API responses follow a standardized format:
 
 ## API Versioning and Database-Driven Routing
 
+### Core Dynamic Controller System (2025-05-21)
+
+The SH-Selfhelp Symfony backend uses a dynamic controller loading system as the core architectural component for handling API routes. This system allows routes to be defined in the database and loaded at runtime, without requiring code changes for new endpoints.
+
+**Key Components:**
+
+1. **DynamicControllerService**: Core service that dynamically calls controllers based on route names
+   - Located at `src/Service/Dynamic/DynamicControllerService.php`
+   - Resolves controller class and method from database entries
+   - Handles dependency injection for controllers
+   - Integrates with ACL for permission checks
+   - Provides standardized API responses
+   - Uses caching for performance optimization
+
+2. **ApiRouteRepository**: Database access for route definitions
+   - Maps route names to controller classes and methods
+
+3. **Database Table**: `api_routes` stores all route definitions
+   - Columns: `id`, `route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`
+
+**Example Flow:**
+
+```
+Request → Router → DynamicControllerService.handle(routeName) → 
+  → Get route from DB → ACL check → Instantiate controller → Call method → Return response
+```
+
+**Adding New Routes:**
+
+Routes are added via SQL inserts into the `api_routes` table:
+
+```sql
+INSERT INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL);
+```
+
+**Best Practices:**
+
+- Always use the dynamic controller system for API routes
+- Keep controller methods focused on a single responsibility
+- Use standardized response formats via ApiResponseFormatter
+- Include proper error handling in all controller methods
+- Cache expensive operations where possible
+
 ### API Versioning System
 
 The API supports versioning to maintain backward compatibility while evolving the API. The versioning system consists of several components:
@@ -176,7 +220,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
 
 -- Frontend routes
-('content_pages','v1','/pages','App\\Controller\\Api\\V1\\Content\\ContentController::getAllPages','GET',NULL,NULL),
+('content_pages','v1','/pages','App\\Controller\\Api\\V1\\Content\\ContentController::getPages','GET',NULL,NULL),
 
 -- Admin routes
 ('admin_get_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminController::getPages','GET',NULL,NULL);
@@ -1178,6 +1222,25 @@ VALUES (
   ```sh
   php bin/console debug:router | findstr cms-api
   ```
+
+## Public API Endpoint: GET /cms-api/v1/pages (2025-05-21)
+
+- Returns all pages accessible to the current user, filtered by ACL and access type.
+- Business logic migrated from legacy NavigationApi::GET_all_routes().
+- Uses stored procedure `get_user_acl(:uid, -1)` to get all pages and user ACL in one call.
+- Removes pages of the opposite access type (web/mobile), only returns pages with:
+  - `acl_select` == 1
+  - `id_actions` == 3 (published)
+  - `id_type` in [2, 3, 4] (core, experiment, open)
+  - `url` not empty
+- Implemented in Symfony:
+  - Controller: `App\Controller\Api\V1\Frontend\PageController::getPages()`
+  - Service: `App\Service\CMS\Frontend\PageService::getAllAccessiblePagesForUser()`
+  - Repository: `App\Repository\PageRepository::getLookupIdByCode()`
+- Returns JSON: `{ status: 'success', data: [ ...pages... ] }`
+- Follows REST and Symfony best practices.
+
+---
 
 ## Global API JSON Error Handling (2025-05-21)
 
