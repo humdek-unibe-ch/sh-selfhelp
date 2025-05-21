@@ -1179,6 +1179,59 @@ VALUES (
   php bin/console debug:router | findstr cms-api
   ```
 
+## Global API JSON Error Handling (2025-05-21)
+
+All `/cms-api/` endpoints now return JSON error responses, even for 404 and uncaught exceptions. This is handled by a global event listener:
+
+- File: `src/EventListener/ApiExceptionListener.php`
+- Catches all exceptions for API routes (path starts with `/cms-api/`).
+- Returns a standard JSON structure for errors, e.g.:
+  ```json
+  {
+    "status": "error",
+    "code": 404,
+    "message": "No route found for GET /cms-api/v1/pages"
+  }
+  ```
+- Ensures clients never receive HTML error pages from API endpoints.
+- Follows REST best practices for error reporting.
+
+**Implementation:**
+```php
+namespace App\EventListener;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+class ApiExceptionListener
+{
+    #[AsEventListener]
+    public function onKernelException(ExceptionEvent $event)
+    {
+        $request = $event->getRequest();
+        if (strpos($request->getPathInfo(), '/cms-api/') !== 0) {
+            return;
+        }
+        $exception = $event->getThrowable();
+        $statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : 500;
+        $message = $exception->getMessage() ?: 'An error occurred';
+        $data = [
+            'status' => 'error',
+            'code' => $statusCode,
+            'message' => $message,
+        ];
+        $response = new JsonResponse($data, $statusCode);
+        $event->setResponse($response);
+    }
+}
+```
+
+**To customize:**
+- Edit `ApiExceptionListener.php` for advanced error formatting or logging.
+- The listener is auto-registered via PHP 8 attributes.
+
 ## Troubleshooting
 - If a route does not appear, ensure it is in the database and the cache is cleared.
 - If you get duplicate routes, check for static YAML/PHP definitions and remove them.
