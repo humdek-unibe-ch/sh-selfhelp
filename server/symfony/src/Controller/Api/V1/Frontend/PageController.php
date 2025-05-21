@@ -39,7 +39,7 @@ class PageController extends AbstractController
         } catch (\Throwable $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getCode(),
                 $this->getUser() !== null
             );
         }

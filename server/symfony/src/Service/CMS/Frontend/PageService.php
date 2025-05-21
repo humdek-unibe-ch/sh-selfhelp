@@ -10,6 +10,7 @@ use App\Service\Auth\UserContextService;
 use App\Service\ACL\ACLService;
 use App\Service\Core\LookupTypes;
 use App\Service\Core\UserContextAwareService;
+use Symfony\Component\HttpFoundation\Response;
 
 class PageService extends UserContextAwareService
 {
@@ -32,14 +33,15 @@ class PageService extends UserContextAwareService
     public function getAllAccessiblePagesForUser(string $mode): array
     {
         $user = $this->getCurrentUser();
-        if (!$user) {
-            throw new ServiceException('User not authenticated');
+        $userId = 1; // guest user
+        if ($user) {
+            $userId = $user->getId();
         }
 
         // Call stored procedure to get all pages with ACL for the user
         $conn = $this->pageRepository->getEntityManager()->getConnection();
         $sql = "CALL get_user_acl(:uid, -1)";
-        $allPages = $conn->executeQuery($sql, ['uid' => $user->getId()])->fetchAllAssociative();
+        $allPages = $conn->executeQuery($sql, ['uid' => $userId])->fetchAllAssociative();
 
         // Determine which type to remove based on mode
         $removeType = $mode === LookupTypes::PAGE_ACCESS_TYPES_MOBILE ? LookupTypes::PAGE_ACCESS_TYPES_WEB : LookupTypes::PAGE_ACCESS_TYPES_MOBILE;
