@@ -311,6 +311,56 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 
 ## ACL Integration (2025-05-15)
 
+### ACL Repository and Caching (2025-05-21)
+
+The ACL system now uses a repository pattern with in-memory caching to optimize performance. This ensures that ACL checks are only executed once per request, even if needed multiple times.
+
+**Key Components:**
+
+1. **AclRepository**: Repository for efficient ACL queries
+   - Located at `src/Repository/AclRepository.php`
+   - Uses Doctrine QueryBuilder for optimized queries
+   - Implements in-memory caching to prevent duplicate database calls
+
+2. **ACLService**: Service for ACL operations
+   - Uses AclRepository for data access
+   - Provides methods for checking access and retrieving all user ACLs
+
+**Implementation:**
+
+```php
+// AclRepository - getUserAcl method with in-memory caching
+public function getUserAcl(int $userId, ?int $pageId = -1): array
+{
+    // Check in-memory cache first
+    $cacheKey = $userId . '_' . $pageId;
+    if (isset($this->userAclCache[$cacheKey])) {
+        return $this->userAclCache[$cacheKey];
+    }
+    
+    // Query logic here...
+    
+    // Cache results before returning
+    $this->userAclCache[$cacheKey] = $result;
+    return $result;
+}
+```
+
+**Best Practices:**
+
+- Use `ACLService::getAllUserAcls()` when you need ACLs for multiple pages
+- Use `ACLService::hasAccess()` for checking access to a specific page
+- The repository handles caching automatically - no need for manual cache management
+- For bulk operations, fetch all ACLs once and filter in memory
+
+**Performance Benefits:**
+
+- Eliminates redundant database queries
+- Reduces database load
+- Improves response times for complex pages with multiple ACL checks
+- Maintains consistency of ACL checks within a single request
+
+
 ## Doctrine Entity Attribute Mapping (2025-05-15)
 
 **This section lists all Doctrine entity attributes in `src/Entity` for onboarding and reference.**

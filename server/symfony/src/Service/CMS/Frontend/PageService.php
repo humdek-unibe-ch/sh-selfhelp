@@ -6,6 +6,7 @@ use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\LookupRepository;
+use App\Repository\AclRepository;
 use App\Service\Auth\UserContextService;
 use App\Service\ACL\ACLService;
 use App\Service\Core\LookupTypes;
@@ -38,10 +39,11 @@ class PageService extends UserContextAwareService
             $userId = $user->getId();
         }
 
-        // Call stored procedure to get all pages with ACL for the user
-        $conn = $this->pageRepository->getEntityManager()->getConnection();
-        $sql = "CALL get_user_acl(:uid, -1)";
-        $allPages = $conn->executeQuery($sql, ['uid' => $userId])->fetchAllAssociative();
+        // Get all pages with ACL for the user using the ACLService (cached)
+        if (!$this->aclService) {
+            throw new ServiceException('ACLService not available', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $allPages = $this->aclService->getAllUserAcls($userId);
 
         // Determine which type to remove based on mode
         $removeType = $mode === LookupTypes::PAGE_ACCESS_TYPES_MOBILE ? LookupTypes::PAGE_ACCESS_TYPES_WEB : LookupTypes::PAGE_ACCESS_TYPES_MOBILE;
