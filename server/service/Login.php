@@ -544,20 +544,22 @@ class Login
         $global_vars['@user'] = $user['user_name'];
         $subject = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA_SUBJECT], $global_vars);
         $body = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA], $global_vars);
+        $from = $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS];
 
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
             "date_to_be_executed" => date('Y-m-d H:i:s', time()),
-            "from_email" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
-            "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
-            "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "from_email" => $from ? $from : 'selfhelp@unibe.ch',
+            "from_name" => $from ? $from : 'SelfHelp',
+            "reply_to" => $from ? $from : 'selfhelp@unibe.ch',
             "recipient_emails" => $email,
             "subject" => $subject,
             "body" => $body,
             "is_html" => 1,
             "description" => "Email Notification - 2FA Code"
         );
+        $mail['id_users'][] = $user['id'];
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 
