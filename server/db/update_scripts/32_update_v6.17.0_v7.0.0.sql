@@ -682,6 +682,7 @@ BEGIN
 END
 //
 
+DELIMITER ;
 
 
 -- add field `formName` to style `showUserInput`; Set the data from `source` field to the formName and remove the `source` field

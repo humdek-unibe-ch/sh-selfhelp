@@ -1,3 +1,7 @@
+# v7.5.2
+### Bugfix
+ - fix script `32_update_v6.17.0_v7.0.0` add `DELIMITER ;` at the end
+
 # v7.5.1
 ### New Feature
  - prepare output for `external auth` in `login` style
