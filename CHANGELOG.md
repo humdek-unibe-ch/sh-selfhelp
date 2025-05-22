@@ -1,3 +1,7 @@
+# v7.5.3
+### Bugfix
+ - properly send `2FA` verification code to the user
+
 # v7.5.2
 ### Bugfix
  - fix script `32_update_v6.17.0_v7.0.0` add `DELIMITER ;` at the end

@@ -552,6 +552,7 @@ class Login
             "is_html" => 1,
             "description" => "Email Notification - 2FA Code"
         );
+        $mail['id_users'][] = $user['id'];
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 
