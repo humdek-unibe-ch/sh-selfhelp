@@ -31,6 +31,10 @@
  - update to `jQuery-QueryBuilder` 3.0.0
  - #489 - add dropdown in the footer to select `dark`, `light` or `auto` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
 
+# v7.6.0
+### Bugfix
+ - properly export and import `meta` field for sections
+
 # v7.5.3
 ### Bugfix
  - properly send `2FA` verification code to the user

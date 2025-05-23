@@ -61,7 +61,7 @@ class CmsExportModel extends BaseModel
     private function fetch_section_children($parent_id)
     {
         $sql = "SELECT parent, child, sh.position, parent.name as psarent_section_name, children.section_name as children_section_name,
-                content, style_name, field_name, locale, gender, children.id_styles, children.id_fields
+                content, meta, style_name, field_name, locale, gender, children.id_styles, children.id_fields
                 FROM sections_hierarchy sh
                 INNER JOIN sections parent ON (sh.parent = parent.id)
                 INNER JOIN view_sections_fields children ON (sh.child = children.id_sections)
@@ -83,6 +83,7 @@ class CmsExportModel extends BaseModel
                 $child['id_styles'] = intval($field['id_styles']);
                 $child['position'] = intval($field['position']);
                 $child['fields'] = array(); //initalize empty array for the section fields
+                $child['meta'] = $field['meta'];
                 $child['children'] = $this->fetch_section_children($field['child']);
             }
             $child['fields'][] = array(
@@ -93,6 +94,7 @@ class CmsExportModel extends BaseModel
                 "locale" => $field['locale'],
                 "gender" => $field['gender'],
                 "content" => $field['content'],
+                "meta" => $field['meta'],
             );
         }
         if (count($child) > 0) {
@@ -126,7 +128,8 @@ class CmsExportModel extends BaseModel
                 $section['position'] = 0;
                 $section['fields'] = array(); //initalize empty array for the section fields
                 $section['children'] = $this->fetch_section_children($field['id_sections']);
-                $json['section'] = $section;
+                $section['meta'] = $field['meta'];
+                $json['section'] = $section;                
             }
             $json['section']['fields'][] = array(
                 "id_styles" => intval($field['id_styles']),
@@ -136,6 +139,7 @@ class CmsExportModel extends BaseModel
                 "locale" => $field['locale'],
                 "gender" => $field['gender'],
                 "content" => $field['content'],
+                "meta" => $field['meta'],
             );
         }
         return $json;

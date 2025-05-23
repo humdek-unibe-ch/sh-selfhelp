@@ -873,7 +873,7 @@ class PageDb extends BaseDb
         if ($version) {
             $version = rtrim($version);
         }
-        return $version;
+        return $version ? $version : "unknown";
     }
 
     /**

@@ -76,7 +76,8 @@ class CmsImportModel extends CmsModel
                     "id_fields" => $id_fields,
                     "id_languages" => $id_languages,
                     "id_genders" => $id_genders,
-                    "content" => $field['content']
+                    "content" => $field['content'],
+                    "meta" => $field['meta']
                 ))) {
                     throw new Exception('Field cannot be imported. JSON: ' . json_encode($field));
                 }
