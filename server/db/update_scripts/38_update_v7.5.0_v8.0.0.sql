@@ -1321,6 +1321,10 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 -- Public pages route
 ('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL);
 
+CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
+
+
+
 
 -- Example of a v2 API route (for future use)
 -- INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
