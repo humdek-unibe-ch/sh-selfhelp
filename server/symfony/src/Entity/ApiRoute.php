@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ApiRouteRepository::class)]
 #[ORM\Table(name: 'api_routes')]
+#[ORM\UniqueConstraint(name: 'uniq_version_path', columns: ['version', 'path'])]
+#[ORM\UniqueConstraint(name: 'uniq_route_name_version', columns: ['route_name', 'version'])]
 class ApiRoute
 {
     #[ORM\Id]
@@ -14,7 +16,7 @@ class ApiRoute
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'route_name', length: 100, unique: true)]
+    #[ORM\Column(name: 'route_name', length: 100)]
     private ?string $route_name = null;
 
     #[ORM\Column(length: 255)]
@@ -29,10 +31,10 @@ class ApiRoute
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $requirements = null;
 
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: 'json', nullable: true, options: ['comment' => 'Expected parameters: name → {in: body|query, required: bool}'])]
     private ?array $params = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 10, options: ['default' => 'v1'])]
     private ?string $version = 'v1';
 
     public function getId(): ?int
