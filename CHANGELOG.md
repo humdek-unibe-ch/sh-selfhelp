@@ -1,3 +1,7 @@
+# v7.6.0
+### Bugfix
+ - properly export and import `meta` field for sections
+
 # v7.5.3
 ### Bugfix
  - properly send `2FA` verification code to the user

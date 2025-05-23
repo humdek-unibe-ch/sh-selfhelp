@@ -1,3 +1,7 @@
+-- set DB version
+UPDATE version
+SET version = 'v7.6.0';
+
 DROP VIEW IF EXISTS view_sections_fields;
 CREATE VIEW view_sections_fields
 AS
