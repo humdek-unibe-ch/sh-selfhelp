@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * API V1 Auth Controller
@@ -25,7 +26,8 @@ class AuthController extends AbstractController
         private readonly LoginService $loginService,
         private readonly JWTService $jwtService,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly \Doctrine\ORM\EntityManagerInterface $entityManager
+        private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
+        private readonly TokenStorageInterface $tokenStorage
     ) {
     }
 
@@ -54,8 +56,7 @@ class AuthController extends AbstractController
             if (!$user) {
                 return $this->responseFormatter->formatError(
                     'Invalid credentials',
-                    Response::HTTP_UNAUTHORIZED,
-                    false
+                    Response::HTTP_UNAUTHORIZED
                 );
             }
             
@@ -77,7 +78,7 @@ class AuthController extends AbstractController
                     'email' => $user->getEmail(),
                     'name' => $user->getName()
                 ]
-            ]);
+            ], Response::HTTP_OK, true);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -111,8 +112,7 @@ class AuthController extends AbstractController
             if (!$verified) {
                 return $this->responseFormatter->formatError(
                     'Invalid or expired verification code',
-                    Response::HTTP_UNAUTHORIZED,
-                    false
+                    Response::HTTP_UNAUTHORIZED
                 );
             }
             
@@ -121,8 +121,7 @@ class AuthController extends AbstractController
             if (!$user) {
                 return $this->responseFormatter->formatError(
                     'User not found',
-                    Response::HTTP_NOT_FOUND,
-                    false
+                    Response::HTTP_NOT_FOUND
                 );
             }
             
@@ -137,7 +136,7 @@ class AuthController extends AbstractController
                     'email' => $user->getEmail(),
                     'name' => $user->getName()
                 ]
-            ]);
+            ], Response::HTTP_OK, true);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -172,8 +171,7 @@ class AuthController extends AbstractController
         } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                Response::HTTP_UNAUTHORIZED,
-                false // Do not expose previous exception details for auth errors
+                Response::HTTP_UNAUTHORIZED
             );
         } catch (\JsonException $e) {
             return $this->responseFormatter->formatError(
@@ -221,7 +219,7 @@ class AuthController extends AbstractController
             if (!$refreshTokenString) {
                 return $this->responseFormatter->formatSuccess([
                     'message' => 'Access token was blacklisted. No refresh token was sent.'
-                ], Response::HTTP_OK, false); // Set logged_in to false
+                ], Response::HTTP_OK); // loggedIn status is now handled by ApiResponseFormatter
             }
 
             $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
@@ -232,9 +230,11 @@ class AuthController extends AbstractController
                 $this->entityManager->flush();
             }
             
+            $this->tokenStorage->setToken(null); // Clear the security token
+
             return $this->responseFormatter->formatSuccess([
                 'message' => 'Successfully logged out'
-            ], Response::HTTP_OK, false); // Set logged_in to false
+            ], Response::HTTP_OK, false); // loggedIn status is now handled by ApiResponseFormatter
         } catch (\JsonException $e) {
             return $this->responseFormatter->formatError(
                 'Invalid JSON payload for refresh token: ' . $e->getMessage(),

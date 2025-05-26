@@ -32,15 +32,17 @@ class PageController extends AbstractController
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
             $mode = 'web';
-            $pages = $this->pageService->getAllAccessiblePagesForUser($mode);
-            return $this->responseFormatter->formatSuccess([
-                'pages' => $pages
-            ]);
+            $pages = $this->pageService->getAllAccessiblePagesForUser($mode);            
+            return $this->responseFormatter->formatSuccess(
+                ['pages' => $pages],
+                Response::HTTP_OK // Explicitly pass the status code
+            );
         } catch (\Throwable $e) {
+            // Attempt to get a valid HTTP status code from the exception, default to 500
+            $statusCode = (is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() <= 599) ? $e->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                $e->getCode(),
-                $this->getUser() !== null
+                $statusCode
             );
         }
     }

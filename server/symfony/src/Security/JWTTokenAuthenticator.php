@@ -79,25 +79,15 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        // Use ApiResponseFormatter to ensure consistent error structure
-        $errorMessage = strtr($exception->getMessageKey(), $exception->getMessageData());
-        if (str_contains($errorMessage, 'Token has been blacklisted')) {
-            $errorDetail = 'Token has been blacklisted.';
-        } elseif (str_contains($errorMessage, 'Invalid API Token')) {
-            // Extract the specific reason if available, otherwise use a generic message
-            $parts = explode('Invalid API Token: ', $errorMessage, 2);
-            $errorDetail = $parts[1] ?? 'Invalid API token.';
-        } else {
-            $errorDetail = 'Authentication failed.'; // Fallback generic error
-        }
-
-        // The first argument to formatError is the string for the 'error' field in the JSON.
-        // The 'message' field in the JSON will be automatically set based on the HTTP status code (e.g., "Forbidden" for 403).
-        return $this->responseFormatter->formatError(
-            $errorDetail, // This will be the value of the 'error' field in the response
-            Response::HTTP_FORBIDDEN, // Sets HTTP status and the 'message' field (e.g., "Forbidden")
-            false, // logged_in status
-            null // additionalData, can be null if not needed
-        );
+        // If an AuthenticationException occurs, it means the token provided was problematic
+        // (e.g., invalid, expired, blacklisted). In this case, we return null.
+        // This allows Symfony's security system to proceed as if the user is anonymous.
+        // The access_control rules in security.yaml will then determine if anonymous
+        // access is permitted for the requested path.
+        //
+        // This simplifies the authenticator by removing path-specific logic.
+        // For PUBLIC_ACCESS routes, the user will get anonymous access.
+        // For protected routes, Symfony will deny access if the (now anonymous) user lacks roles.
+        return null;
     }
 }

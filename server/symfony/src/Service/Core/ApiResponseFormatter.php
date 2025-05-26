@@ -5,6 +5,7 @@ namespace App\Service\Core;
 use App\Exception\ServiceException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * API response formatter service
@@ -13,21 +14,25 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ApiResponseFormatter
 {
+    public function __construct(private readonly Security $security)
+    {
+    }
+
     /**
      * Format a success response
      * 
      * @param mixed $data The response data
      * @param int $status The HTTP status code
-     * @param bool $loggedIn Whether the user is logged in
      * @return JsonResponse The formatted response
      */
-    public function formatSuccess($data = null, int $status = Response::HTTP_OK, bool $loggedIn = true): JsonResponse
+    public function formatSuccess($data = null, int $status = Response::HTTP_OK, bool $isLoggedIn = false): JsonResponse
     {
+        $isLoggedIn = $isLoggedIn || $this->security->getUser() !== null;
         return new JsonResponse([
             'status' => $status,
             'message' => Response::$statusTexts[$status] ?? 'Unknown status',
             'error' => null,
-            'logged_in' => $loggedIn,
+            'logged_in' => $isLoggedIn,
             'meta' => [
                 'version' => 'v1',
                 'timestamp' => (new \DateTime())->format('c')
@@ -41,17 +46,17 @@ class ApiResponseFormatter
      * 
      * @param string $error The error message
      * @param int $status The HTTP status code
-     * @param bool $loggedIn Whether the user is logged in
      * @param mixed $data Additional error data
      * @return JsonResponse The formatted response
      */
-    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, bool $loggedIn = true, $data = null): JsonResponse
+    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, $data = null): JsonResponse
     {
+        $isLoggedIn = $this->security->getUser() !== null;
         return new JsonResponse([
             'status' => $status,
             'message' => Response::$statusTexts[$status] ?? 'Unknown status',
             'error' => $error,
-            'logged_in' => $loggedIn,
+            'logged_in' => $isLoggedIn,
             'meta' => [
                 'version' => 'v1',
                 'timestamp' => (new \DateTime())->format('c')
@@ -64,15 +69,14 @@ class ApiResponseFormatter
      * Format a service exception response
      * 
      * @param ServiceException $exception The exception
-     * @param bool $loggedIn Whether the user is logged in
      * @return JsonResponse The formatted response
      */
-    public function formatException(ServiceException $exception, bool $loggedIn = true): JsonResponse
+    public function formatException(ServiceException $exception): JsonResponse
     {
+        // The logged_in status will be determined by formatError using $this->security->getUser()
         return $this->formatError(
             $exception->getMessage(),
             $exception->getCode(),
-            $loggedIn,
             $exception->getData()
         );
     }
