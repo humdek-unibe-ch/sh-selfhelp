@@ -221,7 +221,7 @@ class AuthController extends AbstractController
             if (!$refreshTokenString) {
                 return $this->responseFormatter->formatSuccess([
                     'message' => 'Access token was blacklisted. No refresh token was sent.'
-                ]);
+                ], Response::HTTP_OK, false); // Set logged_in to false
             }
 
             $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
@@ -234,7 +234,7 @@ class AuthController extends AbstractController
             
             return $this->responseFormatter->formatSuccess([
                 'message' => 'Successfully logged out'
-            ]);
+            ], Response::HTTP_OK, false); // Set logged_in to false
         } catch (\JsonException $e) {
             return $this->responseFormatter->formatError(
                 'Invalid JSON payload for refresh token: ' . $e->getMessage(),

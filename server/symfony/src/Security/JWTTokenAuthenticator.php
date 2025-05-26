@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\Auth\JWTService;
+use App\Service\Core\ApiResponseFormatter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private readonly JWTService $jwtService,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ApiResponseFormatter $responseFormatter
     ) {
     }
 
@@ -77,10 +79,25 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-        ];
+        // Use ApiResponseFormatter to ensure consistent error structure
+        $errorMessage = strtr($exception->getMessageKey(), $exception->getMessageData());
+        if (str_contains($errorMessage, 'Token has been blacklisted')) {
+            $errorDetail = 'Token has been blacklisted.';
+        } elseif (str_contains($errorMessage, 'Invalid API Token')) {
+            // Extract the specific reason if available, otherwise use a generic message
+            $parts = explode('Invalid API Token: ', $errorMessage, 2);
+            $errorDetail = $parts[1] ?? 'Invalid API token.';
+        } else {
+            $errorDetail = 'Authentication failed.'; // Fallback generic error
+        }
 
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        // The first argument to formatError is the string for the 'error' field in the JSON.
+        // The 'message' field in the JSON will be automatically set based on the HTTP status code (e.g., "Forbidden" for 403).
+        return $this->responseFormatter->formatError(
+            $errorDetail, // This will be the value of the 'error' field in the response
+            Response::HTTP_FORBIDDEN, // Sets HTTP status and the 'message' field (e.g., "Forbidden")
+            false, // logged_in status
+            null // additionalData, can be null if not needed
+        );
     }
 }
