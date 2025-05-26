@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use DateTimeInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users_2fa_codes')]
@@ -61,24 +62,24 @@ class Users2faCode
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getExpiresAt(): ?\DateTime
+    public function getExpiresAt(): ?\DateTimeInterface
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTime $expiresAt): static
+    public function setExpiresAt(\DateTimeInterface $expiresAt): static
     {
         $this->expiresAt = $expiresAt;
 

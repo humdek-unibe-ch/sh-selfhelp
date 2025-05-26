@@ -6,10 +6,11 @@ use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
-class User implements UserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersGroup::class, orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $usersGroups;
@@ -276,7 +277,7 @@ class User implements UserInterface
         return $this->last_login;
     }
 
-    public function setLastLogin(?\DateTime $last_login): static
+    public function setLastLogin(?\DateTimeImmutable $last_login): static
     {
         $this->last_login = $last_login;
 

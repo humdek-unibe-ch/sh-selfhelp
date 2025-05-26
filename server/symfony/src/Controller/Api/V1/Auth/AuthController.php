@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\V1\Auth;
 
+use App\Repository\AuthRepository;
 use App\Service\Auth\JWTService;
 use App\Service\Auth\LoginService;
 use App\Service\Core\ApiResponseFormatter;
@@ -27,9 +28,9 @@ class AuthController extends AbstractController
         private readonly JWTService $jwtService,
         private readonly ApiResponseFormatter $responseFormatter,
         private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
-        private readonly TokenStorageInterface $tokenStorage
-    ) {
-    }
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly AuthRepository $authRepository
+    ) {}
 
     /**
      * Login endpoint
@@ -43,33 +44,36 @@ class AuthController extends AbstractController
             $data = json_decode($request->getContent(), true);
             $userInput = $data['user'] ?? null;
             $password = $data['password'] ?? null;
-            
+
             if (!$userInput || !$password) {
                 return $this->responseFormatter->formatError(
                     'Missing required parameters: user and password',
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            
+
             $user = $this->loginService->validateUser($userInput, $password);
-            
+
             if (!$user) {
                 return $this->responseFormatter->formatError(
                     'Invalid credentials',
                     Response::HTTP_UNAUTHORIZED
                 );
             }
-            
+
+            // If the user is found check if 2fa is required
             if ($user->isTwoFactorRequired()) {
+                $this->authRepository->generateAndStore2faCode($user->getId()); // Ensure code is generated when 2FA is required
                 return $this->responseFormatter->formatSuccess([
                     'requires_2fa' => true,
                     'id_users' => $user->getId()
                 ]);
             }
-            
+
+
             $token = $this->jwtService->createToken($user);
             $refreshToken = $this->jwtService->createRefreshToken($user);
-            
+
             return $this->responseFormatter->formatSuccess([
                 'token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
@@ -86,7 +90,7 @@ class AuthController extends AbstractController
             );
         }
     }
-    
+
     /**
      * Two-factor verification endpoint
      * 
@@ -99,35 +103,35 @@ class AuthController extends AbstractController
             $data = json_decode($request->getContent(), true);
             $code = $data['code'] ?? null;
             $userId = $data['id_users'] ?? null;
-            
+
             if (!$code || !$userId) {
                 return $this->responseFormatter->formatError(
                     'Missing required parameters: code and id_users',
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            
+
             $verified = $this->loginService->verify2faCode($userId, $code);
-            
+
             if (!$verified) {
                 return $this->responseFormatter->formatError(
                     'Invalid or expired verification code',
                     Response::HTTP_UNAUTHORIZED
                 );
             }
-            
+
             $user = $this->entityManager->getRepository(\App\Entity\User::class)->find($userId);
-            
+
             if (!$user) {
                 return $this->responseFormatter->formatError(
                     'User not found',
                     Response::HTTP_NOT_FOUND
                 );
             }
-            
+
             $token = $this->jwtService->createToken($user);
             $refreshToken = $this->jwtService->createRefreshToken($user);
-            
+
             return $this->responseFormatter->formatSuccess([
                 'token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
@@ -144,7 +148,7 @@ class AuthController extends AbstractController
             );
         }
     }
-    
+
     /**
      * Refresh token endpoint
      * 
@@ -156,18 +160,17 @@ class AuthController extends AbstractController
         try {
             $data = $request->toArray(); // Use toArray() for JSON body
             $refreshTokenString = $data['refresh_token'] ?? null;
-            
+
             if (!$refreshTokenString) {
                 return $this->responseFormatter->formatError(
                     'Missing required parameter: refresh_token',
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            
-            $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
-            
-            return $this->responseFormatter->formatSuccess($newTokens, Response::HTTP_OK, true);
 
+            $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
+
+            return $this->responseFormatter->formatSuccess($newTokens, Response::HTTP_OK, true);
         } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -186,7 +189,7 @@ class AuthController extends AbstractController
             );
         }
     }
-    
+
     /**
      * Logout endpoint
      * 
@@ -215,7 +218,7 @@ class AuthController extends AbstractController
             // 2. Invalidate the refresh token if provided in the body
             $data = $request->toArray(); // Use toArray() for JSON body, handle potential JsonException
             $refreshTokenString = $data['refresh_token'] ?? null;
-            
+
             if (!$refreshTokenString) {
                 return $this->responseFormatter->formatSuccess([
                     'message' => 'Access token was blacklisted. No refresh token was sent.'
@@ -224,12 +227,12 @@ class AuthController extends AbstractController
 
             $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
                 ->findOneBy(['tokenHash' => $refreshTokenString]);
-            
+
             if ($tokenEntity) {
                 $this->entityManager->remove($tokenEntity);
                 $this->entityManager->flush();
             }
-            
+
             $this->tokenStorage->setToken(null); // Clear the security token
 
             return $this->responseFormatter->formatSuccess([
