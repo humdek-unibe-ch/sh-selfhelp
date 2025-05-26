@@ -84,7 +84,7 @@ class AclRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
 
         // Call the stored procedure directly
-        $sql = 'CALL sh.get_user_acl(:userId, :pageId)';
+        $sql = 'CALL get_user_acl(:userId, :pageId)';
         $params = [
             'userId' => $userId,
             'pageId' => $pageId
