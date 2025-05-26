@@ -86,7 +86,7 @@ class AdminPageController extends AbstractController
             return $this->responseFormatter->formatSuccess([
                 'page_keyword' => $page_keyword,
                 'sections' => $sections
-            ]);
+            ], 'responses/admin/page_sections');
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e, $this->getUser() !== null);
         } catch (\Exception $e) {

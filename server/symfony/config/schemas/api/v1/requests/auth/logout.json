@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth Logout Request",
+  "description": "Schema for the logout request body. Optionally accepts a refresh_token.",
+  "type": "object",
+  "properties": {
+    "refresh_token": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The refresh token to be invalidated."
+    }
+  },
+  "additionalProperties": false
+}

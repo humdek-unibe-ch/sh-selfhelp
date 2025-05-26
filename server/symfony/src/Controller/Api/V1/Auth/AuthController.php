@@ -6,6 +6,7 @@ use App\Repository\AuthRepository;
 use App\Service\Auth\JWTService;
 use App\Service\Auth\LoginService;
 use App\Service\Core\ApiResponseFormatter;
+use App\Service\JSON\JsonSchemaValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +30,8 @@ class AuthController extends AbstractController
         private readonly ApiResponseFormatter $responseFormatter,
         private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly AuthRepository $authRepository
+        private readonly AuthRepository $authRepository,
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {}
 
     /**
@@ -42,15 +44,24 @@ class AuthController extends AbstractController
     {
         try {
             $data = json_decode($request->getContent(), true);
-            $userInput = $data['user'] ?? null;
-            $password = $data['password'] ?? null;
-
-            if (!$userInput || !$password) {
+            if (json_last_error() !== JSON_ERROR_NONE) {
                 return $this->responseFormatter->formatError(
-                    'Missing required parameters: user and password',
+                    'Invalid JSON payload: ' . json_last_error_msg(),
                     Response::HTTP_BAD_REQUEST
                 );
             }
+
+            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/login');
+            if (!empty($validationErrors)) {
+                return $this->responseFormatter->formatError(
+                    'Validation failed',
+                    Response::HTTP_BAD_REQUEST,
+                    ['errors' => $validationErrors]
+                );
+            }
+
+            $userInput = $data['email'] ?? null; // Schema ensures 'email' exists if valid
+            $password = $data['password'] ?? null; // Schema ensures 'password' exists if valid
 
             $user = $this->loginService->validateUser($userInput, $password);
 
@@ -67,9 +78,8 @@ class AuthController extends AbstractController
                 return $this->responseFormatter->formatSuccess([
                     'requires_2fa' => true,
                     'id_users' => $user->getId()
-                ]);
+                ], 'responses/auth/2fa_required', Response::HTTP_OK, true);
             }
-
 
             $token = $this->jwtService->createToken($user);
             $refreshToken = $this->jwtService->createRefreshToken($user);
@@ -82,7 +92,7 @@ class AuthController extends AbstractController
                     'email' => $user->getEmail(),
                     'name' => $user->getName()
                 ]
-            ], Response::HTTP_OK, true);
+            ], 'responses/auth/login', Response::HTTP_OK, true);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -101,15 +111,24 @@ class AuthController extends AbstractController
     {
         try {
             $data = json_decode($request->getContent(), true);
-            $code = $data['code'] ?? null;
-            $userId = $data['id_users'] ?? null;
-
-            if (!$code || !$userId) {
+            if (json_last_error() !== JSON_ERROR_NONE) {
                 return $this->responseFormatter->formatError(
-                    'Missing required parameters: code and id_users',
+                    'Invalid JSON payload: ' . json_last_error_msg(),
                     Response::HTTP_BAD_REQUEST
                 );
             }
+
+            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/2fa_verify');
+            if (!empty($validationErrors)) {
+                return $this->responseFormatter->formatError(
+                    'Validation failed',
+                    Response::HTTP_BAD_REQUEST,
+                    ['errors' => $validationErrors]
+                );
+            }
+
+            $code = $data['code'] ?? null; // Schema ensures 'code' exists
+            $userId = $data['id_users'] ?? null; // Schema ensures 'id_users' exists
 
             $verified = $this->authRepository->verify2faCode($userId, $code);
 
@@ -140,7 +159,7 @@ class AuthController extends AbstractController
                     'email' => $user->getEmail(),
                     'name' => $user->getName()
                 ]
-            ], Response::HTTP_OK, true);
+            ], 'responses/auth/2fa_verify', Response::HTTP_OK, true);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -159,18 +178,21 @@ class AuthController extends AbstractController
     {
         try {
             $data = $request->toArray(); // Use toArray() for JSON body
-            $refreshTokenString = $data['refresh_token'] ?? null;
 
-            if (!$refreshTokenString) {
+            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/refresh_token');
+            if (!empty($validationErrors)) {
                 return $this->responseFormatter->formatError(
-                    'Missing required parameter: refresh_token',
-                    Response::HTTP_BAD_REQUEST
+                    'Validation failed',
+                    Response::HTTP_BAD_REQUEST,
+                    ['errors' => $validationErrors]
                 );
             }
 
+            $refreshTokenString = $data['refresh_token'] ?? null; // Schema ensures 'refresh_token' exists
+
             $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
 
-            return $this->responseFormatter->formatSuccess($newTokens, Response::HTTP_OK, true);
+            return $this->responseFormatter->formatSuccess($newTokens, 'responses/auth/refresh_token', Response::HTTP_OK, true);
         } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -216,13 +238,24 @@ class AuthController extends AbstractController
             }
 
             // 2. Invalidate the refresh token if provided in the body
-            $data = $request->toArray(); // Use toArray() for JSON body, handle potential JsonException
+            $data = [];
+            if ($request->getContent()) {
+                $data = $request->toArray(); // Use toArray() for JSON body, handle potential JsonException
+                $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/logout');
+                if (!empty($validationErrors)) {
+                    return $this->responseFormatter->formatError(
+                        'Validation failed for refresh_token in body',
+                        Response::HTTP_BAD_REQUEST,
+                        ['errors' => $validationErrors]
+                    );
+                }
+            }
             $refreshTokenString = $data['refresh_token'] ?? null;
 
             if (!$refreshTokenString) {
                 return $this->responseFormatter->formatSuccess([
                     'message' => 'Access token was blacklisted. No refresh token was sent.'
-                ], Response::HTTP_OK); // loggedIn status is now handled by ApiResponseFormatter
+                ], 'responses/auth/logout', Response::HTTP_OK, true); // loggedIn status is now handled by ApiResponseFormatter
             }
 
             $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
@@ -237,7 +270,7 @@ class AuthController extends AbstractController
 
             return $this->responseFormatter->formatSuccess([
                 'message' => 'Successfully logged out'
-            ], Response::HTTP_OK, false); // loggedIn status is now handled by ApiResponseFormatter
+            ], 'responses/auth/logout', Response::HTTP_OK, false); // loggedIn status is now handled by ApiResponseFormatter
         } catch (\JsonException $e) {
             return $this->responseFormatter->formatError(
                 'Invalid JSON payload for refresh token: ' . $e->getMessage(),

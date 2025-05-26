@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Common API Success Response Envelope",
+    "description": "Defines the common structure for all successful API responses.",
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "integer",
+            "description": "HTTP status code (e.g., 200, 201)."
+        },
+        "message": {
+            "type": "string",
+            "description": "A human-readable message corresponding to the status code."
+        },
+        "error": {
+            "type": "null",
+            "description": "Should be null for successful responses."
+        },
+        "logged_in": {
+            "type": "boolean",
+            "description": "Indicates if the user is considered logged in for this request."
+        },
+        "meta": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "description": "API version.",
+                    "pattern": "^v[0-9]+$"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Response timestamp in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss+HH:MM)."
+                }
+            },
+            "required": [
+                "version",
+                "timestamp"
+            ]
+        }
+    },
+    "required": [
+        "status",
+        "message",
+        "error",
+        "logged_in",
+        "meta"
+    ]
+}

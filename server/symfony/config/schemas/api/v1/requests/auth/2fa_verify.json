@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth 2FA Verify Request",
+  "description": "Schema for the 2FA verification request body. Requires user ID and the 6-digit 2FA code.",
+  "type": "object",
+  "properties": {
+    "id_users": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the user attempting to verify 2FA."
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[0-9]{6}$",
+      "description": "The 6-digit 2FA code."
+    }
+  },
+  "required": [
+    "id_users",
+    "code"
+  ],
+  "additionalProperties": false
+}

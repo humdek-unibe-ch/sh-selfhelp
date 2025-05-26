@@ -35,6 +35,7 @@ class PageController extends AbstractController
             $pages = $this->pageService->getAllAccessiblePagesForUser($mode);            
             return $this->responseFormatter->formatSuccess(
                 ['pages' => $pages],
+                'responses/frontend/pages',
                 Response::HTTP_OK // Explicitly pass the status code
             );
         } catch (\Throwable $e) {

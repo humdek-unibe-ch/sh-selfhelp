@@ -1,0 +1,85 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Admin Get Page Sections Success Response",
+    "description": "Schema for the successful response of getting page sections for an admin.",
+    "allOf": [
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "page_keyword": {
+                    "type": "string",
+                    "description": "The keyword of the page these sections belong to."
+                },
+                "sections": {
+                    "type": "array",
+                    "description": "List of page sections.",
+                    "items": {
+                        "$ref": "#/definitions/sectionItem"
+                    }
+                }
+            },
+            "required": [
+                "page_keyword",
+                "sections"
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ],
+    "definitions": {
+        "sectionItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique identifier for the section."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the section."
+                },
+                "id_styles": {
+                    "type": "integer",
+                    "description": "Identifier for the style associated with the section."
+                },
+                "style_name": {
+                    "type": "string",
+                    "description": "Name of the style."
+                },
+                "position": {
+                    "type": "integer",
+                    "description": "Position of the section."
+                },
+                "level": {
+                    "type": "integer",
+                    "description": "Nesting level of the section."
+                },
+                "path": {
+                    "type": "string",
+                    "description": "Materialized path of the section."
+                },
+                "children": {
+                    "type": "array",
+                    "description": "Child sections (recursive).",
+                    "items": {
+                        "$ref": "#/definitions/sectionItem"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "id_styles",
+                "style_name",
+                "position",
+                "level",
+                "path",
+                "children"
+            ]
+        }
+    }
+}

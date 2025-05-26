@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth 2FA Verify Success Response",
+  "description": "Schema for a successful 2FA verification, providing tokens and user details.",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" }
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "JWT access token."
+        },
+        "refresh_token": {
+          "type": "string",
+          "description": "JWT refresh token hash."
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "User ID."
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "User email address."
+            },
+            "name": {
+              "type": "string",
+              "description": "User's name."
+            }
+          },
+          "required": [
+            "id",
+            "email",
+            "name"
+          ]
+        }
+      },
+      "required": [
+        "token",
+        "refresh_token",
+        "user"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth 2FA Required Response",
+  "description": "Schema for the response when 2FA is required after login.",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" }
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Message indicating 2FA is required."
+        },
+        "id_users": {
+          "type": "integer",
+          "description": "The ID of the user for whom 2FA is required."
+        }
+      },
+      "required": [
+        "message",
+        "id_users"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

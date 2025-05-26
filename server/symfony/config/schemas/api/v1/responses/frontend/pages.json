@@ -1,0 +1,105 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Frontend Get Pages Success Response",
+    "description": "Schema for the successful response of getting accessible pages for the frontend.",
+    "allOf": [
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "pages": {
+                    "type": "array",
+                    "description": "List of accessible pages.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id_users": {
+                                "type": "integer"
+                            },
+                            "id_pages": {
+                                "type": "integer"
+                            },
+                            "acl_select": {
+                                "type": "integer",
+                                "enum": [0, 1]
+                            },
+                            "acl_insert": {
+                                "type": "integer",
+                                "enum": [0, 1]
+                            },
+                            "acl_update": {
+                                "type": "integer",
+                                "enum": [0, 1]
+                            },
+                            "acl_delete": {
+                                "type": "integer",
+                                "enum": [0, 1]
+                            },
+                            "keyword": {
+                                "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
+                            },
+                            "protocol": {
+                                "type": "string"
+                            },
+                            "id_actions": {
+                                "type": "integer"
+                            },
+                            "id_navigation_section": {
+                                "type": ["integer", "null"]
+                            },
+                            "parent": {
+                                "type": ["integer", "null"]
+                            },
+                            "is_headless": {
+                                "type": "integer",
+                                "enum": [0, 1]
+                            },
+                            "nav_position": {
+                                "type": ["integer", "null"]
+                            },
+                            "footer_position": {
+                                "type": ["integer", "null"]
+                            },
+                            "id_type": {
+                                "type": "integer"
+                            },
+                            "id_pageAccessTypes": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "id_users",
+                            "id_pages",
+                            "acl_select",
+                            "acl_insert",
+                            "acl_update",
+                            "acl_delete",
+                            "keyword",
+                            "url",
+                            "protocol",
+                            "id_actions",
+                            "id_navigation_section",
+                            "parent",
+                            "is_headless",
+                            "nav_position",
+                            "footer_position",
+                            "id_type",
+                            "id_pageAccessTypes"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "pages"
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ]
+}

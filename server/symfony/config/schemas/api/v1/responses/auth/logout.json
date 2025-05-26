@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth Logout Success Response",
+  "description": "Schema for a successful logout response.",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" }
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Success message for logout."
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

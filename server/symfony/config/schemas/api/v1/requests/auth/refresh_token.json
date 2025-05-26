@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auth Refresh Token Request",
+  "description": "Schema for the refresh token request body. Requires the refresh token.",
+  "type": "object",
+  "properties": {
+    "refresh_token": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The refresh token used to obtain a new access token."
+    }
+  },
+  "required": [
+    "refresh_token"
+  ],
+  "additionalProperties": false
+}

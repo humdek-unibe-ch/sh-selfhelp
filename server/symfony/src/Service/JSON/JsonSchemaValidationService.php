@@ -8,6 +8,8 @@ use JsonSchema\Uri\UriRetriever;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use RuntimeException;
+use JsonSchema\Exception\JsonSchemaException;
+use JsonSchema\Exception\ExceptionInterface;
 
 class JsonSchemaValidationService
 {
@@ -42,8 +44,23 @@ class JsonSchemaValidationService
 
         try {
             $schemaObject = $this->retriever->retrieve($schemaUri);
-        } catch (\JsonSchema\Exception\ExceptionInterface $e) {
-            throw new RuntimeException('Error retrieving schema: ' . $schemaUri . ' - ' . $e->getMessage(), 0, $e);
+        } catch (ExceptionInterface $e) {
+            $errorMessage = 'Error retrieving schema: ' . $schemaUri;
+            $previousThrowable = null;
+
+            if ($e instanceof \Throwable) {
+                $detailedMessage = $e->getMessage();
+                if (is_string($detailedMessage) && !empty(trim($detailedMessage))) {
+                    $errorMessage .= ' - ' . $detailedMessage;
+                }
+                $previousThrowable = $e;
+            } else {
+                // If $e is not Throwable, we can't safely get a message or pass it as previous.
+                // This case is unlikely for a real thrown exception but handles strict interface typing.
+                // Optionally, log that a non-Throwable ExceptionInterface was caught.
+            }
+
+            throw new RuntimeException($errorMessage, 0, $previousThrowable);
         }
         
         if ($schemaObject === null) {
