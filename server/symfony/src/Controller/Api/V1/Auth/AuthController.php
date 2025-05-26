@@ -111,7 +111,7 @@ class AuthController extends AbstractController
                 );
             }
 
-            $verified = $this->loginService->verify2faCode($userId, $code);
+            $verified = $this->authRepository->verify2faCode($userId, $code);
 
             if (!$verified) {
                 return $this->responseFormatter->formatError(

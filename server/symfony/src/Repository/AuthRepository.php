@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use App\Repository\User2faCodeRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User;
 use DateTime;
 use Exception;
 
@@ -21,12 +20,30 @@ class AuthRepository
         Connection $connection,
         User2faCodeRepository $user2faCodeRepository,
         UserRepository $userRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ) {
         $this->connection = $connection;
         $this->user2faCodeRepository = $user2faCodeRepository;
         $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
+    }
+
+    /**
+     * Checks if 2FA is required for a given user.
+     *
+     * @param int $userId
+     * @return bool
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function is2faRequired(int $userId): bool
+    {
+        $sql = "SELECT SUM(g.requires_2fa) AS requires_2fa
+                FROM users u
+                INNER JOIN users_groups ug ON (ug.id_users = u.id)
+                INNER JOIN `groups` g ON (ug.id_groups = g.id)
+                WHERE u.id = :user_id";
+        $result = $this->connection->fetchAssociative($sql, ['user_id' => $userId]);
+        return $result && $result['requires_2fa'] > 0;
     }
 
     /**
@@ -49,6 +66,7 @@ class AuthRepository
     {
         $user = $this->userRepository->find($userId);
         if (!$user) {
+            // Or throw an exception, depending on desired error handling
             return false;
         }
 
@@ -56,7 +74,11 @@ class AuthRepository
 
         if ($user2faCodeEntity) {
             $user2faCodeEntity->setIsUsed(true);
-            $this->entityManager->persist($user2faCodeEntity);
+            $this->entityManager->persist($user2faCodeEntity); // persist might be redundant if entity is already managed
+
+            $user->setLastLogin(new \DateTimeImmutable()); // Added lastLogin update
+            $this->entityManager->persist($user); // Ensure user entity changes are persisted
+
             $this->entityManager->flush();
             return true;
         }
