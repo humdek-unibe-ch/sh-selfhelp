@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 /**
  * API V1 Auth Controller
@@ -154,42 +155,35 @@ class AuthController extends AbstractController
     public function refreshToken(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            $refreshToken = $data['refresh_token'] ?? null;
+            $data = $request->toArray(); // Use toArray() for JSON body
+            $refreshTokenString = $data['refresh_token'] ?? null;
             
-            if (!$refreshToken) {
+            if (!$refreshTokenString) {
                 return $this->responseFormatter->formatError(
                     'Missing required parameter: refresh_token',
                     Response::HTTP_BAD_REQUEST
                 );
             }
             
-            $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
-                ->findOneBy(['token' => $refreshToken]);
+            $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
             
-            if (!$tokenEntity || $tokenEntity->getExpiresAt() < new \DateTime()) {
-                return $this->responseFormatter->formatError(
-                    'Invalid or expired refresh token',
-                    Response::HTTP_UNAUTHORIZED,
-                    false
-                );
-            }
-            
-            $user = $tokenEntity->getUser();
-            $newToken = $this->jwtService->createToken($user);
-            $newRefreshToken = $this->jwtService->createRefreshToken($user);
-            
-            // Invalidate the old refresh token
-            $this->entityManager->remove($tokenEntity);
-            $this->entityManager->flush();
-            
-            return $this->responseFormatter->formatSuccess([
-                'token' => $newToken,
-                'refresh_token' => $newRefreshToken->getTokenHash()
-            ]);
-        } catch (\Exception $e) {
+            return $this->responseFormatter->formatSuccess($newTokens);
+
+        } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
+                Response::HTTP_UNAUTHORIZED,
+                false // Do not expose previous exception details for auth errors
+            );
+        } catch (\JsonException $e) {
+            return $this->responseFormatter->formatError(
+                'Invalid JSON payload: ' . $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (\Exception $e) {
+            // Log the exception $e->getMessage() and $e->getTraceAsString()
+            return $this->responseFormatter->formatError(
+                'An unexpected error occurred while refreshing the token.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
@@ -204,25 +198,52 @@ class AuthController extends AbstractController
     public function logout(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            $refreshToken = $data['refresh_token'] ?? null;
+            // 1. Blacklist the current access token
+            $accessToken = $this->jwtService->getTokenFromRequest($request);
+            if (!$accessToken) {
+                return $this->responseFormatter->formatError(
+                    'No access token provided. Logout cannot be completed.',
+                    Response::HTTP_UNAUTHORIZED
+                );
+            }
+
+            try {
+                $this->jwtService->blacklistAccessToken($accessToken);
+            } catch (AuthenticationException $e) {
+                // Token might be already invalid/expired, which is fine for logout.
+                // Log this if necessary, but don't fail the logout.
+            }
+
+            // 2. Invalidate the refresh token if provided in the body
+            $data = $request->toArray(); // Use toArray() for JSON body, handle potential JsonException
+            $refreshTokenString = $data['refresh_token'] ?? null;
             
-            if ($refreshToken) {
-                $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
-                    ->findOneBy(['token' => $refreshToken]);
-                
-                if ($tokenEntity) {
-                    $this->entityManager->remove($tokenEntity);
-                    $this->entityManager->flush();
-                }
+            if (!$refreshTokenString) {
+                return $this->responseFormatter->formatSuccess([
+                    'message' => 'Access token was blacklisted. No refresh token was sent.'
+                ]);
+            }
+
+            $tokenEntity = $this->entityManager->getRepository(\App\Entity\RefreshToken::class)
+                ->findOneBy(['tokenHash' => $refreshTokenString]);
+            
+            if ($tokenEntity) {
+                $this->entityManager->remove($tokenEntity);
+                $this->entityManager->flush();
             }
             
             return $this->responseFormatter->formatSuccess([
                 'message' => 'Successfully logged out'
             ]);
-        } catch (\Exception $e) {
+        } catch (\JsonException $e) {
             return $this->responseFormatter->formatError(
-                $e->getMessage(),
+                'Invalid JSON payload for refresh token: ' . $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (\Exception $e) {
+            // Log the exception $e->getMessage() and $e->getTraceAsString()
+            return $this->responseFormatter->formatError(
+                'An unexpected error occurred during logout.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
