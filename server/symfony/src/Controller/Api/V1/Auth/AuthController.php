@@ -63,7 +63,7 @@ class AuthController extends AbstractController
             if ($user->isTwoFactorRequired()) {
                 return $this->responseFormatter->formatSuccess([
                     'requires_2fa' => true,
-                    'user_id' => $user->getId()
+                    'id_users' => $user->getId()
                 ]);
             }
             
@@ -166,7 +166,7 @@ class AuthController extends AbstractController
             
             $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
             
-            return $this->responseFormatter->formatSuccess($newTokens);
+            return $this->responseFormatter->formatSuccess($newTokens, Response::HTTP_OK, true);
 
         } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(

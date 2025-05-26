@@ -3,24 +3,34 @@
 namespace App\Service\Auth;
 
 use App\Entity\User;
-use Doctrine\DBAL\Connection;
+use App\Repository\UserRepository;
+use App\Repository\User2faCodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\DBAL\Connection;
 
 class LoginService
 {
-    private Connection $db;
+    private UserPasswordHasherInterface $passwordHasher;
     private EntityManagerInterface $entityManager;
+    private User2faCodeRepository $user2faCodeRepository;
+    private UserRepository $userRepository;
+    private Connection $db;
 
-    public function __construct(Connection $db, EntityManagerInterface $entityManager)
-    {
-        $this->db = $db;
+    public function __construct(
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+        User2faCodeRepository $user2faCodeRepository,
+        UserRepository $userRepository,
+        Connection $db
+    ) {
+        $this->passwordHasher = $passwordHasher;
         $this->entityManager = $entityManager;
+        $this->user2faCodeRepository = $user2faCodeRepository;
+        $this->userRepository = $userRepository;
+        $this->db = $db;
     }
 
-    /**
-     * Validate user credentials (username/email and password).
-     * Returns user array, '2fa' if two-factor is required, or false if invalid.
-     */
     /**
      * Validate user credentials (username/email and password).
      * Returns user array, '2fa' (as string) if two-factor is required, or null if invalid.
@@ -117,18 +127,27 @@ class LoginService
     }
 
     /**
-     * Verify 2FA code for a user
+     * Verify 2FA code for a user using Doctrine entities.
      */
     public function verify2faCode(int $userId, string $code): bool
     {
-        $sql = "SELECT id FROM users WHERE id = :id AND 2fa_code = :code AND 2fa_expires > NOW()";
-        $result = $this->db->fetchAssociative($sql, [
-            'id' => $userId,
-            'code' => $code
-        ]);
+        $user = $this->userRepository->find($userId);
+
+        if (!$user) {
+            // Or throw an exception, depending on desired error handling
+            return false; 
+        }
+
+        $user2faCode = $this->user2faCodeRepository->findValidCodeForUser($user, $code);
         
-        if ($result) {
-            $this->updateTimestamp($userId);
+        if ($user2faCode) {
+            $user->setLastLogin(new \DateTimeImmutable());
+            $user2faCode->setIsUsed(true);
+
+            $this->entityManager->persist($user);
+            $this->entityManager->persist($user2faCode);
+            $this->entityManager->flush();
+            
             return true;
         }
         
