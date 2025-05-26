@@ -1099,7 +1099,7 @@ ALTER TABLE pages_sections CHANGE id_pages id_pages INT NOT NULL, CHANGE id_sect
 ALTER TABLE pageType CHANGE id id INT AUTO_INCREMENT NOT NULL;
 ALTER TABLE pageType_fields CHANGE id_fields id_fields INT NOT NULL, CHANGE id_pageType id_pageType INT NOT NULL;
 ALTER TABLE plugins CHANGE id id INT AUTO_INCREMENT NOT NULL;
-ALTER TABLE refreshtokens CHANGE id_users id_users INT NOT NULL;
+ALTER TABLE refreshTokens CHANGE id_users id_users INT NOT NULL;
 ALTER TABLE scheduledJobs CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE id_jobTypes id_jobTypes INT NOT NULL, CHANGE id_jobStatus id_jobStatus INT NOT NULL, CHANGE date_create date_create DATETIME NOT NULL;
 ALTER TABLE scheduledJobs_formActions CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_formActions id_formActions INT NOT NULL, CHANGE id_dataRows id_dataRows INT DEFAULT NULL;
 ALTER TABLE scheduledJobs_mailQueue CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_mailQueue id_mailQueue INT NOT NULL;
