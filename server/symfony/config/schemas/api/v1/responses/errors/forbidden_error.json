@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "403 Forbidden Error Response",
+    "description": "Schema for 403 Forbidden error responses.",
+    "allOf": [
+        { "$ref": "../common/_error_response_envelope.json" }
+    ],
+    "properties": {
+        "status": {
+            "type": "integer",
+            "enum": [403],
+            "description": "HTTP status code 403 Forbidden."
+        },
+        "message": {
+            "type": "string",
+            "enum": ["Forbidden"],
+            "description": "Standard message for 403 errors."
+        }
+    }
+}

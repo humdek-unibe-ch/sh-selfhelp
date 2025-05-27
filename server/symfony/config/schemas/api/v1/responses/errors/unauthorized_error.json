@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "401 Unauthorized Error Response",
+    "description": "Schema for 401 Unauthorized error responses.",
+    "allOf": [
+        { "$ref": "../common/_error_response_envelope.json" }
+    ],
+    "properties": {
+        "status": {
+            "type": "integer",
+            "enum": [401],
+            "description": "HTTP status code 401 Unauthorized."
+        },
+        "message": {
+            "type": "string",
+            "enum": ["Unauthorized"],
+            "description": "Standard message for 401 errors."
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "404 Not Found Error Response",
+    "description": "Schema for 404 Not Found error responses.",
+    "allOf": [
+        { "$ref": "../common/_error_response_envelope.json" }
+    ],
+    "properties": {
+        "status": {
+            "type": "integer",
+            "enum": [404],
+            "description": "HTTP status code 404 Not Found."
+        },
+        "message": {
+            "type": "string",
+            "enum": ["Not Found"],
+            "description": "Standard message for 404 errors."
+        }
+    }
+}

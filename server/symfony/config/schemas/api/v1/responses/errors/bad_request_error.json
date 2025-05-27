@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "400 Bad Request Error Response",
+    "description": "Schema for 400 Bad Request error responses.",
+    "allOf": [
+        { "$ref": "../common/_error_response_envelope.json" }
+    ],
+    "properties": {
+        "status": {
+            "type": "integer",
+            "enum": [400],
+            "description": "HTTP status code 400 Bad Request."
+        },
+        "message": {
+            "type": "string",
+            "enum": ["Bad Request"],
+            "description": "Standard message for 400 errors."
+        }
+    }
+}

@@ -96,7 +96,8 @@ class ApiResponseFormatter
     public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, $data = null): JsonResponse
     {
         $isLoggedIn = $this->security->getUser() !== null;
-        return new JsonResponse([
+        
+        $responseData = [
             'status' => $status,
             'message' => Response::$statusTexts[$status] ?? 'Unknown status',
             'error' => $error,
@@ -106,7 +107,56 @@ class ApiResponseFormatter
                 'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)
             ],
             'data' => $data
-        ], $status);
+        ];
+        
+        // Validate the error response against the error response schema
+        try {
+            // Deep convert arrays to objects for proper JSON Schema validation
+            $responseDataForValidation = $this->arrayToObject($responseData);
+            
+            // Determine which schema to use based on status code
+            $schemaName = 'responses/common/_error_response_envelope';
+            
+            // Use specific error schemas for common status codes
+            if ($status === Response::HTTP_NOT_FOUND) {
+                $schemaName = 'responses/errors/not_found_error';
+            } elseif ($status === Response::HTTP_BAD_REQUEST) {
+                $schemaName = 'responses/errors/bad_request_error';
+            } elseif ($status === Response::HTTP_UNAUTHORIZED) {
+                $schemaName = 'responses/errors/unauthorized_error';
+            } elseif ($status === Response::HTTP_FORBIDDEN) {
+                $schemaName = 'responses/errors/forbidden_error';
+            } elseif ($status === Response::HTTP_INTERNAL_SERVER_ERROR) {
+                $schemaName = 'responses/errors/internal_server_error';
+            }
+            
+            // Validate against the appropriate error response schema
+            $validationErrors = $this->jsonSchemaValidationService->validate(
+                $responseDataForValidation, 
+                $schemaName
+            );
+
+            if (!empty($validationErrors)) {
+                $this->logger->error('API Error Response Schema Validation Failed.', [
+                    'schema' => $schemaName,
+                    'errors' => $validationErrors,
+                ]);
+
+                if ($this->kernel->getEnvironment() !== 'prod') {
+                    // Add debug info directly to the responseData for non-prod environments
+                    $responseData['_debug'] = ['validation_errors' => $validationErrors];
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Error during error response schema validation.', [
+                'exception' => $e->getMessage(),
+            ]);
+            if ($this->kernel->getEnvironment() !== 'prod') {
+                $responseData['_debug'] = ['validation_exception' => $e->getMessage()];
+            }
+        }
+        
+        return new JsonResponse($responseData, $status);
     }
     
     /**
