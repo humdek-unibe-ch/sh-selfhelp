@@ -49,7 +49,8 @@ class ApiResponseFormatter
             'data' => $data,
         ];
 
-        if ($responseSchemaName !== null) {
+        // Only perform schema validation in non-production environments
+        if ($responseSchemaName !== null && $this->kernel->getEnvironment() !== 'prod') {
             try {
                 // Deep convert arrays to objects for proper JSON Schema validation
                 $responseDataForValidation = $this->arrayToObject($responseData);
@@ -64,21 +65,15 @@ class ApiResponseFormatter
                         // 'data' => $responseData, // Be cautious with logging sensitive data
                     ]);
 
-                    if ($this->kernel->getEnvironment() !== 'prod') {
-                        // Add debug info directly to the responseData for non-prod environments
-                        $responseData['_debug'] = ['validation_errors' => $validationErrors];
-                    }
-                    // In production, we might choose to return a generic error or the data as is, depending on policy.
-                    // For now, it will return the data with the error logged, but without the _debug field.
+                    // Add debug info directly to the responseData for non-prod environments
+                    $responseData['_debug'] = ['validation_errors' => $validationErrors];
                 }
             } catch (\Exception $e) {
                 $this->logger->error('Error during response schema validation.', [
                     'schema' => $responseSchemaName,
                     'exception' => $e->getMessage(),
                 ]);
-                if ($this->kernel->getEnvironment() !== 'prod') {
-                    $responseData['_debug'] = ['validation_exception' => $e->getMessage()];
-                }
+                $responseData['_debug'] = ['validation_exception' => $e->getMessage()];
             }
         }
 
@@ -109,49 +104,47 @@ class ApiResponseFormatter
             'data' => $data
         ];
         
-        // Validate the error response against the error response schema
-        try {
-            // Deep convert arrays to objects for proper JSON Schema validation
-            $responseDataForValidation = $this->arrayToObject($responseData);
-            
-            // Determine which schema to use based on status code
-            $schemaName = 'responses/common/_error_response_envelope';
-            
-            // Use specific error schemas for common status codes
-            if ($status === Response::HTTP_NOT_FOUND) {
-                $schemaName = 'responses/errors/not_found_error';
-            } elseif ($status === Response::HTTP_BAD_REQUEST) {
-                $schemaName = 'responses/errors/bad_request_error';
-            } elseif ($status === Response::HTTP_UNAUTHORIZED) {
-                $schemaName = 'responses/errors/unauthorized_error';
-            } elseif ($status === Response::HTTP_FORBIDDEN) {
-                $schemaName = 'responses/errors/forbidden_error';
-            } elseif ($status === Response::HTTP_INTERNAL_SERVER_ERROR) {
-                $schemaName = 'responses/errors/internal_server_error';
-            }
-            
-            // Validate against the appropriate error response schema
-            $validationErrors = $this->jsonSchemaValidationService->validate(
-                $responseDataForValidation, 
-                $schemaName
-            );
+        // Only perform schema validation in non-production environments
+        if ($this->kernel->getEnvironment() !== 'prod') {
+            try {
+                // Deep convert arrays to objects for proper JSON Schema validation
+                $responseDataForValidation = $this->arrayToObject($responseData);
+                
+                // Determine which schema to use based on status code
+                $schemaName = 'responses/common/_error_response_envelope';
+                
+                // Use specific error schemas for common status codes
+                if ($status === Response::HTTP_NOT_FOUND) {
+                    $schemaName = 'responses/errors/not_found_error';
+                } elseif ($status === Response::HTTP_BAD_REQUEST) {
+                    $schemaName = 'responses/errors/bad_request_error';
+                } elseif ($status === Response::HTTP_UNAUTHORIZED) {
+                    $schemaName = 'responses/errors/unauthorized_error';
+                } elseif ($status === Response::HTTP_FORBIDDEN) {
+                    $schemaName = 'responses/errors/forbidden_error';
+                } elseif ($status === Response::HTTP_INTERNAL_SERVER_ERROR) {
+                    $schemaName = 'responses/errors/internal_server_error';
+                }
+                
+                // Validate against the appropriate error response schema
+                $validationErrors = $this->jsonSchemaValidationService->validate(
+                    $responseDataForValidation, 
+                    $schemaName
+                );
 
-            if (!empty($validationErrors)) {
-                $this->logger->error('API Error Response Schema Validation Failed.', [
-                    'schema' => $schemaName,
-                    'errors' => $validationErrors,
-                ]);
+                if (!empty($validationErrors)) {
+                    $this->logger->error('API Error Response Schema Validation Failed.', [
+                        'schema' => $schemaName,
+                        'errors' => $validationErrors,
+                    ]);
 
-                if ($this->kernel->getEnvironment() !== 'prod') {
                     // Add debug info directly to the responseData for non-prod environments
                     $responseData['_debug'] = ['validation_errors' => $validationErrors];
                 }
-            }
-        } catch (\Exception $e) {
-            $this->logger->error('Error during error response schema validation.', [
-                'exception' => $e->getMessage(),
-            ]);
-            if ($this->kernel->getEnvironment() !== 'prod') {
+            } catch (\Exception $e) {
+                $this->logger->error('Error during error response schema validation.', [
+                    'exception' => $e->getMessage(),
+                ]);
                 $responseData['_debug'] = ['validation_exception' => $e->getMessage()];
             }
         }
