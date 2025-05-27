@@ -1,16 +1,21 @@
 <?php
 namespace App\EventListener;
 
+use App\Service\Core\ApiResponseFormatter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
- * Catches all exceptions for API routes and returns JSON responses.
+ * Catches all exceptions for API routes and returns JSON responses using the standard API response envelope.
  */
 class ApiExceptionListener
 {
+    public function __construct(
+        private readonly ApiResponseFormatter $apiResponseFormatter
+    ) {}
+    
     #[AsEventListener]
     public function onKernelException(ExceptionEvent $event)
     {
@@ -24,14 +29,8 @@ class ApiExceptionListener
         $statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : 500;
         $message = $exception->getMessage() ?: 'An error occurred';
 
-        // Standard error structure
-        $data = [
-            'status' => 'error',
-            'code' => $statusCode,
-            'message' => $message,
-        ];
-
-        $response = new JsonResponse($data, $statusCode);
+        // Use the ApiResponseFormatter for consistent error responses
+        $response = $this->apiResponseFormatter->formatError($message, $statusCode);
         $event->setResponse($response);
     }
 }
