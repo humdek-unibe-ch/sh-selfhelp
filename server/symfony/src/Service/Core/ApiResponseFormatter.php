@@ -51,8 +51,11 @@ class ApiResponseFormatter
 
         if ($responseSchemaName !== null) {
             try {
+                // Deep convert arrays to objects for proper JSON Schema validation
+                $responseDataForValidation = $this->arrayToObject($responseData);
+                
                 // Validate the entire responseData object
-                $validationErrors = $this->jsonSchemaValidationService->validate((object)$responseData, $responseSchemaName);
+                $validationErrors = $this->jsonSchemaValidationService->validate($responseDataForValidation, $responseSchemaName);
 
                 if (!empty($validationErrors)) {
                     $this->logger->error('API Response Schema Validation Failed.', [
@@ -100,7 +103,7 @@ class ApiResponseFormatter
             'logged_in' => $isLoggedIn,
             'meta' => [
                 'version' => 'v1',
-                'timestamp' => (new \DateTime())->format('c')
+                'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)
             ],
             'data' => $data
         ], $status);
@@ -120,5 +123,51 @@ class ApiResponseFormatter
             $exception->getCode(),
             $exception->getData()
         );
+    }
+    
+    /**
+     * Recursively converts arrays to objects for JSON Schema validation
+     * 
+     * This is necessary because PHP's json_encode treats associative arrays as JSON objects,
+     * but the JsonSchema validator expects actual objects for validation against object schemas.
+     * 
+     * @param mixed $data The data to convert
+     * @return mixed The converted data
+     */
+    private function arrayToObject($data)
+    {
+        // If it's an array, convert it
+        if (is_array($data)) {
+            // Check if it's an associative array (has string keys)
+            $isAssoc = false;
+            foreach ($data as $key => $value) {
+                if (is_string($key)) {
+                    $isAssoc = true;
+                    break;
+                }
+            }
+            
+            // If associative, convert to object
+            if ($isAssoc) {
+                $obj = new \stdClass();
+                foreach ($data as $key => $value) {
+                    $obj->$key = $this->arrayToObject($value);
+                }
+                return $obj;
+            } else {
+                // If sequential, keep as array but convert each element
+                return array_map([$this, 'arrayToObject'], $data);
+            }
+        }
+        
+        // If it's already an object, recursively convert its properties
+        if (is_object($data)) {
+            foreach (get_object_vars($data) as $key => $value) {
+                $data->$key = $this->arrayToObject($value);
+            }
+        }
+        
+        // Otherwise, return as is
+        return $data;
     }
 }
