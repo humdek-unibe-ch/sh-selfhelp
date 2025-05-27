@@ -34,23 +34,22 @@ class ApiExceptionListener
         // Handle specific exception types
         if ($exception instanceof RequestValidationException) {
             // Create a detailed validation error response
-            $errorData = [
-                'validation' => [
-                    'schema' => $exception->getSchemaName(),
-                    'errors' => $exception->getValidationErrors(),
-                    'missing_fields' => $this->extractMissingFields($exception->getValidationErrors())
-                ]
+            $validationData = [
+                'schema' => $exception->getSchemaName(),
+                'errors' => $exception->getValidationErrors(),
+                'missing_fields' => $this->extractMissingFields($exception->getValidationErrors())
             ];
             
             // In non-production environments, include the request data for debugging
             if ($this->kernel->getEnvironment() !== 'prod') {
-                $errorData['validation']['request_data'] = $exception->getRequestData();
+                $validationData['request_data'] = $exception->getRequestData();
             }
             
             $response = $this->apiResponseFormatter->formatError(
                 'Request validation failed',
                 Response::HTTP_BAD_REQUEST,
-                $errorData
+                null, // No data field needed for validation errors
+                $validationData // Pass validation errors to the dedicated field
             );
             $event->setResponse($response);
             return;

@@ -47,6 +47,7 @@ class ApiResponseFormatter
                 'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             ],
             'data' => $data,
+            // validation field is not included in success responses
         ];
 
         // Only perform schema validation in non-production environments
@@ -86,9 +87,10 @@ class ApiResponseFormatter
      * @param string $error The error message
      * @param int $status The HTTP status code
      * @param mixed $data Additional error data
+     * @param array|null $validationErrors Optional validation errors
      * @return JsonResponse The formatted response
      */
-    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, $data = null): JsonResponse
+    public function formatError(string $error, int $status = Response::HTTP_BAD_REQUEST, $data = null, ?array $validationErrors = null): JsonResponse
     {
         $isLoggedIn = $this->security->getUser() !== null;
         
@@ -103,6 +105,11 @@ class ApiResponseFormatter
             ],
             'data' => $data
         ];
+        
+        // Add validation errors if provided
+        if ($validationErrors !== null) {
+            $responseData['validation'] = $validationErrors;
+        }
         
         // Only perform schema validation in non-production environments
         if ($this->kernel->getEnvironment() !== 'prod') {
