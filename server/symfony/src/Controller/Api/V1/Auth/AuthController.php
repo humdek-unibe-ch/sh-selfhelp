@@ -2,11 +2,14 @@
 
 namespace App\Controller\Api\V1\Auth;
 
+use App\Controller\Trait\RequestValidatorTrait;
+use App\Exception\RequestValidationException;
 use App\Repository\AuthRepository;
 use App\Service\Auth\JWTService;
 use App\Service\Auth\LoginService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +24,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class AuthController extends AbstractController
 {
+    use RequestValidatorTrait;
     /**
      * Constructor
      */
@@ -31,7 +35,8 @@ class AuthController extends AbstractController
         private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly AuthRepository $authRepository,
-        private readonly JsonSchemaValidationService $jsonSchemaValidationService
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService,
+        private readonly \Psr\Log\LoggerInterface $logger
     ) {}
 
     /**
@@ -43,22 +48,9 @@ class AuthController extends AbstractController
     public function login(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return $this->responseFormatter->formatError(
-                    'Invalid JSON payload: ' . json_last_error_msg(),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-
-            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/login');
-            if (!empty($validationErrors)) {
-                return $this->responseFormatter->formatError(
-                    'Validation failed',
-                    Response::HTTP_BAD_REQUEST,
-                    ['errors' => $validationErrors]
-                );
-            }
+            // Validate request against JSON schema
+            // Note: We don't catch RequestValidationException here, we let it bubble up to the ApiExceptionListener
+            $data = $this->validateRequest($request, 'requests/auth/login', $this->jsonSchemaValidationService);
 
             $userInput = $data['email'] ?? null; // Schema ensures 'email' exists if valid
             $password = $data['password'] ?? null; // Schema ensures 'password' exists if valid
@@ -93,9 +85,19 @@ class AuthController extends AbstractController
                     'name' => $user->getName()
                 ]
             ], 'responses/auth/login', Response::HTTP_OK, true);
+        } catch (\App\Exception\RequestValidationException $e) {
+            // Let the ApiExceptionListener handle this
+            throw $e;
+        } catch (\InvalidArgumentException $e) {
+            // Let the ApiExceptionListener handle this too
+            throw $e;
         } catch (\Exception $e) {
+            $this->logger->error('Login error', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->responseFormatter->formatError(
-                $e->getMessage(),
+                'An error occurred during login.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
@@ -110,22 +112,8 @@ class AuthController extends AbstractController
     public function twoFactorVerify(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return $this->responseFormatter->formatError(
-                    'Invalid JSON payload: ' . json_last_error_msg(),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-
-            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/2fa_verify');
-            if (!empty($validationErrors)) {
-                return $this->responseFormatter->formatError(
-                    'Validation failed',
-                    Response::HTTP_BAD_REQUEST,
-                    ['errors' => $validationErrors]
-                );
-            }
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/auth/2fa_verify', $this->jsonSchemaValidationService);
 
             $code = $data['code'] ?? null; // Schema ensures 'code' exists
             $userId = $data['id_users'] ?? null; // Schema ensures 'id_users' exists
@@ -160,9 +148,19 @@ class AuthController extends AbstractController
                     'name' => $user->getName()
                 ]
             ], 'responses/auth/2fa_verify', Response::HTTP_OK, true);
+        } catch (\App\Exception\RequestValidationException $e) {
+            // Let the ApiExceptionListener handle this
+            throw $e;
+        } catch (\InvalidArgumentException $e) {
+            // Let the ApiExceptionListener handle this too
+            throw $e;
         } catch (\Exception $e) {
+            $this->logger->error('Two-factor verification error', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->responseFormatter->formatError(
-                $e->getMessage(),
+                'An error occurred during two-factor verification.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
@@ -177,22 +175,20 @@ class AuthController extends AbstractController
     public function refreshToken(Request $request): JsonResponse
     {
         try {
-            $data = $request->toArray(); // Use toArray() for JSON body
-
-            $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/refresh_token');
-            if (!empty($validationErrors)) {
-                return $this->responseFormatter->formatError(
-                    'Validation failed',
-                    Response::HTTP_BAD_REQUEST,
-                    ['errors' => $validationErrors]
-                );
-            }
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/auth/refresh_token', $this->jsonSchemaValidationService);
 
             $refreshTokenString = $data['refresh_token'] ?? null; // Schema ensures 'refresh_token' exists
 
             $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
 
             return $this->responseFormatter->formatSuccess($newTokens, 'responses/auth/refresh_token', Response::HTTP_OK, true);
+        } catch (\App\Exception\RequestValidationException $e) {
+            // Let the ApiExceptionListener handle this
+            throw $e;
+        } catch (\InvalidArgumentException $e) {
+            // Let the ApiExceptionListener handle this too
+            throw $e;
         } catch (AuthenticationException $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -204,7 +200,10 @@ class AuthController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         } catch (\Exception $e) {
-            // Log the exception $e->getMessage() and $e->getTraceAsString()
+            $this->logger->error('Token refresh error', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->responseFormatter->formatError(
                 'An unexpected error occurred while refreshing the token.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -240,14 +239,20 @@ class AuthController extends AbstractController
             // 2. Invalidate the refresh token if provided in the body
             $data = [];
             if ($request->getContent()) {
-                $data = $request->toArray(); // Use toArray() for JSON body, handle potential JsonException
-                $validationErrors = $this->jsonSchemaValidationService->validate((object)$data, 'requests/auth/logout');
-                if (!empty($validationErrors)) {
-                    return $this->responseFormatter->formatError(
-                        'Validation failed for refresh_token in body',
-                        Response::HTTP_BAD_REQUEST,
-                        ['errors' => $validationErrors]
-                    );
+                try {
+                    // Validate request against JSON schema
+                    $data = $this->validateRequest($request, 'requests/auth/logout', $this->jsonSchemaValidationService);
+                } catch (\App\Exception\RequestValidationException $e) {
+                    // For logout, we can continue even if validation fails
+                    // Just log the error and proceed with empty data
+                    $this->logger->warning('Logout request validation failed', [
+                        'errors' => $e->getValidationErrors()
+                    ]);
+                } catch (\InvalidArgumentException $e) {
+                    // Invalid JSON, just log and continue with empty data
+                    $this->logger->warning('Invalid JSON in logout request', [
+                        'message' => $e->getMessage()
+                    ]);
                 }
             }
             $refreshTokenString = $data['refresh_token'] ?? null;
@@ -277,7 +282,10 @@ class AuthController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         } catch (\Exception $e) {
-            // Log the exception $e->getMessage() and $e->getTraceAsString()
+            $this->logger->error('Logout error', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->responseFormatter->formatError(
                 'An unexpected error occurred during logout.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
