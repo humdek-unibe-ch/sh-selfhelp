@@ -9,9 +9,9 @@
     "data": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string",
-          "description": "Message indicating 2FA is required."
+        "requires_2fa": {
+          "type": "boolean",
+          "description": "Indicates if 2FA is required."
         },
         "id_users": {
           "type": "integer",
@@ -19,7 +19,7 @@
         }
       },
       "required": [
-        "message",
+        "requires_2fa",
         "id_users"
       ]
     }
