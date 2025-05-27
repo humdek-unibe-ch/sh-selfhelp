@@ -167,7 +167,7 @@ class JWTService
         $newRefreshToken = $this->createRefreshToken($user);
 
         return [
-            'token' => $newAccessToken,
+            'access_token' => $newAccessToken,
             'refresh_token' => $newRefreshToken->getTokenHash(),
         ];
     }

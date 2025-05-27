@@ -9,7 +9,7 @@
     "data": {
       "type": "object",
       "properties": {
-        "token": {
+        "access_token": {
           "type": "string",
           "description": "JWT access token."
         },
@@ -42,7 +42,7 @@
         }
       },
       "required": [
-        "token",
+        "access_token",
         "refresh_token",
         "user"
       ]

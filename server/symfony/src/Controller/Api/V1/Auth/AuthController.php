@@ -77,7 +77,7 @@ class AuthController extends AbstractController
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
             return $this->responseFormatter->formatSuccess([
-                'token' => $token,
+                'access_token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
                 'user' => [
                     'id' => $user->getId(),
@@ -140,7 +140,7 @@ class AuthController extends AbstractController
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
             return $this->responseFormatter->formatSuccess([
-                'token' => $token,
+                'access_token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
                 'user' => [
                     'id' => $user->getId(),
