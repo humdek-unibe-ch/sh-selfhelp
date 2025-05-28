@@ -47,4 +47,27 @@ class PageController extends AbstractController
             );
         }
     }
+
+    /**
+     * @Route("/cms-api/v1/pages/{page_keyword}", name="get_page", methods={"GET"})
+     */
+    public function getPage(string $page_keyword): JsonResponse
+    {
+        try {
+            $page = $this->pageService->getPage($page_keyword);
+            $page['sections'] = $this->pageService->getPageSections($page['id']);
+            return $this->responseFormatter->formatSuccess(
+                ['page' => $page],
+                'responses/frontend/get_page',
+                Response::HTTP_OK // Explicitly pass the status code
+            );
+        } catch (\Throwable $e) {
+            // Attempt to get a valid HTTP status code from the exception, default to 500
+            $statusCode = (is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() <= 599) ? $e->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                $statusCode
+            );
+        }
+    }
 }

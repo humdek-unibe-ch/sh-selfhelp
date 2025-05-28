@@ -61,4 +61,48 @@ class PageService extends UserContextAwareService
 
         return $pages;
     }
+
+    /**
+     * Get page by keyword
+     * TODO: Adjust this method
+     * 
+     * @param string $page_keyword The page keyword
+     * @return array The page object
+     * @throws ServiceException If page not found or access denied
+     */
+    public function getPage(string $page_keyword): array
+    {
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
+        // Check if user has access to the page
+        if (!$this->hasAccess($page->getId(), 'select')) {
+            $this->throwForbidden('Access denied');
+        }
+
+        return [
+            'id' => $page->getId(),
+            'keyword' => $page->getKeyword(),
+            'url' => $page->getUrl(),
+            'parent_page_id' => $page->getParentPage()?->getId(),
+            'is_headless' => $page->isHeadless(),
+            'nav_position' => $page->getNavPosition(),
+            'footer_position' => $page->getFooterPosition()
+        ];
+    }
+
+    /**
+     * Get page sections
+     * TODO: Adjust this method
+     * 
+     * @param int $page_id The page id
+     * @return array The page sections in a hierarchical structure
+     * @throws ServiceException If page not found or access denied
+     */
+    public function getPageSections(int $page_id): array
+    {
+        return $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+    }
 }

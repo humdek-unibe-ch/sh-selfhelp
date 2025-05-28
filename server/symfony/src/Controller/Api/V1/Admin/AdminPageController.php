@@ -21,7 +21,7 @@ class AdminPageController extends AbstractController
      * Constructor
      */
     public function __construct(
-        private readonly AdminPageService $pageService,
+        private readonly AdminPageService $adminPageService,
         private readonly ApiResponseFormatter $responseFormatter
     ) {
     }
@@ -32,7 +32,7 @@ class AdminPageController extends AbstractController
      * @route /admin/pages
      * @method GET
      */
-    public function getPages(Request $request): JsonResponse
+    public function getPages(): JsonResponse
     {
         try {
             // Empty implementation for now
@@ -42,8 +42,7 @@ class AdminPageController extends AbstractController
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                $this->getUser() !== null
+                Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -54,21 +53,20 @@ class AdminPageController extends AbstractController
      * @route /admin/pages/{page_keyword}/fields
      * @method GET
      */
-    public function getPageFields(string $page_keyword, Request $request): JsonResponse
+    public function getPageFields(string $page_keyword): JsonResponse
     {
         try {
-            $fields = $this->pageService->getPageFields($page_keyword);
+            $fields = $this->adminPageService->getPageFields($page_keyword);
             return $this->responseFormatter->formatSuccess([
                 'page_keyword' => $page_keyword,
                 'fields' => $fields
             ]);
         } catch (ServiceException $e) {
-            return $this->responseFormatter->formatException($e, $this->getUser() !== null);
+            return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                $this->getUser() !== null
+                Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -79,21 +77,20 @@ class AdminPageController extends AbstractController
      * @route /admin/pages/{page_keyword}/sections
      * @method GET
      */
-    public function getPageSections(string $page_keyword, Request $request): JsonResponse
+    public function getPageSections(string $page_keyword): JsonResponse
     {
         try {
-            $sections = $this->pageService->getPageSections($page_keyword);
+            $sections = $this->adminPageService->getPageSections($page_keyword);
             return $this->responseFormatter->formatSuccess([
                 'page_keyword' => $page_keyword,
                 'sections' => $sections
             ], 'responses/admin/page_sections');
         } catch (ServiceException $e) {
-            return $this->responseFormatter->formatException($e, $this->getUser() !== null);
+            return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                $this->getUser() !== null
+                Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }

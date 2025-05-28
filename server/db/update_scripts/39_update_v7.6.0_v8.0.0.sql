@@ -1319,7 +1319,8 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 
 -- Public pages route
-('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL);
+('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
+('get_page','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL);
 
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
 

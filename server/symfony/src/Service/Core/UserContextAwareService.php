@@ -41,12 +41,13 @@ abstract class UserContextAwareService extends BaseService
     protected function hasAccess(int $pageId, string $permission = 'select'): bool
     {
         $user = $this->getCurrentUser();
-        if (!$user) {
-            return false;
+        $userId = 1; // guest user
+        if ($user) {
+            $userId = $user->getId();
         }
-        
+
         if ($this->aclService instanceof ACLService) {
-            return $this->aclService->hasAccess($user->getId(), $pageId, $permission);
+            return $this->aclService->hasAccess($userId, $pageId, $permission);
         }
         
         return false;
