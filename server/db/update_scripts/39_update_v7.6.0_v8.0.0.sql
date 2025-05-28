@@ -1333,6 +1333,58 @@ CREATE TABLE IF NOT EXISTS `users_roles` (
   CONSTRAINT `FK_51498A8E58BB6FF7` FOREIGN KEY (`id_roles`) REFERENCES `roles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 1) Create the “admin” role
+INSERT IGNORE INTO `roles` (`name`, `description`)
+VALUES
+  ('admin', 'Administrator role with full access');
+
+-- 2) Create the needed permissions
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.access', 'Can view and enter the admin/backend area'),
+  ('page.create',   'Can create new pages'),
+  ('page.update',   'Can edit existing pages'),
+  ('page.delete',   'Can delete pages'),
+  ('page.insert',   'Can insert content into pages');
+
+-- 3) Grant those permissions to the admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+VALUES
+  (
+    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
+    (SELECT `id` FROM `permissions` WHERE `name` = 'admin.access')
+  ),
+  (
+    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
+    (SELECT `id` FROM `permissions` WHERE `name` = 'page.create')
+  ),
+  (
+    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
+    (SELECT `id` FROM `permissions` WHERE `name` = 'page.update')
+  ),
+  (
+    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
+    (SELECT `id` FROM `permissions` WHERE `name` = 'page.delete')
+  ),
+  (
+    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
+    (SELECT `id` FROM `permissions` WHERE `name` = 'page.insert')
+  );
+
+-- 4) Assign the admin role to the admin group users
+INSERT IGNORE INTO `users_roles` (`id_users`, `id_roles`)
+SELECT
+  ug.`id_users`,
+  r.`id`
+FROM `users_groups` ug
+INNER JOIN `groups` g
+  ON ug.`id_groups` = g.`id`
+  AND g.`name` = 'admin'
+INNER JOIN `roles` r
+  ON r.`name` = 'admin';
+
+
+
   
 DROP TABLE IF EXISTS `api_routes`;
 CREATE TABLE IF NOT EXISTS `api_routes` (
