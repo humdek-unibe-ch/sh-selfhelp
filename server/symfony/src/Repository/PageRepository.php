@@ -16,17 +16,4 @@ class PageRepository extends ServiceEntityRepository
         parent::__construct($registry, Page::class);
     }
 
-    /**
-     * Helper to get lookup ID by code for a given lookup table
-     * @param string $table
-     * @param string $code
-     * @return int|null
-     */
-    public function getLookupIdByCode(string $table, string $code): ?int
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = sprintf('SELECT id FROM %s WHERE code = :code', $table);
-        $result = $conn->executeQuery($sql, ['code' => $code])->fetchAssociative();
-        return $result ? (int)$result['id'] : null;
-    }
 }

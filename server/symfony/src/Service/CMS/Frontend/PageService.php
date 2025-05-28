@@ -89,7 +89,8 @@ class PageService extends UserContextAwareService
             'parent_page_id' => $page->getParentPage()?->getId(),
             'is_headless' => $page->isHeadless(),
             'nav_position' => $page->getNavPosition(),
-            'footer_position' => $page->getFooterPosition()
+            'footer_position' => $page->getFooterPosition(),
+            'sections' => $this->getPageSections($page->getId())    
         ];
     }
 

@@ -54,8 +54,7 @@ class PageController extends AbstractController
     public function getPage(string $page_keyword): JsonResponse
     {
         try {
-            $page = $this->pageService->getPage($page_keyword);
-            $page['sections'] = $this->pageService->getPageSections($page['id']);
+            $page = $this->pageService->getPage($page_keyword);            
             return $this->responseFormatter->formatSuccess(
                 ['page' => $page],
                 'responses/frontend/get_page',
