@@ -22,7 +22,7 @@ class AdminController extends AbstractController
     public function getAccess(): JsonResponse
     {
         try {
-            
+            // create r
             return $this->responseFormatter->formatSuccess([
                 'message' => 'Admin get pages endpoint (placeholder)'
             ]);

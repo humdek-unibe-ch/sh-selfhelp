@@ -61,6 +61,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ValidationCode::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private \Doctrine\Common\Collections\Collection $validationCodes;
 
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: 'users_roles',
+        joinColumns: [new ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'id_roles', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    )]
+    private \Doctrine\Common\Collections\Collection $roles;
+
     public function __construct()
     {
         $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
@@ -69,6 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->refreshTokens = new \Doctrine\Common\Collections\ArrayCollection();
         $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
         $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
         
         // Set default userType in service layer or controller when creating new users
         // The default value should be the 'user' type from lookups table
@@ -297,7 +305,53 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
-    public function getRoles(): array { return ['IS_AUTHENTICATED_FULLY']; }
+    /**
+     * Get the roles granted to the user for Symfony Security
+     *
+     * @return string[] The user roles
+     */
+    public function getRoles(): array 
+    { 
+        $roleNames = $this->roles->map(function(Role $role) {
+            return 'ROLE_' . strtoupper($role->getName());
+        })->toArray();
+        
+        // Always include ROLE_USER for authenticated users
+        $roleNames[] = 'ROLE_USER';
+        
+        return array_unique($roleNames);
+    }
+    
+    /**
+     * Get the role entities associated with this user
+     * 
+     * @return \Doctrine\Common\Collections\Collection<int, Role>
+     */
+    public function getUserRoles(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->roles;
+    }
+    
+    /**
+     * Add a role to this user
+     */
+    public function addRole(Role $role): self
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles->add($role);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a role from this user
+     */
+    public function removeRole(Role $role): self
+    {
+        $this->roles->removeElement($role);
+        return $this;
+    }
     public function eraseCredentials(): void { }
     public function getUserIdentifier(): string { return $this->email; }
 
