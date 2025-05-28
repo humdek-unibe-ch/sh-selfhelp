@@ -1290,6 +1290,29 @@ DEALLOCATE PREPARE stmt;
 
 -- --------------------------- DOCTRINE ------------------------------------------------------------------------
 
+-- create table `acl_group_api_routes`
+CREATE TABLE IF NOT EXISTS `acl_group_api_routes` (
+  `id_groups`    INT          NOT NULL,
+  `id_api_routes` INT          NOT NULL,
+  `acl_select`   TINYINT(1)   NOT NULL DEFAULT 0,
+  `acl_insert`   TINYINT(1)   NOT NULL DEFAULT 0,
+  `acl_update`   TINYINT(1)   NOT NULL DEFAULT 0,
+  `acl_delete`   TINYINT(1)   NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id_groups`,`id_api_routes`),
+  KEY `IDX_acl_group_api_routes_group` (`id_groups`),
+  KEY `IDX_acl_group_api_routes_route` (`id_api_routes`),
+  CONSTRAINT `FK_acl_group_api_routes_group`
+    FOREIGN KEY (`id_groups`)
+    REFERENCES `groups` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `FK_acl_group_api_routes_route`
+    FOREIGN KEY (`id_api_routes`)
+    REFERENCES `api_routes` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+  
 DROP TABLE IF EXISTS `api_routes`;
 CREATE TABLE IF NOT EXISTS `api_routes` (
   `id`           INT             NOT NULL AUTO_INCREMENT,
@@ -1314,6 +1337,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('auth_logout','v1','/auth/logout','App\\Controller\\Api\\V1\\Auth\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
 
 -- Admin routes
+('admin_access','v1','/admin/access','App\\Controller\\Api\\V1\\Admin\\AdminController::getAccess','GET',NULL,NULL),
 ('admin_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
 ('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
@@ -1321,6 +1345,13 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 -- Public pages route
 ('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
 ('get_page','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL);
+
+
+-- give all persmisions to admin
+SET @gid = (SELECT `id` FROM `groups` WHERE `name` = 'admin');
+INSERT IGNORE INTO `acl_group_api_routes` (`id_groups`,`id_api_routes`,`acl_select`,`acl_insert`,`acl_update`,`acl_delete`)
+SELECT @gid, `id`, 1, 1, 1, 1 FROM `api_routes`;
+
 
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
 

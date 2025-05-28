@@ -16,6 +16,7 @@
  - add `ApiRequestLog` table where all the requests to the `cms-api` are logged
  - foreign keys only cascade on delete and not on update
  - full `doctrine` DB mapping
+ - add table  `acl_group_api_routes` to allow or deny access to the `cms-api` for a group
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
