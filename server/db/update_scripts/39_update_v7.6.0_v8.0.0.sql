@@ -1342,34 +1342,15 @@ VALUES
 INSERT IGNORE INTO `permissions` (`name`, `description`)
 VALUES
   ('admin.access', 'Can view and enter the admin/backend area'),
-  ('page.create',   'Can create new pages'),
-  ('page.update',   'Can edit existing pages'),
-  ('page.delete',   'Can delete pages'),
-  ('page.insert',   'Can insert content into pages');
+  ('admin.page.read',   'Can read existing pages'),
+  ('admin.page.create',   'Can create new pages'),
+  ('admin.page.update',   'Can edit existing pages'),
+  ('admin.page.delete',   'Can delete pages'),
+  ('admin.page.insert',   'Can insert content into pages');
 
 -- 3) Grant those permissions to the admin role
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
-VALUES
-  (
-    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
-    (SELECT `id` FROM `permissions` WHERE `name` = 'admin.access')
-  ),
-  (
-    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
-    (SELECT `id` FROM `permissions` WHERE `name` = 'page.create')
-  ),
-  (
-    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
-    (SELECT `id` FROM `permissions` WHERE `name` = 'page.update')
-  ),
-  (
-    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
-    (SELECT `id` FROM `permissions` WHERE `name` = 'page.delete')
-  ),
-  (
-    (SELECT `id` FROM `roles` WHERE `name` = 'admin'),
-    (SELECT `id` FROM `permissions` WHERE `name` = 'page.insert')
-  );
+SELECT (SELECT id FROM roles WHERE `name` = 'admin'), id FROM permissions;
 
 -- 4) Assign the admin role to the admin group users
 INSERT IGNORE INTO `users_roles` (`id_users`, `id_roles`)
@@ -1383,9 +1364,6 @@ INNER JOIN `groups` g
 INNER JOIN `roles` r
   ON r.`name` = 'admin';
 
-
-
-  
 DROP TABLE IF EXISTS `api_routes`;
 CREATE TABLE IF NOT EXISTS `api_routes` (
   `id`           INT             NOT NULL AUTO_INCREMENT,
@@ -1399,6 +1377,23 @@ CREATE TABLE IF NOT EXISTS `api_routes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
   UNIQUE KEY `uniq_version_path` (`version`, `path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `api_routes_permissions`;
+CREATE TABLE `api_routes_permissions` (
+  `id_api_routes`  INT NOT NULL,
+  `id_permissions` INT NOT NULL,
+  PRIMARY KEY (`id_api_routes`,`id_permissions`),
+  KEY `IDX_api_route`    (`id_api_routes`),
+  KEY `IDX_permission`   (`id_permissions`),
+  CONSTRAINT `FK_arp_api_route`
+    FOREIGN KEY (`id_api_routes`)
+    REFERENCES `api_routes` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `FK_arp_permissions`
+    FOREIGN KEY (`id_permissions`)
+    REFERENCES `permissions` (`id`)
+    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert API routes with proper versioned controllers
@@ -1418,11 +1413,28 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
 ('get_page','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL);
 
+-- add `admin.page.read` requirements to routes
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.page.read'
+WHERE ar.`route_name` IN (
+  'admin_pages',
+  'admin_page_fields',
+  'admin_page_sections'
+);
 
--- give all persmisions to admin
-SET @gid = (SELECT `id` FROM `groups` WHERE `name` = 'admin');
-INSERT IGNORE INTO `acl_group_api_routes` (`id_groups`,`id_api_routes`,`acl_select`,`acl_insert`,`acl_update`,`acl_delete`)
-SELECT @gid, `id`, 1, 1, 1, 1 FROM `api_routes`;
+-- give role admin to all users who had group admins
+INSERT IGNORE INTO users_roles (id_users, id_roles)
+SELECT ug.id_users, r.id
+FROM users_groups ug
+INNER JOIN `groups` g ON ug.id_groups = g.id
+INNER JOIN roles  r ON r.name = 'admin'
+WHERE g.name = 'admin';
+
 
 
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');

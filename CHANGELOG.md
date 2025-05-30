@@ -17,6 +17,7 @@
  - foreign keys only cascade on delete and not on update
  - full `doctrine` DB mapping
  - add tables  `roles`, `permissions`, `roles_permissions`, `users_roles` to allow or deny access to the `cms-api` for a role
+ - add table `api_routes_permissions` to allow or deny access to the `cms-api` for a route
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
