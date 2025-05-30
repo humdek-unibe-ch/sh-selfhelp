@@ -2,6 +2,7 @@
 
 namespace App\Routing;
 
+use App\Entity\Permission;
 use App\Repository\ApiRouteRepository;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
@@ -58,9 +59,30 @@ class ApiRouteLoader extends Loader
 
                 // Attach params as a default for controller access
                 $defaults['_params'] = $params;
-
-                // Create the route
-                $route = new Route($path, $defaults, $requirements, [], '', [], $methods);
+                
+                // Fetch permissions for this route
+                $permissions = $this->apiRouteRepository->findPermissionsForRoute($dbRoute->getId());
+                
+                // Extract permission names for easier access in security voter
+                $permissionNames = array_map(function(Permission $permission) {
+                    return $permission->getName();
+                }, $permissions);
+                
+                // Create route options with permissions
+                $options = [
+                    'permissions' => $permissionNames
+                ];
+                
+                // Create the route with permissions in options
+                $route = new Route(
+                    $path,                 // path
+                    $defaults,             // defaults
+                    $requirements,         // requirements
+                    $options,              // options (contains permissions)
+                    '',                    // host
+                    [],                    // schemes
+                    $methods               // methods
+                );
                 $routes->add($dbRoute->getRouteName() . '_' . $version, $route);
             }
         }

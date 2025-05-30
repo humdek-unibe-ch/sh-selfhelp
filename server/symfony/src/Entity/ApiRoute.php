@@ -39,7 +39,7 @@ class ApiRoute
     #[ORM\Column(length: 10, options: ['default' => 'v1'])]
     private ?string $version = 'v1';
 
-    #[ORM\ManyToMany(targetEntity: Permission::class)]
+    #[ORM\ManyToMany(targetEntity: Permission::class, inversedBy: 'apiRoutes')]
     #[ORM\JoinTable(name: 'api_routes_permissions',
         joinColumns: [new ORM\JoinColumn(name: 'id_api_routes', referencedColumnName: 'id', onDelete: 'CASCADE')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'id_permissions', referencedColumnName: 'id', onDelete: 'CASCADE')]
