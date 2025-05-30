@@ -31,11 +31,26 @@ class JWTService
     }
 
     /**
-     * Create a JWT token for a user
+     * Create a JWT token for a user with roles and permissions included
      */
     public function createToken(User $user): string
     {
-        return $this->jwtManager->create($user);
+        // Get role names
+        $roleNames = $user->getUserRoles()
+            ->map(fn($role) => $role->getName())
+            ->toArray();
+            
+        // Get permission names
+        $permissionNames = $user->getPermissionNames();
+        
+        // Create payload with custom claims
+        $payload = [
+            'roles' => $roleNames,
+            'permissions' => $permissionNames
+        ];
+        
+        // Create token with additional payload
+        return $this->jwtManager->createFromPayload($user, $payload);
     }
 
     /**

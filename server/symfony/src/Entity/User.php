@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -517,6 +519,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     { 
         $this->twoFactorRequired = $required; 
         return $this; 
+    }
+
+    /**
+     * @return Collection|Permission[]
+     */
+    public function getPermissions(): Collection
+    {
+        $perms = new ArrayCollection();
+        foreach ($this->getUserRoles() as $role) {
+            foreach ($role->getPermissions() as $p) {
+                if (! $perms->contains($p)) {
+                    $perms->add($p);
+                }
+            }
+        }
+        return $perms;
+    }
+
+    /**
+     * Optionally return just the names:
+     *
+     * @return string[]
+     */
+    public function getPermissionNames(): array
+    {
+        return $this->getPermissions()
+                    ->map(fn($p) => $p->getName())
+                    ->toArray();
     }
     
 }
