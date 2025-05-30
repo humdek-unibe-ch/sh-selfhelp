@@ -46,7 +46,10 @@ class JWTService
         // Create payload with custom claims
         $payload = [
             'roles' => $roleNames,
-            'permissions' => $permissionNames
+            'permissions' => $permissionNames,
+            'id_users' => $user->getId(),
+            'email' => $user->getEmail(),
+            'user_name' => $user->getName()
         ];
         
         // Create token with additional payload

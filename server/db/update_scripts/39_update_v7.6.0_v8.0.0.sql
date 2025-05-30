@@ -1290,6 +1290,10 @@ DEALLOCATE PREPARE stmt;
 
 -- --------------------------- DOCTRINE ------------------------------------------------------------------------
 
+DROP TABLE IF EXISTS `roles_permissions`;
+DROP TABLE IF EXISTS `users_roles`;
+DROP TABLE IF EXISTS `api_routes_permissions`;
+
 -- 1. Roles
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
@@ -1311,7 +1315,6 @@ CREATE TABLE IF NOT EXISTS `permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Role ↔ Permission
-DROP TABLE IF EXISTS `roles_permissions`;
 CREATE TABLE IF NOT EXISTS `roles_permissions` (
   `id_permissions` INT NOT NULL,
   `id_roles`       INT NOT NULL,
@@ -1322,7 +1325,6 @@ CREATE TABLE IF NOT EXISTS `roles_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. User ↔ Role
-DROP TABLE IF EXISTS `users_roles`;
 CREATE TABLE IF NOT EXISTS `users_roles` (
   `id_users` INT NOT NULL,
   `id_roles` INT NOT NULL,
