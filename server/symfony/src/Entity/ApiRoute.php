@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ApiRouteRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ApiRouteRepository::class)]
@@ -36,6 +38,18 @@ class ApiRoute
 
     #[ORM\Column(length: 10, options: ['default' => 'v1'])]
     private ?string $version = 'v1';
+
+    #[ORM\ManyToMany(targetEntity: Permission::class)]
+    #[ORM\JoinTable(name: 'api_routes_permissions',
+        joinColumns: [new ORM\JoinColumn(name: 'id_api_routes', referencedColumnName: 'id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'id_permissions', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    )]
+    private Collection $permissions;
+    
+    public function __construct()
+    {
+        $this->permissions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -125,4 +139,36 @@ class ApiRoute
 
         return $this;
     }
+
+    /**
+     * Get the permissions associated with this API route
+     * 
+     * @return Collection<int, Permission>
+     */
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * Add a permission to this API route
+     */
+    public function addPermission(Permission $permission): self
+    {
+        if (!$this->permissions->contains($permission)) {
+            $this->permissions->add($permission);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a permission from this API route
+     */
+    public function removePermission(Permission $permission): self
+    {
+        $this->permissions->removeElement($permission);
+        return $this;
+    }
 }
+// ENTITY RULE

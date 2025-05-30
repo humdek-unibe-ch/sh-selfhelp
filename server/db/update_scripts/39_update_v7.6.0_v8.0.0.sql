@@ -1384,9 +1384,9 @@ CREATE TABLE `api_routes_permissions` (
   `id_api_routes`  INT NOT NULL,
   `id_permissions` INT NOT NULL,
   PRIMARY KEY (`id_api_routes`,`id_permissions`),
-  KEY `IDX_api_route`    (`id_api_routes`),
-  KEY `IDX_permission`   (`id_permissions`),
-  CONSTRAINT `FK_arp_api_route`
+  KEY `IDX_487141C411A805E4`    (`id_api_routes`),
+  KEY `IDX_487141C435FF0198`   (`id_permissions`),
+  CONSTRAINT `FK_arp_api_routes`
     FOREIGN KEY (`id_api_routes`)
     REFERENCES `api_routes` (`id`)
     ON DELETE CASCADE,
