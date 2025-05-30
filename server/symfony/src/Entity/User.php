@@ -64,7 +64,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private \Doctrine\Common\Collections\Collection $validationCodes;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'users_roles',
+    #[ORM\JoinTable(
+        name: 'users_roles',
         joinColumns: [new ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'id_roles', referencedColumnName: 'id', onDelete: 'CASCADE')]
     )]
@@ -79,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
         $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
-        
+
         // Set default userType in service layer or controller when creating new users
         // The default value should be the 'user' type from lookups table
         // This cannot be set directly in the entity as it requires database access
@@ -312,18 +313,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return string[] The user roles
      */
-    public function getRoles(): array 
-    { 
-        $roleNames = $this->roles->map(function(Role $role) {
-            return 'ROLE_' . strtoupper($role->getName());
-        })->toArray();
-        
-        // Always include ROLE_USER for authenticated users
-        $roleNames[] = 'ROLE_USER';
-        
+    public function getRoles(): array
+    {
+        $roleNames = $this->getUserRoles()
+            ->map(function (Role $role) {
+                return 'ROLE_' . strtoupper($role->getName());
+            })
+            ->toArray();
+
         return array_unique($roleNames);
     }
-    
+
     /**
      * Get the role entities associated with this user
      * 
@@ -333,7 +333,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->roles;
     }
-    
+
     /**
      * Add a role to this user
      */
@@ -354,8 +354,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles->removeElement($role);
         return $this;
     }
-    public function eraseCredentials(): void { }
-    public function getUserIdentifier(): string { return $this->email; }
+    public function eraseCredentials(): void {}
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
 
     // --- RELATIONSHIP GETTERS & SETTERS ---
     /**
@@ -490,13 +493,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * 
      * @return bool True if 2FA is required, false otherwise
      */
-    public function isTwoFactorRequired(): bool 
-    { 
+    public function isTwoFactorRequired(): bool
+    {
         // First check if it's already set (for performance)
         if ($this->twoFactorRequired) {
             return true;
         }
-        
+
         // Check if any of the user's groups require 2FA
         foreach ($this->usersGroups as $userGroup) {
             $group = $userGroup->getGroup();
@@ -505,20 +508,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Set the two-factor authentication requirement flag
      * 
      * @param bool $required Whether 2FA is required
      * @return self
      */
-    public function setTwoFactorRequired(bool $required): self 
-    { 
-        $this->twoFactorRequired = $required; 
-        return $this; 
+    public function setTwoFactorRequired(bool $required): self
+    {
+        $this->twoFactorRequired = $required;
+        return $this;
     }
 
     /**
@@ -545,9 +548,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPermissionNames(): array
     {
         return $this->getPermissions()
-                    ->map(fn($p) => $p->getName())
-                    ->toArray();
+            ->map(fn($p) => $p->getName())
+            ->toArray();
     }
-    
 }
 // ENTITY RULE
