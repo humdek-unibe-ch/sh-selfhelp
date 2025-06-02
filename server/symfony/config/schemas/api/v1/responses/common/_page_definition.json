@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Admin Get Pages Success Response",
-    "description": "Schema for the successful response of getting accessible pages for the admin.",
+    "title": "Page List Response",
+    "description": "Schema for the response containing a list of pages with nested children",
     "allOf": [
         {
             "$ref": "./_response_envelope.json"
@@ -43,15 +43,8 @@
     },
     "properties": {
         "data": {
-            "type": "object",
-            "properties": {
-                "pages": {
-                    "type": "array",
-                    "description": "List of accessible pages.",
-                    "items": { "$ref": "#/definitions/page" }
-                }
-            },
-            "required": ["pages"]
+            "type": "array",
+            "items": { "$ref": "#/definitions/page" }
         }
     },
     "required": ["data"]
