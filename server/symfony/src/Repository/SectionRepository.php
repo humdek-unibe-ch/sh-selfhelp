@@ -27,7 +27,8 @@ class SectionRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $sql = 'CALL get_page_sections_hierarchical(:page_id)';
         $stmt = $conn->prepare($sql);
-        $result = $stmt->executeQuery(['page_id' => $pageId]);
+        $stmt->bindValue('page_id', $pageId, \PDO::PARAM_INT);
+        $result = $stmt->executeQuery(); // Use executeQuery for statements returning results
         return $result->fetchAllAssociative();
     }
 }
