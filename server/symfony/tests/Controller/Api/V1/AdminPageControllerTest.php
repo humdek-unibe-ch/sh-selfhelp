@@ -3,14 +3,17 @@ namespace App\Tests\Controller\Api\V1;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use App\Service\JSON\JsonSchemaValidationService;
 
 class AdminPageControllerTest extends WebTestCase
 {
+    protected $jsonSchemaValidationService;
     protected $client;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->jsonSchemaValidationService = self::getContainer()->get(JsonSchemaValidationService::class);
     }
 
     private function getAdminAccessToken(): string
@@ -39,19 +42,28 @@ class AdminPageControllerTest extends WebTestCase
      */
     public function testGetPageSections(): void
     {
-        // Authenticate as admin and request /cms-api/v1/admin/pages/task/sections
+        // Authenticate as admin and request /cms-api/v1/admin/pages/home/sections
         $token = $this->getAdminAccessToken();
         $this->client->request(
             'GET',
-            '/cms-api/v1/admin/pages/task/sections',
+            '/cms-api/v1/admin/pages/home/sections',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
         );
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Admin get page sections failed.');
-        $data = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('data', $data);
+        
+        // Decode as object (not array) for schema validation
+        $data = json_decode($response->getContent());
+        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
+
+        // Validate response against JSON schema
+        $validationErrors = $this->jsonSchemaValidationService->validate(
+            $data, // Validate the full response object
+            'responses/admin/page_sections' // Schema for page sections
+        );
+        $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages/task/sections failed schema validation:\n" . implode("\n", $validationErrors));
     }
 
     /**
@@ -70,7 +82,16 @@ class AdminPageControllerTest extends WebTestCase
         );
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Admin get pages failed.');
-        $data = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('data', $data);
+        
+        // Decode as object (not array) for schema validation
+        $data = json_decode($response->getContent());
+        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
+
+        // Validate response against JSON schema
+        $validationErrors = $this->jsonSchemaValidationService->validate(
+            $data, // Validate the full response object
+            'responses/common/_page_definition' // Schema for page list
+        );
+        $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages failed schema validation:\n" . implode("\n", $validationErrors));
     }
 }

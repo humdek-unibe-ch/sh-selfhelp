@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Frontend Get Page Success Response",
+    "description": "Schema for the successful response of getting a single page for frontend users.",
+    "allOf": [
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "id": { "type": "integer" },
+                        "keyword": { "type": "string" },
+                        "url": { "type": "string" },
+                        "parent_page_id": { "type": ["integer", "null"] },
+                        "is_headless": { "type": "boolean" },
+                        "nav_position": { "type": ["integer", "null"] },
+                        "footer_position": { "type": ["integer", "null"] },
+                        "sections": { 
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "required": [
+                        "id", "keyword", "url", "is_headless", "sections"
+                    ]
+                }
+            },
+            "required": [
+                "page"
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ]
+}

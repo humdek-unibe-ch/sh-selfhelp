@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        public: true # Make all services public by default in the test environment
+
+    # You can also be more specific if you prefer:
+    # App\Service\:
+    #     public: true
+
+    # Or even more specific:
+    # App\Service\Json\JsonSchemaValidationService:
+    #     public: true
