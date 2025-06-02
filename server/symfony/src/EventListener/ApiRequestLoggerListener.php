@@ -8,6 +8,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * ApiRequestLoggerListener
@@ -34,7 +35,7 @@ class ApiRequestLoggerListener implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => ['onKernelRequest', 10],
@@ -48,7 +49,7 @@ class ApiRequestLoggerListener implements EventSubscriberInterface
      * 
      * @param RequestEvent $event
      */
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         // Only process master requests (not sub-requests)
         if (!$event->isMainRequest()) {
@@ -74,7 +75,7 @@ class ApiRequestLoggerListener implements EventSubscriberInterface
      * 
      * @param ResponseEvent $event
      */
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         // Only process master requests
         if (!$event->isMainRequest()) {
@@ -107,7 +108,7 @@ class ApiRequestLoggerListener implements EventSubscriberInterface
      * 
      * @param ExceptionEvent $event
      */
-    public function onKernelException(ExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
         
@@ -143,7 +144,7 @@ class ApiRequestLoggerListener implements EventSubscriberInterface
      * @param Request $request
      * @return bool
      */
-    private function isApiRequest($request)
+    private function isApiRequest(\Symfony\Component\HttpFoundation\Request $request): bool
     {
         // Check path for API prefix - adjust pattern as needed
         $path = $request->getPathInfo();

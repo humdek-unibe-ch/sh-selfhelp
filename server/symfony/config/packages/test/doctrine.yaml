@@ -1,0 +1,23 @@
+# config/packages/test/doctrine.yaml
+doctrine:
+    dbal:
+        # configure these for your database server
+        url: '%env(resolve:DATABASE_URL)%'
+        # IMPORTANT: You MUST configure your server version if not using SQLite,
+        # either here or in the DATABASE_URL env var (see .env.test)
+        # server_version: '16' # For PostgreSQL 16
+        # server_version: '8.0.32' # For MySQL 8.0.32
+        # server_version: 'mariadb-10.4.10' # For MariaDB
+
+    orm:
+        auto_generate_proxy_classes: true
+        # You may want to use a different DQL custom functions configuration for tests
+        # dql:
+        #     string_functions:
+        #         test_string: App\DQL\TestStringFunction
+
+# If you use DAMA\DoctrineTestBundle, uncomment and configure:
+# dama_doctrine_test:
+#    enable_static_connection: true # Recommended for speed
+#    enable_static_meta_data_cache: true
+#    enable_static_query_cache: true

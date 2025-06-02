@@ -95,15 +95,15 @@ All API responses follow a standardized format:
 
 ```json
 {
-    "status": 200,
-    "message": "OK",
-    "error": null,
-    "logged_in": true,
+    "status": 200, // The HTTP status code (e.g., 200 for OK, 401 for Unauthorized)
+    "message": "OK", // Or a human-readable message corresponding to the status
+    "error": null, // Contains error details if the request failed
+    "logged_in": true, // boolean indicating authentication status
     "meta": {
         "version": "v1",
-        "timestamp": "2025-05-19T10:50:41+02:00"
+        "timestamp": "2025-06-02T16:35:00+02:00" // Example timestamp
     },
-    "data": {} // Your response data here
+    "data": {} // Your response data here, or null for some errors
 }
 ```
 
@@ -1353,3 +1353,69 @@ class ApiExceptionListener
 ---
 
 For more advanced usage, see `src/Entity/ApiRoute.php`
+
+## API Testing Setup
+
+This section outlines the setup for writing and running automated tests for the API, primarily using PHPUnit and Symfony's `WebTestCase`.
+
+### Core Stack
+- **PHPUnit**: The primary testing framework.
+- **Symfony `WebTestCase`**: Used for functional tests that make HTTP requests to your API endpoints.
+- **Symfony `PantherTestCase`**: Can be used for end-to-end tests that require a real browser (optional, for more complex UI-driven API interactions if needed).
+
+### Configuration Files
+- **`phpunit.xml.dist`**: Located in the project root (`d:\TPF\SelfHelp\sh-selfhelp\server\symfony\phpunit.xml.dist`). Configures PHPUnit, sets the `APP_ENV` to `test`, and bootstraps the Symfony environment via `tests/bootstrap.php`.
+- **`tests/bootstrap.php`**: Loads the test environment, including `.env.test`.
+- **`.env.test`**: Located in the project root (`d:\TPF\SelfHelp\sh-selfhelp\server\symfony\.env.test`). Contains environment-specific variables for testing:
+    - `APP_ENV=test`
+    - `APP_SECRET`: **Crucial! Set this to a unique, strong random string.**
+    - `DATABASE_URL`: Defines the database connection for tests. Defaults to SQLite (`sqlite:///%kernel.project_dir%/var/data.db.test`). You can change this to a dedicated test PostgreSQL or MySQL database.
+    - `JWT_SECRET_KEY`, `JWT_PUBLIC_KEY`, `JWT_PASSPHRASE`: Configure these to point to your test JWT keys and passphrase. You may need to generate separate keys for the test environment (e.g., in `config/jwt/test/`).
+    - `MESSENGER_TRANSPORT_DSN='sync://'`: Disables asynchronous message processing for tests by default.
+- **`config/packages/test/doctrine.yaml`**: Configures Doctrine specifically for the test environment, ensuring it uses the `DATABASE_URL` from `.env.test`.
+- **`config/packages/test/framework.yaml`**: Contains framework-specific overrides for the test environment, such as using mock session storage and disabling the profiler for performance.
+
+### Test Directory Structure
+- Tests reside in the `d:\TPF\SelfHelp\sh-selfhelp\server\symfony\tests\` directory.
+- API controller tests are typically organized mirroring the `src/Controller/Api/` structure, e.g., `tests/Controller/Api/V1/AuthControllerTest.php`.
+- *Note*: If directories like `config/packages/test/` or `tests/Controller/Api/V1/` do not exist, they may need to be created manually if the development tools fail to create them automatically during file generation.
+
+### Database Setup for Tests
+1.  **Schema**: Your test database needs the correct schema.
+    -   You can manage this via migrations: `php bin/console doctrine:migrations:migrate --env=test`
+2.  **Fixtures (Test Data)**: For predictable test outcomes, you'll need test data.
+    -   Install `doctrine/fixtures-bundle`: `composer require --dev doctrine/fixtures-bundle`
+    -   Create fixture classes in `src/DataFixtures/` (e.g., `UserFixtures.php`).
+    -   Load fixtures: `php bin/console doctrine:fixtures:load --env=test --no-interaction`
+3.  **Test Isolation (Highly Recommended)**:
+    -   Consider using **`DAMA\DoctrineTestBundle`** (`composer require --dev dama/doctrine-test-bundle`). This bundle wraps each test in a database transaction and rolls it back afterwards. This provides excellent isolation and speed, as you typically only need to load fixtures once per test suite (or less frequently).
+    -   If using `DAMA\DoctrineTestBundle`, uncomment its extension in `phpunit.xml.dist`.
+    -   Alternatively, you can manually manage database state in your test `setUp()` / `tearDown()` methods by dropping/creating the database or truncating tables, but this is slower and more complex.
+
+### Running Tests
+1.  Navigate to the Symfony project root in your terminal: `d:\TPF\SelfHelp\sh-selfhelp\server\symfony\`
+2.  **Run all tests**:
+    ```bash
+    php bin/phpunit
+    ```
+3.  **Run tests in a specific file**:
+    ```bash
+    php bin/phpunit tests/Controller/Api/V1/AuthControllerTest.php
+    ```
+4.  **Run a specific test method within a file**:
+    ```bash
+    php bin/phpunit --filter testLoginSuccessWithValidCredentials tests/Controller/Api/V1/AuthControllerTest.php
+    ```
+5.  **Run tests belonging to a specific group** (defined by `@group groupName` annotation in your test methods or classes):
+    ```bash
+    php bin/phpunit --group auth
+    ```
+
+### Example Test
+An initial test class `tests/Controller/Api/V1/AuthControllerTest.php` has been created as a starting point. It demonstrates:
+- Basic setup extending `WebTestCase`.
+- Making POST requests with JSON payloads.
+- Asserting response status codes and JSON content.
+- Placeholders for testing various authentication scenarios.
+
+Remember to adapt and expand upon these tests to cover all aspects of your API, including request validation (JSON schemas), error handling, business logic, and security.
