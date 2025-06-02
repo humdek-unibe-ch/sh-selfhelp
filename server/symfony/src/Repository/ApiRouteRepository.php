@@ -59,17 +59,20 @@ class ApiRouteRepository extends ServiceEntityRepository
      * @param int $routeId The API route ID
      * @return Permission[] Array of Permission entities
      */
+    /**
+     * Find all permissions associated with a specific route
+     *
+     * @param int $routeId The ID of the route
+     * @return array<array-key, Permission> Array of Permission entities
+     */
     public function findPermissionsForRoute(int $routeId): array
     {
-        $entityManager = $this->getEntityManager();
+        $route = $this->find($routeId);
         
-        $query = $entityManager->createQuery(
-            'SELECT p
-            FROM App\\Entity\\Permission p
-            JOIN p.apiRoutes ar
-            WHERE ar.id = :routeId'
-        )->setParameter('routeId', $routeId);
+        if (!$route) {
+            return [];
+        }
         
-        return $query->getResult();
+        return $route->getPermissions()->toArray();
     }
 }
