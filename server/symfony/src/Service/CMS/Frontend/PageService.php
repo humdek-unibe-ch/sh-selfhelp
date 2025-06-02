@@ -26,6 +26,22 @@ class PageService extends UserContextAwareService
     }
 
     /**
+     * Recursively sorts pages by nav_position
+     */
+    private function sortPagesRecursively(array &$pages): void
+    {
+        usort($pages, function ($a, $b) {
+            return ($a['nav_position'] ?? 0) <=> ($b['nav_position'] ?? 0);
+        });
+
+        foreach ($pages as &$page) {
+            if (!empty($page['children'])) {
+                $this->sortPagesRecursively($page['children']);
+            }
+        }
+    }
+
+    /**
      * Get all published pages for the current user, filtered by mode and ACL
      *
      * @param string $mode Either 'web' or 'mobile'
@@ -48,10 +64,10 @@ class PageService extends UserContextAwareService
         // Determine which type to remove based on mode
         $removeType = $mode === LookupTypes::PAGE_ACCESS_TYPES_MOBILE ? LookupTypes::PAGE_ACCESS_TYPES_WEB : LookupTypes::PAGE_ACCESS_TYPES_MOBILE;
         $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACCESS_TYPES, $removeType);
-        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACTIONS, LookupTypes::PAGE_ACTIONS_SECTIONS);        
+        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACTIONS, LookupTypes::PAGE_ACTIONS_SECTIONS);
 
-        // Filter pages
-        $pages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId) {
+        // First, filter the pages as you were doing
+        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId) {
             return $item['id_pageAccessTypes'] != $removeTypeId &&
                 $item['acl_select'] == 1 &&
                 $item['id_actions'] == $sectionsTypeId &&
@@ -59,7 +75,31 @@ class PageService extends UserContextAwareService
                 $item['url'] != '';
         }));
 
-        return $pages;
+        // Create a map of pages by their ID for quick lookup
+        $pagesMap = [];
+        foreach ($filteredPages as &$page) {
+            $page['children'] = []; // Initialize children array
+            $pagesMap[$page['id_pages']] = &$page;
+        }
+        unset($page); // Break the reference
+
+        // Build the hierarchy
+        $nestedPages = [];
+        foreach ($pagesMap as $id => &$page) {
+            if (isset($page['parent']) && $page['parent'] !== null && isset($pagesMap[$page['parent']])) {
+                // This is a child page, add it to its parent's children array
+                $pagesMap[$page['parent']]['children'][] = &$page;
+            } else {
+                // This is a root level page
+                $nestedPages[] = &$page;
+            }
+        }
+        unset($page); // Break the reference
+
+        // Optional: Sort children by nav_position if needed
+        $this->sortPagesRecursively($nestedPages);
+
+        return $nestedPages;
     }
 
     /**
@@ -90,7 +130,7 @@ class PageService extends UserContextAwareService
             'is_headless' => $page->isHeadless(),
             'nav_position' => $page->getNavPosition(),
             'footer_position' => $page->getFooterPosition(),
-            'sections' => $this->getPageSections($page->getId())    
+            'sections' => $this->getPageSections($page->getId())
         ];
     }
 
