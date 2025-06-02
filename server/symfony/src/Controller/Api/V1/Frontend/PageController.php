@@ -34,7 +34,7 @@ class PageController extends AbstractController
             // Mode detection logic: default to 'web', could be extended to accept a query param
             $pages = $this->pageService->getAllAccessiblePagesForUser(LookupTypes::PAGE_ACCESS_TYPES_WEB);            
             return $this->responseFormatter->formatSuccess(
-                ['pages' => $pages],
+                $pages,
                 'responses/common/_page_definition',
                 Response::HTTP_OK // Explicitly pass the status code
             );
