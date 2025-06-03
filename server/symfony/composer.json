@@ -57,6 +57,12 @@
         "symfony/polyfill-php82": "*"
     },
     "scripts": {
+        "test": "php bin/phpunit --testdox",
+        "clear": "php bin/console cache:clear",
+        "dump": "composer dump-autoload",
+        "validate": "php bin/console doctrine:schema:validate",
+        "update": "php bin/console doctrine:schema:update --dump-sql",
+        "serve": "php -S localhost:8000 -t public/",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
