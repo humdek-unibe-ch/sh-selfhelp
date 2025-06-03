@@ -69,7 +69,6 @@ class AdminPageService extends UserContextAwareService
      * 
      * @param string $pageKeyword The page keyword
      * @return array The page sections in a hierarchical structure
-     * @throws AccessDeniedException If user doesn't have access to the page
      * @throws \Exception If page not found
      */
     public function getPageSections(string $pageKeyword): array

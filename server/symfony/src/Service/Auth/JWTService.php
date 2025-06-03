@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -18,7 +19,6 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class JWTService
 {
-    private const REFRESH_TOKEN_LIFETIME = '+30 days';
     public const BLACKLIST_PREFIX = 'jwt_blacklist_';
 
     public function __construct(
@@ -26,7 +26,8 @@ class JWTService
         private readonly JWTEncoderInterface $jwtEncoder,
         private readonly EntityManagerInterface $entityManager,
         private readonly CacheInterface $cache,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly ParameterBagInterface $params
     ) {
     }
 
@@ -52,6 +53,9 @@ class JWTService
             'user_name' => $user->getName()
         ];
         
+        // Note: Token TTL is configured in lexik_jwt_authentication.yaml
+        // using the JWT_TOKEN_TTL environment variable
+        
         // Create token with additional payload
         return $this->jwtManager->createFromPayload($user, $payload);
     }
@@ -64,7 +68,13 @@ class JWTService
         $refreshToken = new RefreshToken();
         $refreshToken->setUser($user);
         $refreshToken->setTokenHash(bin2hex(random_bytes(32)));
-        $refreshToken->setExpiresAt(new \DateTime(self::REFRESH_TOKEN_LIFETIME));
+        
+        // Get refresh token TTL from environment (in seconds) and convert to DateInterval
+        $refreshTokenTtl = $this->params->get('jwt_refresh_token_ttl');
+        $expiresAt = new \DateTime();
+        $expiresAt->modify('+' . $refreshTokenTtl . ' seconds');
+        
+        $refreshToken->setExpiresAt($expiresAt);
         
         $this->entityManager->persist($refreshToken);
         $this->entityManager->flush();
@@ -125,7 +135,8 @@ class JWTService
             $payload = $this->jwtEncoder->decode($accessToken);
             $this->logger->debug('[JWTService] Token decoded for blacklisting.', ['payload' => $payload]);
 
-            $expiresAt = $payload['exp'] ?? (time() + 3600); // Default to 1 hour if 'exp' is not present
+            $tokenTtl = $this->params->get('jwt_token_ttl');
+            $expiresAt = $payload['exp'] ?? (time() + $tokenTtl); // Use configured TTL if 'exp' is not present
             $remainingLifetime = $expiresAt - time();
             $this->logger->debug('[JWTService] Calculated remaining lifetime for blacklist entry.', ['expiresAt' => $expiresAt, 'remainingLifetime' => $remainingLifetime]);
 
