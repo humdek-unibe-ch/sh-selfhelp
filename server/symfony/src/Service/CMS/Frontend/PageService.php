@@ -27,11 +27,28 @@ class PageService extends UserContextAwareService
 
     /**
      * Recursively sorts pages by nav_position
+     * Pages with null nav_position will be placed at the end and sorted alphabetically by keyword
      */
     private function sortPagesRecursively(array &$pages): void
     {
         usort($pages, function ($a, $b) {
-            return ($a['nav_position'] ?? 0) <=> ($b['nav_position'] ?? 0);
+            // If both positions are null, sort alphabetically by keyword
+            if ($a['nav_position'] === null && $b['nav_position'] === null) {
+                return strcasecmp($a['keyword'] ?? '', $b['keyword'] ?? '');
+            }
+            
+            // If only a's position is null, it should go after b
+            if ($a['nav_position'] === null) {
+                return 1;
+            }
+            
+            // If only b's position is null, it should go after a
+            if ($b['nav_position'] === null) {
+                return -1;
+            }
+            
+            // If both have positions, compare them normally
+            return $a['nav_position'] <=> $b['nav_position'];
         });
 
         foreach ($pages as &$page) {
