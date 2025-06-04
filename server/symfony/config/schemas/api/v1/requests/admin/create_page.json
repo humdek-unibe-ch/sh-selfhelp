@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Create Page Request Schema",
+    "description": "Schema for the request to create a new page",
+    "type": "object",
+    "properties": {
+        "keyword": {
+            "type": "string",
+            "description": "Unique keyword for the page",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "page_access_type_code": {
+            "type": "string",
+            "description": "Access type code from lookups with typeCode=pageAccessTypes"
+        },
+        "is_headless": {
+            "type": "boolean",
+            "description": "Whether the page is headless",
+            "default": false
+        },
+        "is_open_page": {
+            "type": "boolean",
+            "description": "Whether the page has open access",
+            "default": false
+        },
+        "url": {
+            "type": ["string", "null"],
+            "description": "URL for the page"
+        },
+        "protocol": {
+            "type": ["string", "null"],
+            "description": "HTTP methods supported by the page (pipe separated list)"
+        },
+        "nav_position": {
+            "type": ["integer", "null"],
+            "description": "Navigation position"
+        },
+        "footer_position": {
+            "type": ["integer", "null"],
+            "description": "Footer position"
+        },
+        "parent": {
+            "type": ["integer", "null"],
+            "description": "ID of the parent page"
+        },
+        "action_code": {
+            "type": ["string", "null"],
+            "description": "Action code from lookups with typeCode=pageActions"
+        }
+    },
+    "required": ["keyword", "page_access_type_code"],
+    "additionalProperties": false
+}

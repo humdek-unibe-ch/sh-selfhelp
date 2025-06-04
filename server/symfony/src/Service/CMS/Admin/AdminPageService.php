@@ -2,13 +2,22 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Lookup;
+use App\Entity\Page;
+use App\Entity\PageType;
 use App\Exception\ServiceException;
+use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
+use App\Repository\PageTypeRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling page-related operations in the admin panel
@@ -30,6 +39,9 @@ class AdminPageService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
+        private readonly LookupRepository $lookupRepository,
+        private readonly PageTypeRepository $pageTypeRepository,
+        private readonly ManagerRegistry $doctrine,
         ACLService $aclService,
         UserContextService $userContextService
     ) {
@@ -134,5 +146,97 @@ class AdminPageService extends UserContextAwareService
         }
 
         return $rootSections;
+    }
+    
+    /**
+     * Create a new page
+     * 
+     * @param string $keyword Unique keyword for the page
+     * @param string $pageAccessTypeCode Code of the page access type lookup
+     * @param bool $isHeadless Whether the page is headless
+     * @param bool $isOpenAccess Whether the page has open access
+     * @param string|null $url URL for the page
+     * @param int|null $navPosition Navigation position
+     * @param int|null $footerPosition Footer position
+     * @param int|null $parentId ID of the parent page
+     * @param string|null $actionCode Code of the action lookup
+     * 
+     * @return Page The created page entity
+     * @throws ServiceException If validation fails or required entities not found
+     */
+    public function createPage(
+        string $keyword,
+        string $pageAccessTypeCode,
+        bool $isHeadless = false,
+        bool $isOpenAccess = false,
+        ?string $url = null,
+        ?int $navPosition = null,
+        ?int $footerPosition = null,
+        ?int $parentId = null,
+        ?string $actionCode = null
+    ): Page {   
+        
+        // Check if keyword already exists
+        if ($this->pageRepository->findOneBy(['keyword' => $keyword])) {
+            $this->throwConflict("Page with keyword '{$keyword}' already exists");
+        }
+        
+        // Get page access type by code
+        $pageAccessType = $this->lookupRepository->findOneBy([
+            'typeCode' => 'pageAccessTypes',
+            'lookupCode' => $pageAccessTypeCode
+        ]);
+        if (!$pageAccessType) {
+            $this->throwNotFound("Page access type with code '{$pageAccessTypeCode}' not found");
+        }
+        
+        // Get parent page if provided
+        $parentPage = null;
+        if ($parentId) {
+            $parentPage = $this->pageRepository->find($parentId);
+            if (!$parentPage) {
+                $this->throwNotFound("Parent page with ID {$parentId} not found");
+            }
+        }
+        
+        // Get action if provided
+        $action = null;
+        if (!$actionCode) {
+            $actionCode = LookupService::PAGE_ACTIONS_SECTIONS;
+        }
+        $action = $this->lookupRepository->findOneBy([
+            'typeCode' => 'pageActions',
+            'lookupCode' => $actionCode
+        ]);
+        if (!$action) {
+            $this->throwNotFound("Action with code '{$actionCode}' not found");
+        }
+        
+        // Get default page type (experiment)
+        $pageType = $this->pageTypeRepository->findOneBy(['name' => 'experiment']);
+        if (!$pageType) {
+            $this->throwNotFound("Default page type 'experiment' not found");
+        }
+        
+        // Create new page entity
+        $page = new Page();
+        $page->setKeyword($keyword);
+        $page->setPageAccessType($pageAccessType);
+        $page->setIsHeadless($isHeadless);
+        $page->setIsOpenAccess($isOpenAccess);
+        $page->setUrl($url);
+        $page->setNavPosition($navPosition);
+        $page->setFooterPosition($footerPosition);
+        $page->setParentPage($parentPage);
+        $page->setPageType($pageType);
+        $page->setIsSystem(false);
+        
+        // Set action if provided
+        if ($action) {
+            $page->setAction($action);
+        }
+        $this->entityManager->persist($page);
+        $this->entityManager->flush();
+        return $page;
     }
 }

@@ -43,6 +43,14 @@ abstract class BaseService
     }
     
     /**
+     * Throw a conflict exception
+     */
+    protected function throwConflict(string $message = 'Resource already exists'): void
+    {
+        throw new ServiceException($message, Response::HTTP_CONFLICT);
+    }
+    
+    /**
      * Check if a user is logged in
      * This method should be overridden by child classes that have access to authentication
      */

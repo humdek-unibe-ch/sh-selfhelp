@@ -2,13 +2,16 @@
 
 namespace App\Controller\Api\V1\Admin;
 
+use App\Controller\Trait\RequestValidatorTrait;
 use App\Exception\ServiceException;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\CMS\Admin\AdminPageService;
 use App\Service\CMS\Frontend\PageService;
 use App\Service\Core\LookupService;
+use App\Service\JSON\JsonSchemaValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,13 +21,16 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminPageController extends AbstractController
 {
+    use RequestValidatorTrait;
+    
     /**
      * Constructor
      */
     public function __construct(
         private readonly AdminPageService $adminPageService,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly PageService $pageService
+        private readonly PageService $pageService,
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {
     }
 
@@ -92,6 +98,47 @@ class AdminPageController extends AbstractController
                 'page_keyword' => $page_keyword,
                 'sections' => $sections
             ], 'responses/admin/page_sections');
+        } catch (ServiceException $e) {
+            return $this->responseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Create a new page
+     * 
+     * @route /admin/page
+     * @method POST
+     */
+    public function createPage(Request $request): JsonResponse
+    {
+        try {
+            // Validate request against JSON schema
+            // This will throw an exception if validation fails
+            $data = $this->validateRequest($request, 'requests/admin/create_page', $this->jsonSchemaValidationService);
+            
+            // Create page using page_access_type_code instead of page_access_type_id
+            $page = $this->adminPageService->createPage(
+                $data['keyword'],
+                $data['page_access_type_code'], // Using code instead of ID
+                $data['is_headless'] ?? false,
+                $data['is_open_page'] ?? false,
+                $data['url'] ?? null,
+                $data['nav_position'] ?? null,
+                $data['footer_position'] ?? null,
+                $data['parent'] ?? null,
+                $data['action_code'] ?? null // New optional action_code parameter
+            );
+            
+            // Return success response
+            return $this->responseFormatter->formatSuccess(
+                $page,
+                Response::HTTP_CREATED
+            );
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {

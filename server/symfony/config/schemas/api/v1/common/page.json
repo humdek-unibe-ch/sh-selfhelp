@@ -1,0 +1,102 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Page Entity Schema",
+    "description": "Schema for a single Page entity",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier for the page"
+        },
+        "keyword": {
+            "type": "string",
+            "description": "Unique keyword for the page"
+        },
+        "url": {
+            "type": ["string", "null"],
+            "description": "URL for the page"
+        },
+        "protocol": {
+            "type": ["string", "null"],
+            "description": "HTTP methods supported by the page (pipe separated list)"
+        },
+        "is_headless": {
+            "type": "boolean",
+            "description": "Whether the page is headless"
+        },
+        "nav_position": {
+            "type": ["integer", "null"],
+            "description": "Navigation position"
+        },
+        "footer_position": {
+            "type": ["integer", "null"],
+            "description": "Footer position"
+        },
+        "is_open_access": {
+            "type": ["boolean", "null"],
+            "description": "Whether the page has open access"
+        },
+        "is_system": {
+            "type": ["boolean", "null"],
+            "description": "Whether the page is a system page"
+        },
+        "action": {
+            "type": ["object", "null"],
+            "allOf": [
+                {
+                    "$ref": "lookup.json"
+                },
+                {
+                    "properties": {
+                        "typeCode": {
+                            "const": "pageActions",
+                            "description": "Must be a lookup of type pageActions"
+                        }
+                    },
+                    "required": ["typeCode"]
+                }
+            ],
+            "description": "The action lookup associated with this page (id_actions in DB)"
+        },
+        "pageType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "pageAccessType": {
+            "type": ["object", "null"],
+            "allOf": [
+                {
+                    "$ref": "lookup.json"
+                },
+                {
+                    "properties": {
+                        "typeCode": {
+                            "const": "pageAccessTypes",
+                            "description": "Must be a lookup of type pageAccessTypes"
+                        }
+                    },
+                    "required": ["typeCode"]
+                }
+            ]
+        },
+        "parentPage": {
+            "type": ["object", "null"],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "keyword": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "required": ["id", "keyword", "is_headless", "pageType"]
+}
