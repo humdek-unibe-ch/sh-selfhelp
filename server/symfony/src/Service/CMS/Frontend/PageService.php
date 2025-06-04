@@ -9,7 +9,7 @@ use App\Repository\LookupRepository;
 use App\Repository\AclRepository;
 use App\Service\Auth\UserContextService;
 use App\Service\ACL\ACLService;
-use App\Service\Core\LookupTypes;
+use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -79,9 +79,9 @@ class PageService extends UserContextAwareService
         $allPages = $this->aclService->getAllUserAcls($userId);
 
         // Determine which type to remove based on mode
-        $removeType = $mode === LookupTypes::PAGE_ACCESS_TYPES_MOBILE ? LookupTypes::PAGE_ACCESS_TYPES_WEB : LookupTypes::PAGE_ACCESS_TYPES_MOBILE;
-        $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACCESS_TYPES, $removeType);
-        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupTypes::PAGE_ACTIONS, LookupTypes::PAGE_ACTIONS_SECTIONS);
+        $removeType = $mode === LookupService::PAGE_ACCESS_TYPES_MOBILE ? LookupService::PAGE_ACCESS_TYPES_WEB : LookupService::PAGE_ACCESS_TYPES_MOBILE;
+        $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
+        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACTIONS, LookupService::PAGE_ACTIONS_SECTIONS);
 
         // First, filter the pages as you were doing
         $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId) {

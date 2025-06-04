@@ -1410,6 +1410,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
 ('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_lookups','v1','/admin/lookups','App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups','GET',NULL,NULL),
 
 -- Public pages route
 ('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
@@ -1427,6 +1428,17 @@ WHERE ar.`route_name` IN (
   'admin_pages',
   'admin_page_fields',
   'admin_page_sections'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.access'
+WHERE ar.`route_name` IN (
+  'admin_lookups'
 );
 
 -- give role admin to all users who had group admins

@@ -2,11 +2,13 @@
 
 namespace App\Service\Core;
 
+use App\Repository\LookupRepository;
+
 /**
  * Lookup type and code constants for use throughout the application.
  * (Auto-generate or update as needed when DB lookups change.)
  */
-final class LookupTypes
+final class LookupService
 {
     // Lookup Types
     public const NOTIFICATION_TYPES = 'notificationTypes';
@@ -143,5 +145,16 @@ final class LookupTypes
 
     // plugins
     public const PLUGINS_CALC_SLEEP_EFFICIENCY = 'calc_sleep_efficiency';
-}
 
+    public function __construct(
+        private readonly LookupRepository $lookupRepository
+    ) {}
+
+    /**
+     * Get all lookups
+     */
+    public function getAllLookups(): array
+    {
+        return $this->lookupRepository->getAllLookups();
+    }
+}

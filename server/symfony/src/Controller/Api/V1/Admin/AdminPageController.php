@@ -6,10 +6,9 @@ use App\Exception\ServiceException;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\CMS\Admin\AdminPageService;
 use App\Service\CMS\Frontend\PageService;
-use App\Service\Core\LookupTypes;
+use App\Service\Core\LookupService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -39,7 +38,7 @@ class AdminPageController extends AbstractController
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupTypes::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_page_definition',

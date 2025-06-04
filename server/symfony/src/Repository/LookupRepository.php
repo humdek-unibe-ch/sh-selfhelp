@@ -90,4 +90,14 @@ class LookupRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
         return $lookup ? $lookup->getId() : null;
     }
+
+    /**
+     * Get all lookups
+     */
+    public function getAllLookups(): array
+    {
+        return $this->createQueryBuilder('l')
+            ->getQuery()
+            ->getResult();
+    }
 }
