@@ -180,6 +180,11 @@ class AdminPageService extends UserContextAwareService
         if ($this->pageRepository->findOneBy(['keyword' => $keyword])) {
             $this->throwConflict("Page with keyword '{$keyword}' already exists");
         }
+
+        // Check if url already exists
+        if ($this->pageRepository->findOneBy(['url' => $url])) {
+            $this->throwConflict("Page with url '{$url}' already exists");
+        }
         
         // Get page access type by code
         $pageAccessType = $this->lookupRepository->findOneBy([
