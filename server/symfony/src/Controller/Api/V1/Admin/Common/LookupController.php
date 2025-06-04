@@ -28,7 +28,7 @@ class LookupController extends AbstractController
             $all_lookups = $this->lookupService->getAllLookups(); 
             return $this->responseFormatter->formatSuccess(
                 $all_lookups,
-                null,
+                'responses/admin/common/lookups',
                 Response::HTTP_OK // Explicitly pass the status code
             );
         } catch (\Throwable $e) {

@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Lookup Entity Schema",
+    "description": "Schema for a single Lookup entity",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier for the lookup"
+        },
+        "typeCode": {
+            "type": "string",
+            "description": "The type code categorizing this lookup"
+        },
+        "lookupCode": {
+            "type": ["string", "null"],
+            "description": "The lookup code value"
+        },
+        "lookupValue": {
+            "type": ["string", "null"],
+            "description": "The human-readable value for this lookup"
+        },
+        "lookupDescription": {
+            "type": ["string", "null"],
+            "description": "A detailed description of this lookup"
+        }
+    },
+    "required": ["id", "typeCode", "lookupCode", "lookupValue"]
+}
