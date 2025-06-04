@@ -1473,6 +1473,11 @@ CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
 -- ('auth_login','v2','/auth/login','App\\Controller\\Api\\V2\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('email',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true)));
 
 
+-- create page in transaction and give acl permisions to the user and to admin group, aslo to the therapsi and subject group
+-- add edit page
+-- add delete page
+-- add tests liked to them
+
 
 -- shoudl remove is_fluid from container style
 -- reowork all form data to use drop down for table selection. First the table should be registered by the user. Assign ACL to these dataTables.
