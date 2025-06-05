@@ -93,4 +93,34 @@ class ACLService
         // Use the repository to get all ACLs (cached)
         return $this->aclRepository->getUserAcl($userId);
     }
+
+    /**
+     * Add or update a group ACL for a page
+     */
+    public function addGroupAcl(\App\Entity\Page $page, \App\Entity\Group $group, bool $select, bool $insert, bool $update, bool $delete, \Doctrine\ORM\EntityManagerInterface $em): void
+    {
+        $aclGroup = new \App\Entity\AclGroup();
+        $aclGroup->setGroup($group)
+            ->setPage($page)
+            ->setAclSelect($select)
+            ->setAclInsert($insert)
+            ->setAclUpdate($update)
+            ->setAclDelete($delete);
+        $em->persist($aclGroup);
+    }
+
+    /**
+     * Add or update a user ACL for a page
+     */
+    public function addUserAcl(\App\Entity\Page $page, \App\Entity\User $user, bool $select, bool $insert, bool $update, bool $delete, \Doctrine\ORM\EntityManagerInterface $em): void
+    {
+        $aclUser = new \App\Entity\AclUser();
+        $aclUser->setUser($user)
+            ->setPage($page)
+            ->setAclSelect($select)
+            ->setAclInsert($insert)
+            ->setAclUpdate($update)
+            ->setAclDelete($delete);
+        $em->persist($aclUser);
+    }
 }

@@ -32,7 +32,7 @@ class AdminPageService extends UserContextAwareService
 
     // ACL group name constants
     private const GROUP_ADMIN = 'admin';
-    private const GROUP_SUBJECTS = 'subject';
+    private const GROUP_SUBJECT = 'subject';
     private const GROUP_THERAPIST = 'therapist';
 
     /************************* END ADMIN PAGES *************************/
@@ -245,55 +245,27 @@ class AdminPageService extends UserContextAwareService
             // Fetch groups by name
             $groupRepo = $this->entityManager->getRepository(\App\Entity\Group::class);
             $adminGroup = $groupRepo->findOneBy(['name' => self::GROUP_ADMIN]);
-            $subjectsGroup = $groupRepo->findOneBy(['name' => self::GROUP_SUBJECTS]);
+            $subjectGroup = $groupRepo->findOneBy(['name' => self::GROUP_SUBJECT]);
             $therapistGroup = $groupRepo->findOneBy(['name' => self::GROUP_THERAPIST]);
-            if (!$adminGroup || !$subjectsGroup || !$therapistGroup) {
+            if (!$adminGroup || !$subjectGroup || !$therapistGroup) {
                 throw new ServiceException('One or more required groups not found.', Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
             // ACL for admin group (full access)
-            $aclAdmin = new \App\Entity\AclGroup();
-            $aclAdmin->setGroup($adminGroup);
-            $aclAdmin->setPage($page);
-            $aclAdmin->setAclSelect(true);
-            $aclAdmin->setAclInsert(true);
-            $aclAdmin->setAclUpdate(true);
-            $aclAdmin->setAclDelete(true);
-            $this->entityManager->persist($aclAdmin);
+            $this->aclService->addGroupAcl($page, $adminGroup, true, true, true, true, $this->entityManager);
 
-            // ACL for subjects group (select only)
-            $aclSubjects = new \App\Entity\AclGroup();
-            $aclSubjects->setGroup($subjectsGroup);
-            $aclSubjects->setPage($page);
-            $aclSubjects->setAclSelect(true);
-            $aclSubjects->setAclInsert(false);
-            $aclSubjects->setAclUpdate(false);
-            $aclSubjects->setAclDelete(false);
-            $this->entityManager->persist($aclSubjects);
+            // ACL for subject group (select only)
+            $this->aclService->addGroupAcl($page, $subjectGroup, true, false, false, false, $this->entityManager);
 
-            // ACL for group therapist (select only)
-            $aclTherapist = new \App\Entity\AclGroup();
-            $aclTherapist->setGroup($therapistGroup);
-            $aclTherapist->setPage($page);
-            $aclTherapist->setAclSelect(true);
-            $aclTherapist->setAclInsert(false);
-            $aclTherapist->setAclUpdate(false);
-            $aclTherapist->setAclDelete(false);
-            $this->entityManager->persist($aclTherapist);
+            // ACL for therapist group (select only)
+            $this->aclService->addGroupAcl($page, $therapistGroup, true, false, false, false, $this->entityManager);
 
             // ACL for creating user (full access)
             $currentUser = $this->getCurrentUser();
             if (!$currentUser) {
                 throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
             }
-            $aclUser = new \App\Entity\AclUser();
-            $aclUser->setUser($currentUser);
-            $aclUser->setPage($page);
-            $aclUser->setAclSelect(true);
-            $aclUser->setAclInsert(true);
-            $aclUser->setAclUpdate(true);
-            $aclUser->setAclDelete(true);
-            $this->entityManager->persist($aclUser);
+            $this->aclService->addUserAcl($page, $currentUser, true, true, true, true, $this->entityManager);
 
             $this->entityManager->flush();
             $this->entityManager->commit();
