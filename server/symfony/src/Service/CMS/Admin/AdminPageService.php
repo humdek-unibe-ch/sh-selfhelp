@@ -30,6 +30,11 @@ class AdminPageService extends UserContextAwareService
      */
     private const CMS_SELECT_PAGE_KEYWORD = 'cmsSelect';
 
+    // ACL group name constants
+    private const GROUP_ADMIN = 'admin';
+    private const GROUP_SUBJECTS = 'subject';
+    private const GROUP_THERAPIST = 'therapist';
+
     /************************* END ADMIN PAGES *************************/
 
     /**
@@ -159,7 +164,6 @@ class AdminPageService extends UserContextAwareService
      * @param int|null $navPosition Navigation position
      * @param int|null $footerPosition Footer position
      * @param int|null $parentId ID of the parent page
-     * @param string|null $actionCode Code of the action lookup
      * 
      * @return Page The created page entity
      * @throws ServiceException If validation fails or required entities not found
@@ -173,7 +177,6 @@ class AdminPageService extends UserContextAwareService
         ?int $navPosition = null,
         ?int $footerPosition = null,
         ?int $parentId = null,
-        ?string $actionCode = null
     ): Page {   
         
         // Check if keyword already exists
@@ -205,10 +208,7 @@ class AdminPageService extends UserContextAwareService
         }
         
         // Get action if provided
-        $action = null;
-        if (!$actionCode) {
-            $actionCode = LookupService::PAGE_ACTIONS_SECTIONS;
-        }
+        $actionCode = LookupService::PAGE_ACTIONS_SECTIONS;
         $action = $this->lookupRepository->findOneBy([
             'typeCode' => 'pageActions',
             'lookupCode' => $actionCode
@@ -235,13 +235,72 @@ class AdminPageService extends UserContextAwareService
         $page->setParentPage($parentPage);
         $page->setPageType($pageType);
         $page->setIsSystem(false);
-        
-        // Set action if provided
-        if ($action) {
-            $page->setAction($action);
+        $page->setAction($action);
+
+        $this->entityManager->beginTransaction();
+        try {
+            $this->entityManager->persist($page);
+            $this->entityManager->flush(); // To get the page ID
+
+            // Fetch groups by name
+            $groupRepo = $this->entityManager->getRepository(\App\Entity\Group::class);
+            $adminGroup = $groupRepo->findOneBy(['name' => self::GROUP_ADMIN]);
+            $subjectsGroup = $groupRepo->findOneBy(['name' => self::GROUP_SUBJECTS]);
+            $therapistGroup = $groupRepo->findOneBy(['name' => self::GROUP_THERAPIST]);
+            if (!$adminGroup || !$subjectsGroup || !$therapistGroup) {
+                throw new ServiceException('One or more required groups not found.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            // ACL for admin group (full access)
+            $aclAdmin = new \App\Entity\AclGroup();
+            $aclAdmin->setGroup($adminGroup);
+            $aclAdmin->setPage($page);
+            $aclAdmin->setAclSelect(true);
+            $aclAdmin->setAclInsert(true);
+            $aclAdmin->setAclUpdate(true);
+            $aclAdmin->setAclDelete(true);
+            $this->entityManager->persist($aclAdmin);
+
+            // ACL for subjects group (select only)
+            $aclSubjects = new \App\Entity\AclGroup();
+            $aclSubjects->setGroup($subjectsGroup);
+            $aclSubjects->setPage($page);
+            $aclSubjects->setAclSelect(true);
+            $aclSubjects->setAclInsert(false);
+            $aclSubjects->setAclUpdate(false);
+            $aclSubjects->setAclDelete(false);
+            $this->entityManager->persist($aclSubjects);
+
+            // ACL for group therapist (select only)
+            $aclTherapist = new \App\Entity\AclGroup();
+            $aclTherapist->setGroup($therapistGroup);
+            $aclTherapist->setPage($page);
+            $aclTherapist->setAclSelect(true);
+            $aclTherapist->setAclInsert(false);
+            $aclTherapist->setAclUpdate(false);
+            $aclTherapist->setAclDelete(false);
+            $this->entityManager->persist($aclTherapist);
+
+            // ACL for creating user (full access)
+            $currentUser = $this->getCurrentUser();
+            if (!$currentUser) {
+                throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
+            }
+            $aclUser = new \App\Entity\AclUser();
+            $aclUser->setUser($currentUser);
+            $aclUser->setPage($page);
+            $aclUser->setAclSelect(true);
+            $aclUser->setAclInsert(true);
+            $aclUser->setAclUpdate(true);
+            $aclUser->setAclDelete(true);
+            $this->entityManager->persist($aclUser);
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create page and assign ACLs: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
-        $this->entityManager->persist($page);
-        $this->entityManager->flush();
         return $page;
     }
 }

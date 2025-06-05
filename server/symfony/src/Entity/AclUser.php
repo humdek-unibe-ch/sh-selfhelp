@@ -13,10 +13,22 @@ class AclUser
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
+        return $this;
+    }
+
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Page::class)]
     #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Page $page = null;
+
+    public function setPage(Page $page): static
+    {
+        $this->page = $page;
+        return $this;
+    }
 
     #[ORM\Column(name: 'acl_select', type: 'boolean', options: ['default' => 1])]
     private bool $aclSelect = true;

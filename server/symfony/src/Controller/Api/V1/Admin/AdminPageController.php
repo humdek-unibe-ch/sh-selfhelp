@@ -131,7 +131,6 @@ class AdminPageController extends AbstractController
                 $data['nav_position'] ?? null,
                 $data['footer_position'] ?? null,
                 $data['parent'] ?? null,
-                $data['action_code'] ?? null // New optional action_code parameter
             );
             
             // Return success response
