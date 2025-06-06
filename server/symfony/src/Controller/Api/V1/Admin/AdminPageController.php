@@ -47,7 +47,7 @@ class AdminPageController extends AbstractController
             $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
-                'responses/common/_page_definition',
+                'responses/common/_acl_page_definition',
                 Response::HTTP_OK // Explicitly pass the status code
             );
         } catch (\Throwable $e) {
@@ -136,6 +136,7 @@ class AdminPageController extends AbstractController
             // Return success response
             return $this->responseFormatter->formatSuccess(
                 $page,
+                'responses/admin/create_page',
                 Response::HTTP_CREATED
             );
         } catch (ServiceException $e) {

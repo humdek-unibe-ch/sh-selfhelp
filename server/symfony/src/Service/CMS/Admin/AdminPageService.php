@@ -266,6 +266,15 @@ class AdminPageService extends UserContextAwareService
                 throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
             }
             $this->aclService->addUserAcl($page, $currentUser, true, true, true, true, $this->entityManager);
+            
+            // Reorder page positions if needed
+            if ($navPosition !== null) {
+                $this->reorderPagePositions($page->getId(), $parentId, 'nav');
+            }
+            
+            if ($footerPosition !== null) {
+                $this->reorderPagePositions($page->getId(), $parentId, 'footer');
+            }
 
             $this->entityManager->flush();
             $this->entityManager->commit();
@@ -274,5 +283,68 @@ class AdminPageService extends UserContextAwareService
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create page and assign ACLs: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
         return $page;
+    }
+    
+    /**
+     * Reorder page positions when a new page is added or an existing page position is changed
+     * This function ensures all pages have positions in multiples of 10 (10, 20, 30...)
+     *
+     * @param int $pageId ID of the page being added/modified
+     * @param int|null $parentId ID of the parent page or null for root pages
+     * @param string $positionType 'nav' or 'footer'
+     * @return void
+     */
+    private function reorderPagePositions(int $pageId, ?int $parentId, string $positionType): void
+    {
+        // Get all pages with positions for the given parent and position type
+        $pages = $positionType === 'nav' 
+            ? $this->pageRepository->findPagesWithNavPosition($parentId)
+            : $this->pageRepository->findPagesWithFooterPosition($parentId);
+        
+        // Get the current page and its position
+        $currentPage = $this->pageRepository->find($pageId);
+        $currentPosition = $positionType === 'nav' 
+            ? $currentPage->getNavPosition() 
+            : $currentPage->getFooterPosition();
+        
+        // Create a map of all pages (excluding current page) with their positions
+        $pageMap = [];
+        foreach ($pages as $page) {
+            if ($page->getId() !== $pageId) {
+                $position = $positionType === 'nav' 
+                    ? $page->getNavPosition() 
+                    : $page->getFooterPosition();
+                
+                if ($position !== null) {
+                    $pageMap[] = [
+                        'id' => $page->getId(),
+                        'position' => $position
+                    ];
+                }
+            }
+        }
+        
+        // Add the current page to the map
+        $pageMap[] = [
+            'id' => $pageId,
+            'position' => $currentPosition ?? PHP_INT_MAX // If null, place at the end
+        ];
+        
+        // Sort pages by position
+        usort($pageMap, function ($a, $b) {
+            return $a['position'] <=> $b['position'];
+        });
+        
+        // Reassign positions in multiples of 10
+        $finalPositions = [];
+        $position = 10;
+        
+        foreach ($pageMap as $page) {
+            $finalPositions[$page['id']] = $position;
+            $position += 10;
+        }
+        
+        // Update all positions in the database
+        $this->pageRepository->updatePagePositions($finalPositions, $positionType);
     }
 }

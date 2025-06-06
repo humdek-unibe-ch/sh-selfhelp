@@ -35,7 +35,7 @@ class PageController extends AbstractController
             $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_WEB);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
-                'responses/common/_page_definition',
+                'responses/common/_acl_page_definition',
                 Response::HTTP_OK // Explicitly pass the status code
             );
         } catch (\Throwable $e) {
