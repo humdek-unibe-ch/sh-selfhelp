@@ -1,0 +1,126 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Page Entity Schema",
+    "description": "Schema for a single Page entity",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier for the page"
+        },
+        "keyword": {
+            "type": "string",
+            "description": "Unique keyword for the page"
+        },
+        "url": {
+            "type": ["string", "null"],
+            "description": "URL path for the page"
+        },
+        "protocol": {
+            "type": ["string", "null"],
+            "description": "HTTP methods supported by the page (pipe separated list)"
+        },
+        "action": {
+            "type": ["object", "null"],
+            "description": "Action associated with the page",
+            "allOf": [
+                {
+                    "$ref": "./lookupEntity.json"
+                },
+                {
+                    "properties": {
+                        "typeCode": {
+                            "const": "pageActions",
+                            "description": "Must be a lookup of type pageActions"
+                        }
+                    },
+                    "required": ["typeCode"]
+                }
+            ]
+        },
+        "navigationSection": {
+            "type": ["object", "null"],
+            "description": "Navigation section the page belongs to",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "ID of the navigation section"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the navigation section"
+                }
+            },
+            "required": ["id", "name"]
+        },
+        "parentPage": {
+            "type": ["object", "null"],
+            "description": "Parent page if any",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "ID of the parent page"
+                },
+                "keyword": {
+                    "type": "string",
+                    "description": "Keyword of the parent page"
+                }
+            },
+            "required": ["id", "keyword"]
+        },
+        "pageType": {
+            "type": "object",
+            "description": "Type of the page",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "ID of the page type"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the page type"
+                }
+            },
+            "required": ["id", "name"]
+        },
+        "pageAccessType": {
+            "type": ["object", "null"],
+            "description": "Access type of the page",
+            "allOf": [
+                {
+                    "$ref": "./lookupEntity.json"
+                },
+                {
+                    "properties": {
+                        "typeCode": {
+                            "const": "pageAccessTypes",
+                            "description": "Must be a lookup of type pageAccessTypes"
+                        }
+                    },
+                    "required": ["typeCode"]
+                }
+            ]
+        },
+        "headless": {
+            "type": "boolean",
+            "description": "Whether the page is headless"
+        },
+        "navPosition": {
+            "type": ["integer", "null"],
+            "description": "Position in navigation menu"
+        },
+        "footerPosition": {
+            "type": ["integer", "null"],
+            "description": "Position in footer menu"
+        },
+        "openAccess": {
+            "type": "boolean",
+            "description": "Whether the page has open access"
+        },
+        "system": {
+            "type": "boolean",
+            "description": "Whether the page is a system page"
+        }
+    },
+    "required": ["id", "keyword", "pageType"]
+}

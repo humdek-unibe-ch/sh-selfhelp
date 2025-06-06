@@ -11,7 +11,7 @@
     "properties": {
         "data": {
             "description": "The created page entity",
-            "$ref": "../../common/page.json"
+            "$ref": "../../entities/pageEntity.json"
         }
     },
     "required": ["data"]

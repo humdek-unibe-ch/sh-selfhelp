@@ -13,7 +13,7 @@
             "type": "array",
             "description": "Array of lookup entities",
             "items": {
-                "$ref": "../../../common/lookup.json"
+                "$ref": "../../../entities/lookupEntity.json"
             }
         }
     },

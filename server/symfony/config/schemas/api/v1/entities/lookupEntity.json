@@ -24,6 +24,5 @@
             "type": ["string", "null"],
             "description": "A detailed description of this lookup"
         }
-    },
-    "required": ["id", "typeCode", "lookupCode", "lookupValue"]
+    }
 }

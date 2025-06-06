@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Field Entity Schema",
+    "description": "Schema for a single Field entity with translations",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Unique identifier for the field"
+        },
+        "name": {
+            "type": "string",
+            "description": "Name of the field"
+        },
+        "type": {
+            "type": ["string", "null"],
+            "description": "Type of the field"
+        },
+        "default_value": {
+            "type": ["string", "null"],
+            "description": "Default value for the field"
+        },
+        "help": {
+            "type": ["string", "null"],
+            "description": "Help text for the field"
+        },
+        "display": {
+            "type": "boolean",
+            "description": "Whether the field is a content field (true) or property field (false)"
+        },
+        "translations": {
+            "type": "array",
+            "description": "List of translations for this field",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "language_id": {
+                        "type": "integer",
+                        "description": "ID of the language"
+                    },
+                    "language_code": {
+                        "type": "string",
+                        "description": "Language code or 'property' for property fields"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Translated content"
+                    }
+                },
+                "required": ["language_id", "language_code", "content"]
+            }
+        }
+    },
+    "required": ["id", "name", "display", "translations"]
+}

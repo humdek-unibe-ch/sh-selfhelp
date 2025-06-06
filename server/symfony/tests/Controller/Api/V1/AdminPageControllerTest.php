@@ -94,4 +94,36 @@ class AdminPageControllerTest extends WebTestCase
         );
         $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages failed schema validation:\n" . implode("\n", $validationErrors));
     }
+    
+    /**
+     * @group admin
+     */
+    public function testGetPageFields(): void
+    {
+        // Authenticate as admin and request page fields for 'home' page
+        $token = $this->getAdminAccessToken();
+        $this->client->request(
+            'GET',
+            '/cms-api/v1/admin/pages/home/fields',
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
+        );
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Admin get page fields failed.');
+        
+        // Decode as object (not array) for schema validation
+        $data = json_decode($response->getContent());
+        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
+        $this->assertTrue(property_exists($data->data, 'page'), 'Response data does not have page property');
+        $this->assertTrue(property_exists($data->data, 'fields'), 'Response data does not have fields property');
+        $this->assertIsArray($data->data->fields, 'Fields property is not an array');
+
+        // Validate response against JSON schema
+        $validationErrors = $this->jsonSchemaValidationService->validate(
+            $data, // Validate the full response object
+            'responses/admin/get_page_fields' // Schema for page fields
+        );
+        $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages/home/fields failed schema validation:\n" . implode("\n", $validationErrors));
+    }
 }

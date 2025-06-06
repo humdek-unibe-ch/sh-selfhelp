@@ -365,6 +365,102 @@ The API returns data in the following format:
 - Translations are grouped by field for easy access
 - The response includes both the field metadata and all available translations
 
+### JSON Schema Validation (2025-06-07)
+
+- The `getPageWithFields` API response is validated against a JSON schema defined in `config/schemas/api/v1/responses/admin/get_page_fields.json`
+- The schema extends the common response envelope and defines the structure for page data and fields array
+- Fields are categorized as either content fields (`display=1`) or property fields (`display=0`)
+- Content fields support multiple language translations, while property fields have a single property value with `language_id=1`
+- The schema validation is performed by the `JsonSchemaValidationService` in the test environment
+
+```php
+// Example test for getPageFields API
+public function testGetPageFields(): void
+{
+    $token = $this->getAdminAccessToken();
+    $this->client->request(
+        'GET',
+        '/cms-api/v1/admin/pages/home/fields',
+        [],
+        [],
+        ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
+    );
+    $response = $this->client->getResponse();
+    
+    // Validate response against JSON schema
+    $validationErrors = $this->jsonSchemaValidationService->validate(
+        json_decode($response->getContent()), 
+        'responses/admin/get_page_fields'
+    );
+    $this->assertEmpty($validationErrors);
+}
+
+### JSON Schema Structure and Reuse (2025-06-08)
+
+To improve maintainability and reduce duplication, the JSON schemas have been refactored to use a modular approach with reusable entity definitions:
+
+#### Directory Structure
+```
+config/schemas/api/v1/
+├── common/                  # Common schema definitions
+│   └── _response_envelope.json  # Base API response envelope
+├── entities/                # Entity schema definitions
+│   ├── pageEntity.json     # Page entity schema
+│   ├── fieldEntity.json    # Field entity schema
+│   └── lookupEntity.json   # Lookup entity schema
+└── responses/              # API response schemas
+    └── admin/              # Admin API responses
+        ├── create_page.json    # Create page response
+        └── get_page_fields.json # Get page fields response
+```
+
+#### Entity Schemas
+
+Entity schemas define the structure of domain objects that are reused across multiple API endpoints:
+
+- **pageEntity.json**: Defines the structure of a Page entity with all its properties and relationships
+- **fieldEntity.json**: Defines a Field entity with its translations
+
+#### Schema References
+
+API response schemas use `$ref` to reference entity schemas:
+
+```json
+{
+    "properties": {
+        "data": {
+            "$ref": "../../entities/pageEntity.json"
+        }
+    }
+}
+```
+
+For nested entities like lookups, the schema uses `allOf` to combine the base lookup schema with additional constraints:
+
+```json
+"action": {
+    "allOf": [
+        {
+            "$ref": "./lookupEntity.json"
+        },
+        {
+            "properties": {
+                "typeCode": {
+                    "const": "pageActions"
+                }
+            }
+        }
+    ]
+}
+```
+
+#### Benefits
+
+- **Reduced Duplication**: Common entity structures are defined once and reused
+- **Consistency**: Ensures consistent validation across different endpoints
+- **Maintainability**: Changes to entity structure only need to be made in one place
+- **Documentation**: Provides clear structure for API consumers
+
 ## ACL Integration (2025-05-15)
 
 ### ACL Repository and Caching (2025-05-21)
