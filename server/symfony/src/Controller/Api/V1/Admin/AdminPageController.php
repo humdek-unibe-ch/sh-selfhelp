@@ -69,11 +69,9 @@ class AdminPageController extends AbstractController
     public function getPageFields(string $page_keyword): JsonResponse
     {
         try {
-            $fields = $this->adminPageService->getPageFields($page_keyword);
-            return $this->responseFormatter->formatSuccess([
-                'page_keyword' => $page_keyword,
-                'fields' => $fields
-            ]);
+            $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
+            
+            return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {

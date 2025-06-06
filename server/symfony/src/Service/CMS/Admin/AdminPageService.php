@@ -9,6 +9,7 @@ use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
 use App\Repository\PageTypeRepository;
+use App\Repository\PagesFieldRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -47,6 +48,7 @@ class AdminPageService extends UserContextAwareService
         private readonly LookupRepository $lookupRepository,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
+        private readonly PagesFieldRepository $pagesFieldRepository,
         ACLService $aclService,
         UserContextService $userContextService
     ) {
@@ -54,13 +56,13 @@ class AdminPageService extends UserContextAwareService
     }
 
     /**
-     * Get page fields
+     * Get page with its fields and translations
      * 
      * @param string $pageKeyword The page keyword
-     * @return array The page fields
+     * @return array The page with its fields and translations
      * @throws ServiceException If page not found or access denied
      */
-    public function getPageFields(string $pageKeyword): array
+    public function getPageWithFields(string $pageKeyword): array
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
 
@@ -72,12 +74,91 @@ class AdminPageService extends UserContextAwareService
         if (!$this->hasAccess($page->getId(), 'select')) {
             $this->throwForbidden('Access denied');
         }
-
-        // Return raw data - no wrapping in API response structure
+        
+        // Get page type fields based on the page's type
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('ptf', 'f', 'ft')
+            ->from('App\Entity\PageTypeField', 'ptf')
+            ->innerJoin('ptf.field', 'f')
+            ->innerJoin('f.type', 'ft')
+            ->where('ptf.pageType = :pageTypeId')
+            ->setParameter('pageTypeId', $page->getPageType()->getId())
+            ->orderBy('f.name', 'ASC');
+        
+        $pageTypeFields = $qb->getQuery()->getResult();
+        
+        // Get page fields associated with this page
+        $pageFieldsMap = [];
+        $pageFields = $this->pagesFieldRepository->findBy(['idPages' => $page->getId()]);
+        foreach ($pageFields as $pageField) {
+            $pageFieldsMap[$pageField->getIdFields()] = $pageField;
+        }
+        
+        // Get all translations for this page's fields
+        $translationsMap = [];
+        $translations = $this->entityManager->getRepository(\App\Entity\PagesFieldsTranslation::class)
+            ->findBy(['idPages' => $page->getId()]);
+        
+        foreach ($translations as $translation) {
+            $fieldId = $translation->getIdFields();
+            $langId = $translation->getIdLanguages();
+            if (!isset($translationsMap[$fieldId])) {
+                $translationsMap[$fieldId] = [];
+            }
+            $translationsMap[$fieldId][$langId] = $translation;
+        }
+        
+        // Format fields with translations
+        $formattedFields = [];
+        foreach ($pageTypeFields as $pageTypeField) {
+            $field = $pageTypeField->getField();
+            $fieldId = $field->getId();
+            
+            // Get the pageField if it exists for this field
+            $pageField = $pageFieldsMap[$fieldId] ?? null;
+            
+            $fieldData = [
+                'id' => $fieldId,
+                'name' => $field->getName(),
+                'type' => $field->getType() ? $field->getType()->getName() : null,
+                'default_value' => $pageField ? $pageField->getDefaultValue() : null,
+                'help' => $pageField ? $pageField->getHelp() : null,
+                'display' => $field->isDisplay(),  // Whether it's a content field (1) or property field (0)
+                'translations' => []
+            ];
+            
+            // Handle translations based on display flag
+            if ($field->isDisplay()) {
+                // Content field (display=1) - can have translations for each language
+                if (isset($translationsMap[$fieldId])) {
+                    foreach ($translationsMap[$fieldId] as $translation) {
+                        $language = $translation->getLanguage();
+                        $fieldData['translations'][] = [
+                            'language_id' => $language->getId(),
+                            'language_code' => $language->getLocale(),
+                            'content' => $translation->getContent()
+                        ];
+                    }
+                }
+            } else {
+                // Property field (display=0) - use language_id = 1 only
+                $propertyTranslation = $translationsMap[$fieldId][1] ?? null;
+                if ($propertyTranslation) {
+                    $fieldData['translations'][] = [
+                        'language_id' => 1,
+                        'language_code' => 'property',  // This is a property, not actually language-specific
+                        'content' => $propertyTranslation->getContent()
+                    ];
+                }
+            }
+            
+            $formattedFields[] = $fieldData;
+        }
+        
+        // Return page data with fields and their translations
         return [
-            'fields' => [], // Future implementation will populate this
-            'page_id' => $page->getId(),
-            'page_keyword' => $page->getKeyword()
+            'page' => $page,
+            'fields' => $formattedFields
         ];
     }
 

@@ -309,6 +309,62 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `requirements`: (Optional) JSON string for parameter requirements (e.g., `{ "page_keyword": "[A-Za-z0-9_-]+" }`)
 - `version`: The API version (e.g., `v1`, `v2`)
 
+## Page Fields and Translations (2025-06-06)
+
+### Overview
+
+The system now supports retrieving page fields with their translations. This functionality is implemented in the `AdminPageService::getPageWithFields()` method, which returns a page along with its fields and their translations in multiple languages.
+
+### Key Components
+
+- **PagesFieldRepository**: A new repository that provides methods to fetch page fields with their translations
+- **AdminPageService::getPageWithFields()**: Returns page data along with fields and translations
+- **AdminPageController::getPageFields()**: API endpoint that formats and returns the data
+
+### Data Structure
+
+The API returns data in the following format:
+
+```json
+{
+  "status": 200,
+  "message": "OK",
+  "error": null,
+  "logged_in": true,
+  "data": {
+    "page_id": 123,
+    "page_keyword": "about-us",
+    "fields": [
+      {
+        "id": 1,
+        "name": "title",
+        "type": "text",
+        "default_value": "About Us",
+        "help": "Main page title",
+        "translations": [
+          {
+            "language_id": 1,
+            "language_code": "en",
+            "content": "About Us"
+          },
+          {
+            "language_id": 2,
+            "language_code": "de",
+            "content": "Über uns"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Implementation Details
+
+- Fields are fetched using a join query that combines data from `PagesField`, `Field`, and `PagesFieldsTranslation` entities
+- Translations are grouped by field for easy access
+- The response includes both the field metadata and all available translations
+
 ## ACL Integration (2025-05-15)
 
 ### ACL Repository and Caching (2025-05-21)
