@@ -13,6 +13,7 @@ use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
+use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -46,6 +47,7 @@ class AdminPageService extends UserContextAwareService
         private readonly LookupRepository $lookupRepository,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
+        private readonly TransactionService $transactionService,
         ACLService $aclService,
         UserContextService $userContextService
     ) {
@@ -353,12 +355,27 @@ class AdminPageService extends UserContextAwareService
             if ($footerPosition !== null) {
                 $this->reorderPagePositions($page->getId(), $parentId, 'footer');
             }
-
+            
             $this->entityManager->flush();
+            
+            // Log the page creation transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'pages',
+                $page->getId(),
+                true,
+                'Page created with keyword: ' . $keyword
+            );
+            
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create page and assign ACLs: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to create page and assign ACLs: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
         }
         return $page;
     }
@@ -424,5 +441,75 @@ class AdminPageService extends UserContextAwareService
         
         // Update all positions in the database
         $this->pageRepository->updatePagePositions($finalPositions, $positionType);
+    }
+    
+    /**
+     * Delete a page by its keyword
+     * 
+     * @param string $pageKeyword The keyword of the page to delete
+     * @return void
+     * @throws ServiceException If page not found or access denied
+     */
+    public function deletePage(string $pageKeyword): void
+    {
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+            
+            // Check if user has delete access to the page
+            if (!$this->hasAccess($page->getId(), 'delete')) {
+                $this->throwForbidden('Access denied: You do not have permission to delete this page');
+            }
+            
+            // Check if the page has children
+            $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);
+            if (count($children) > 0) {
+                throw new ServiceException(
+                    'Cannot delete page with children. Remove child pages first.',
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            
+            // ACL entries will be automatically deleted via foreign key constraints with cascade on delete
+            
+            // Delete page fields translations
+            $this->entityManager->createQuery(
+                'DELETE FROM App\\Entity\\PagesFieldsTranslation pft WHERE pft.idPages = :pageId'
+            )
+            ->setParameter('pageId', $page->getId())
+            ->execute();
+            
+            // Store page keyword for logging before deletion
+            $pageKeywordForLog = $page->getKeyword();
+            $pageIdForLog = $page->getId();
+            
+            // Delete the page
+            $this->entityManager->remove($page);
+            $this->entityManager->flush();
+            
+            // Log the page deletion transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'pages',
+                $pageIdForLog,
+                false,
+                'Page deleted with keyword: ' . $pageKeywordForLog
+            );
+            
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to delete page: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
+        }
     }
 }

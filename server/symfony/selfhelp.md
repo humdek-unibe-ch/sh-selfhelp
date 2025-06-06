@@ -313,6 +313,130 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 
 The `PageService::getAllAccessiblePagesForUser()` method has been updated to ensure that the `protocol` field is always set for pages. This addresses validation errors in the schema that requires the protocol field to be a non-null string.
 
+## Transaction Logging (2025-06-06)
+
+### Overview
+
+Transaction logging has been implemented to track create, update, and delete operations throughout the application. This provides an audit trail of changes made to the system, enhancing security and accountability.
+
+### Implementation Details
+
+The transaction logging system consists of:
+
+1. **Transaction Entity**: Stores transaction records with fields for:
+   - Transaction time
+   - Transaction type (create, update, delete)
+   - User who performed the action
+   - Table name affected
+   - Record ID affected
+   - Transaction log data (optional JSON data with full record details)
+
+2. **TransactionService**: Service responsible for creating transaction logs:
+
+```php
+public function logTransaction(
+    string $transactionTypeCode,
+    string $transactionByCode,
+    string $tableName,
+    int $entryId,
+    bool $includeRowData = false,
+    ?string $notes = null
+): void
+```
+
+### Integration
+
+Transaction logging has been integrated into key operations:
+
+- **Page Creation**: Logs a 'create' transaction after a page is successfully created
+- **Page Deletion**: Logs a 'delete' transaction after a page is successfully deleted
+
+The transaction logs include the page ID and keyword, providing context for the operation performed.
+
+> **Note**: ACL entries are automatically deleted via foreign key constraints with cascade on delete, removing the need for explicit ACL deletion calls.
+
+## Page Deletion Functionality (2025-06-06)
+
+### Backend Implementation
+
+The page deletion functionality is implemented in the `AdminPageService::deletePage()` method. This method:
+
+1. Validates that the page exists
+2. Checks if the current user has delete permissions for the page
+3. Ensures the page has no child pages (preventing orphaned pages)
+4. Deletes page field translations
+5. Removes the page entity
+6. Logs the transaction using the TransactionService
+
+All operations are wrapped in a database transaction to ensure consistency. If any step fails, the transaction is rolled back.
+
+```php
+public function deletePage(string $pageKeyword): void
+{
+    $this->entityManager->beginTransaction();
+    try {
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
+        // Check permissions and child pages...
+        
+        // Store page info for logging before deletion
+        $pageKeywordForLog = $page->getKeyword();
+        $pageIdForLog = $page->getId();
+        
+        // Delete the page
+        $this->entityManager->remove($page);
+        $this->entityManager->flush();
+        
+        // Log the transaction
+        $this->transactionService->logTransaction(
+            'delete',
+            'user',
+            'pages',
+            $pageIdForLog,
+            false,
+            'Page deleted with keyword: ' . $pageKeywordForLog
+        );
+        
+        $this->entityManager->commit();
+    } catch (\Throwable $e) {
+        $this->entityManager->rollback();
+        throw $e;
+    }
+}
+```
+
+> **Note**: ACL entries are automatically deleted via foreign key constraints with cascade on delete, so explicit deletion is no longer needed.
+
+### API Response Schema
+
+The delete page API response follows a standardized format defined in `config/schemas/api/v1/responses/admin/delete_page.json`:
+
+```json
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["page_keyword"],
+    "properties": {
+        "page_keyword": {
+            "type": "string",
+            "description": "The keyword of the deleted page"
+        }
+    },
+    "additionalProperties": false
+}
+```
+
+### Testing
+
+Added comprehensive tests in `AdminPageControllerTest` to verify the page deletion functionality:
+
+- **testCreateAndDeletePage()**: Tests the full lifecycle of creating and deleting a test page
+- Helper methods for creating, deleting, and verifying page operations
+- Schema validation to ensure API responses conform to the defined schemas
+
 Implementation details:
 
 - For each page, if the `protocol` field is missing or null, a default value is set

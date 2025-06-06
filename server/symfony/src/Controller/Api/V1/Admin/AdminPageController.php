@@ -146,4 +146,27 @@ class AdminPageController extends AbstractController
             );
         }
     }
+
+    /**
+     * Delete page
+     * 
+     * @route /admin/pages/{page_keyword}
+     * @method DELETE
+     */
+    public function deletePage(string $page_keyword): JsonResponse
+    {
+        try {
+            $this->adminPageService->deletePage($page_keyword);
+            return $this->responseFormatter->formatSuccess([
+                'page_keyword' => $page_keyword,
+            ], 'responses/admin/delete_page');
+        } catch (ServiceException $e) {
+            return $this->responseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }

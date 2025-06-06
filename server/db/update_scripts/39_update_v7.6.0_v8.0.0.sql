@@ -1412,6 +1412,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_lookups','v1','/admin/lookups','App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups','GET',NULL,NULL),
 ('admin_create_page','v1','/admin/page','App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage','POST',NULL,JSON_OBJECT('keyword',JSON_OBJECT('in','body','required',true),'page_access_type_id',JSON_OBJECT('in','body','required',true),'is_headless',JSON_OBJECT('in','body','required',false),'is_open_page',JSON_OBJECT('in','body','required',false),'url',JSON_OBJECT('in','body','required',false),'nav_position',JSON_OBJECT('in','body','required',false),'footer_position',JSON_OBJECT('in','body','required',false),'parent',JSON_OBJECT('in','body','required',false))),
+('admin_delete_page','v1','/admin/pages/{page_keyword}','App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage','DELETE',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 
 -- Public pages route
 ('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
@@ -1452,6 +1453,18 @@ JOIN `permissions`   AS p
 WHERE ar.`route_name` IN (
   'admin_create_page'
 );
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'page.delete'
+WHERE ar.`route_name` IN (
+  'admin_delete_page'
+);
+
 
 -- give role admin to all users who had group admins
 INSERT IGNORE INTO users_roles (id_users, id_roles)
