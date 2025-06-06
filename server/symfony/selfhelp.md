@@ -309,6 +309,30 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `requirements`: (Optional) JSON string for parameter requirements (e.g., `{ "page_keyword": "[A-Za-z0-9_-]+" }`)
 - `version`: The API version (e.g., `v1`, `v2`)
 
+## Protocol Field Handling in Page Service (2025-06-06)
+
+The `PageService::getAllAccessiblePagesForUser()` method has been updated to ensure that the `protocol` field is always set for pages. This addresses validation errors in the schema that requires the protocol field to be a non-null string.
+
+Implementation details:
+
+- For each page, if the `protocol` field is missing or null, a default value is set
+- If the page URL contains a protocol (e.g., "http://" or "https://"), that protocol is extracted and used
+- Otherwise, "https" is used as the default protocol
+- This ensures all pages have a valid protocol value that passes schema validation
+
+```php
+// Set default protocol if missing
+if (!isset($page['protocol']) || $page['protocol'] === null) {
+    // Extract protocol from URL if possible, otherwise default to https
+    if (!empty($page['url']) && strpos($page['url'], '://') !== false) {
+        $parts = parse_url($page['url']);
+        $page['protocol'] = $parts['scheme'] ?? 'https';
+    } else {
+        $page['protocol'] = 'https';
+    }
+}
+```
+
 ## Page Fields and Translations (2025-06-06)
 
 ### Overview

@@ -95,6 +95,17 @@ class PageService extends UserContextAwareService
         // Create a map of pages by their ID for quick lookup
         $pagesMap = [];
         foreach ($filteredPages as &$page) {
+            // Set default protocol if missing
+            if (!isset($page['protocol']) || $page['protocol'] === null) {
+                // Extract protocol from URL if possible, otherwise default to https
+                if (!empty($page['url']) && strpos($page['url'], '://') !== false) {
+                    $parts = parse_url($page['url']);
+                    $page['protocol'] = $parts['scheme'] ?? 'https';
+                } else {
+                    $page['protocol'] = 'https';
+                }
+            }
+            
             $page['children'] = []; // Initialize children array
             $pagesMap[$page['id_pages']] = &$page;
         }
