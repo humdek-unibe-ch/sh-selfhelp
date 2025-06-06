@@ -2,21 +2,19 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\Lookup;
 use App\Entity\Page;
-use App\Entity\PageType;
+use App\Entity\PagesFieldsTranslation;
+use App\Entity\PageTypeField;
 use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
 use App\Repository\PageTypeRepository;
-use App\Repository\PagesFieldRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -48,7 +46,6 @@ class AdminPageService extends UserContextAwareService
         private readonly LookupRepository $lookupRepository,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
-        private readonly PagesFieldRepository $pagesFieldRepository,
         ACLService $aclService,
         UserContextService $userContextService
     ) {
@@ -89,14 +86,14 @@ class AdminPageService extends UserContextAwareService
         
         // Get page fields associated with this page
         $pageFieldsMap = [];
-        $pageFields = $this->pagesFieldRepository->findBy(['idPages' => $page->getId()]);
+        $pageFields = $this->entityManager->getRepository(PageTypeField::class)->findBy(['pageType' => $page->getPageType()->getId()]);
         foreach ($pageFields as $pageField) {
-            $pageFieldsMap[$pageField->getIdFields()] = $pageField;
+            $pageFieldsMap[$pageField->getField()->getId()] = $pageField;
         }
         
         // Get all translations for this page's fields
         $translationsMap = [];
-        $translations = $this->entityManager->getRepository(\App\Entity\PagesFieldsTranslation::class)
+        $translations = $this->entityManager->getRepository(PagesFieldsTranslation::class)
             ->findBy(['idPages' => $page->getId()]);
         
         foreach ($translations as $translation) {
