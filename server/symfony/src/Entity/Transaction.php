@@ -99,6 +99,8 @@ class Transaction
 
         return $this;
     }
+    
+
 
     public function getTableName(): ?string
     {
@@ -144,6 +146,7 @@ class Transaction
     public function setTransactionType(?Lookup $transactionType): static
     {
         $this->transactionType = $transactionType;
+        $this->idTransactionTypes = $transactionType?->getId();
 
         return $this;
     }
@@ -156,6 +159,7 @@ class Transaction
     public function setTransactionBy(?Lookup $transactionBy): static
     {
         $this->transactionBy = $transactionBy;
+        $this->idTransactionBy = $transactionBy?->getId();
 
         return $this;
     }
@@ -168,6 +172,7 @@ class Transaction
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        $this->idUsers = $user?->getId();
 
         return $this;
     }

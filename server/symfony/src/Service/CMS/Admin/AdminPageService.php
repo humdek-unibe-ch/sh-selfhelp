@@ -493,13 +493,14 @@ class AdminPageService extends UserContextAwareService
             $this->entityManager->remove($page);
             $this->entityManager->flush();
             
-            // Log the page deletion transaction
+            // Log the page deletion transaction with the deleted page object
+            // This ensures we capture the page data even after it's removed from the database
             $this->transactionService->logTransaction(
                 LookupService::TRANSACTION_TYPES_DELETE,
                 LookupService::TRANSACTION_BY_BY_USER,
                 'pages',
                 $pageIdForLog,
-                false,
+                $deleted_page, // Pass the page object directly instead of a boolean
                 'Page deleted with keyword: ' . $pageKeywordForLog
             );
             

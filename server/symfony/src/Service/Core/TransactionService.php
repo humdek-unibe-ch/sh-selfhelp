@@ -2,11 +2,11 @@
 
 namespace App\Service\Core;
 
-use App\Entity\Lookup;
 use App\Entity\Transaction;
 use App\Repository\LookupRepository;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
+use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -32,7 +32,7 @@ class TransactionService
      * @param string $tranBy The transaction by code (e.g., 'user', 'system')
      * @param string|null $tableName The table name affected by the transaction
      * @param int|null $entryId The ID of the affected record
-     * @param bool $logRow Whether to log the entire row data
+     * @param bool|object $logRow Whether to log the entire row data or the actual row object to log
      * @param string|null $verbalLog Custom verbal log message
      * @return Transaction The created transaction entity
      */
@@ -41,11 +41,11 @@ class TransactionService
         string $tranBy = LookupService::TRANSACTION_BY_BY_USER,
         ?string $tableName = null,
         ?int $entryId = null,
-        bool $logRow = false,
+        $logRow = false,
         ?string $verbalLog = null
     ): Transaction {
         // Get current user ID
-        $userId = $this->userContextService->getCurrentUser()?->getId() ?? 0;
+        $userId = $this->userContextService->getCurrentUser()?->getId() ?? null;
         
         // Create log data
         $log = [
@@ -54,34 +54,55 @@ class TransactionService
             'session' => $userId > 0 ? session_id() : ''
         ];
         
-        // If table name and entry ID are provided, and log row is true, fetch the row data
-        if ($tableName && $entryId && $logRow) {
-            $conn = $this->entityManager->getConnection();
-            $stmt = $conn->prepare('SELECT * FROM ' . $tableName . ' WHERE id = :id');
-            $result = $stmt->executeQuery(['id' => $entryId]);
-            $entry = $result->fetchAssociative();
-            
-            if ($entry) {
-                $log['table_row_entry'] = $entry;
+        // Handle row data logging
+        if ($tableName && $entryId) {
+            // If logRow is an object, use it directly as the row data
+            if (is_object($logRow)) {
+                // Handle Doctrine entities and other objects
+                $entityData = EntityUtil::convertEntityToArray($logRow);
+                $log['table_row_entry'] = $entityData;
+            } 
+            // If logRow is true, fetch the row data from the database
+            elseif ($logRow === true) {
+                $conn = $this->entityManager->getConnection();
+                $stmt = $conn->prepare('SELECT * FROM ' . $tableName . ' WHERE id = :id');
+                $result = $stmt->executeQuery(['id' => $entryId]);
+                $entry = $result->fetchAssociative();
+                
+                if ($entry) {
+                    $log['table_row_entry'] = $entry;
+                }
             }
         }
         
-        // Get lookup IDs for transaction type and by
-        $transactionTypeId = $this->lookupRepository->findOneBy([
+        // Get lookup entities for transaction type and by
+        $transactionType = $this->lookupRepository->findOneBy([
             'typeCode' => LookupService::TRANSACTION_TYPES,
             'lookupCode' => $tranType
-        ])?->getId();
+        ]);
         
-        $transactionById = $this->lookupRepository->findOneBy([
+        $transactionBy = $this->lookupRepository->findOneBy([
             'typeCode' => LookupService::TRANSACTION_BY,
             'lookupCode' => $tranBy
-        ])?->getId();
+        ]);
         
         // Create transaction entity
         $transaction = new Transaction();
-        $transaction->setIdTransactionTypes($transactionTypeId);
-        $transaction->setIdTransactionBy($transactionById);
-        $transaction->setIdUsers($userId);
+        
+        // Set the entity relationships directly
+        if ($transactionType) {
+            $transaction->setTransactionType($transactionType);
+        }
+        
+        if ($transactionBy) {
+            $transaction->setTransactionBy($transactionBy);
+        }
+        
+        // Set user if available
+        if ($userId) {
+            $user = $this->entityManager->getReference('App\Entity\User', $userId);
+            $transaction->setUser($user);
+        }
         $transaction->setTableName($tableName);
         $transaction->setIdTableName($entryId);
         $transaction->setTransactionLog(json_encode($log));
@@ -92,5 +113,7 @@ class TransactionService
         $this->entityManager->flush();
         
         return $transaction;
-    }    
+    }
+    
+
 }
