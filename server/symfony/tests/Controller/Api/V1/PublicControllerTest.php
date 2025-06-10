@@ -1,20 +1,10 @@
 <?php
 namespace App\Tests\Controller\Api\V1;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use App\Service\JSON\JsonSchemaValidationService;
 
-class PublicPageControllerTest extends WebTestCase
+class PublicControllerTest extends BaseControllerTest
 {
-    protected $jsonSchemaValidationService;
-    protected $client;
-
-    protected function setUp(): void
-    {
-        $this->client = static::createClient();
-        $this->jsonSchemaValidationService = self::getContainer()->get(JsonSchemaValidationService::class);
-    }
 
     /**
      * @group public

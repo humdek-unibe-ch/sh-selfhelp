@@ -2,44 +2,11 @@
 namespace App\Tests\Controller\Api\V1;
 
 use App\Service\Core\LookupService;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use App\Service\JSON\JsonSchemaValidationService;
 
-class AdminPageControllerTest extends WebTestCase
-{
-    protected $jsonSchemaValidationService;
-    protected $client;
-    
-    // Test page keyword to use for create/delete tests
-    private const TEST_PAGE_KEYWORD = 'test_test';
-
-    protected function setUp(): void
-    {
-        $this->client = static::createClient();
-        $this->jsonSchemaValidationService = self::getContainer()->get(JsonSchemaValidationService::class);
-    }
-
-    private function getAdminAccessToken(): string
-    {
-        // Use a real admin user from your fixtures
-        $this->client->request(
-            'POST',
-            '/cms-api/v1/auth/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'stefan.kodzhabashev@gmail.com',
-                'password' => 'q1w2e3r4',
-            ])
-        );
-        $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Admin login failed.');
-        $data = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('access_token', $data['data']);
-        return $data['data']['access_token'];
-    }
+class AdminControllerTest extends BaseControllerTest
+{    
+    private const TEST_PAGE_KEYWORD = "test_test";
 
     /**
      * @group admin

@@ -2,54 +2,12 @@
 
 namespace App\Tests\Controller\Api\V1;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Users2faCode;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AuthControllerTest extends WebTestCase
+class AuthControllerTest extends BaseControllerTest
 {
-    private $client;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->client = static::createClient();
-        // Note: Ensure your .env.test has APP_SECRET and JWT keys configured.
-        // You might need to generate test JWT keys and place them in config/jwt/test/
-        // and update .env.test with JWT_SECRET_KEY, JWT_PUBLIC_KEY, and JWT_PASSPHRASE.
-
-        // Optional: Logic to ensure the test database is clean and has necessary fixtures.
-        // This could involve running console commands or using a bundle like DAMA\DoctrineTestBundle.
-        // Example (if not using DAMA bundle and need to reset DB per test or suite):
-        // use Symfony\Component\Console\Application;
-        // use Symfony\Component\Console\Input\ArrayInput;
-        // $kernel = self::bootKernel();
-        // $application = new Application($kernel);
-        // $application->setAutoExit(false);
-        //
-        // $application->run(new ArrayInput([
-        //     'command' => 'doctrine:database:drop',
-        //     '--force' => true,
-        //     '--if-exists' => true,
-        //     '--env' => 'test',
-        // ]));
-        // $application->run(new ArrayInput([
-        //     'command' => 'doctrine:database:create',
-        //     '--env' => 'test',
-        // ]));
-        // $application->run(new ArrayInput([
-        //     'command' => 'doctrine:migrations:migrate',
-        //     '--no-interaction' => true,
-        //     '--env' => 'test',
-        // ]));
-        // $application->run(new ArrayInput([
-        //     'command' => 'doctrine:fixtures:load',
-        //     '--no-interaction' => true,
-        //     '--env' => 'test',
-        // ]));
-    }
-
     public function testSmokeTest(): void
     {
         $this->assertTrue(true, 'Basic assertion to ensure tests can run.');

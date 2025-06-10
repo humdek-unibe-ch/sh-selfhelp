@@ -4,9 +4,8 @@ namespace App\Tests\Controller\Api\V1;
 
 use App\Entity\Language;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class LanguageControllerTest extends WebTestCase
+class LanguageControllerTest extends BaseControllerTest
 {
     private EntityManagerInterface $entityManager;
 
@@ -19,7 +18,7 @@ class LanguageControllerTest extends WebTestCase
     public function testGetAllLanguages(): void
     {
         // Get a user token
-        $token = $this->getUserAccessToken();
+        $token = $this->getAdminAccessToken();
 
         // Make the API request
         $this->client->request(
@@ -98,9 +97,9 @@ class LanguageControllerTest extends WebTestCase
 
         // 1. Create a new language
         $createData = [
-            'locale' => 'es',
-            'language' => 'Spanish',
-            'csv_separator' => ';'
+            'locale' => 'es-test',
+            'language' => 'Spanish Test',
+            'csv_separator' => ';',
         ];
 
         $this->client->request(
@@ -130,8 +129,9 @@ class LanguageControllerTest extends WebTestCase
         
         // 2. Update the language
         $updateData = [
-            'locale' => 'es-ES',
-            'language' => 'Spanish (Spain)'
+            'locale' => 'es-test-updated',
+            'language' => 'Spanish Test Updated',
+            'csv_separator' => ';',
         ];
 
         $this->client->request(
@@ -148,8 +148,8 @@ class LanguageControllerTest extends WebTestCase
         
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('data', $content);
-        $this->assertEquals('es-ES', $content['data']['locale']);
-        $this->assertEquals('Spanish (Spain)', $content['data']['language']);
+        $this->assertEquals('es-test-updated', $content['data']['locale']);
+        $this->assertEquals('Spanish Test Updated', $content['data']['language']);
         
         // 3. Delete the language
         $this->client->request(
@@ -232,7 +232,7 @@ class LanguageControllerTest extends WebTestCase
     public function testNonAdminCannotAccessAdminEndpoints(): void
     {
         // Get a regular user token
-        $token = $this->getUserAccessToken();
+        $token = $this->getAdminAccessToken();
 
         // Try to access admin endpoint
         $this->client->request(
