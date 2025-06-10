@@ -617,6 +617,30 @@ When defining JSON schemas for API responses, ensure that property names match e
 - Ensure consistency between entity property names, serialization groups, and schema definitions
 - When referencing entity schemas in response schemas, verify that property names align with the serialized output
 
+## Security Configuration Best Practices (2025-06-10)
+
+When configuring security in Symfony, especially for API endpoints, follow these best practices:
+
+### Access Control Rule Ordering
+
+In Symfony's security system, only the first matching access control rule is applied. Therefore, the order of rules is critical:
+
+```yaml
+access_control:
+    # More specific paths first
+    - { path: ^/cms-api/v1/auth, roles: PUBLIC_ACCESS }
+    - { path: ^/cms-api/v1/admin, roles: IS_AUTHENTICATED_FULLY }
+    # More general paths last
+    - { path: ^/cms-api/v1, roles: PUBLIC_ACCESS }
+```
+
+### Best Practices
+
+1. **Order from specific to general**: Always put more specific path patterns before more general ones
+2. **Test thoroughly**: Verify access control works as expected for all endpoints
+3. **Use appropriate roles**: Match the required security level to the sensitivity of the endpoint
+4. **Document security requirements**: Ensure API documentation includes authentication requirements
+
 ## Page Deletion Functionality (2025-06-06)
 
 ### Backend Implementation
