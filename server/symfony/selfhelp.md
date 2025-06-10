@@ -48,6 +48,59 @@ To add a new API version:
 ```
 src/Service/
 ├── Auth/                     # Authentication related services
+
+## Utility Classes
+
+### Directory Structure
+```
+src/Util/
+├── EntityUtil.php           # Utility for entity operations
+```
+
+### EntityUtil
+
+The `EntityUtil` class provides utility methods for working with entities:
+
+- `convertEntityToArray(object $entity): array`: Converts a Doctrine entity or any object to an array representation. Handles nested objects, collections, and scalar values appropriately.
+
+Usage example:
+```php
+use App\Util\EntityUtil;
+
+$entityArray = EntityUtil::convertEntityToArray($entity);
+```
+
+## Doctrine DBAL Best Practices
+
+### Parameter Binding
+
+When executing SQL queries with Doctrine DBAL, always use `bindParam()` or `bindValue()` instead of passing parameters directly to `executeQuery()` or `execute()`.
+
+**Correct approach:**
+```php
+$stmt = $conn->prepare($sql);
+$stmt->bindValue('param_name', $value, \PDO::PARAM_TYPE);
+$result = $stmt->executeQuery();
+```
+
+**Deprecated approach (avoid):**
+```php
+$result = $conn->executeQuery($sql, ['param_name' => $value]);
+```
+
+This approach provides better type safety through explicit PDO parameter type specification:
+
+- `\PDO::PARAM_INT` for integers
+- `\PDO::PARAM_STR` for strings
+- `\PDO::PARAM_BOOL` for booleans
+- `\PDO::PARAM_NULL` for null values
+
+## Service Layer Organization
+
+### Directory Structure
+```
+src/Service/
+├── Auth/                     # Authentication related services
 │   ├── JWTService.php        # JWT token handling
 │   ├── LoginService.php      # Login functionality
 │   └── UserContextService.php # Current user context

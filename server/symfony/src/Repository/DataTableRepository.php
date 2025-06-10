@@ -21,12 +21,12 @@ class DataTableRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $sql = 'CALL get_dataTable_with_filter(:tableId, :userId, :filter, :excludeDeleted)';
-        $result = $conn->executeQuery($sql, [
-            'tableId' => $tableId,
-            'userId' => $userId,
-            'filter' => $filter,
-            'excludeDeleted' => $excludeDeleted,
-        ]);
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue('tableId', $tableId, \PDO::PARAM_INT);
+        $stmt->bindValue('userId', $userId, \PDO::PARAM_INT);
+        $stmt->bindValue('filter', $filter, \PDO::PARAM_STR);
+        $stmt->bindValue('excludeDeleted', $excludeDeleted, \PDO::PARAM_BOOL);
+        $result = $stmt->executeQuery();
 
         return $result->fetchAllAssociative();
     }

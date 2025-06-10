@@ -85,16 +85,11 @@ class AclRepository extends ServiceEntityRepository
 
         // Call the stored procedure directly
         $sql = 'CALL get_user_acl(:userId, :pageId)';
-        $params = [
-            'userId' => $userId,
-            'pageId' => $pageId
-        ];
-        $types = [
-            'userId' => \PDO::PARAM_INT,
-            'pageId' => \PDO::PARAM_INT
-        ];
-
-        $result = $conn->executeQuery($sql, $params, $types)->fetchAllAssociative();
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue('userId', $userId, \PDO::PARAM_INT);
+        $stmt->bindValue('pageId', $pageId, \PDO::PARAM_INT);
+        
+        $result = $stmt->executeQuery()->fetchAllAssociative();
 
         // Store in cache
         $cacheItem->set($result);
