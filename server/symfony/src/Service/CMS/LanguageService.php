@@ -133,13 +133,14 @@ class LanguageService extends BaseService
      * Delete a language
      * 
      * @param int $id
-     * @return bool
+     * @return Language
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      */
-    public function deleteLanguage(int $id): bool
+    public function deleteLanguage(int $id): Language
     {
         $language = $this->languageRepository->find($id);
+        $delete_language = clone $language;
         if (!$language) {
             throw new NotFoundHttpException('Language not found');
         }
@@ -152,7 +153,7 @@ class LanguageService extends BaseService
         $this->entityManager->remove($language);
         $this->entityManager->flush();
         
-        return true;
+        return $delete_language;
     }
 
     /**

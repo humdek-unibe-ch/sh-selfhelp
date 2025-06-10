@@ -641,6 +641,58 @@ access_control:
 3. **Use appropriate roles**: Match the required security level to the sensitivity of the endpoint
 4. **Document security requirements**: Ensure API documentation includes authentication requirements
 
+## API Test Refactoring and Fixes
+
+### BaseControllerTest Implementation
+
+A new `BaseControllerTest` class has been created to serve as the foundation for all API controller tests. This class:
+
+1. Extends Symfony's `WebTestCase` and provides common setup for API tests
+2. Injects the `JsonSchemaValidationService` for response validation
+3. Provides helper methods for obtaining authentication tokens:
+   - `getAdminAccessToken()`: Retrieves and caches an admin JWT token
+   - `getUserAccessToken()`: Retrieves and caches a regular user JWT token
+4. Includes a smoke test annotated with `@group smoke` to verify basic setup
+
+### Test Organization with Groups
+
+Tests are now organized using PHPUnit groups to allow selective test execution:
+
+```php
+/**
+ * @group public
+ */
+public function testPublicEndpoint(): void
+{
+    // Test code for public endpoint
+}
+
+/**
+ * @group admin
+ */
+public function testAdminEndpoint(): void
+{
+    // Test code for admin endpoint
+}
+```
+
+### Schema Validation in Tests
+
+API response validation follows these best practices:
+
+1. Use camelCase property names in test data to match schema definitions
+2. Skip schema validation temporarily when schemas are being updated
+3. Use appropriate token retrieval method based on endpoint security requirements
+4. Group related assertions together for better readability
+
+### Property Naming Consistency
+
+To ensure schema validation passes in tests:
+
+1. Use camelCase for all property names in API requests and responses (e.g., `csvSeparator` instead of `csv_separator`)
+2. Maintain consistency between entity property names, serialization groups, and schema definitions
+3. Update test data to match the expected property naming conventions
+
 ## Page Deletion Functionality (2025-06-06)
 
 ### Backend Implementation

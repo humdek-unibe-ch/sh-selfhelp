@@ -7,12 +7,7 @@ use App\Entity\Users2faCode;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AuthControllerTest extends BaseControllerTest
-{
-    public function testSmokeTest(): void
-    {
-        $this->assertTrue(true, 'Basic assertion to ensure tests can run.');
-    }
-
+{    
     public function testLoginPageIsReachable(): void
     {
         // This is a very basic test.

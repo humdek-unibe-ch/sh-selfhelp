@@ -78,7 +78,7 @@ class LanguageAdminController extends AbstractController
      */
     public function deleteLanguage(int $id): JsonResponse
     {
-        $this->languageService->deleteLanguage($id);
-        return $this->apiResponseFormatter->formatSuccess(['id' => $id], 'responses/languages/language');
+        $language = $this->languageService->deleteLanguage($id);
+        return $this->apiResponseFormatter->formatSuccess($language, 'responses/languages/language');
     }
 }

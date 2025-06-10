@@ -11,6 +11,7 @@ class BaseControllerTest extends WebTestCase
     protected $client;
 
     private $adminAccessToken;
+    private $userAccessToken;
     
     // Test page keyword to use for create/delete tests
     protected function setUp(): void
@@ -43,5 +44,40 @@ class BaseControllerTest extends WebTestCase
         $this->assertArrayHasKey('access_token', $data['data']);
         $this->adminAccessToken = $data['data']['access_token'];
         return $this->adminAccessToken; 
+    }
+    
+    protected function getUserAccessToken(): string
+    {
+        if ($this->userAccessToken) {
+            return $this->userAccessToken;
+        }
+
+        // Use a regular user from your fixtures
+        // Note: This should be a non-admin user with limited permissions
+        $this->client->request(
+            'POST',
+            '/cms-api/v1/auth/login',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'email' => 'user@example.com', // Replace with an actual regular user
+                'password' => 'password123',   // Replace with the actual password
+            ])
+        );
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'User login failed.');
+        $data = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('access_token', $data['data']);
+        $this->userAccessToken = $data['data']['access_token'];
+        return $this->userAccessToken; 
+    }
+
+    /**
+     * @group smoke
+     */
+    public function testSmokeTest(): void
+    {
+        $this->assertTrue(true, 'Basic assertion to ensure tests can run.');
     }
 }
