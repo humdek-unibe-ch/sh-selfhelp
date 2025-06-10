@@ -1492,9 +1492,8 @@ INNER JOIN `groups` g ON ug.id_groups = g.id
 INNER JOIN roles  r ON r.name = 'admin'
 WHERE g.name = 'admin';
 
-
-
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
+CALL add_unique_key('languages', 'UNIQ_A0D153794180C698', 'locale');
 
 
 
