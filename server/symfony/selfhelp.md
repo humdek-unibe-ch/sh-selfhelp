@@ -434,7 +434,7 @@ abstract class BaseApiController extends AbstractController
      * Constructor with auto-wired ApiResponseFormatter
      */
     public function __construct(
-        #[Autowire(service: ApiResponseFormatter::class)] ApiResponseFormatter $responseFormatter
+        #[Autowire(service: 'App\Service\ApiResponseFormatter')] ApiResponseFormatter $responseFormatter
     ) {
         $this->responseFormatter = $responseFormatter;
     }
@@ -608,6 +608,14 @@ Response schemas use the `allOf` composition pattern to combine the common envel
 - **Reusability**: Common envelope is defined once and reused
 - **Maintainability**: Changes to the envelope structure only need to be made in one place
 - **Documentation**: Clear schema definition for API consumers
+
+#### Property Naming Conventions
+
+When defining JSON schemas for API responses, ensure that property names match exactly what the API returns:
+
+- Use camelCase for property names in schemas (e.g., `csvSeparator` not `csv_separator`)
+- Ensure consistency between entity property names, serialization groups, and schema definitions
+- When referencing entity schemas in response schemas, verify that property names align with the serialized output
 
 ## Page Deletion Functionality (2025-06-06)
 
