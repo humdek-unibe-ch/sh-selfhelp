@@ -1378,7 +1378,7 @@ CREATE TABLE IF NOT EXISTS `api_routes` (
   `params`       JSON            NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
-  UNIQUE KEY `uniq_version_path` (`version`, `path`)
+  UNIQUE KEY `uniq_version_path_methods` (`version`, `path`, `methods`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `api_routes_permissions`;
@@ -1411,7 +1411,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_lookups','v1','/admin/lookups','App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups','GET',NULL,NULL),
-('admin_create_page','v1','/admin/page','App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage','POST',NULL,JSON_OBJECT('keyword',JSON_OBJECT('in','body','required',true),'page_access_type_id',JSON_OBJECT('in','body','required',true),'is_headless',JSON_OBJECT('in','body','required',false),'is_open_page',JSON_OBJECT('in','body','required',false),'url',JSON_OBJECT('in','body','required',false),'nav_position',JSON_OBJECT('in','body','required',false),'footer_position',JSON_OBJECT('in','body','required',false),'parent',JSON_OBJECT('in','body','required',false))),
+('admin_create_page','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage','POST',NULL,JSON_OBJECT('keyword',JSON_OBJECT('in','body','required',true),'page_access_type_id',JSON_OBJECT('in','body','required',true),'is_headless',JSON_OBJECT('in','body','required',false),'is_open_page',JSON_OBJECT('in','body','required',false),'url',JSON_OBJECT('in','body','required',false),'nav_position',JSON_OBJECT('in','body','required',false),'footer_position',JSON_OBJECT('in','body','required',false),'parent',JSON_OBJECT('in','body','required',false))),
 ('admin_delete_page','v1','/admin/pages/{page_keyword}','App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage','DELETE',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 
 -- Public pages route

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ApiRouteRepository::class)]
 #[ORM\Table(name: 'api_routes')]
-#[ORM\UniqueConstraint(name: 'uniq_version_path', columns: ['version', 'path'])]
+#[ORM\UniqueConstraint(name: 'uniq_version_path_methods', columns: ['version', 'path', 'methods'])]
 #[ORM\UniqueConstraint(name: 'uniq_route_name_version', columns: ['route_name', 'version'])]
 class ApiRoute
 {
