@@ -5,22 +5,28 @@ namespace App\Service\CMS;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
+use App\Service\Core\LookupService;
+use App\Service\Core\TransactionService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class LanguageService extends BaseService
 {
     private LanguageRepository $languageRepository;
     private EntityManagerInterface $entityManager;
+    private TransactionService $transactionService;
 
     public function __construct(
         LanguageRepository $languageRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        TransactionService $transactionService
     ) {
         $this->languageRepository = $languageRepository;
         $this->entityManager = $entityManager;
+        $this->transactionService = $transactionService;
     }
 
     /**
@@ -74,20 +80,38 @@ class LanguageService extends BaseService
      */
     public function createLanguage(array $data): array
     {
-        $this->validateLanguageData($data);
+        $this->entityManager->beginTransaction();
         
-        $language = new Language();
-        $language->setLocale($data['locale']);
-        $language->setLanguage($data['language']);
-        
-        if (isset($data['csv_separator'])) {
-            $language->setCsvSeparator($data['csv_separator']);
+        try {
+            $this->validateLanguageData($data);
+            
+            $language = new Language();
+            $language->setLocale($data['locale']);
+            $language->setLanguage($data['language']);
+            
+            if (isset($data['csv_separator'])) {
+                $language->setCsvSeparator($data['csv_separator']);
+            }
+            
+            $this->entityManager->persist($language);
+            $this->entityManager->flush();
+            
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'language',
+                $language->getId(),
+                $language,
+                'Language created: ' . $language->getLanguage() . ' (' . $language->getLocale() . ')'
+            );
+            
+            $this->entityManager->commit();
+            return EntityUtil::convertEntityToArray($language);
+        } catch (Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-        
-        $this->entityManager->persist($language);
-        $this->entityManager->flush();
-        
-        return EntityUtil::convertEntityToArray($language);
     }
 
     /**
@@ -100,33 +124,54 @@ class LanguageService extends BaseService
      */
     public function updateLanguage(int $id, array $data): array
     {
-        $language = $this->languageRepository->find($id);
-        if (!$language) {
-            throw new NotFoundHttpException('Language not found');
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $language = $this->languageRepository->find($id);
+            if (!$language) {
+                throw new NotFoundHttpException('Language not found');
+            }
+            
+            // Cannot update language with ID = 1
+            if ($id === 1) {
+                throw new BadRequestHttpException('Cannot update the default language');
+            }
+            
+            // Store original values for logging
+            $originalLanguage = clone $language;
+            
+            $this->validateLanguageData($data);
+            
+            if (isset($data['locale'])) {
+                $language->setLocale($data['locale']);
+            }
+            
+            if (isset($data['language'])) {
+                $language->setLanguage($data['language']);
+            }
+            
+            if (isset($data['csv_separator'])) {
+                $language->setCsvSeparator($data['csv_separator']);
+            }
+            
+            $this->entityManager->flush();
+            
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'language',
+                $language->getId(),
+                $language, // Pass the language object directly
+                'Language updated: ' . $language->getLanguage() . ' (' . $language->getLocale() . ') [Original: ' . $originalLanguage->getLanguage() . ' (' . $originalLanguage->getLocale() . ')]'
+            );
+            
+            $this->entityManager->commit();
+            return EntityUtil::convertEntityToArray($language);
+        } catch (Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-        
-        // Cannot update language with ID = 1
-        if ($id === 1) {
-            throw new BadRequestHttpException('Cannot update the default language');
-        }
-        
-        $this->validateLanguageData($data);
-        
-        if (isset($data['locale'])) {
-            $language->setLocale($data['locale']);
-        }
-        
-        if (isset($data['language'])) {
-            $language->setLanguage($data['language']);
-        }
-        
-        if (isset($data['csv_separator'])) {
-            $language->setCsvSeparator($data['csv_separator']);
-        }
-        
-        $this->entityManager->flush();
-        
-        return EntityUtil::convertEntityToArray($language);
     }
 
     /**
@@ -139,21 +184,44 @@ class LanguageService extends BaseService
      */
     public function deleteLanguage(int $id): Language
     {
-        $language = $this->languageRepository->find($id);
-        $delete_language = clone $language;
-        if (!$language) {
-            throw new NotFoundHttpException('Language not found');
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $language = $this->languageRepository->find($id);
+            if (!$language) {
+                throw new NotFoundHttpException('Language not found');
+            }
+            
+            // Cannot delete language with ID = 1
+            if ($id === 1) {
+                throw new BadRequestHttpException('Cannot delete the default language');
+            }
+            
+            // Store language data for logging before deletion
+            $deletedLanguage = clone $language;
+            $languageLocale = $language->getLocale();
+            $languageName = $language->getLanguage();
+            $languageId = $language->getId();
+            
+            $this->entityManager->remove($language);
+            $this->entityManager->flush();
+            
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'language',
+                $languageId,
+                $deletedLanguage,
+                'Language deleted: ' . $languageName . ' (' . $languageLocale . ')'
+            );
+            
+            $this->entityManager->commit();
+            return $deletedLanguage;
+        } catch (Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-        
-        // Cannot delete language with ID = 1
-        if ($id === 1) {
-            throw new BadRequestHttpException('Cannot delete the default language');
-        }
-        
-        $this->entityManager->remove($language);
-        $this->entityManager->flush();
-        
-        return $delete_language;
     }
 
     /**

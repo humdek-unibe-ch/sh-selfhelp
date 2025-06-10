@@ -408,6 +408,62 @@ The transaction logs include the page ID and keyword, providing context for the 
 
 > **Note**: ACL entries are automatically deleted via foreign key constraints with cascade on delete, removing the need for explicit ACL deletion calls.
 
+### Transaction Logging in LanguageService (2025-06-10)
+
+The `LanguageService` has been updated to include transaction management and logging for all CRUD operations, following the same pattern as `AdminPageService`. This ensures all language changes are properly tracked for audit and debugging purposes.
+
+#### Implementation Details
+
+- **Transaction Management**: All CRUD operations (`createLanguage`, `updateLanguage`, `deleteLanguage`) now use explicit transaction management with `beginTransaction()`, `commit()`, and `rollback()` on exceptions.
+
+- **Transaction Logging**: Each operation logs appropriate transaction details:
+  - **Create**: Logs an `insert` transaction with the new language entity
+  - **Update**: Logs an `update` transaction with the updated language entity
+  - **Delete**: Logs a `delete` transaction with the language entity before deletion
+
+- **Error Handling**: All methods maintain consistent error handling by rethrowing exceptions after rollback.
+
+#### Example Implementation
+
+```php
+public function updateLanguage(Language $language): Language
+{
+    // Validation logic...
+    
+    $this->entityManager->beginTransaction();
+    try {
+        // Store original for comparison
+        $originalLanguage = clone $language;
+        
+        // Update logic...
+        $this->entityManager->flush();
+        
+        // Log the transaction
+        $this->transactionService->logTransaction(
+            LookupService::TRANSACTION_TYPES_UPDATE,
+            LookupService::TRANSACTION_BY_BY_USER,
+            'language',
+            $language->getId(),
+            $language,
+            'Language updated: ' . $language->getLanguage() . ' (' . $language->getLocale() . ')'
+        );
+        
+        $this->entityManager->commit();
+        return $language;
+    } catch (\Throwable $e) {
+        $this->entityManager->rollback();
+        throw $e;
+    }
+}
+```
+
+#### Best Practice
+
+All service methods that modify data should:
+1. Use explicit transaction management
+2. Log transactions with appropriate details
+3. Include proper error handling with rollback
+
 ## Controller Architecture (2025-06-10)
 
 ### BaseApiController Architecture
