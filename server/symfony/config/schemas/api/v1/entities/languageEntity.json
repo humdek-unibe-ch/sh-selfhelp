@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["id", "locale", "language", "csv_separator"],
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier for the language"
+        },
+        "locale": {
+            "type": "string",
+            "description": "The locale code for the language (e.g., 'en', 'de', 'fr')"
+        },
+        "language": {
+            "type": "string",
+            "description": "The human-readable name of the language"
+        },
+        "csv_separator": {
+            "type": "string",
+            "description": "The CSV separator character used for this language",
+            "maxLength": 1
+        }
+    },
+    "additionalProperties": false
+}

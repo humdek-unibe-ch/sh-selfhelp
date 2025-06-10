@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Languages List Response Schema",
+    "description": "Schema for the languages API endpoint response",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "../common/_response_envelope.json"
+        }
+    ],
+    "properties": {
+        "data": {
+            "description": "List of language entities",
+            "type": "array",
+            "items": {
+                "$ref": "../../entities/languageEntity.json"
+            }
+        }
+    },
+    "required": ["data"]
+}

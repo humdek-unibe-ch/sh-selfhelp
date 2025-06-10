@@ -408,6 +408,207 @@ The transaction logs include the page ID and keyword, providing context for the 
 
 > **Note**: ACL entries are automatically deleted via foreign key constraints with cascade on delete, removing the need for explicit ACL deletion calls.
 
+## Controller Architecture (2025-06-10)
+
+### BaseApiController Architecture
+
+The `BaseApiController` class serves as the foundation for all API controllers in the application. It provides standardized response formatting and error handling capabilities.
+
+### Key Features
+
+- **Standardized Response Formatting**: All API responses follow a consistent structure
+- **Centralized Error Handling**: Common error handling patterns are implemented once
+- **Service Method Execution**: Simplified pattern for executing service methods with automatic error handling
+- **Constructor Injection**: The response formatter is injected through the constructor
+
+### Implementation
+
+The `BaseApiController` uses constructor injection with the `#[Autowire]` attribute to get the response formatter service:
+
+```php
+abstract class BaseApiController extends AbstractController
+{
+    protected ApiResponseFormatter $responseFormatter;
+    
+    /**
+     * Constructor with auto-wired ApiResponseFormatter
+     */
+    public function __construct(
+        #[Autowire(service: ApiResponseFormatter::class)] ApiResponseFormatter $responseFormatter
+    ) {
+        $this->responseFormatter = $responseFormatter;
+    }
+    
+    // Helper methods for formatting responses
+}
+```
+
+### Child Controller Implementation
+
+When creating a new API controller, extend the `BaseApiController` and pass the formatter to the parent constructor:
+
+```php
+class LanguageController extends BaseApiController
+{
+    private LanguageService $languageService;
+
+    public function __construct(LanguageService $languageService, ApiResponseFormatter $responseFormatter) {
+        parent::__construct($responseFormatter);
+        $this->languageService = $languageService;
+    }
+    
+    // Controller methods using formatSuccess(), formatError(), etc.
+}
+```
+
+### Helper Methods
+
+The BaseApiController provides several helper methods for consistent response formatting:
+
+1. **formatSuccess($data, ?string $schema = null, int $statusCode)**: 
+   - Formats successful responses with data
+   - Optionally validates against a JSON schema
+   - Returns a JsonResponse with the specified status code
+
+2. **formatError(string $message, int $statusCode, array $errors = [])**: 
+   - Formats error responses with a message and optional error details
+   - Returns a JsonResponse with the specified status code
+
+3. **formatException(\Exception $exception, bool $isAuthenticated = false)**:
+   - Formats exception responses with appropriate error details
+   - Handles authentication context for error details exposure
+
+4. **executeServiceMethod(callable $serviceMethod, array $additionalData = [])**:
+   - Executes a service method with automatic error handling
+   - Wraps the result in a success response or handles exceptions
+   - Adds authentication context to error responses
+
+## Language Management API (2025-06-10)
+
+The Language Management API provides endpoints for managing system languages. It includes public routes for listing languages (excluding the default language) and admin routes for CRUD operations on languages.
+
+### Key Components
+
+#### Entity and Repository
+
+- **Language Entity**: Represents a language in the system with fields: `id`, `locale`, `language`, and `csvSeparator`.
+- **LanguageRepository**: Provides methods to fetch all languages and all languages except the default one (ID > 1).
+
+#### Service Layer
+
+- **LanguageService**: Encapsulates business logic for language CRUD operations.
+  - Prevents deletion or update of the default language (ID = 1).
+  - Uses `EntityUtil::convertEntityToArray` for consistent entity-to-array conversion.
+  - Throws appropriate HTTP exceptions for error handling.
+
+#### Controllers
+
+- **LanguageController** (Frontend): Public access to list languages (excluding default).
+- **LanguageAdminController** (Admin): Admin operations for language management (list all, get by ID, create, update, delete).
+
+#### JSON Schemas
+
+- **languageEntity.json**: Reusable schema for Language entity.
+- **get_languages.json**: Schema for listing languages response.
+- **get_language.json**: Schema for single language retrieval response.
+- **delete_language.json**: Schema for language deletion response.
+
+#### Security
+
+- Admin language management is protected by the `ROLE_CMS_ADMIN` role.
+- The role is defined in the `lookups` table under `userRoles` type.
+
+### API Routes
+
+Routes are added to the `api_routes` table:
+
+```sql
+-- Public route to get all languages (except default)
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL);
+
+-- Admin routes for language management
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_languages_get_all', 'v1', '/admin/languages', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::getAllLanguages', 'GET', NULL, NULL),
+('admin_languages_get_one', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::getLanguage', 'GET', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true))),
+('admin_languages_create', 'v1', '/admin/languages', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::createLanguage', 'POST', NULL, JSON_OBJECT('locale', JSON_OBJECT('in', 'body', 'required', true), 'language', JSON_OBJECT('in', 'body', 'required', true), 'csv_separator', JSON_OBJECT('in', 'body', 'required', false))),
+('admin_languages_update', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::updateLanguage', 'PUT', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true), 'locale', JSON_OBJECT('in', 'body', 'required', false), 'language', JSON_OBJECT('in', 'body', 'required', false), 'csv_separator', JSON_OBJECT('in', 'body', 'required', false))),
+('admin_languages_delete', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::deleteLanguage', 'DELETE', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true)));
+```
+
+### Security Configuration
+
+The security configuration has been updated to protect language management endpoints:
+
+```yaml
+access_control:
+    - { path: ^/cms-api/v1/auth, roles: PUBLIC_ACCESS }
+    - { path: ^/cms-api/v1/admin/languages, roles: ROLE_CMS_ADMIN }
+    - { path: ^/cms-api/v1, roles: PUBLIC_ACCESS }
+    - { path: ^/cms-api/v1/admin, roles: IS_AUTHENTICATED_FULLY }
+```
+
+### Testing
+
+Comprehensive tests have been implemented for the language management functionality:
+
+- **LanguageServiceTest**: Unit tests for the LanguageService.
+- **LanguageControllerTest**: Functional tests for both public and admin language API endpoints.
+
+Tests cover successful operations, validation errors, and security restrictions (e.g., preventing deletion of the default language).
+
+### API Response Schema Standardization (2025-06-11)
+
+All API response schemas now follow a consistent envelope pattern using JSON Schema composition with `allOf`. This standardization ensures that all API responses have a consistent structure across the application.
+
+#### Response Envelope Structure
+
+The common response envelope (`_response_envelope.json`) defines the standard structure for all API responses:
+
+```json
+{
+    "status": 200,           // HTTP status code
+    "message": "Success",    // Human-readable message
+    "error": null,          // Error message (null for success)
+    "logged_in": true,      // Authentication status
+    "meta": {               // Metadata
+        "version": "v1",    // API version
+        "timestamp": "..."   // Response timestamp
+    },
+    "data": { ... }        // Response payload (varies by endpoint)
+}
+```
+
+#### Schema Implementation
+
+Response schemas use the `allOf` composition pattern to combine the common envelope with endpoint-specific data structures:
+
+```json
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "API Response Schema",
+    "type": "object",
+    "allOf": [
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
+            "description": "Response data specific to this endpoint",
+            "$ref": "../../entities/someEntity.json"
+            // Or other data structure definition
+        }
+    },
+    "required": ["data"]
+}
+```
+
+#### Benefits
+
+- **Consistency**: All API responses follow the same structure
+- **Reusability**: Common envelope is defined once and reused
+- **Maintainability**: Changes to the envelope structure only need to be made in one place
+- **Documentation**: Clear schema definition for API consumers
+
 ## Page Deletion Functionality (2025-06-06)
 
 ### Backend Implementation
