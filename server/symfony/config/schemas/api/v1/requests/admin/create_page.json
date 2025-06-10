@@ -10,6 +10,10 @@
             "minLength": 1,
             "maxLength": 100
         },
+        "page_type_id": {
+            "type": "integer",
+            "description": "ID of the page type"
+        },
         "page_access_type_code": {
             "type": "string",
             "description": "Access type code from lookups with typeCode=pageAccessTypes"
@@ -19,7 +23,7 @@
             "description": "Whether the page is headless",
             "default": false
         },
-        "is_open_page": {
+        "is_open_access": {
             "type": "boolean",
             "description": "Whether the page has open access",
             "default": false

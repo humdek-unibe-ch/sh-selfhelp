@@ -447,15 +447,16 @@ class AdminPageService extends UserContextAwareService
      * Delete a page by its keyword
      * 
      * @param string $pageKeyword The keyword of the page to delete
-     * @return void
+     * @return Page
      * @throws ServiceException If page not found or access denied
      */
-    public function deletePage(string $pageKeyword): void
+    public function deletePage(string $pageKeyword): Page
     {
         $this->entityManager->beginTransaction();
         
         try {
             $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $deleted_page = clone $page;
             
             if (!$page) {
                 $this->throwNotFound('Page not found');
@@ -503,6 +504,7 @@ class AdminPageService extends UserContextAwareService
             );
             
             $this->entityManager->commit();
+            return $deleted_page;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException(

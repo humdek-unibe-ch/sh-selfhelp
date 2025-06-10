@@ -134,7 +134,7 @@ class AdminPageController extends AbstractController
             // Return success response
             return $this->responseFormatter->formatSuccess(
                 $page,
-                'responses/admin/create_page',
+                'responses/admin/page',
                 Response::HTTP_CREATED
             );
         } catch (ServiceException $e) {
@@ -156,10 +156,11 @@ class AdminPageController extends AbstractController
     public function deletePage(string $page_keyword): JsonResponse
     {
         try {
-            $this->adminPageService->deletePage($page_keyword);
-            return $this->responseFormatter->formatSuccess([
-                'page_keyword' => $page_keyword,
-            ], 'responses/admin/delete_page');
+            $page = $this->adminPageService->deletePage($page_keyword);
+            return $this->responseFormatter->formatSuccess( 
+                $page,
+                'responses/admin/page'
+            );
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {

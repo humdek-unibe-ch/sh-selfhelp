@@ -162,19 +162,30 @@ class AdminPageControllerTest extends WebTestCase
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
             json_encode([
                 'keyword' => self::TEST_PAGE_KEYWORD,
-                'page_type_id' => 3, // experiment
                 'page_access_type_code' => LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB,
                 'is_headless' => false,
                 'is_open_access' => true,
                 'url' => '/' . self::TEST_PAGE_KEYWORD,
                 'nav_position' => 100,
                 'footer_position' => null,
-                'parent_id' => null
+                'parent' => null
             ])
         );
         
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create test page');
+        
+        // Validate response against JSON schema
+        $data = json_decode($response->getContent());
+        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
+        $this->assertTrue(property_exists($data->data, 'keyword'), 'Response data does not have keyword property');
+        $this->assertSame(self::TEST_PAGE_KEYWORD, $data->data->keyword, 'Returned page keyword does not match');
+        
+        $validationErrors = $this->jsonSchemaValidationService->validate(
+            $data,
+            'responses/admin/page'
+        );
+        $this->assertEmpty($validationErrors, "Response for POST /cms-api/v1/admin/pages failed schema validation:\n" . implode("\n", $validationErrors));
         
         // Verify the page was created by fetching it
         $this->client->request(
@@ -211,12 +222,12 @@ class AdminPageControllerTest extends WebTestCase
         // Validate response against JSON schema
         $data = json_decode($response->getContent());
         $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
-        $this->assertTrue(property_exists($data->data, 'page_keyword'), 'Response data does not have page_keyword property');
-        $this->assertSame(self::TEST_PAGE_KEYWORD, $data->data->page_keyword, 'Returned page_keyword does not match');
+        $this->assertTrue(property_exists($data->data, 'keyword'), 'Response data does not have keyword property');
+        $this->assertSame(self::TEST_PAGE_KEYWORD, $data->data->keyword, 'Returned keyword does not match');
         
         $validationErrors = $this->jsonSchemaValidationService->validate(
             $data,
-            'responses/admin/delete_page'
+            'responses/admin/page'
         );
         $this->assertEmpty($validationErrors, "Response for DELETE /cms-api/v1/admin/pages/" . self::TEST_PAGE_KEYWORD . " failed schema validation:\n" . implode("\n", $validationErrors));
         

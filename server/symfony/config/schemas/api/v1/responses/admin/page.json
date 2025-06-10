@@ -10,7 +10,7 @@
     ],
     "properties": {
         "data": {
-            "description": "The created page entity",
+            "description": "The page entity",
             "$ref": "../../entities/pageEntity.json"
         }
     },
