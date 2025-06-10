@@ -13,7 +13,7 @@ class Language
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'locale', type: 'string', length: 5)]
+    #[ORM\Column(name: 'locale', type: 'string', length: 5, unique: true)]
     private string $locale;
 
     #[ORM\Column(name: 'language', type: 'string', length: 100)]
