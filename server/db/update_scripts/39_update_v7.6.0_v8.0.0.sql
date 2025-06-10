@@ -1367,6 +1367,7 @@ INNER JOIN `groups` g
 INNER JOIN `roles` r
   ON r.`name` = 'admin';
 
+DROP TABLE IF EXISTS `api_routes_permissions`;
 DROP TABLE IF EXISTS `api_routes`;
 CREATE TABLE IF NOT EXISTS `api_routes` (
   `id`           INT             NOT NULL AUTO_INCREMENT,
@@ -1382,7 +1383,6 @@ CREATE TABLE IF NOT EXISTS `api_routes` (
   UNIQUE KEY `uniq_version_path_methods` (`version`, `path`, `methods`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `api_routes_permissions`;
 CREATE TABLE `api_routes_permissions` (
   `id_api_routes`  INT NOT NULL,
   `id_permissions` INT NOT NULL,
@@ -1408,12 +1408,12 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('auth_logout','v1','/auth/logout','App\\Controller\\Api\\V1\\Auth\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
 
 -- Admin routes
-('admin_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
-('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
-('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_lookups','v1','/admin/lookups','App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups','GET',NULL,NULL),
-('admin_create_page','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage','POST',NULL,JSON_OBJECT('keyword',JSON_OBJECT('in','body','required',true),'page_access_type_id',JSON_OBJECT('in','body','required',true),'is_headless',JSON_OBJECT('in','body','required',false),'is_open_page',JSON_OBJECT('in','body','required',false),'url',JSON_OBJECT('in','body','required',false),'nav_position',JSON_OBJECT('in','body','required',false),'footer_position',JSON_OBJECT('in','body','required',false),'parent',JSON_OBJECT('in','body','required',false))),
-('admin_delete_page','v1','/admin/pages/{page_keyword}','App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage','DELETE',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_pages_get_all','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages','GET',NULL,NULL),
+('admin_pages_get_one','v1','/admin/pages/{page_keyword}','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_pages_create','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage','POST',NULL,JSON_OBJECT('keyword',JSON_OBJECT('in','body','required',true),'page_access_type_id',JSON_OBJECT('in','body','required',true),'is_headless',JSON_OBJECT('in','body','required',false),'is_open_page',JSON_OBJECT('in','body','required',false),'url',JSON_OBJECT('in','body','required',false),'nav_position',JSON_OBJECT('in','body','required',false),'footer_position',JSON_OBJECT('in','body','required',false),'parent',JSON_OBJECT('in','body','required',false))),
+('admin_pages_delete','v1','/admin/pages/{page_keyword}','App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage','DELETE',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_pages_sections_get','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
 ('admin_languages_get_all', 'v1', '/admin/languages', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::getAllLanguages', 'GET', NULL, NULL),
 ('admin_languages_get_one', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::getLanguage', 'GET', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true))),
 ('admin_languages_create', 'v1', '/admin/languages', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::createLanguage', 'POST', NULL, JSON_OBJECT('locale', JSON_OBJECT('in', 'body', 'required', true), 'language', JSON_OBJECT('in', 'body', 'required', true), 'csv_separator', JSON_OBJECT('in', 'body', 'required', false))),
@@ -1421,8 +1421,8 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_languages_delete', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::deleteLanguage', 'DELETE', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true))),
 
 -- Public pages route
-('pages','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
-('get_page','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL),
+('pages_get_all','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
+('pages_get_one','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL),
 ('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL);
 
 -- add `admin.page.read` requirements to routes
@@ -1434,9 +1434,9 @@ FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
   ON p.`name` = 'admin.page.read'
 WHERE ar.`route_name` IN (
-  'admin_pages',
-  'admin_page_fields',
-  'admin_page_sections'
+  'admin_pages_get_all',
+  'admin_pages_get_one',
+  'admin_pages_sections_get'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
@@ -1458,7 +1458,7 @@ FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
   ON p.`name` = 'page.create'
 WHERE ar.`route_name` IN (
-  'admin_create_page'
+  'admin_pages_create'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
@@ -1469,7 +1469,7 @@ FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
   ON p.`name` = 'page.delete'
 WHERE ar.`route_name` IN (
-  'admin_delete_page'
+  'admin_pages_delete'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
