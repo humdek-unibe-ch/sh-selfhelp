@@ -41,9 +41,9 @@ class LanguageService extends BaseService
      * 
      * @return array
      */
-    public function getAllNonDefaultLanguages(): array
+    public function getAllNonInternalLanguages(): array
     {
-        $languages = $this->languageRepository->findAllExceptDefault();
+        $languages = $this->languageRepository->findAllExceptInternal();
         return array_map(function (Language $language) {
             return EntityUtil::convertEntityToArray($language);
         }, $languages);

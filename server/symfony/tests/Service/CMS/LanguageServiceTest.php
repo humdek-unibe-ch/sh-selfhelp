@@ -56,11 +56,11 @@ class LanguageServiceTest extends TestCase
         
         // Set up repository mock
         $this->languageRepository->expects($this->once())
-            ->method('findAllExceptDefault')
+            ->method('findAllExceptInternal')
             ->willReturn([$language2]);
         
         // Call the service method
-        $result = $this->languageService->getAllNonDefaultLanguages();
+        $result = $this->languageService->getAllNonInternalLanguages();
         
         // Assert the result
         $this->assertCount(1, $result);

@@ -24,7 +24,7 @@ class LanguageController extends AbstractController
      */
     public function getAllLanguages(): JsonResponse
     {
-        $languages = $this->languageService->getAllNonDefaultLanguages();
+        $languages = $this->languageService->getAllNonInternalLanguages();
         return $this->apiResponseFormatter->formatSuccess($languages, 'responses/languages/get_languages');
     }
 }

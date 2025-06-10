@@ -21,7 +21,7 @@ class LanguageRepository extends ServiceEntityRepository
      * 
      * @return Language[]
      */
-    public function findAllExceptDefault(): array
+    public function findAllExceptInternal(): array
     {
         return $this->createQueryBuilder('l')
             ->where('l.id > 1')
