@@ -122,7 +122,7 @@ class AdminPageController extends AbstractController
             
             // Create page using page_access_type_code instead of page_access_type_id
             $page = $this->adminPageService->createPage(
-                $data['page_keyword'],
+                $data['keyword'],
                 $data['page_access_type_code'], // Using code instead of ID
                 $data['is_headless'] ?? false,
                 $data['is_open_page'] ?? false,
