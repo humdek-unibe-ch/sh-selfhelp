@@ -1,4 +1,4 @@
-# SelfHelp Backend: Page Versioning Concept
+# SelfHelp Backend: Page Versioning Concept (Proposed Feature)
 
 ## 1. Database Table: `page_versions`
 - **Columns:**

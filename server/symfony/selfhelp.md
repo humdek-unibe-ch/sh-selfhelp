@@ -1,46 +1,91 @@
-# SH-Selfhelp Symfony Backend Documentation
+# SH-Self-help Symfony Backend Documentation
 
-## Controller Structure and API Versioning
+## Project Overview and Architecture
+
+The SH-Selfhelp backend is a REST API server built with **Symfony 7.2.x** and **PHP 8.3+**. It implements a service-oriented architecture with clean separation of concerns, dynamic API routing, JWT-based authentication, and comprehensive JSON schema validation.
+
+### Core Principles
+* **Service-Oriented Architecture**: Business logic is encapsulated in services; controllers are thin delegates
+* **Dynamic API Routing**: API routes are configured in the database, providing flexibility without code deployments
+* **JWT-Based Authentication**: Secure stateless authentication with token blacklisting and permissions
+* **JSON Schema Validation**: Request and response validation against defined schemas
+* **Centralized Exception Handling**: Consistent API response envelopes for all endpoints
 
 ### Directory Structure
+
 ```
-src/Controller/
-├── Api/                     # API controllers
-│   ├── BaseApiController.php # Base controller for all API controllers
-│   ├── ApiVersionResolver.php # Resolves API versions
-│   └── V1/                  # API v1 controllers
-│       ├── Admin/           # Admin controllers
-│       │   └── AdminController.php
-│       ├── Auth/            # Authentication controllers
-│       │   └── AuthController.php
-│       └── Frontend/         # Frontend controllers
-│           └── ContentController.php
-└── [Legacy controllers]     # Legacy controllers (to be migrated)
+/config                        # Configuration files
+  /packages                    # Bundle-specific configurations
+  /schemas                     # JSON Schema validation files
+    /api
+      /v1
+        /entities              # Entity schemas
+        /requests              # Request validation schemas
+        /responses             # Response schemas
+          /common              # Common response structures
+  /services.yaml              # Service definitions
+
+/src                          # Application source code
+  /Controller                 # Controllers (thin request handlers)
+    /Api
+      /V1                     # API version 1 controllers
+        /Admin                # Administrative endpoints
+        /Auth                 # Authentication endpoints
+        /Public               # Public endpoints
+  /Entity                     # Doctrine ORM entities
+  /Repository                 # Doctrine repositories
+  /Service                    # Business logic services
+    /ACL                      # Access control services
+    /Auth                     # Authentication services
+    /CMS                      # Content management services
+      /Admin                  # Admin-specific services
+      /Frontend               # Frontend-specific services
+    /Core                     # Core application services
+  /Security                   # Security components
+    /Voter                    # Authorization voters
+  /Util                       # Utility classes
+  /Routing                    # Custom route loading
 ```
+
+## API Architecture
 
 ### API Versioning
 
-The API supports versioning to maintain backward compatibility while evolving the API. Versions can be specified in two ways:
+The API uses a robust versioning system to maintain backward compatibility while allowing for future evolution. Version information is incorporated into multiple components:
 
-1. **URL Path**: `/cms-api/v1/...`
-2. **Accept Header**: `Accept: application/vnd.selfhelp.v1+json`
+1. **URL Path**: All API endpoints follow the pattern `/cms-api/v1/...`
+2. **Controller Namespaces**: Controllers are organized in versioned directories (`src/Controller/Api/V1/`)
+3. **Route Database Records**: Routes include version information in the `api_routes` table
+4. **JSON Schema Files**: Schemas are organized by version in `/config/schemas/api/v1/`
+5. **Response Envelope**: Each response includes the API version in its metadata
 
-If no version is specified, the default version (v1) is used.
+### Dynamic API Routing
 
-### Controller Hierarchy
+All API routes are dynamically loaded from the database through a custom route loader. This provides several advantages:
 
-- **BaseApiController**: Provides common functionality for all API controllers
-- **Version-specific controllers**: Implement endpoints for specific API versions
+1. **Runtime Route Management**: Routes can be modified without code deployment
+2. **Permission-Based Access Control**: Routes are associated with permissions in the database
+3. **Flexible Configuration**: Path parameters, requirements, and methods can be adjusted without code changes
+
+The `ApiRouteLoader` service extends Symfony's `Loader` class to fetch routes from the database and convert them into Symfony Route objects. Routes are organized by API version and include specifications for controller, action method, path parameters, and allowed HTTP methods.
+
+### Controller Organization
+
+Controllers are thin request handlers that follow these principles:
+
+1. **Domain Separation**: Controllers are organized by domain (Admin, Auth, Public)
+2. **Delegation to Services**: Business logic is implemented in services, not controllers
+3. **Common Base Functionality**: Controllers extend from base classes that provide shared functionality
+4. **Request Validation**: Controllers use the `RequestValidatorTrait` to validate incoming requests against JSON schemas
 
 ### Adding a New API Version
 
-To add a new API version:
+To add a new API version (e.g., V2):
 
-1. Create a new directory under `src/Controller/Api/` (e.g., `V2/`)
-2. Create subdirectories for each controller domain (Admin, Auth, Content, etc.)
-3. Create controllers in each subdirectory
-4. Update `ApiVersionResolver::AVAILABLE_VERSIONS` to include the new version
-5. Update the API routes database table with the new version
+1. Create a new directory structure under `src/Controller/Api/V2/`
+2. Create new JSON schema directories under `/config/schemas/api/v2/`
+3. Add new routes to the `api_routes` table with `version='v2'`
+4. Implement the new version-specific controllers and services
 
 ## Service Layer Organization
 
@@ -95,35 +140,49 @@ This approach provides better type safety through explicit PDO parameter type sp
 - `\PDO::PARAM_BOOL` for booleans
 - `\PDO::PARAM_NULL` for null values
 
-## Service Layer Organization
+## Service Layer Architecture
 
-### Directory Structure
+The service layer implements the core business logic of the application, following a domain-driven design. Services are organized by domain and responsibility, with clear separation of concerns.
+
+### Service Organization
+
 ```
 src/Service/
-├── Auth/                     # Authentication related services
-│   ├── JWTService.php        # JWT token handling
-│   ├── LoginService.php      # Login functionality
-│   └── UserContextService.php # Current user context
-├── CMS/                      # Content Management System
-│   ├── Admin/                # Admin-specific services
-│   │   └── AdminPageService.php
-│   └── Frontend/             # Frontend-specific services
-│       └── PageService.php
-├── ACL/                      # Access Control
-│   └── ACLService.php        # Permissions and access control
-├── Core/                     # Core framework services
-│   ├── BaseService.php       # Base service functionality
-│   ├── UserContextAwareService.php # User context for services
-│   └── ApiResponseFormatter.php # Response formatting
-└── Dynamic/                  # Dynamic components
-    └── DynamicControllerService.php # Dynamic routing
+├── Auth/                    # Authentication services
+│   ├── JWTService.php       # JWT token creation, validation, and blacklisting
+│   └── LoginService.php     # User authentication and token management
+├── CMS/                     # Content Management System services
+│   ├── Admin/               # Administrative services
+│   │   ├── AdminPageService.php     # Page management for admins
+│   │   ├── AdminSectionService.php  # Section management
+│   │   └── AdminLookupService.php   # Lookup data management
+│   └── Frontend/            # Frontend services
+│       └── PageService.php  # Public page access
+├── ACL/                     # Access Control services
+│   └── ACLService.php       # Permission management
+├── Core/                    # Core framework services
+│   ├── ApiResponseFormatter.php # Standard API response formatting
+│   └── TransactionLogService.php  # Audit logging
+└── Routing/                 # Routing services
+    └── ApiRouteLoader.php   # Database-driven route loading
 ```
 
-### Key Principles
-1. **Domain-Driven Design**: Services are organized by their domain/responsibility
-2. **Separation of Concerns**: Clear boundaries between different parts of the system
-3. **Discoverability**: Easier to find related services
-4. **Maintainability**: Simpler to maintain and extend
+### Service Layer Principles
+
+1. **Transactional Integrity**: Services use database transactions to ensure data consistency
+2. **Permission Enforcement**: Services perform access control checks before modifying data
+3. **Audit Logging**: Changes to core entities are logged for audit trails
+4. **Error Isolation**: Exceptions are caught and translated to appropriate API responses
+5. **Dependency Injection**: Services receive their dependencies through constructor injection
+
+### Base Service Functionality
+
+Many services extend from abstract base classes or use traits that provide common functionality:
+
+- **EntityManagerAware**: Provides access to Doctrine ORM's EntityManager
+- **LoggerAware**: Adds logging capabilities
+- **RequestValidatorTrait**: Adds JSON Schema validation for requests
+- **TransactionHandlerTrait**: Provides transaction management helpers
 5. **Scalability**: New services can be added to the appropriate domain
 
 ### Service Categories
@@ -220,7 +279,7 @@ The API supports versioning to maintain backward compatibility while evolving th
 API versions can be specified in two ways:
 
 1. **URL Path**: `/cms-api/v1/...`
-2. **Accept Header**: `Accept: application/vnd.selfhelp.v1+json`
+2. **Accept Header**: `Accept: application/vnd.self-help.v1+json`
 
 If no version is specified, the default version (v1) is used.
 
@@ -256,37 +315,53 @@ Actual controller: App\Controller\Api\V1\Auth\AuthController::login
 
 This mapping is handled by the `ApiRouteLoader::mapControllerToVersionedNamespace()` method.
 
-### Route Structure Best Practices
+## Security Architecture
 
-Routes should follow these best practices:
+### JWT Authentication System
 
-1. **Group by Domain**: Group routes by their domain (Auth, Content, Admin, etc.)
-2. **Use Consistent Naming**: Use consistent route naming conventions
-3. **Use RESTful Patterns**: Follow RESTful patterns for resource operations
-4. **Version All Routes**: Always specify a version for each route
+The SH-Self-help backend uses JSON Web Tokens (JWT) for stateless API authentication. This system provides secure access control without maintaining server-side sessions.
 
-### Example Route Registration
+#### Key Components:
 
-```sql
-INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
--- Auth routes
-('auth_login','v1','/auth/login','App\\Controller\\Api\\V1\\Auth\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
+1. **JWTService**
+   - Located at `src/Service/Auth/JWTService.php`
+   - Manages token creation, validation, and blacklisting
+   - Handles refresh token operations
+   - Responsible for token signing using RSA/public-private key pair
 
--- Frontend routes
-('content_pages','v1','/pages','App\\Controller\\Api\\V1\\Content\\ContentController::getPages','GET',NULL,NULL),
+2. **JWTTokenAuthenticator**
+   - Implements Symfony's `AuthenticatorInterface`
+   - Extracts tokens from request headers
+   - Validates token signatures and expiration
+   - Loads user identity from token payload
 
--- Admin routes
-('admin_get_pages','v1','/admin/pages','App\\Controller\\Api\\V1\\Admin\\AdminController::getPages','GET',NULL,NULL);
-```
+3. **Security Configuration**
+   - Located in `config/packages/security.yaml`
+   - Defines the JWT-secured firewall for API routes
+   - Configures access control rules and authentication providers
 
-### Adding a New API Version
+#### Authentication Flow:
 
-To add a new API version (e.g., v2):
+1. **Login Process**
+   - User submits credentials to `/cms-api/v1/auth/login`
+   - Upon successful validation, system generates and returns:
+     - JWT token (short-lived, typically 1 hour)
+     - Refresh token (long-lived, typically 2 weeks)
 
-1. Create a new directory structure under `src/Controller/Api/` (e.g., `V2/`)
-2. Create controllers in the appropriate subdirectories
-3. Add routes to the database with the new version
-4. Update `ApiVersionResolver::AVAILABLE_VERSIONS` to include the new version
+2. **Request Authentication**
+   - Client includes JWT in `Authorization: Bearer {token}` header
+   - `JWTTokenAuthenticator` validates token and loads user identity
+   - If token is invalid or expired, 401 Unauthorized response is returned
+
+3. **Token Refresh**
+   - When JWT expires, client can send refresh token to `/cms-api/v1/auth/refresh-token`
+   - System validates refresh token and issues a new JWT if valid
+   - Refresh tokens are stored in the database and can be invalidated
+
+4. **Logout Process**
+   - Client calls `/cms-api/v1/auth/logout` endpoint
+   - Current token is added to blacklist to prevent reuse
+   - Refresh tokens are invalidated in the database
 
 The system will automatically load and map the routes to the correct controllers.
 
@@ -350,7 +425,141 @@ If you encounter errors like `Unable to create a signed JWT from the given confi
 - Both `private.pem` and `public.pem` must be readable by the PHP process.
 - These steps are required for initial installation and whenever the keys are missing or need to be rotated.
 
-## Overview
+## JSON Schema Validation
+
+### Overview
+
+The Self-help backend uses JSON Schema to validate all API requests and responses. This ensures consistency, enforces contracts between client and server, and provides clear error messages when validation fails.
+
+### Schema Organization
+
+Schemas are stored in the `/config/schemas/api/v1/` directory and are organized as follows:
+
+```
+schemas/
+├── api/
+│   └── v1/
+│       ├── entities/         # Base entity schemas matching database entities
+│       │   ├── pageEntity.json
+│       │   ├── userEntity.json
+│       │   └── ...
+│       ├── requests/         # Request validation schemas
+│       │   ├── admin/
+│       │   │   ├── page/
+│       │   │   │   ├── create.json
+│       │   │   │   ├── update.json
+│       │   │   │   └── ...
+│       │   └── ...
+│       └── responses/        # Response validation schemas
+│           ├── common/       # Shared response components
+│           │   └── _response_envelope.json
+│           ├── admin/
+│           │   ├── page/
+│           │   │   ├── list.json
+│           │   │   ├── get.json
+│           │   │   └── ...
+│           └── ...
+```
+
+### Schema Composition Pattern
+
+The system uses a composable pattern for building schemas:
+
+1. **Entity Schemas**: Define base data structures that mirror database entities
+   - Example: `pageEntity.json` defines the core structure of a Page entity
+   - Properties map directly to entity fields
+   - Required fields match non-nullable database columns
+
+2. **Request Schemas**: Define validation rules for API inputs
+   - Reference entity schemas using `$ref`
+   - May include only a subset of entity fields for partial updates
+   - Add endpoint-specific validation rules
+
+3. **Response Schemas**: Define expected API responses
+   - Use the standard envelope structure from `_response_envelope.json`
+   - Reference entity schemas for the `data` property
+   - Handle collections of entities with array schemas
+
+### Integration with Controllers
+
+Controllers use the `RequestValidatorTrait` to validate requests:
+
+```php
+<?php
+
+namespace App\Controller\Api\V1\Admin;
+
+use App\Controller\Api\RequestValidatorTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+class AdminPageController
+{
+    use RequestValidatorTrait;
+    
+    public function createPage(Request $request): JsonResponse
+    {
+        // Validate request against schema
+        $data = $this->validateRequest($request, 'admin/page/create');
+        
+        // Process validated data
+        $page = $this->adminPageService->createPage($data);
+        
+        // Return formatted response
+        return $this->apiResponseFormatter->formatResponse($page);
+    }
+}
+```
+
+### Schema Validation Process
+
+1. **Request Parsing**: The JSON body is decoded from the request
+2. **Schema Loading**: The appropriate schema is loaded based on the endpoint
+3. **Validation**: Request data is validated against the schema
+4. **Error Collection**: Validation errors are collected and formatted
+5. **Exception Handling**: `RequestValidationException` is thrown if validation fails
+
+### Example Schema: Page Entity
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer" },
+    "title": { "type": "string" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["title", "slug", "status"]
+}
+```
+
+### API Error Response with Validation Errors
+
+```json
+{
+  "status": 422,
+  "message": "Validation Failed",
+  "error": "Request validation failed",
+  "logged_in": true,
+  "meta": {
+    "version": "v1",
+    "timestamp": "2025-06-02T16:35:00+02:00"
+  },
+  "data": null,
+  "validation": [
+    "Field 'slug': Pattern does not match '^[a-z0-9-]+$'",
+    "Field 'status': Value must be one of: draft, published, archived"
+  ]
+}
+```
+
+## Dynamic API Routes
+
+### Overview
 
 Dynamic API routes are stored in the `api_routes` database table and loaded by the custom loader (`ApiRouteLoader`). Each route entry defines the HTTP path, controller, method(s), and optional requirements (e.g., parameter regexes). The entity representing a route is `App\Entity\ApiRoute`.
 
