@@ -48,7 +48,8 @@
             "description": "List of field translations to update",
             "items": {
                 "$ref": "../../common/update_field.json#"
-            }
+            },
+            "minItems": 0
         }
     },
     "required": ["pageData", "fields"]

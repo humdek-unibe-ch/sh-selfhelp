@@ -22,8 +22,8 @@ trait RequestValidatorTrait
      * @throws \InvalidArgumentException If the request body is not valid JSON
      */
     protected function validateRequest(
-        Request $request, 
-        string $schemaName, 
+        Request $request,
+        string $schemaName,
         JsonSchemaValidationService $jsonSchemaValidationService
     ): array {
         // Parse JSON request body
@@ -39,7 +39,7 @@ trait RequestValidatorTrait
                 $validationErrors,
                 $schemaName,
                 $data,
-                'Request validation failed for schema: ' . $schemaName
+                'Request validation failed for schema: ' . $schemaName . ' with errors: ' . json_encode($validationErrors)
             );
         }
 
@@ -47,17 +47,21 @@ trait RequestValidatorTrait
     }
 
     private function convertToObject(mixed $value): mixed
-{
-    if (is_array($value)) {
-        // Is this an associative array? Then treat as object
-        $isAssoc = array_keys($value) !== range(0, count($value) - 1);
-        if ($isAssoc) {
-            return (object) array_map([$this, 'convertToObject'], $value);
-        } else {
-            return array_map([$this, 'convertToObject'], $value);
-        }
-    }
-    return $value;
-}
+    {
+        if (is_array($value)) {
+            // Fix: empty array is not associative
+            if ($value === []) {
+                return [];
+            }
 
+            // Check if associative
+            $isAssoc = array_keys($value) !== range(0, count($value) - 1);
+            if ($isAssoc) {
+                return (object) array_map([$this, 'convertToObject'], $value);
+            } else {
+                return array_map([$this, 'convertToObject'], $value);
+            }
+        }
+        return $value;
+    }
 }
