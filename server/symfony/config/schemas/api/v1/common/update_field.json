@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "description": "Schema for page field update",
+    "properties": {
+        "fieldId": {
+            "type": "integer",
+            "description": "ID of the field to update"
+        },
+        "languageId": {
+            "type": "integer",
+            "description": "ID of the language for the field content"
+        },
+        "content": {
+            "type": ["string", "null"],
+            "description": "Content of the field"
+        }
+    },
+    "required": ["fieldId", "languageId", "content"],
+    "additionalProperties": false
+}

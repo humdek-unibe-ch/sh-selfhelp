@@ -120,15 +120,15 @@ class AdminPageController extends AbstractController
             // This will throw an exception if validation fails
             $data = $this->validateRequest($request, 'requests/admin/create_page', $this->jsonSchemaValidationService);
             
-            // Create page using page_access_type_code instead of page_access_type_id
+            // Create page using pageAccessTypeCode
             $page = $this->adminPageService->createPage(
                 $data['keyword'],
-                $data['page_access_type_code'], // Using code instead of ID
-                $data['is_headless'] ?? false,
-                $data['is_open_page'] ?? false,
+                $data['pageAccessTypeCode'],
+                $data['headless'] ?? false,
+                $data['openAccess'] ?? false,
                 $data['url'] ?? null,
-                $data['nav_position'] ?? null,
-                $data['footer_position'] ?? null,
+                $data['navPosition'] ?? null,
+                $data['footerPosition'] ?? null,
                 $data['parent'] ?? null,
             );
             
@@ -183,23 +183,9 @@ class AdminPageController extends AbstractController
     public function updatePage(Request $request, string $page_keyword): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
-            
-            // Validate request data
-            if (!isset($data['pageData']) || !is_array($data['pageData'])) {
-                throw new BadRequestHttpException('Missing or invalid pageData field');
-            }
-            
-            if (!isset($data['fields']) || !is_array($data['fields'])) {
-                throw new BadRequestHttpException('Missing or invalid fields field');
-            }
-            
-            // Validate each field translation
-            foreach ($data['fields'] as $field) {
-                if (!isset($field['fieldId']) || !isset($field['languageId']) || !isset($field['content'])) {
-                    throw new BadRequestHttpException('Each field translation must contain fieldId, languageId, and content');
-                }
-            }
+            // Validate request against JSON schema
+            // This will throw an exception if validation fails
+            $data = $this->validateRequest($request, 'requests/admin/update_page', $this->jsonSchemaValidationService);
             
             // Update the page
             $page = $this->adminPageService->updatePage(

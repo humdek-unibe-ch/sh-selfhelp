@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Update Page Request Schema",
+    "description": "Schema for the request to update an existing page",
+    "type": "object",
+    "properties": {
+        "pageData": {
+            "type": "object",
+            "description": "Page data to update",
+            "properties": {
+                "url": {
+                    "type": ["string", "null"],
+                    "description": "URL path for the page"
+                },
+                "protocol": {
+                    "type": ["string", "null"],
+                    "description": "HTTP methods supported by the page (pipe separated list)"
+                },
+                "headless": {
+                    "type": "boolean",
+                    "description": "Whether the page is headless"
+                },
+                "navPosition": {
+                    "type": ["integer", "null"],
+                    "description": "Navigation position"
+                },
+                "footerPosition": {
+                    "type": ["integer", "null"],
+                    "description": "Footer position"
+                },
+                "openAccess": {
+                    "type": "boolean",
+                    "description": "Whether the page has open access"
+                },
+                "pageAccessTypeCode": {
+                    "type": "string",
+                    "description": "Access type code from lookups with typeCode=pageAccessTypes"
+                },
+                "parent": {
+                    "type": ["integer", "null"],
+                    "description": "ID of the parent page"
+                }
+            },
+            "additionalProperties": false
+        },
+        "fields": {
+            "type": "array",
+            "description": "List of field translations to update",
+            "items": {
+                "$ref": "../../common/update_field.json#"
+            }
+        }
+    },
+    "required": ["pageData", "fields"]
+}

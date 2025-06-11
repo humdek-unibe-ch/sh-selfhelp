@@ -10,49 +10,45 @@
             "minLength": 1,
             "maxLength": 100
         },
-        "page_type_id": {
+        "pageTypeId": {
             "type": "integer",
             "description": "ID of the page type"
         },
-        "page_access_type_code": {
+        "pageAccessTypeCode": {
             "type": "string",
             "description": "Access type code from lookups with typeCode=pageAccessTypes"
         },
-        "is_headless": {
+        "headless": {
             "type": "boolean",
             "description": "Whether the page is headless",
             "default": false
         },
-        "is_open_access": {
+        "openAccess": {
             "type": "boolean",
             "description": "Whether the page has open access",
             "default": false
         },
         "url": {
             "type": ["string", "null"],
-            "description": "URL for the page"
+            "description": "URL path for the page"
         },
         "protocol": {
             "type": ["string", "null"],
             "description": "HTTP methods supported by the page (pipe separated list)"
         },
-        "nav_position": {
+        "navPosition": {
             "type": ["integer", "null"],
             "description": "Navigation position"
         },
-        "footer_position": {
+        "footerPosition": {
             "type": ["integer", "null"],
             "description": "Footer position"
         },
         "parent": {
             "type": ["integer", "null"],
             "description": "ID of the parent page"
-        },
-        "action_code": {
-            "type": ["string", "null"],
-            "description": "Action code from lookups with typeCode=pageActions"
         }
     },
-    "required": ["keyword", "page_access_type_code"],
+    "required": ["keyword", "pageAccessTypeCode"],
     "additionalProperties": false
 }

@@ -219,6 +219,104 @@ All API responses follow a standardized format:
 }
 ```
 
+## JSON Schema Validation
+
+The SH-Selfhelp backend uses JSON Schema for validating all API requests and responses. This ensures consistent data structures, clear API contracts, and automatic validation with detailed error messages.
+
+### Schema Organization
+
+Schemas are organized in the `/config/schemas/api/v1/` directory with the following structure:
+
+```
+/config/schemas/api/v1/
+  /entities/                # Base entity schemas mirroring database structures
+    pageEntity.json         # Core page entity structure
+    lookupEntity.json       # Reusable lookup type entity
+    ...
+  /requests/               # Request validation schemas
+    /admin/                # Admin API endpoints
+      create_page.json
+      update_page.json
+      ...
+    /frontend/             # Frontend API endpoints
+      ...
+  /responses/              # Response validation schemas
+    /admin/                # Admin API responses
+      page.json
+      ...
+    /frontend/             # Frontend API responses
+      ...
+    /common/               # Shared response components
+      _response_envelope.json
+```
+
+### Schema Best Practices
+
+1. **Entity-Schema Alignment**:
+   - Request/response schemas should mirror entity structures
+   - Property names should directly match entity field names (in camelCase)
+   - Property types should align with entity field types
+   - Required fields in schemas should correspond to non-nullable entity fields
+
+2. **Naming Conventions**:
+   - Use camelCase for all property names in schemas (e.g., `navPosition` not `nav_position`)
+   - Use consistent names across entities and schemas (e.g., `headless` not `is_headless`)
+   - Keep property names concise but descriptive
+
+3. **Schema Composition**:
+   - Use `$ref` to reference entity schemas in request/response schemas
+   - Use `allOf` to extend or compose schema types
+   - Break complex structures into smaller, reusable components
+
+### Integration with Controllers
+
+Controllers use the `RequestValidatorTrait` to validate requests:
+
+```php
+// Example from AdminPageController.php
+public function updatePage(Request $request, string $page_keyword): JsonResponse
+{
+    try {
+        // Validates request against the JSON schema
+        $data = $this->validateRequest(
+            $request, 
+            'requests/admin/update_page', 
+            $this->jsonSchemaValidationService
+        );
+        
+        // Update the page using validated data
+        $page = $this->adminPageService->updatePage(
+            $page_keyword,
+            $data['pageData'],
+            $data['fields']
+        );
+        
+        // Format response with standard envelope
+        return $this->responseFormatter->formatSuccess($pageWithFields);
+    } catch (ServiceException $e) {
+        return $this->responseFormatter->formatException($e);
+    }
+}
+```
+
+### Validation Error Handling
+
+Validation errors are automatically captured and returned in standardized format:
+
+```json
+{
+    "status": 400,
+    "message": "Bad Request",
+    "error": "Validation failed",
+    "logged_in": true,
+    "meta": { "version": "v1", "timestamp": "..." },
+    "data": null,
+    "validation": [
+        "Field 'pageData.headless': Boolean value expected"
+    ]
+}
+```
+
 ## API Versioning and Database-Driven Routing
 
 ### Core Dynamic Controller System (2025-05-21)

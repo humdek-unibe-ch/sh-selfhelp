@@ -7,12 +7,9 @@ use JsonSchema\Constraints\Constraint;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Uri\UriRetriever;
 use JsonSchema\SchemaStorage;
-use JsonSchema\Uri\Retrievers\FileGetContents;
-use JsonSchema\Uri\UriResolver;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use RuntimeException;
-use JsonSchema\Exception\JsonSchemaException;
 use JsonSchema\Exception\ExceptionInterface;
 
 class JsonSchemaValidationService

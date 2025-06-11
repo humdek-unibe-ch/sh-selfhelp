@@ -76,7 +76,7 @@ class AdminPageService extends UserContextAwareService
         if (!$this->hasAccess($page->getId(), 'select')) {
             $this->throwForbidden('Access denied');
         }
-        
+
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('ptf', 'f', 'ft')
@@ -86,21 +86,21 @@ class AdminPageService extends UserContextAwareService
             ->where('ptf.pageType = :pageTypeId')
             ->setParameter('pageTypeId', $page->getPageType()->getId())
             ->orderBy('f.name', 'ASC');
-        
+
         $pageTypeFields = $qb->getQuery()->getResult();
-        
+
         // Get page fields associated with this page
         $pageFieldsMap = [];
         $pageFields = $this->entityManager->getRepository(PageTypeField::class)->findBy(['pageType' => $page->getPageType()->getId()]);
         foreach ($pageFields as $pageField) {
             $pageFieldsMap[$pageField->getField()->getId()] = $pageField;
         }
-        
+
         // Get all translations for this page's fields
         $translationsMap = [];
         $translations = $this->entityManager->getRepository(PagesFieldsTranslation::class)
             ->findBy(['idPages' => $page->getId()]);
-        
+
         foreach ($translations as $translation) {
             $fieldId = $translation->getIdFields();
             $langId = $translation->getIdLanguages();
@@ -109,16 +109,16 @@ class AdminPageService extends UserContextAwareService
             }
             $translationsMap[$fieldId][$langId] = $translation;
         }
-        
+
         // Format fields with translations
         $formattedFields = [];
         foreach ($pageTypeFields as $pageTypeField) {
             $field = $pageTypeField->getField();
             $fieldId = $field->getId();
-            
+
             // Get the pageField if it exists for this field
             $pageField = $pageFieldsMap[$fieldId] ?? null;
-            
+
             $fieldData = [
                 'id' => $fieldId,
                 'name' => $field->getName(),
@@ -128,7 +128,7 @@ class AdminPageService extends UserContextAwareService
                 'display' => $field->isDisplay(),  // Whether it's a content field (1) or property field (0)
                 'translations' => []
             ];
-            
+
             // Handle translations based on display flag
             if ($field->isDisplay()) {
                 // Content field (display=1) - can have translations for each language
@@ -153,10 +153,10 @@ class AdminPageService extends UserContextAwareService
                     ];
                 }
             }
-            
+
             $formattedFields[] = $fieldData;
         }
-        
+
         // Return page data with fields and their translations
         return [
             'page' => $page,
@@ -235,7 +235,7 @@ class AdminPageService extends UserContextAwareService
 
         return $rootSections;
     }
-    
+
     /**
      * Create a new page
      * 
@@ -260,8 +260,8 @@ class AdminPageService extends UserContextAwareService
         ?int $navPosition = null,
         ?int $footerPosition = null,
         ?int $parentId = null,
-    ): Page {   
-        
+    ): Page {
+
         // Check if keyword already exists
         if ($this->pageRepository->findOneBy(['keyword' => $keyword])) {
             $this->throwConflict("Page with keyword '{$keyword}' already exists");
@@ -271,7 +271,7 @@ class AdminPageService extends UserContextAwareService
         if ($this->pageRepository->findOneBy(['url' => $url])) {
             $this->throwConflict("Page with url '{$url}' already exists");
         }
-        
+
         // Get page access type by code
         $pageAccessType = $this->lookupRepository->findOneBy([
             'typeCode' => 'pageAccessTypes',
@@ -280,7 +280,7 @@ class AdminPageService extends UserContextAwareService
         if (!$pageAccessType) {
             $this->throwNotFound("Page access type with code '{$pageAccessTypeCode}' not found");
         }
-        
+
         // Get parent page if provided
         $parentPage = null;
         if ($parentId) {
@@ -289,7 +289,7 @@ class AdminPageService extends UserContextAwareService
                 $this->throwNotFound("Parent page with ID {$parentId} not found");
             }
         }
-        
+
         // Get action if provided
         $actionCode = LookupService::PAGE_ACTIONS_SECTIONS;
         $action = $this->lookupRepository->findOneBy([
@@ -299,13 +299,13 @@ class AdminPageService extends UserContextAwareService
         if (!$action) {
             $this->throwNotFound("Action with code '{$actionCode}' not found");
         }
-        
+
         // Get default page type (experiment)
         $pageType = $this->pageTypeRepository->findOneBy(['name' => 'experiment']);
         if (!$pageType) {
             $this->throwNotFound("Default page type 'experiment' not found");
         }
-        
+
         // Create new page entity
         $page = new Page();
         $page->setKeyword($keyword);
@@ -349,18 +349,18 @@ class AdminPageService extends UserContextAwareService
                 throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
             }
             $this->aclService->addUserAcl($page, $currentUser, true, true, true, true, $this->entityManager);
-            
+
             // Reorder page positions if needed
             if ($navPosition !== null) {
                 $this->reorderPagePositions($page->getId(), $parentId, 'nav');
             }
-            
+
             if ($footerPosition !== null) {
                 $this->reorderPagePositions($page->getId(), $parentId, 'footer');
             }
-            
+
             $this->entityManager->flush();
-            
+
             // Log the page creation transaction
             $this->transactionService->logTransaction(
                 LookupService::TRANSACTION_TYPES_INSERT,
@@ -370,7 +370,7 @@ class AdminPageService extends UserContextAwareService
                 true,
                 'Page created with keyword: ' . $keyword
             );
-            
+
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -382,7 +382,7 @@ class AdminPageService extends UserContextAwareService
         }
         return $page;
     }
-    
+
     /**
      * Reorder page positions when a new page is added or an existing page position is changed
      * This function ensures all pages have positions in multiples of 10 (10, 20, 30...)
@@ -395,24 +395,24 @@ class AdminPageService extends UserContextAwareService
     private function reorderPagePositions(int $pageId, ?int $parentId, string $positionType): void
     {
         // Get all pages with positions for the given parent and position type
-        $pages = $positionType === 'nav' 
+        $pages = $positionType === 'nav'
             ? $this->pageRepository->findPagesWithNavPosition($parentId)
             : $this->pageRepository->findPagesWithFooterPosition($parentId);
-        
+
         // Get the current page and its position
         $currentPage = $this->pageRepository->find($pageId);
-        $currentPosition = $positionType === 'nav' 
-            ? $currentPage->getNavPosition() 
+        $currentPosition = $positionType === 'nav'
+            ? $currentPage->getNavPosition()
             : $currentPage->getFooterPosition();
-        
+
         // Create a map of all pages (excluding current page) with their positions
         $pageMap = [];
         foreach ($pages as $page) {
             if ($page->getId() !== $pageId) {
-                $position = $positionType === 'nav' 
-                    ? $page->getNavPosition() 
+                $position = $positionType === 'nav'
+                    ? $page->getNavPosition()
                     : $page->getFooterPosition();
-                
+
                 if ($position !== null) {
                     $pageMap[] = [
                         'id' => $page->getId(),
@@ -421,31 +421,31 @@ class AdminPageService extends UserContextAwareService
                 }
             }
         }
-        
+
         // Add the current page to the map
         $pageMap[] = [
             'id' => $pageId,
             'position' => $currentPosition ?? PHP_INT_MAX // If null, place at the end
         ];
-        
+
         // Sort pages by position
         usort($pageMap, function ($a, $b) {
             return $a['position'] <=> $b['position'];
         });
-        
+
         // Reassign positions in multiples of 10
         $finalPositions = [];
         $position = 10;
-        
+
         foreach ($pageMap as $page) {
             $finalPositions[$page['id']] = $position;
             $position += 10;
         }
-        
+
         // Update all positions in the database
         $this->pageRepository->updatePagePositions($finalPositions, $positionType);
     }
-    
+
     /**
      * Update an existing page and its field translations
      * 
@@ -458,31 +458,31 @@ class AdminPageService extends UserContextAwareService
     public function updatePage(string $pageKeyword, array $pageData, array $fields): Page
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             // Find the page
             $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
             if (!$page) {
                 $this->throwNotFound('Page not found');
             }
-            
+
             // Check if user has update access to the page
             if (!$this->hasAccess($page->getId(), 'update')) {
                 $this->throwForbidden('Access denied: You do not have permission to update this page');
             }
-            
+
             // Store original page for transaction logging
             $originalPage = clone $page;
-            
+
             // Update page properties
             if (isset($pageData['url'])) {
                 $page->setUrl($pageData['url']);
             }
-            
+
             if (isset($pageData['headless'])) {
                 $page->setIsHeadless($pageData['headless']);
             }
-            
+
             if (isset($pageData['navPosition'])) {
                 $page->setNavPosition($pageData['navPosition']);
                 // Reorder nav positions if needed
@@ -492,7 +492,7 @@ class AdminPageService extends UserContextAwareService
                     'nav'
                 );
             }
-            
+
             if (isset($pageData['footerPosition'])) {
                 $page->setFooterPosition($pageData['footerPosition']);
                 // Reorder footer positions if needed
@@ -502,37 +502,37 @@ class AdminPageService extends UserContextAwareService
                     'footer'
                 );
             }
-            
+
             if (isset($pageData['openAccess'])) {
                 $page->setIsOpenAccess($pageData['openAccess']);
             }
-            
-            if (isset($pageData['pageAccessType'])) {
+
+            if (isset($pageData['pageAccessTypeCode'])) {
                 // Find the page access type lookup
                 $pageAccessType = $this->lookupRepository->findOneBy([
                     'typeCode' => LookupService::PAGE_ACCESS_TYPES,
-                    'lookupCode' => $pageData['pageAccessType']
+                    'lookupCode' => $pageData['pageAccessTypeCode']
                 ]);
-                
+
                 if (!$pageAccessType) {
                     throw new ServiceException(
                         'Invalid page access type',
                         Response::HTTP_BAD_REQUEST
                     );
                 }
-                
+
                 $page->setPageAccessType($pageAccessType);
             }
-            
+
             // Flush page changes first to ensure we have a valid page ID
             $this->entityManager->flush();
-            
+
             // Update field translations
             foreach ($fields as $field) {
                 $fieldId = $field['fieldId'];
                 $languageId = $field['languageId'];
                 $content = $field['content'];
-                
+
                 // Check if translation exists
                 $existingTranslation = $this->entityManager->getRepository(PagesFieldsTranslation::class)
                     ->findOneBy([
@@ -540,7 +540,7 @@ class AdminPageService extends UserContextAwareService
                         'idFields' => $fieldId,
                         'idLanguages' => $languageId
                     ]);
-                
+
                 if ($existingTranslation) {
                     // Update existing translation
                     $existingTranslation->setContent($content);
@@ -551,39 +551,39 @@ class AdminPageService extends UserContextAwareService
                     $newTranslation->setIdFields($fieldId);
                     $newTranslation->setIdLanguages($languageId);
                     $newTranslation->setContent($content);
-                    
+
                     // Also set the entity relationships
                     $newTranslation->setPage($page);
-                    
+
                     // Get the Field entity
                     $field = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
                     if ($field) {
                         $newTranslation->setField($field);
                     }
-                    
+
                     // Get the Language entity
                     $language = $this->entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
                     if ($language) {
                         $newTranslation->setLanguage($language);
                     }
-                    
+
                     $this->entityManager->persist($newTranslation);
                 }
             }
-            
+
             // Flush all changes again
             $this->entityManager->flush();
-            
+
             // Log the transaction
             $this->transactionService->logTransaction(
                 LookupService::TRANSACTION_TYPES_UPDATE,
                 LookupService::TRANSACTION_BY_BY_USER,
                 'pages',
                 $page->getId(),
-                $page,
+                (object) array("old_page" => $originalPage, "new_page" => $page),
                 'Page updated: ' . $page->getKeyword() . ' (ID: ' . $page->getId() . ')'
             );
-            
+
             $this->entityManager->commit();
             return $page;
         } catch (\Throwable $e) {
@@ -595,7 +595,7 @@ class AdminPageService extends UserContextAwareService
             );
         }
     }
-    
+
     /**
      * Delete a page by its keyword
      * 
@@ -606,20 +606,20 @@ class AdminPageService extends UserContextAwareService
     public function deletePage(string $pageKeyword): Page
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
             $deleted_page = clone $page;
-            
+
             if (!$page) {
                 $this->throwNotFound('Page not found');
             }
-            
+
             // Check if user has delete access to the page
             if (!$this->hasAccess($page->getId(), 'delete')) {
                 $this->throwForbidden('Access denied: You do not have permission to delete this page');
             }
-            
+
             // Check if the page has children
             $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);
             if (count($children) > 0) {
@@ -628,24 +628,24 @@ class AdminPageService extends UserContextAwareService
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            
+
             // ACL entries will be automatically deleted via foreign key constraints with cascade on delete
-            
+
             // Delete page fields translations
             $this->entityManager->createQuery(
                 'DELETE FROM App\\Entity\\PagesFieldsTranslation pft WHERE pft.idPages = :pageId'
             )
-            ->setParameter('pageId', $page->getId())
-            ->execute();
-            
+                ->setParameter('pageId', $page->getId())
+                ->execute();
+
             // Store page keyword for logging before deletion
             $pageKeywordForLog = $page->getKeyword();
             $pageIdForLog = $page->getId();
-            
+
             // Delete the page
             $this->entityManager->remove($page);
             $this->entityManager->flush();
-            
+
             // Log the page deletion transaction with the deleted page object
             // This ensures we capture the page data even after it's removed from the database
             $this->transactionService->logTransaction(
@@ -656,7 +656,7 @@ class AdminPageService extends UserContextAwareService
                 $deleted_page, // Pass the page object directly instead of a boolean
                 'Page deleted with keyword: ' . $pageKeywordForLog
             );
-            
+
             $this->entityManager->commit();
             return $deleted_page;
         } catch (\Throwable $e) {

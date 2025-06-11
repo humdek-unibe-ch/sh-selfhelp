@@ -33,7 +33,7 @@ trait RequestValidatorTrait
         }
 
         // Validate against schema
-        $validationErrors = $jsonSchemaValidationService->validate((object)$data, $schemaName);
+        $validationErrors = $jsonSchemaValidationService->validate($this->convertToObject($data), $schemaName);
         if (!empty($validationErrors)) {
             throw new RequestValidationException(
                 $validationErrors,
@@ -45,4 +45,19 @@ trait RequestValidatorTrait
 
         return $data;
     }
+
+    private function convertToObject(mixed $value): mixed
+{
+    if (is_array($value)) {
+        // Is this an associative array? Then treat as object
+        $isAssoc = array_keys($value) !== range(0, count($value) - 1);
+        if ($isAssoc) {
+            return (object) array_map([$this, 'convertToObject'], $value);
+        } else {
+            return array_map([$this, 'convertToObject'], $value);
+        }
+    }
+    return $value;
+}
+
 }
