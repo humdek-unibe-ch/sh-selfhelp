@@ -4,7 +4,7 @@ namespace App\Tests\Controller\Api\V1;
 use App\Service\Core\LookupService;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminControllerTest extends BaseControllerTest
+class AdminPageControllerTest extends BaseControllerTest
 {    
     private const TEST_PAGE_KEYWORD = "test_test";
 
@@ -75,7 +75,7 @@ class AdminControllerTest extends BaseControllerTest
         $token = $this->getAdminAccessToken();
         $this->client->request(
             'GET',
-            '/cms-api/v1/admin/pages/home/fields',
+            '/cms-api/v1/admin/pages/home',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
@@ -157,7 +157,7 @@ class AdminControllerTest extends BaseControllerTest
         // Verify the page was created by fetching it
         $this->client->request(
             'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/fields',
+            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
@@ -201,7 +201,7 @@ class AdminControllerTest extends BaseControllerTest
         // Verify the page was deleted by trying to fetch it (should return 404)
         $this->client->request(
             'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/fields',
+            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
@@ -222,7 +222,7 @@ class AdminControllerTest extends BaseControllerTest
         // Check if the page exists
         $this->client->request(
             'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/fields',
+            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
