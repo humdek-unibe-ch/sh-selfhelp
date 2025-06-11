@@ -475,53 +475,65 @@ class AdminPageService extends UserContextAwareService
             $originalPage = clone $page;
 
             // Update page properties
-            if (isset($pageData['url'])) {
+            // Use array_key_exists instead of isset to handle explicit null values
+            if (array_key_exists('url', $pageData)) {
                 $page->setUrl($pageData['url']);
             }
 
-            if (isset($pageData['headless'])) {
+            if (array_key_exists('headless', $pageData)) {
                 $page->setIsHeadless($pageData['headless']);
             }
 
-            if (isset($pageData['navPosition'])) {
+            if (array_key_exists('navPosition', $pageData)) {
                 $page->setNavPosition($pageData['navPosition']);
-                // Reorder nav positions if needed
-                $this->reorderPagePositions(
-                    $page->getId(),
-                    $page->getParentPage() ? $page->getParentPage()->getId() : null,
-                    'nav'
-                );
+                // Only reorder positions if setting to a non-null value
+                if ($pageData['navPosition'] !== null) {
+                    // Reorder nav positions if needed
+                    $this->reorderPagePositions(
+                        $page->getId(),
+                        $page->getParentPage() ? $page->getParentPage()->getId() : null,
+                        'nav'
+                    );
+                }
             }
 
-            if (isset($pageData['footerPosition'])) {
+            if (array_key_exists('footerPosition', $pageData)) {
                 $page->setFooterPosition($pageData['footerPosition']);
-                // Reorder footer positions if needed
-                $this->reorderPagePositions(
-                    $page->getId(),
-                    $page->getParentPage() ? $page->getParentPage()->getId() : null,
-                    'footer'
-                );
+                // Only reorder positions if setting to a non-null value
+                if ($pageData['footerPosition'] !== null) {
+                    // Reorder footer positions if needed
+                    $this->reorderPagePositions(
+                        $page->getId(),
+                        $page->getParentPage() ? $page->getParentPage()->getId() : null,
+                        'footer'
+                    );
+                }
             }
 
-            if (isset($pageData['openAccess'])) {
+            if (array_key_exists('openAccess', $pageData)) {
                 $page->setIsOpenAccess($pageData['openAccess']);
             }
 
-            if (isset($pageData['pageAccessTypeCode'])) {
-                // Find the page access type lookup
-                $pageAccessType = $this->lookupRepository->findOneBy([
-                    'typeCode' => LookupService::PAGE_ACCESS_TYPES,
-                    'lookupCode' => $pageData['pageAccessTypeCode']
-                ]);
+            if (array_key_exists('pageAccessTypeCode', $pageData)) {
+                if ($pageData['pageAccessTypeCode'] === null) {
+                    // Set to null if explicitly provided as null
+                    $page->setPageAccessType(null);
+                } else {
+                    // Find the page access type lookup
+                    $pageAccessType = $this->lookupRepository->findOneBy([
+                        'typeCode' => LookupService::PAGE_ACCESS_TYPES,
+                        'lookupCode' => $pageData['pageAccessTypeCode']
+                    ]);
 
-                if (!$pageAccessType) {
-                    throw new ServiceException(
-                        'Invalid page access type',
-                        Response::HTTP_BAD_REQUEST
-                    );
+                    if (!$pageAccessType) {
+                        throw new ServiceException(
+                            'Invalid page access type',
+                            Response::HTTP_BAD_REQUEST
+                        );
+                    }
+                    
+                    $page->setPageAccessType($pageAccessType);
                 }
-
-                $page->setPageAccessType($pageAccessType);
             }
 
             // Flush page changes first to ensure we have a valid page ID
