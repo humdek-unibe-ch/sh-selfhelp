@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * API V1 Admin Controller
@@ -61,12 +62,12 @@ class AdminPageController extends AbstractController
     }
 
     /**
-     * Get page fields
+     * Get page with page fields
      * 
-     * @route /admin/pages/{page_keyword}/fields
+     * @route /admin/pages/{page_keyword}
      * @method GET
      */
-    public function getPageFields(string $page_keyword): JsonResponse
+    public function getPage(string $page_keyword): JsonResponse
     {
         try {
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
@@ -121,7 +122,7 @@ class AdminPageController extends AbstractController
             
             // Create page using page_access_type_code instead of page_access_type_id
             $page = $this->adminPageService->createPage(
-                $data['keyword'],
+                $data['page_keyword'],
                 $data['page_access_type_code'], // Using code instead of ID
                 $data['is_headless'] ?? false,
                 $data['is_open_page'] ?? false,
@@ -161,6 +162,56 @@ class AdminPageController extends AbstractController
                 $page,
                 'responses/admin/page'
             );
+        } catch (ServiceException $e) {
+            return $this->responseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Update a page and its field translations
+     * 
+     * @Route("/page/{page_keyword}", methods={"PUT"})
+     * @param Request $request
+     * @param string $page_keyword Page keyword
+     * @return JsonResponse
+     */
+    public function updatePage(Request $request, string $page_keyword): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            
+            // Validate request data
+            if (!isset($data['pageData']) || !is_array($data['pageData'])) {
+                throw new BadRequestHttpException('Missing or invalid pageData field');
+            }
+            
+            if (!isset($data['fields']) || !is_array($data['fields'])) {
+                throw new BadRequestHttpException('Missing or invalid fields field');
+            }
+            
+            // Validate each field translation
+            foreach ($data['fields'] as $field) {
+                if (!isset($field['fieldId']) || !isset($field['languageId']) || !isset($field['content'])) {
+                    throw new BadRequestHttpException('Each field translation must contain fieldId, languageId, and content');
+                }
+            }
+            
+            // Update the page
+            $page = $this->adminPageService->updatePage(
+                $page_keyword,
+                $data['pageData'],
+                $data['fields']
+            );
+            
+            // Return updated page with fields
+            $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
+            
+            return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {

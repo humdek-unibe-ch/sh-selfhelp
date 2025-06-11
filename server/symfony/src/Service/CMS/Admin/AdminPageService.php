@@ -2,9 +2,12 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Field;
+use App\Entity\Language;
 use App\Entity\Page;
-use App\Entity\PagesFieldsTranslation;
 use App\Entity\PageTypeField;
+use App\Entity\PagesFieldsTranslation;
+use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
@@ -441,6 +444,156 @@ class AdminPageService extends UserContextAwareService
         
         // Update all positions in the database
         $this->pageRepository->updatePagePositions($finalPositions, $positionType);
+    }
+    
+    /**
+     * Update an existing page and its field translations
+     * 
+     * @param string $pageKeyword The keyword of the page to update
+     * @param array $pageData The page data to update
+     * @param array $fields The fields to update
+     * @return Page The updated page
+     * @throws ServiceException If page not found or access denied
+     */
+    public function updatePage(string $pageKeyword, array $pageData, array $fields): Page
+    {
+        $this->entityManager->beginTransaction();
+        
+        try {
+            // Find the page
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+            
+            // Check if user has update access to the page
+            if (!$this->hasAccess($page->getId(), 'update')) {
+                $this->throwForbidden('Access denied: You do not have permission to update this page');
+            }
+            
+            // Store original page for transaction logging
+            $originalPage = clone $page;
+            
+            // Update page properties
+            if (isset($pageData['url'])) {
+                $page->setUrl($pageData['url']);
+            }
+            
+            if (isset($pageData['headless'])) {
+                $page->setIsHeadless($pageData['headless']);
+            }
+            
+            if (isset($pageData['navPosition'])) {
+                $page->setNavPosition($pageData['navPosition']);
+                // Reorder nav positions if needed
+                $this->reorderPagePositions(
+                    $page->getId(),
+                    $page->getParentPage() ? $page->getParentPage()->getId() : null,
+                    'nav'
+                );
+            }
+            
+            if (isset($pageData['footerPosition'])) {
+                $page->setFooterPosition($pageData['footerPosition']);
+                // Reorder footer positions if needed
+                $this->reorderPagePositions(
+                    $page->getId(),
+                    $page->getParentPage() ? $page->getParentPage()->getId() : null,
+                    'footer'
+                );
+            }
+            
+            if (isset($pageData['openAccess'])) {
+                $page->setIsOpenAccess($pageData['openAccess']);
+            }
+            
+            if (isset($pageData['pageAccessType'])) {
+                // Find the page access type lookup
+                $pageAccessType = $this->lookupRepository->findOneBy([
+                    'typeCode' => LookupService::PAGE_ACCESS_TYPES,
+                    'lookupCode' => $pageData['pageAccessType']
+                ]);
+                
+                if (!$pageAccessType) {
+                    throw new ServiceException(
+                        'Invalid page access type',
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+                
+                $page->setPageAccessType($pageAccessType);
+            }
+            
+            // Flush page changes first to ensure we have a valid page ID
+            $this->entityManager->flush();
+            
+            // Update field translations
+            foreach ($fields as $field) {
+                $fieldId = $field['fieldId'];
+                $languageId = $field['languageId'];
+                $content = $field['content'];
+                
+                // Check if translation exists
+                $existingTranslation = $this->entityManager->getRepository(PagesFieldsTranslation::class)
+                    ->findOneBy([
+                        'idPages' => $page->getId(),
+                        'idFields' => $fieldId,
+                        'idLanguages' => $languageId
+                    ]);
+                
+                if ($existingTranslation) {
+                    // Update existing translation
+                    $existingTranslation->setContent($content);
+                } else {
+                    // Create new translation
+                    $newTranslation = new PagesFieldsTranslation();
+                    $newTranslation->setIdPages($page->getId());
+                    $newTranslation->setIdFields($fieldId);
+                    $newTranslation->setIdLanguages($languageId);
+                    $newTranslation->setContent($content);
+                    
+                    // Also set the entity relationships
+                    $newTranslation->setPage($page);
+                    
+                    // Get the Field entity
+                    $field = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+                    if ($field) {
+                        $newTranslation->setField($field);
+                    }
+                    
+                    // Get the Language entity
+                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+                    if ($language) {
+                        $newTranslation->setLanguage($language);
+                    }
+                    
+                    $this->entityManager->persist($newTranslation);
+                }
+            }
+            
+            // Flush all changes again
+            $this->entityManager->flush();
+            
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'pages',
+                $page->getId(),
+                $page,
+                'Page updated: ' . $page->getKeyword() . ' (ID: ' . $page->getId() . ')'
+            );
+            
+            $this->entityManager->commit();
+            return $page;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to update page: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
+        }
     }
     
     /**

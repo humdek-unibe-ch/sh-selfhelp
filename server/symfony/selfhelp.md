@@ -474,6 +474,139 @@ The `BaseApiController` class serves as the foundation for all API controllers i
 
 - **Standardized Response Formatting**: All API responses follow a consistent structure
 - **Centralized Error Handling**: Common error handling patterns are implemented once
+- **Service Method Execution**: The `executeServiceMethod()` helper provides a consistent pattern for executing service methods with proper error handling
+
+## BaseApiController Implementation (2025-06-10)
+
+The `BaseApiController` class has been implemented as a foundation for all API controllers. It provides common functionality for handling API requests and responses.
+
+### Key Features
+
+- **Constructor Injection**: Uses constructor injection for the `ApiResponseFormatter` service
+- **Response Formatting**: Provides methods for formatting success, error, and exception responses
+- **Service Method Execution**: Implements a reusable pattern for executing service methods with consistent error handling
+
+### Implementation Details
+
+```php
+namespace App\Controller;
+
+use App\Service\Core\ApiResponseFormatter;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+class BaseApiController extends AbstractController
+{
+    protected ApiResponseFormatter $responseFormatter;
+
+    public function __construct(ApiResponseFormatter $responseFormatter)
+    {
+        $this->responseFormatter = $responseFormatter;
+    }
+
+    protected function formatSuccess($data, ?string $schema = null, int $statusCode = 200): JsonResponse
+    {
+        return $this->responseFormatter->formatSuccess($data, $schema, $statusCode);
+    }
+
+    protected function formatError(string $message, int $statusCode = 400, ?string $code = null): JsonResponse
+    {
+        return $this->responseFormatter->formatError($message, $statusCode, $code);
+    }
+
+    protected function formatException(\Exception $exception): JsonResponse
+    {
+        return $this->responseFormatter->formatException($exception);
+    }
+
+    protected function executeServiceMethod(callable $serviceMethod, array $additionalData = [], ?string $schema = null, int $statusCode = 200): JsonResponse
+    {
+        try {
+            $result = $serviceMethod();
+            
+            if ($additionalData) {
+                if (is_array($result)) {
+                    $result = array_merge($result, $additionalData);
+                } else {
+                    $result = ['result' => $result, ...$additionalData];
+                }
+            }
+            
+            return $this->formatSuccess($result, $schema, $statusCode);
+        } catch (\Exception $e) {
+            return $this->formatException($e);
+        }
+    }
+}
+```
+
+## AdminPageController Refactoring (2025-06-10)
+
+The `AdminPageController` has been refactored to extend `BaseApiController` and use its helper methods for consistent API response handling.
+
+### Key Changes
+
+- **Extended BaseApiController**: Now extends `BaseApiController` instead of `AbstractController`
+- **Constructor Injection**: Uses constructor injection for dependencies
+- **Consistent Method Pattern**: All controller methods now use the `executeServiceMethod()` helper for consistent error handling
+
+### Example Method Implementation
+
+```php
+public function getPages(): JsonResponse
+{
+    return $this->executeServiceMethod(function() {
+        return $this->adminPageService->getPages();
+    }, [], 'responses/admin/pages');
+}
+
+public function getPageFields(string $page_keyword): JsonResponse
+{
+    return $this->executeServiceMethod(function() use ($page_keyword) {
+        return $this->adminPageService->getPageFields($page_keyword);
+    }, ['page_keyword' => $page_keyword], 'responses/admin/page_fields');
+}
+
+public function getPageSections(string $page_keyword): JsonResponse
+{
+    return $this->executeServiceMethod(function() use ($page_keyword) {
+        $sections = $this->adminPageService->getPageSections($page_keyword);
+        return [
+            'page_keyword' => $page_keyword,
+            'sections' => $sections
+        ];
+    }, [], 'responses/admin/page_sections');
+}
+
+public function updatePage(string $page_keyword, Request $request): JsonResponse
+{
+    return $this->executeServiceMethod(function() use ($page_keyword, $request) {
+        $content = $request->getContent();
+        $data = json_decode($content, true);
+        
+        if (!isset($data['pageData']) || !isset($data['fieldTranslations']) || !is_array($data['fieldTranslations'])) {
+            throw new BadRequestHttpException('Invalid request format. Expected pageData and fieldTranslations.');
+        }
+        
+        // Validate that each translation has the required fields
+        foreach ($data['fieldTranslations'] as $translation) {
+            if (!isset($translation['idFields']) || !isset($translation['idLanguages']) || !isset($translation['content'])) {
+                throw new BadRequestHttpException('Each translation must include idFields, idLanguages, and content.');
+            }
+        }
+        
+        // Call service method to update page
+        $page = $this->adminPageService->updatePage(
+            $page_keyword,
+            $data['pageData'],
+            $data['fieldTranslations']
+        );
+        
+        // Return updated page with fields
+        return $this->adminPageService->getPageFields($page->getKeyword());
+    }, [], 'responses/admin/page_fields');
+}
+```
 - **Service Method Execution**: Simplified pattern for executing service methods with automatic error handling
 - **Constructor Injection**: The response formatter is injected through the constructor
 
