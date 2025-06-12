@@ -1526,6 +1526,7 @@ CALL add_unique_key('languages', 'UNIQ_A0D153794180C698', 'locale');
 -- remove the gender
 -- pages should be moved to routes, then create link to lages, then link to pages_configurations (something else), refactor types, actions and all. Check this sql
 -- check the cache page
+-- remove page protocol field; it will not be used in the new version
 
 -- for old to work and test:
 INSERT IGNORE INTO `lookups` (`type_code`,`lookup_code`,`lookup_value`,`lookup_description`) VALUES ('pageActions','cms-api','cms-api',NULL);
