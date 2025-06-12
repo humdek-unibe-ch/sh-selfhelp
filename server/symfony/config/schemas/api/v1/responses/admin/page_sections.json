@@ -50,6 +50,10 @@
                     "type": "string",
                     "description": "Name of the style."
                 },
+                "can_have_children": {
+                    "type": "integer",
+                    "description": "Whether the style can have children."
+                },
                 "position": {
                     "type": "integer",
                     "description": "Position of the section."
@@ -75,6 +79,7 @@
                 "name",
                 "id_styles",
                 "style_name",
+                "can_have_children",
                 "position",
                 "level",
                 "path",
