@@ -5,14 +5,14 @@ DROP PROCEDURE IF EXISTS `get_page_sections_hierarchical` //
 CREATE PROCEDURE `get_page_sections_hierarchical`(IN page_id INT)
 BEGIN
     WITH RECURSIVE section_hierarchy AS (
-        -- Base case: get top-level sections for the page
+        -- Base case: get top-level sections for the page, position starts from 10
         SELECT 
             s.id,
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
             st.can_have_children,
-            ps.`position`,
+            ps.`position` + 10 AS position,      -- Start at 10
             0 AS `level`,
             CAST(s.id AS CHAR(200)) AS `path`
         FROM pages_sections ps
@@ -31,7 +31,7 @@ BEGIN
             s.id_styles,
             st.`name` AS style_name,
             st.can_have_children,
-            sh.position,
+            sh.position + 10 AS position,        -- Add 10 to each level
             h.`level` + 1,
             CONCAT(h.`path`, ',', s.id) AS `path`
         FROM section_hierarchy h
