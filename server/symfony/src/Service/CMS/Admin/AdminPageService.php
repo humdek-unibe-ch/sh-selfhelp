@@ -319,6 +319,7 @@ class AdminPageService extends UserContextAwareService
         $page->setPageType($pageType);
         $page->setIsSystem(false);
         $page->setAction($action);
+        $page->setProtocol('GET');
 
         $this->entityManager->beginTransaction();
         try {
