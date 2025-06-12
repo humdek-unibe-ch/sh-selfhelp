@@ -18,6 +18,7 @@
  - full `doctrine` DB mapping
  - add tables  `roles`, `permissions`, `roles_permissions`, `users_roles` to allow or deny access to the `cms-api` for a role
  - add table `api_routes_permissions` to allow or deny access to the `cms-api` for a route
+ - add column `can_have_children` to `styles` table
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller

@@ -217,6 +217,12 @@ WHERE keyword IN ("login", "home", "profile", "missing", "no_access", "no_access
 CALL drop_foreign_key('sections', 'sections_fk_owner');
 CALL drop_table_column('sections', 'owner');
 
+-- add column can_have_children in the style table
+CALL add_table_column('styles', 'can_have_children', 'TINYINT(1) DEFAULT 0 NOT NULL');
+UPDATE styles
+SET can_have_children = 1
+WHERE `name` IN ("htmlTag","dataContainer","tableCell","tableRow","loop","table","conditionFailed","formUserInputRecord","formUserInputLog","refContainer","entryRecord","entryList","conditionalContainer","div","formUserInput","navigationContainer","tabs","tab","link","form","figure","card","alert","validate","jumbotron","container","profile");
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS `get_page_sections_hierarchical` //
@@ -230,6 +236,7 @@ BEGIN
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
+            st.can_have_children,
             ps.`position`,
             0 AS `level`,
             CAST(s.id AS CHAR(200)) AS `path`
@@ -248,6 +255,7 @@ BEGIN
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
+            st.can_have_children,
             sh.position,
             h.`level` + 1,
             CONCAT(h.`path`, ',', s.id) AS `path`
@@ -263,6 +271,7 @@ BEGIN
         `name`,
         id_styles,
         style_name,
+        can_have_children,
         position,
         `level`,
         `path`
@@ -1506,6 +1515,8 @@ WHERE g.name = 'admin';
 
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
 CALL add_unique_key('languages', 'UNIQ_A0D153794180C698', 'locale');
+
+
 
 
 

@@ -11,6 +11,7 @@ BEGIN
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
+            st.can_have_children,
             ps.`position`,
             0 AS `level`,
             CAST(s.id AS CHAR(200)) AS `path`
@@ -29,6 +30,7 @@ BEGIN
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
+            st.can_have_children,
             sh.position,
             h.`level` + 1,
             CONCAT(h.`path`, ',', s.id) AS `path`
@@ -44,6 +46,7 @@ BEGIN
         `name`,
         id_styles,
         style_name,
+        can_have_children,
         position,
         `level`,
         `path`

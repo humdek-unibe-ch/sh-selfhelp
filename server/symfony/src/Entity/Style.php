@@ -26,6 +26,9 @@ class Style
     #[ORM\Column(name: 'id_type', type: 'integer')]
     private int $idType;
 
+    #[ORM\Column(name: 'can_have_children', type: 'boolean', options: ['default' => 0])]
+    private bool $canHaveChildren = false;
+
     #[ORM\Column(name: 'id_group', type: 'integer')]
     private int $idGroup;
 
@@ -89,6 +92,18 @@ class Style
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCanHaveChildren(): ?bool
+    {
+        return $this->canHaveChildren;
+    }
+
+    public function setCanHaveChildren(bool $canHaveChildren): static
+    {
+        $this->canHaveChildren = $canHaveChildren;
 
         return $this;
     }
