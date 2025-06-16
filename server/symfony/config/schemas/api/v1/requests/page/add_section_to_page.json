@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Add Section to Page Request",
+    "description": "Schema for adding a section to a page",
+    "type": "object",
+    "properties": {
+        "sectionId": {
+            "type": "integer",
+            "description": "The ID of the section to add."
+        },
+        "position": {
+            "type": ["integer", "null"],
+            "description": "The position of the section within the page. If null, it will be added at the end."
+        }
+    },
+    "required": [
+        "sectionId"
+    ],
+    "additionalProperties": false
+}

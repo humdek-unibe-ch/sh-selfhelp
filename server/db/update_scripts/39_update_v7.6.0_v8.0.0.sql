@@ -1430,6 +1430,14 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_languages_update', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::updateLanguage', 'PUT', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true), 'locale', JSON_OBJECT('in', 'body', 'required', false), 'language', JSON_OBJECT('in', 'body', 'required', false), 'csv_separator', JSON_OBJECT('in', 'body', 'required', false))),
 ('admin_languages_delete', 'v1', '/admin/languages/{id}', 'App\\Controller\\Api\\V1\\Admin\\LanguageAdminController::deleteLanguage', 'DELETE', JSON_OBJECT('id', '[0-9]+'), JSON_OBJECT('id', JSON_OBJECT('in', 'path', 'required', true))),
 
+('admin_add_section_to_page', 'v1', '/admin/pages/{pageKeyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'POST', JSON_OBJECT('pageKeyword', '[a-zA-Z0-9_-]+')),
+('admin_update_section_in_page', 'v1', '/admin/pages/{pageKeyword}/sections/{sectionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updateSectionInPage', 'PUT', JSON_OBJECT('pageKeyword', '[a-zA-Z0-9_-]+', 'sectionId', '\\d+')),
+('admin_remove_section_from_page', 'v1', '/admin/pages/{pageKeyword}/sections/{sectionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT('pageKeyword', '[a-zA-Z0-9_-]+', 'sectionId', '\\d+')),
+('admin_add_section_to_section', 'v1', '/admin/sections/{parentSectionId}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'POST', JSON_OBJECT('parentSectionId', '\\d+')),
+('admin_update_section_in_section', 'v1', '/admin/sections/{parentSectionId}/sections/{childSectionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSectionInSection', 'PUT', JSON_OBJECT('parentSectionId', '\\d+', 'childSectionId', '\\d+')),
+('admin_remove_section_from_section', 'v1', '/admin/sections/{parentSectionId}/sections/{childSectionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT('parentSectionId', '\\d+', 'childSectionId', '\\d+')),
+('admin_delete_section', 'v1', '/admin/sections/{sectionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT('sectionId', '\\d+')),
+
 -- Public pages route
 ('pages_get_all','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
 ('pages_get_one','v1','/pages/{page_keyword}','App\\Controller\\Api\\V1\\Frontend\\PageController::getPage','GET',NULL,NULL),
@@ -1490,7 +1498,14 @@ FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
   ON p.`name` = 'page.update'
 WHERE ar.`route_name` IN (
-  'admin_pages_update'
+	'admin_pages_update',
+	'admin_add_section_to_page',
+	'admin_update_section_in_page',
+	'admin_remove_section_from_page'
+	'admin_add_section_to_section'
+	'admin_update_section_in_section'
+	'admin_remove_section_from_section',
+	'admin_delete_section'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)

@@ -8,6 +8,8 @@ use App\Entity\Page;
 use App\Entity\PageTypeField;
 use App\Entity\PagesFieldsTranslation;
 use App\Entity\User;
+use App\Entity\PagesSection;
+use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
@@ -681,4 +683,149 @@ class AdminPageService extends UserContextAwareService
             );
         }
     }
+
+    /************************* START PAGE & SECTION RELATIONSHIPS *************************/
+
+    /**
+     * Adds a section to a page with a specific position.
+     *
+     * @param string $pageKeyword The keyword of the page.
+     * @param int $sectionId The ID of the section to add.
+     * @param int|null $position The desired position (e.g., 5, 15, 25). This will be normalized.
+     * @return PagesSection The new page-section relationship.
+     * @throws ServiceException If the relationship already exists, or if entities are not found.
+     */
+    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position): PagesSection
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
+            if (!$this->hasAccess($page->getId(), 'update')) {
+                $this->throwForbidden('Access denied to modify this page');
+            }
+
+            $section = $this->sectionRepository->find($sectionId);
+            if (!$section) {
+                $this->throwNotFound('Section not found');
+            }
+
+            $existing = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $section]);
+            if ($existing) {
+                throw new ServiceException('Section already exists in this page. Use the update endpoint to change its position.', Response::HTTP_CONFLICT);
+            }
+
+            $pagesSection = new PagesSection();
+            $pagesSection->setPage($page);
+            $pagesSection->setSection($section);
+            $pagesSection->setPosition($position);
+            $this->entityManager->persist($pagesSection);
+            $this->entityManager->flush(); // Flush to get the new entity into the DB before normalization
+
+            $this->normalizePageSectionPositions($page->getId());
+
+            $this->entityManager->commit();
+            return $pagesSection;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
+
+    /**
+     * Updates the position of a section within a page.
+     *
+     * @param string $pageKeyword The keyword of the page.
+     * @param int $sectionId The ID of the section to update.
+     * @param int|null $position The new position.
+     * @return PagesSection The updated page-section relationship.
+     * @throws ServiceException If the relationship does not exist, or on access denial.
+     */
+    public function updateSectionInPage(string $pageKeyword, int $sectionId, ?int $position): PagesSection
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
+            if (!$this->hasAccess($page->getId(), 'update')) {
+                $this->throwForbidden('Access denied to modify this page');
+            }
+
+            $pagesSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page->getId(), 'section' => $sectionId]);
+            if (!$pagesSection) {
+                $this->throwNotFound('Section not found in this page. Use the add endpoint to associate it.');
+            }
+
+            $pagesSection->setPosition($position);
+            $this->entityManager->flush();
+
+            $this->normalizePageSectionPositions($page->getId());
+
+            $this->entityManager->commit();
+            return $pagesSection;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to update section in page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
+
+    /**
+     * Removes a section from a page.
+     *
+     * @param string $pageKeyword The keyword of the page.
+     * @param int $sectionId The ID of the section to remove.
+     * @throws ServiceException If the relationship does not exist.
+     */
+    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
+            $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
+            if (!$pageSection) {
+                $this->throwNotFound('Section is not associated with this page.');
+            }
+
+            $this->entityManager->remove($pageSection);
+            $this->entityManager->flush();
+
+            $this->normalizePageSectionPositions($page->getId());
+
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
+
+    /**
+     * Normalizes the positions of all sections within a specific page.
+     */
+    private function normalizePageSectionPositions(int $pageId): void
+    {
+        $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(
+            ['page' => $pageId],
+            ['position' => 'ASC', 'idSections' => 'ASC']
+        );
+
+        $currentPosition = 10;
+        foreach ($pageSections as $pageSection) {
+            $pageSection->setPosition($currentPosition);
+            $currentPosition += 10;
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /************************* END PAGE & SECTION RELATIONSHIPS *************************/
 }

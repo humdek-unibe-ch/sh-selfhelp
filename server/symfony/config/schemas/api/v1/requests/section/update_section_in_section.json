@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Update Section in Section Request",
+    "description": "Schema for updating a child section's position within a parent section",
+    "type": "object",
+    "properties": {
+        "position": {
+            "type": ["integer", "null"],
+            "description": "The new position of the child section within the parent. If null, the section's position is effectively unset or moved to the end."
+        }
+    },
+    "additionalProperties": false
+}

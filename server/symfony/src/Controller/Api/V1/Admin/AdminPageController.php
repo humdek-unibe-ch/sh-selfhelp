@@ -4,9 +4,9 @@ namespace App\Controller\Api\V1\Admin;
 
 use App\Controller\Trait\RequestValidatorTrait;
 use App\Exception\ServiceException;
-use App\Service\Core\ApiResponseFormatter;
 use App\Service\CMS\Admin\AdminPageService;
 use App\Service\CMS\Frontend\PageService;
+use App\Service\Core\ApiResponseFormatter;
 use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -206,5 +206,44 @@ class AdminPageController extends AbstractController
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    public function addSectionToPage(Request $request, string $pageKeyword): Response
+    {
+        $data = $this->validateRequest($request, 'requests/page/add_section_to_page.json', $this->jsonSchemaValidationService);
+
+        $result = $this->adminPageService->addSectionToPage(
+            $pageKeyword,
+            $data['sectionId'],
+            $data['position'] ?? null
+        );
+
+        return $this->responseFormatter->formatSuccess(
+            ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()],
+            null,
+            Response::HTTP_CREATED
+        );
+    }
+
+    public function updateSectionInPage(Request $request, string $pageKeyword, int $sectionId): Response
+    {
+        $data = $this->validateRequest($request, 'requests/page/update_section_in_page.json', $this->jsonSchemaValidationService);
+
+        $result = $this->adminPageService->updateSectionInPage(
+            $pageKeyword,
+            $sectionId,
+            $data['position'] ?? null
+        );
+
+        return $this->responseFormatter->formatSuccess(
+            ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()]
+        );
+    }
+
+    public function removeSectionFromPage(string $pageKeyword, int $sectionId): Response
+    {
+        $this->adminPageService->removeSectionFromPage($pageKeyword, $sectionId);
+
+        return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 }

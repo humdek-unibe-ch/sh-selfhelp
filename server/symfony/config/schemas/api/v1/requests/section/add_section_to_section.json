@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Add Section to Section Request",
+    "description": "Schema for adding a child section to a parent section",
+    "type": "object",
+    "properties": {
+        "childSectionId": {
+            "type": "integer",
+            "description": "The ID of the child section to add."
+        },
+        "position": {
+            "type": ["integer", "null"],
+            "description": "The position of the child section within the parent. If null, it will be added at the end."
+        }
+    },
+    "required": [
+        "childSectionId"
+    ],
+    "additionalProperties": false
+}
