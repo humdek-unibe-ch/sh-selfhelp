@@ -14,7 +14,7 @@ class StyleControllerTest extends BaseControllerTest
         $token = $this->getAdminAccessToken();
         $this->client->request(
             'GET',
-            '/api/v1/styles',
+            '/cms-api/v1/admin/styles',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']

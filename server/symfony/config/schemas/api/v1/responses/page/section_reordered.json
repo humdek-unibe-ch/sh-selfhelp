@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Page Section Reordered Response",
+    "description": "Schema for the successful response of reordering a page section.",
+    "allOf": [
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique identifier for the section."
+                },
+                "position": {
+                    "type": "integer",
+                    "description": "New position of the section."
+                }
+            },
+            "required": [
+                "id",
+                "position"
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ]
+}

@@ -3,9 +3,12 @@ namespace App\Tests\Controller\Api\V1;
 
 use App\Service\Core\LookupService;
 use Symfony\Component\HttpFoundation\Response;
+use App\Tests\Controller\Api\V1\Traits\ManagesTestPagesTrait; // Add the trait
 
 class AdminPageControllerTest extends BaseControllerTest
-{    
+{
+    use ManagesTestPagesTrait; // Use the trait
+    
     private const TEST_PAGE_KEYWORD = "test_test";
     private const TITLE_FIELD_ID = 22; // ID of the title field
 
@@ -106,14 +109,9 @@ class AdminPageControllerTest extends BaseControllerTest
      */
     public function testCreateAndDeletePage(): void
     {
-        // First, make sure the test page doesn't already exist
-        $this->deleteTestPageIfExists();
-        
-        // Create a test page
-        $this->createTestPage();
-        
-        // Delete the test page
-        $this->deleteTestPage();
+        $this->deleteTestPageIfExistsWithKeyword(self::TEST_PAGE_KEYWORD); // Ensure clean state
+        $this->createTestPageWithKeyword(self::TEST_PAGE_KEYWORD, LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);
+        $this->deleteTestPageWithKeyword(self::TEST_PAGE_KEYWORD);
     }
     
     /**
@@ -121,12 +119,12 @@ class AdminPageControllerTest extends BaseControllerTest
      */
     public function testUpdatePage(): void
     {
-        // First, make sure the test page doesn't already exist
-        $this->deleteTestPageIfExists();
-        
-        // Create a test page
-        $this->createTestPage();
-        
+        // Ensure the test page doesn't exist from a previous failed run
+        $this->deleteTestPageIfExistsWithKeyword(self::TEST_PAGE_KEYWORD);
+
+        // First, create the test page
+        $this->createTestPageWithKeyword(self::TEST_PAGE_KEYWORD, LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);
+
         try {
             // Update the page
             $token = $this->getAdminAccessToken();
@@ -202,140 +200,8 @@ class AdminPageControllerTest extends BaseControllerTest
             $this->assertTrue($titleFieldFound, 'Title field with ID ' . self::TITLE_FIELD_ID . ' not found in response');
             
         } finally {
-            // Clean up by deleting the test page
-            $this->deleteTestPage();
-        }
-    }
-    
-    /**
-     * Create a test page with keyword 'test_test'
-     */
-    private function createTestPage(): void
-    {
-        $token = $this->getAdminAccessToken();
-        
-        // Create a new page
-        $this->client->request(
-            'POST',
-            '/cms-api/v1/admin/pages',
-            [],
-            [],
-            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'keyword' => self::TEST_PAGE_KEYWORD,
-                'pageAccessTypeCode' => LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB,
-                'headless' => false,
-                'openAccess' => true,
-                'url' => '/' . self::TEST_PAGE_KEYWORD,
-                'navPosition' => 100,
-                'footerPosition' => null,
-                'parent' => null
-            ])
-        );
-        
-        $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create test page');
-        
-        // Validate response against JSON schema
-        $data = json_decode($response->getContent());
-        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
-        $this->assertTrue(property_exists($data->data, 'keyword'), 'Response data does not have keyword property');
-        $this->assertSame(self::TEST_PAGE_KEYWORD, $data->data->keyword, 'Returned page keyword does not match');
-        
-        $validationErrors = $this->jsonSchemaValidationService->validate(
-            $data,
-            'responses/admin/page'
-        );
-        $this->assertEmpty($validationErrors, "Response for POST /cms-api/v1/admin/pages failed schema validation:\n" . implode("\n", $validationErrors));
-        
-        // Verify the page was created by fetching it
-        $this->client->request(
-            'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
-            [],
-            [],
-            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
-        );
-        
-        $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to fetch created test page');
-    }
-    
-    /**
-     * Delete the test page with keyword 'test_test'
-     */
-    private function deleteTestPage(): void
-    {
-        $token = $this->getAdminAccessToken();
-        
-        // Delete the page
-        $this->client->request(
-            'DELETE',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
-            [],
-            [],
-            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
-        );
-        
-        $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to delete test page');
-        
-        // Validate response against JSON schema
-        $data = json_decode($response->getContent());
-        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
-        $this->assertTrue(property_exists($data->data, 'keyword'), 'Response data does not have keyword property');
-        $this->assertSame(self::TEST_PAGE_KEYWORD, $data->data->keyword, 'Returned keyword does not match');
-        
-        $validationErrors = $this->jsonSchemaValidationService->validate(
-            $data,
-            'responses/admin/page'
-        );
-        $this->assertEmpty($validationErrors, "Response for DELETE /cms-api/v1/admin/pages/" . self::TEST_PAGE_KEYWORD . " failed schema validation:\n" . implode("\n", $validationErrors));
-        
-        // Verify the page was deleted by trying to fetch it (should return 404)
-        $this->client->request(
-            'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
-            [],
-            [],
-            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
-        );
-        
-        $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), 'Page was not properly deleted');
-    }
-    
-    /**
-     * Helper method to delete the test page if it exists
-     * This ensures tests can be run multiple times without failing
-     */
-    private function deleteTestPageIfExists(): void
-    {
-        $token = $this->getAdminAccessToken();
-        
-        // Check if the page exists
-        $this->client->request(
-            'GET',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
-            [],
-            [],
-            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
-        );
-        
-        $response = $this->client->getResponse();
-        
-        // If page exists (status 200), delete it
-        if ($response->getStatusCode() === Response::HTTP_OK) {
-            $this->client->request(
-                'DELETE',
-                '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD,
-                [],
-                [],
-                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json']
-            );
-            
-            // Wait a moment to ensure deletion is complete
-            sleep(1);
+            // Clean up: delete the test page
+            $this->deleteTestPageIfExistsWithKeyword(self::TEST_PAGE_KEYWORD); // Use ifExists for robustness in cleanup
         }
     }
 }
