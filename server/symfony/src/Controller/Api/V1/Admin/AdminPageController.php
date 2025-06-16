@@ -13,7 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * API V1 Admin Controller
@@ -210,7 +209,7 @@ class AdminPageController extends AbstractController
 
     public function addSectionToPage(Request $request, string $pageKeyword): Response
     {
-        $data = $this->validateRequest($request, 'requests/page/add_section_to_page.json', $this->jsonSchemaValidationService);
+        $data = $this->validateRequest($request, 'requests/page/add_section_to_page', $this->jsonSchemaValidationService);
 
         $result = $this->adminPageService->addSectionToPage(
             $pageKeyword,
@@ -227,7 +226,7 @@ class AdminPageController extends AbstractController
 
     public function updateSectionInPage(Request $request, string $pageKeyword, int $sectionId): Response
     {
-        $data = $this->validateRequest($request, 'requests/page/update_section_in_page.json', $this->jsonSchemaValidationService);
+        $data = $this->validateRequest($request, 'requests/page/update_section_in_page', $this->jsonSchemaValidationService);
 
         $result = $this->adminPageService->updateSectionInPage(
             $pageKeyword,

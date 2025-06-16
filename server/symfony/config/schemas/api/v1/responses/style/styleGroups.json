@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Style Groups Response",
+    "description": "Response schema for retrieving all styles grouped by style groups",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "../common/_response_envelope.json"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "../../entities/styleGroupEntity.json"
+                    }
+                }
+            },
+            "required": ["data"]
+        }
+    ]
+}

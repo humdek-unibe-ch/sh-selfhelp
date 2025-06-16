@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Create Child Section Request",
+    "description": "Request schema for creating a new child section inside another section",
+    "type": "object",
+    "properties": {
+        "parentSectionId": {
+            "type": "integer",
+            "description": "The ID of the parent section to add the child section to"
+        },
+        "position": {
+            "type": "integer",
+            "description": "The position of the child section within the parent section",
+            "minimum": 0
+        },
+        "styleId": {
+            "type": "integer",
+            "description": "The ID of the style to use for the section"
+        }
+    },
+    "required": ["parentSectionId", "position", "styleId"]
+}

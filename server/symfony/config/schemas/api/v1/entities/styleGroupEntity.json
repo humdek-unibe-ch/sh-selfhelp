@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Style Group Entity",
+    "description": "Defines the structure of a style group entity",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier of the style group"
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the style group"
+        },
+        "description": {
+            "type": ["string", "null"],
+            "description": "The description of the style group"
+        },
+        "position": {
+            "type": "integer",
+            "description": "The position of the style group for ordering"
+        },
+        "styles": {
+            "type": "array",
+            "description": "The styles that belong to this group",
+            "items": {
+                "$ref": "#/definitions/style"
+            }
+        }
+    },
+    "required": ["id", "name", "position", "styles"],
+    "definitions": {
+        "style": {
+            "$ref": "styleEntity.json"
+        }
+    }
+}

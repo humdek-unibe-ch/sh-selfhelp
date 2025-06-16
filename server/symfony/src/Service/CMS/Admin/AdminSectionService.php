@@ -7,6 +7,8 @@ use App\Entity\Section;
 use App\Entity\PagesSection;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
+use App\Repository\StyleRepository;
+use App\Repository\PageRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
@@ -26,6 +28,8 @@ class AdminSectionService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly SectionRepository $sectionRepository,
         private readonly TransactionService $transactionService,
+        private readonly StyleRepository $styleRepository,
+        private readonly PageRepository $pageRepository,
         ACLService $aclService,
         UserContextService $userContextService
     ) {
@@ -153,27 +157,25 @@ class AdminSectionService extends UserContextAwareService
                 $this->throwNotFound('Section not found');
             }
 
-            // Remove all hierarchy relationships where this section is a child
-            $childOf = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['childSection' => $sectionId]);
-            foreach ($childOf as $relation) {
-                $this->entityManager->remove($relation);
+            // Remove from pages_sections
+            $pagesSections = $this->entityManager->getRepository(PagesSection::class)->findBy(['section' => $section]);
+            foreach ($pagesSections as $pagesSection) {
+                $this->entityManager->remove($pagesSection);
             }
 
-            // Remove all hierarchy relationships where this section is a parent
-            $parentOf = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['parentSection' => $sectionId]);
-            foreach ($parentOf as $relation) {
-                $this->entityManager->remove($relation);
+            // Remove from sections_hierarchy as parent
+            $hierarchiesAsParent = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['parentSection' => $section]);
+            foreach ($hierarchiesAsParent as $hierarchy) {
+                $this->entityManager->remove($hierarchy);
             }
 
-            // Remove all page-section relationships
-            $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(['section' => $sectionId]);
-            foreach ($pageSections as $pageSection) {
-                $this->entityManager->remove($pageSection);
+            // Remove from sections_hierarchy as child
+            $hierarchiesAsChild = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['childSection' => $section]);
+            foreach ($hierarchiesAsChild as $hierarchy) {
+                $this->entityManager->remove($hierarchy);
             }
-            
-            $this->entityManager->flush(); // Flush removals of relationships first
 
-            // Finally, remove the section itself
+            // Finally remove the section itself
             $this->entityManager->remove($section);
             $this->entityManager->flush();
 
@@ -184,6 +186,125 @@ class AdminSectionService extends UserContextAwareService
         }
     }
 
+    /**
+     * Creates a new section with the specified style and adds it to a page
+     *
+     * @param string $pageKeyword The keyword of the page to add the section to
+     * @param int $styleId The ID of the style to use for the section
+     * @param int|null $position The position of the section on the page
+     * @return PagesSection The new page-section relationship
+     * @throws ServiceException If the page or style is not found
+     */
+    public function createPageSection(string $pageKeyword, int $styleId, ?int $position): PagesSection
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
+            if (!$this->hasAccess($page->getId(), 'update')) {
+                $this->throwForbidden('Access denied to modify this page');
+            }
+
+            $style = $this->styleRepository->find($styleId);
+            if (!$style) {
+                $this->throwNotFound('Style not found');
+            }
+
+            // Create a new section with the specified style
+            $section = new Section();
+            $section->setName(time() . '-' . $style->getName());
+            $section->setStyle($style);
+            $this->entityManager->persist($section);
+            $this->entityManager->flush(); // Flush to get the section ID
+
+            // Add the section to the page
+            $pagesSection = new PagesSection();
+            $pagesSection->setPage($page);
+            $pagesSection->setSection($section);
+            $pagesSection->setPosition($position);
+            $this->entityManager->persist($pagesSection);
+            $this->entityManager->flush();
+
+            $this->normalizePageSectionPositions($page->getId());
+
+            $this->entityManager->commit();
+            return $pagesSection;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create section on page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
+
+    /**
+     * Creates a new section with the specified style and adds it as a child to another section
+     *
+     * @param int $parentSectionId The ID of the parent section
+     * @param int $styleId The ID of the style to use for the section
+     * @param int|null $position The position of the child section
+     * @return SectionsHierarchy The new section hierarchy relationship
+     * @throws ServiceException If the parent section or style is not found
+     */
+    public function createChildSection(int $parentSectionId, int $styleId, ?int $position): SectionsHierarchy
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $parentSection = $this->sectionRepository->find($parentSectionId);
+            if (!$parentSection) {
+                $this->throwNotFound('Parent section not found');
+            }
+
+            $style = $this->styleRepository->find($styleId);
+            if (!$style) {
+                $this->throwNotFound('Style not found');
+            }
+
+            // Create a new section with the specified style
+            $childSection = new Section();
+            $childSection->setName(time() . '-' . $style->getName());
+            $childSection->setStyle($style);
+            $this->entityManager->persist($childSection);
+            $this->entityManager->flush(); // Flush to get the section ID
+
+            // Add the child section to the parent section
+            $sectionHierarchy = new SectionsHierarchy();
+            $sectionHierarchy->setParentSection($parentSection);
+            $sectionHierarchy->setChildSection($childSection);
+            $sectionHierarchy->setPosition($position);
+            $this->entityManager->persist($sectionHierarchy);
+            $this->entityManager->flush();
+
+            $this->normalizeSectionHierarchyPositions($parentSectionId);
+
+            $this->entityManager->commit();
+            return $sectionHierarchy;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create child section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
+
+    /**
+     * Normalizes the positions of sections on a page.
+     * 
+     * @param int $pageId The ID of the page to normalize section positions for
+     */
+    private function normalizePageSectionPositions(int $pageId): void
+    {
+        $pagesSections = $this->entityManager->getRepository(PagesSection::class)
+            ->findBy(['page' => $pageId], ['position' => 'ASC']);
+        
+        // Reindex positions starting from 0
+        $position = 0;
+        foreach ($pagesSections as $pagesSection) {
+            $pagesSection->setPosition($position++);
+        }
+        
+        $this->entityManager->flush();
+    }
+    
     /**
      * Normalizes the positions of all child sections within a specific parent section.
      */

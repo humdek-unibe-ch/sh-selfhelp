@@ -799,6 +799,101 @@ The `BaseApiController` class has been implemented as a foundation for all API c
 namespace App\Controller;
 
 use App\Service\Core\ApiResponseFormatter;
+
+## Styles and Sections API (2025-06-15)
+
+### Overview
+
+The Styles and Sections API provides endpoints for retrieving style information and creating sections on pages or within other sections. This API follows the standard patterns established for the Self-help backend, including JSON schema validation, standardized response envelopes, and database-driven routing.
+
+### Key Components
+
+#### StyleController
+
+The `StyleController` provides endpoints for retrieving style information:
+
+- **GET /api/v1/styles**: Returns all styles grouped by their style groups
+  - Uses the `view_styles` database view for efficient data retrieval
+  - Returns styles organized by style groups with proper ordering
+
+#### SectionController
+
+The `SectionController` provides endpoints for creating sections:
+
+- **POST /api/v1/sections/page**: Creates a new section on a page
+  - Parameters: `pageKeyword`, `position`, `styleId`
+  - Creates a section and adds it to the specified page at the given position
+
+- **POST /api/v1/sections/section**: Creates a new child section inside another section
+  - Parameters: `parentSectionId`, `position`, `styleId`
+  - Creates a section and adds it as a child to the specified parent section at the given position
+
+#### SectionService
+
+The `SectionService` handles the business logic for creating sections:
+
+- **Section Naming Convention**: Sections are named using the pattern `unixTimestamp-styleName`
+- **Transaction Management**: All operations use explicit transaction management
+- **Database Structure**: Uses the `pages_sections` and `sections_hierarchy` tables to manage relationships
+
+### JSON Schema Validation
+
+The API uses JSON schemas for request and response validation:
+
+- **Entity Schemas**:
+  - `styleEntity.json`: Defines the structure of a style entity
+  - `styleGroupEntity.json`: Defines the structure of a style group entity
+  - `sectionEntity.json`: Defines the structure of a section entity
+
+- **Request Schemas**:
+  - `create_page_section.json`: Validates requests to create sections on pages
+  - `create_child_section.json`: Validates requests to create child sections
+
+- **Response Schemas**:
+  - `styleGroups.json`: Validates responses for the styles endpoint
+  - `section_created.json`: Validates responses for section creation endpoints
+
+### API Routes
+
+The Styles and Sections API uses a dual routing approach:
+
+1. **Database-driven Dynamic Routing**: Routes are registered in the `api_routes` table for runtime loading:
+
+```sql
+INSERT INTO `api_routes` (`route_name`, `path`, `controller`, `methods`, `requirements`, `params`, `version`) VALUES
+('api_v1_styles_get', '/api/v1/styles', 'App\\Controller\\Api\\V1\\StyleController::getStyles', 'GET', NULL, NULL, 'v1'),
+('api_v1_sections_page_create', '/api/v1/sections/page', 'App\\Controller\\Api\\V1\\SectionController::createPageSection', 'POST', NULL, '{"pageKeyword":{"in":"body","required":true},"position":{"in":"body","required":true},"styleId":{"in":"body","required":true}}', 'v1'),
+('api_v1_sections_section_create', '/api/v1/sections/section', 'App\\Controller\\Api\\V1\\SectionController::createChildSection', 'POST', NULL, '{"parentSectionId":{"in":"body","required":true},"position":{"in":"body","required":true},"styleId":{"in":"body","required":true}}', 'v1');
+```
+
+2. **Symfony Route Attributes**: Controller methods are also decorated with Symfony route attributes for IDE support and static analysis:
+
+```php
+// SectionController.php
+#[Route('/api/v1/sections/page', name: 'api_v1_sections_page_create', methods: ['POST'])]
+public function createPageSection(Request $request): JsonResponse
+
+#[Route('/api/v1/sections/section', name: 'api_v1_sections_section_create', methods: ['POST'])]
+public function createChildSection(Request $request): JsonResponse
+
+// StyleController.php
+#[Route('/api/v1/styles', name: 'api_v1_styles_get', methods: ['GET'])]
+public function getStyles(): JsonResponse
+```
+
+This dual approach ensures routes are properly registered both in the database for dynamic loading and in the code for static analysis and IDE support.
+
+### Implementation Details
+
+1. **StyleRepository**: Extended with a `findAllStylesGroupedByGroup()` method that uses raw SQL to query the `view_styles` view
+2. **SectionService**: Implements methods for creating sections and managing their relationships
+   - `createPageSection()`: Creates a section and links it to a page
+   - `createChildSection()`: Creates a section and links it as a child to another section
+   - `addPageSection()` and `addChildSection()`: Handle the relationship management
+3. **RequestValidatorTrait**: Used in controllers to validate incoming requests against JSON schemas
+4. **ApiResponseFormatter**: Used to format all responses with the standard envelope structure
+5. **JsonSchemaValidator**: Used to validate responses against JSON schemas
+6. **Route Configuration**: Both database-driven dynamic routing and Symfony attribute-based routing are used
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

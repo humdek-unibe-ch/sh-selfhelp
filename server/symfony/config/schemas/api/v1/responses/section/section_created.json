@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Section Created Response",
+    "description": "Response schema for section creation endpoints",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "../../common/_response_envelope.json"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "../../entities/sectionEntity.json"
+                }
+            },
+            "required": ["data"]
+        }
+    ]
+}

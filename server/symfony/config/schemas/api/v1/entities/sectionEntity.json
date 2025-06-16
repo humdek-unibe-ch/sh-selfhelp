@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Section Entity",
+    "description": "Defines the structure of a section entity",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "The unique identifier of the section"
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the section"
+        },
+        "style": {
+            "$ref": "styleEntity.json"
+        }
+    },
+    "required": ["id", "name", "style"]
+}

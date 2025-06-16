@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Child Section Added Response",
+    "description": "Response schema for adding a child section to a parent section",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "../../common/_response_envelope.json"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer",
+                            "description": "The ID of the child section"
+                        },
+                        "position": {
+                            "type": "integer",
+                            "description": "The position of the child section within the parent section"
+                        }
+                    },
+                    "required": ["id", "position"]
+                }
+            },
+            "required": ["data"]
+        }
+    ]
+}

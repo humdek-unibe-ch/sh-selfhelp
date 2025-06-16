@@ -15,14 +15,14 @@ class AdminSectionController extends AbstractController
     use RequestValidatorTrait;
 
     public function __construct(
-                private readonly AdminSectionService $adminSectionService,
+        private readonly AdminSectionService $adminSectionService,
         private readonly ApiResponseFormatter $apiResponseFormatter,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {}
 
     public function addSectionToSection(Request $request, int $parentSectionId): Response
     {
-        $data = $this->validateRequest($request, 'requests/section/add_section_to_section.json', $this->jsonSchemaValidationService);
+        $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->addSectionToSection(
             $parentSectionId,
@@ -39,7 +39,7 @@ class AdminSectionController extends AbstractController
 
     public function updateSectionInSection(Request $request, int $parentSectionId, int $childSectionId): Response
     {
-        $data = $this->validateRequest($request, 'requests/section/update_section_in_section.json', $this->jsonSchemaValidationService);
+        $data = $this->validateRequest($request, 'requests/section/update_section_in_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->updateSectionInSection(
             $parentSectionId,
@@ -64,5 +64,45 @@ class AdminSectionController extends AbstractController
         $this->adminSectionService->deleteSection($sectionId);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Creates a new section with the specified style and adds it to a page
+     */
+    public function createPageSection(Request $request, string $pageKeyword): Response
+    {
+        $data = $this->validateRequest($request, 'requests/section/create_page_section', $this->jsonSchemaValidationService);
+
+        $result = $this->adminSectionService->createPageSection(
+            $pageKeyword,
+            $data['styleId'],
+            $data['position'] ?? null
+        );
+
+        return $this->apiResponseFormatter->formatSuccess(
+            ['id' => $result->getId(), 'position' => $result->getPosition()],
+            null,
+            Response::HTTP_CREATED
+        );
+    }
+
+    /**
+     * Creates a new section with the specified style and adds it as a child to another section
+     */
+    public function createChildSection(Request $request, int $parentSectionId): Response
+    {
+        $data = $this->validateRequest($request, 'requests/section/create_child_section', $this->jsonSchemaValidationService);
+
+        $result = $this->adminSectionService->createChildSection(
+            $parentSectionId,
+            $data['styleId'],
+            $data['position'] ?? null
+        );
+
+        return $this->apiResponseFormatter->formatSuccess(
+            ['id' => $result->getId(), 'position' => $result->getPosition()],
+            null,
+            Response::HTTP_CREATED
+        );
     }
 }
