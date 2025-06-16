@@ -4,10 +4,6 @@
     "description": "Request schema for creating a new child section inside another section",
     "type": "object",
     "properties": {
-        "parentSectionId": {
-            "type": "integer",
-            "description": "The ID of the parent section to add the child section to"
-        },
         "position": {
             "type": "integer",
             "description": "The position of the child section within the parent section",
@@ -18,5 +14,5 @@
             "description": "The ID of the style to use for the section"
         }
     },
-    "required": ["parentSectionId", "position", "styleId"]
+    "required": ["position", "styleId"]
 }

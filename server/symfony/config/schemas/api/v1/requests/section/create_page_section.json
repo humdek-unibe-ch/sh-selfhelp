@@ -4,10 +4,6 @@
     "description": "Request schema for creating a new section on a page",
     "type": "object",
     "properties": {
-        "pageKeyword": {
-            "type": "string",
-            "description": "The keyword of the page to add the section to"
-        },
         "position": {
             "type": "integer",
             "description": "The position of the section on the page",
@@ -18,5 +14,5 @@
             "description": "The ID of the style to use for the section"
         }
     },
-    "required": ["pageKeyword", "position", "styleId"]
+    "required": ["position", "styleId"]
 }

@@ -9,9 +9,9 @@ class AdminSectionControllerTest extends BaseControllerTest
     use ManagesTestPagesTrait; // Use the trait
 
     private const TEST_PAGE_KEYWORD = "home"; // Using an existing page for testing
-    private const LIFECYCLE_TEST_PAGE_KEYWORD = 'sections_lifecycle_test_page';
-    private const DEFAULT_STYLE_ID_1 = 1; // Assuming style ID 1 exists
-    private const DEFAULT_STYLE_ID_2 = 2; // Assuming style ID 2 exists
+    private const LIFECYCLE_TEST_PAGE_KEYWORD = 'sections_lifecycle_test_page';    
+    private const DEFAULT_STYLE_ID_1 = 3; // Container style
+    private const DEFAULT_STYLE_ID_2 = 40; // Div style
     private const DEFAULT_LANGUAGE_ID = 2; // Assuming default language ID for page creation
 
     private $testSectionId = null; // Will store the ID of a test section for child section tests
@@ -39,7 +39,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 1. Add Section 1 (S1)
             $this->client->request(
                 'POST',
-                "/cms-api/v1/admin/pages/{$pageKeyword}/sections/create",
+                sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -58,7 +58,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 2. Add Section 2 (S2)
             $this->client->request(
                 'POST',
-                "/cms-api/v1/admin/pages/{$pageKeyword}/sections/create",
+                sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -75,7 +75,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertNotNull($section2Id, 'Section 2 ID is null');
 
             // 3. Verify S1, S2 order
-            $this->client->request('GET', "/cms-api/v1/admin/pages/{$pageKeyword}/sections", [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $response = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
             $responseContentGet1 = $response->getContent();
@@ -92,7 +92,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 4. Reorder S2 before S1 (S2 to position 0)
             $this->client->request(
                 'PUT',
-                "/cms-api/v1/admin/pages/{$pageKeyword}/sections/{$section2Id}",
+                sprintf('/cms-api/v1/admin/sections/%d', $section2Id),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -109,7 +109,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // For now, assume service handles S1 moving to position 1.
 
             // 5. Verify Reorder (S2, S1)
-            $this->client->request('GET', "/cms-api/v1/admin/pages/{$pageKeyword}/sections", [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet2 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet2->getStatusCode(), 'Failed to get sections after reorder');
             $responseContentGet2 = $responseGet2->getContent();
@@ -126,7 +126,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 6. Add S3 as child of S2 (which is now at pos 0)
             $this->client->request(
                 'POST',
-                "/cms-api/v1/admin/sections/{$section2Id}/child-sections/create", // Corrected endpoint from previous review
+                sprintf('/cms-api/v1/admin/sections/%d/child-sections/create', $section2Id), // Corrected endpoint from previous review
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -143,7 +143,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertNotNull($section3Id, 'Section 3 ID is null');
 
             // 7. Verify Nested Structure (S2[S3], S1)
-            $this->client->request('GET', "/cms-api/v1/admin/pages/{$pageKeyword}/sections", [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet3 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet3->getStatusCode(), 'Failed to get sections after adding S3');
             $responseContentGet3 = $responseGet3->getContent();
@@ -161,7 +161,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 8. Remove Child Section S3 from S2
             $this->client->request(
                 'DELETE',
-                "/cms-api/v1/admin/sections/{$section3Id}", // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/sections/%d', $section3Id), // Endpoint for deleting any section by its ID
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
@@ -169,7 +169,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove child section S3');
 
             // 9. Verify S3 Removal (S2, S1)
-            $this->client->request('GET', "/cms-api/v1/admin/pages/{$pageKeyword}/sections", [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet4 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet4->getStatusCode(), 'Failed to get sections after S3 removal');
             $responseContentGet4 = $responseGet4->getContent();
@@ -185,7 +185,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 10. Remove S2 from page
             $this->client->request(
                 'DELETE',
-                "/cms-api/v1/admin/sections/{$section2Id}", // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/sections/%d', $section2Id), // Endpoint for deleting any section by its ID
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
@@ -195,7 +195,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // 11. Remove S1 from page
             $this->client->request(
                 'DELETE',
-                "/cms-api/v1/admin/sections/{$section1Id}", // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/sections/%d', $section1Id), // Endpoint for deleting any section by its ID
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
@@ -203,7 +203,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove section S1');
 
             // 12. Verify All Sections Gone
-            $this->client->request('GET', "/cms-api/v1/admin/pages/{$pageKeyword}/sections", [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet5 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet5->getStatusCode(), 'Failed to get sections after all deletes');
             $responseContentGet5 = $responseGet5->getContent();
@@ -251,7 +251,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a page section
         $this->client->request(
             'POST',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/sections/create',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', self::TEST_PAGE_KEYWORD),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -296,7 +296,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a child section
         $this->client->request(
             'POST',
-            '/cms-api/v1/admin/sections/' . $this->testSectionId . '/sections/create',
+            sprintf('/cms-api/v1/admin/sections/%d/sections/create', $this->testSectionId),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -340,7 +340,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a page section
         $this->client->request(
             'POST',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/sections/create',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', self::TEST_PAGE_KEYWORD),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -380,7 +380,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a page section on the 'home' page
         $this->client->request(
             'POST',
-            '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/sections/create', // Uses 'home'
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', self::TEST_PAGE_KEYWORD), // Uses 'home'
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -413,7 +413,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             // This assumes it's a top-level section on 'home'. If it could be nested, cleanup is harder.
             $this->client->request(
                 'DELETE',
-                '/cms-api/v1/admin/pages/' . self::TEST_PAGE_KEYWORD . '/sections/' . $this->testSectionId,
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', self::TEST_PAGE_KEYWORD, $this->testSectionId),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

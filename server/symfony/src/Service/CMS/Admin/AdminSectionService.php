@@ -39,22 +39,22 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Adds a child section to a parent section.
      *
-     * @param int $parentSectionId The ID of the parent section.
-     * @param int $childSectionId The ID of the child section.
+     * @param int $parent_section_id The ID of the parent section.
+     * @param int $child_section_id The ID of the child section.
      * @param int|null $position The desired position.
      * @return SectionsHierarchy The new section hierarchy relationship.
      * @throws ServiceException If the relationship already exists or entities are not found.
      */
-    public function addSectionToSection(int $parentSectionId, int $childSectionId, ?int $position): SectionsHierarchy
+    public function addSectionToSection(int $parent_section_id, int $child_section_id, ?int $position): SectionsHierarchy
     {
         $this->entityManager->beginTransaction();
         try {
-            $parentSection = $this->sectionRepository->find($parentSectionId);
+            $parentSection = $this->sectionRepository->find($parent_section_id);
             if (!$parentSection) {
                 $this->throwNotFound('Parent section not found');
             }
 
-            $childSection = $this->sectionRepository->find($childSectionId);
+            $childSection = $this->sectionRepository->find($child_section_id);
             if (!$childSection) {
                 $this->throwNotFound('Child section not found');
             }
@@ -71,7 +71,7 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
 
-            $this->normalizeSectionHierarchyPositions($parentSectionId);
+            $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
             return $sectionHierarchy;
@@ -84,17 +84,17 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Updates the position of a child section within a parent section.
      *
-     * @param int $parentSectionId The ID of the parent section.
-     * @param int $childSectionId The ID of the child section.
+     * @param int $parent_section_id The ID of the parent section.
+     * @param int $child_section_id The ID of the child section.
      * @param int|null $position The new position.
      * @return SectionsHierarchy The updated section hierarchy relationship.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function updateSectionInSection(int $parentSectionId, int $childSectionId, ?int $position): SectionsHierarchy
+    public function updateSectionInSection(int $parent_section_id, int $child_section_id, ?int $position): SectionsHierarchy
     {
         $this->entityManager->beginTransaction();
         try {
-            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parentSectionId, 'childSection' => $childSectionId]);
+            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parent_section_id, 'childSection' => $child_section_id]);
             if (!$sectionHierarchy) {
                 $this->throwNotFound('Section hierarchy relationship not found. Use the add endpoint to create it.');
             }
@@ -102,7 +102,7 @@ class AdminSectionService extends UserContextAwareService
             $sectionHierarchy->setPosition($position);
             $this->entityManager->flush();
 
-            $this->normalizeSectionHierarchyPositions($parentSectionId);
+            $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
             return $sectionHierarchy;
@@ -115,15 +115,15 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Removes a child section from a parent section.
      *
-     * @param int $parentSectionId The ID of the parent section.
-     * @param int $childSectionId The ID of the child section.
+     * @param int $parent_section_id The ID of the parent section.
+     * @param int $child_section_id The ID of the child section.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function removeSectionFromSection(int $parentSectionId, int $childSectionId): void
+    public function removeSectionFromSection(int $parent_section_id, int $child_section_id): void
     {
         $this->entityManager->beginTransaction();
         try {
-            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parentSectionId, 'childSection' => $childSectionId]);
+            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parent_section_id, 'childSection' => $child_section_id]);
             if (!$sectionHierarchy) {
                 $this->throwNotFound('Section hierarchy relationship not found.');
             }
@@ -131,7 +131,7 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->remove($sectionHierarchy);
             $this->entityManager->flush();
 
-            $this->normalizeSectionHierarchyPositions($parentSectionId);
+            $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
         } catch (\Throwable $e) {
@@ -145,14 +145,14 @@ class AdminSectionService extends UserContextAwareService
      *
      * This will remove the section and all its relationships (parent, child, and page attachments).
      *
-     * @param int $sectionId The ID of the section to delete.
+     * @param int $section_id The ID of the section to delete.
      * @throws ServiceException If the section is not found.
      */
-    public function deleteSection(int $sectionId): void
+    public function deleteSection(int $section_id): void
     {
         $this->entityManager->beginTransaction();
         try {
-            $section = $this->sectionRepository->find($sectionId);
+            $section = $this->sectionRepository->find($section_id);
             if (!$section) {
                 $this->throwNotFound('Section not found');
             }
@@ -189,17 +189,17 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Creates a new section with the specified style and adds it to a page
      *
-     * @param string $pageKeyword The keyword of the page to add the section to
+     * @param string $page_keyword The keyword of the page to add the section to
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the section on the page
      * @return PagesSection The new page-section relationship
      * @throws ServiceException If the page or style is not found
      */
-    public function createPageSection(string $pageKeyword, int $styleId, ?int $position): PagesSection
+    public function createPageSection(string $page_keyword, int $styleId, ?int $position): PagesSection
     {
         $this->entityManager->beginTransaction();
         try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
             if (!$page) {
                 $this->throwNotFound('Page not found');
             }
@@ -225,6 +225,8 @@ class AdminSectionService extends UserContextAwareService
             $pagesSection->setPage($page);
             $pagesSection->setSection($section);
             $pagesSection->setPosition($position);
+            $pagesSection->setIdPages($page->getId());
+            $pagesSection->setIdSections($section->getId());
             $this->entityManager->persist($pagesSection);
             $this->entityManager->flush();
 
@@ -241,17 +243,17 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      *
-     * @param int $parentSectionId The ID of the parent section
+     * @param int $parent_section_id The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
      * @return SectionsHierarchy The new section hierarchy relationship
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(int $parentSectionId, int $styleId, ?int $position): SectionsHierarchy
+    public function createChildSection(int $parent_section_id, int $styleId, ?int $position): SectionsHierarchy
     {
         $this->entityManager->beginTransaction();
         try {
-            $parentSection = $this->sectionRepository->find($parentSectionId);
+            $parentSection = $this->sectionRepository->find($parent_section_id);
             if (!$parentSection) {
                 $this->throwNotFound('Parent section not found');
             }
@@ -276,7 +278,7 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
 
-            $this->normalizeSectionHierarchyPositions($parentSectionId);
+            $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
             return $sectionHierarchy;
@@ -308,10 +310,10 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Normalizes the positions of all child sections within a specific parent section.
      */
-    private function normalizeSectionHierarchyPositions(int $parentSectionId): void
+    private function normalizeSectionHierarchyPositions(int $parent_section_id): void
     {
         $sectionHierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(
-            ['parentSection' => $parentSectionId],
+            ['parentSection' => $parent_section_id],
             ['position' => 'ASC', 'childSection' => 'ASC']
         );
 

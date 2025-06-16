@@ -20,12 +20,12 @@ class AdminSectionController extends AbstractController
         private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {}
 
-    public function addSectionToSection(Request $request, int $parentSectionId): Response
+    public function addSectionToSection(Request $request, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->addSectionToSection(
-            $parentSectionId,
+            $parent_section_id,
             $data['childSectionId'],
             $data['position'] ?? null
         );
@@ -37,13 +37,13 @@ class AdminSectionController extends AbstractController
         );
     }
 
-    public function updateSectionInSection(Request $request, int $parentSectionId, int $childSectionId): Response
+    public function updateSectionInSection(Request $request, int $parent_section_id, int $child_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/update_section_in_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->updateSectionInSection(
-            $parentSectionId,
-            $childSectionId,
+            $parent_section_id,
+            $child_section_id,
             $data['position'] ?? null
         );
 
@@ -52,16 +52,16 @@ class AdminSectionController extends AbstractController
         );
     }
 
-    public function removeSectionFromSection(int $parentSectionId, int $childSectionId): Response
+    public function removeSectionFromSection(int $parent_section_id, int $child_section_id): Response
     {
-        $this->adminSectionService->removeSectionFromSection($parentSectionId, $childSectionId);
+        $this->adminSectionService->removeSectionFromSection($parent_section_id, $child_section_id);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
-    public function deleteSection(int $sectionId): Response
+    public function deleteSection(int $section_id): Response
     {
-        $this->adminSectionService->deleteSection($sectionId);
+        $this->adminSectionService->deleteSection($section_id);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
@@ -69,19 +69,19 @@ class AdminSectionController extends AbstractController
     /**
      * Creates a new section with the specified style and adds it to a page
      */
-    public function createPageSection(Request $request, string $pageKeyword): Response
+    public function createPageSection(Request $request, string $page_keyword): Response
     {
         $data = $this->validateRequest($request, 'requests/section/create_page_section', $this->jsonSchemaValidationService);
 
-        $result = $this->adminSectionService->createPageSection(
-            $pageKeyword,
+        $pageSection = $this->adminSectionService->createPageSection(
+            $page_keyword,
             $data['styleId'],
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $result->getId(), 'position' => $result->getPosition()],
-            null,
+            $pageSection,
+            'responses/admin/section/section_created',
             Response::HTTP_CREATED
         );
     }
@@ -89,19 +89,19 @@ class AdminSectionController extends AbstractController
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      */
-    public function createChildSection(Request $request, int $parentSectionId): Response
+    public function createChildSection(Request $request, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/create_child_section', $this->jsonSchemaValidationService);
 
-        $result = $this->adminSectionService->createChildSection(
-            $parentSectionId,
+        $section = $this->adminSectionService->createChildSection(
+            $parent_section_id,
             $data['styleId'],
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $result->getId(), 'position' => $result->getPosition()],
-            null,
+            $section,
+            'responses/admin/section/section_created',
             Response::HTTP_CREATED
         );
     }
