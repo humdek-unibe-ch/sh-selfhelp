@@ -1434,8 +1434,8 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_styles_get', 'v1', '/admin/styles', 'App\\Controller\\Api\\V1\\Admin\\AdminStyleController::getStyles', 'GET', NULL, NULL),
 
 -- Admin Page Sections 
-('admin_add_section_to_page', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'POST', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+'), JSON_OBJECT('section_data', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'))) ,
-('admin_update_section_in_page', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updateSectionInPage', 'PUT', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '\\d+'), JSON_OBJECT('section_data', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'))) ,
+('admin_pages_add_section', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'POST', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+'), JSON_OBJECT('section_data', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'))) ,
+('admin', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updateSectionInPage', 'PUT', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '\\d+'), JSON_OBJECT('section_data', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'))) ,
 ('admin_remove_section_from_page', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '\\d+'), NULL),
 
 -- Admin Section in Section 

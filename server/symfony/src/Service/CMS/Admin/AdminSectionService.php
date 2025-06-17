@@ -2,8 +2,8 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\SectionsHierarchy;
 use App\Entity\Section;
+use App\Entity\SectionsHierarchy;
 use App\Entity\PagesSection;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
@@ -34,6 +34,56 @@ class AdminSectionService extends UserContextAwareService
         UserContextService $userContextService
     ) {
         parent::__construct($userContextService, $aclService);
+    }
+
+    /**
+     * Get a section by its ID
+     * @param int $section_id
+     * @return array|null
+     */
+    public function getSection(int $section_id): ?array
+    {
+        $section = $this->sectionRepository->find($section_id);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
+        }
+        // Use Symfony serializer or manual normalization as per project
+        return $this->normalizeSection($section);
+    }
+
+    /**
+     * Get all children sections for a parent section
+     * @param int $parent_section_id
+     * @return array
+     */
+    public function getChildrenSections(int $parent_section_id): array
+    {
+        $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
+            ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
+        $sections = [];
+        foreach ($hierarchies as $hierarchy) {
+            $child = $hierarchy->getChildSection();
+            if ($child) {
+                $sections[] = $this->normalizeSection($child);
+            }
+        }
+        return $sections;
+    }
+
+    /**
+     * Normalize a Section entity for API response
+     * @param Section $section
+     * @return array
+     */
+    protected function normalizeSection($section): array
+    {
+        // Adjust as needed for project conventions
+        return [
+            'id' => $section->getId(),
+            'name' => $section->getName(),
+            'style' => $section->getStyle() ? $section->getStyle()->getName() : null,
+            // Add more fields as needed
+        ];
     }
 
     /**
@@ -82,31 +132,27 @@ class AdminSectionService extends UserContextAwareService
     }
 
     /**
-     * Updates the position of a child section within a parent section.
+     * Updates the position of a section in the hierarchy by section_id.
      *
-     * @param int $parent_section_id The ID of the parent section.
-     * @param int $child_section_id The ID of the child section.
+     * @param int $section_id The ID of the section to update.
      * @param int|null $position The new position.
-     * @throws ServiceException If the relationship does not exist.
+     * @throws ServiceException If the section is not found in any hierarchy.
      */
-    public function updateSectionInSection(int $parent_section_id, int $child_section_id, ?int $position): void
+    public function updateSection(int $section_id, ?int $position): void
     {
         $this->entityManager->beginTransaction();
         try {
-            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parent_section_id, 'childSection' => $child_section_id]);
+            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)
+                ->findOneBy(['child' => $section_id]);
             if (!$sectionHierarchy) {
                 $this->throwNotFound('Section hierarchy relationship not found. Use the add endpoint to create it.');
             }
-
             $sectionHierarchy->setPosition($position);
             $this->entityManager->flush();
-
-            $this->normalizeSectionHierarchyPositions($parent_section_id);
-
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to update section in section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to update section position: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
 

@@ -721,7 +721,9 @@ class AdminPageService extends UserContextAwareService
 
             $pagesSection = new PagesSection();
             $pagesSection->setPage($page);
+            $pagesSection->setIdPages($page->getId());
             $pagesSection->setSection($section);
+            $pagesSection->setIdSections($section->getId());
             $pagesSection->setPosition($position);
             $this->entityManager->persist($pagesSection);
             $this->entityManager->flush(); // Flush to get the new entity into the DB before normalization
@@ -733,46 +735,6 @@ class AdminPageService extends UserContextAwareService
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
-        }
-    }
-
-    /**
-     * Updates the position of a section within a page.
-     *
-     * @param string $pageKeyword The keyword of the page.
-     * @param int $sectionId The ID of the section to update.
-     * @param int|null $position The new position.
-     * @return PagesSection The updated page-section relationship.
-     * @throws ServiceException If the relationship does not exist, or on access denial.
-     */
-    public function updateSectionInPage(string $pageKeyword, int $sectionId, ?int $position): PagesSection
-    {
-        $this->entityManager->beginTransaction();
-        try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-            if (!$page) {
-                $this->throwNotFound('Page not found');
-            }
-
-            if (!$this->hasAccess($page->getId(), 'update')) {
-                $this->throwForbidden('Access denied to modify this page');
-            }
-
-            $pagesSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page->getId(), 'section' => $sectionId]);
-            if (!$pagesSection) {
-                $this->throwNotFound('Section not found in this page. Use the add endpoint to associate it.');
-            }
-
-            $pagesSection->setPosition($position);
-            $this->entityManager->flush();
-
-            $this->normalizePageSectionPositions($page->getId());
-
-            $this->entityManager->commit();
-            return $pagesSection;
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to update section in page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
 

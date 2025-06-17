@@ -224,21 +224,6 @@ class AdminPageController extends AbstractController
         );
     }
 
-    public function updateSectionInPage(Request $request, string $page_keyword, int $section_id): Response
-    {
-        $data = $this->validateRequest($request, 'requests/page/update_section_in_page', $this->jsonSchemaValidationService);
-
-        $result = $this->adminPageService->updateSectionInPage(
-            $page_keyword,
-            $section_id,
-            $data['position'] ?? null
-        );
-
-        return $this->responseFormatter->formatSuccess(
-            ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()]
-        );
-    }
-
     public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
         $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);

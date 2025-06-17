@@ -20,6 +20,35 @@ class AdminSectionController extends AbstractController
         private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {}
 
+    /**
+     * Get a section by ID
+     */
+    public function getSection(int $section_id): Response
+    {
+        $section = $this->adminSectionService->getSection($section_id);
+        return $this->apiResponseFormatter->formatSuccess(
+            $section,
+            'responses/admin/section',
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Get all children sections for a parent section
+     */
+    public function getChildrenSections(int $parent_section_id): Response
+    {
+        $children = $this->adminSectionService->getChildrenSections($parent_section_id);
+        return $this->apiResponseFormatter->formatSuccess(
+            [
+                'parent_section_id' => $parent_section_id,
+                'sections' => $children
+            ],
+            'responses/admin/section_children',
+            Response::HTTP_OK
+        );
+    }
+
     public function addSectionToSection(Request $request, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
@@ -37,18 +66,17 @@ class AdminSectionController extends AbstractController
         );
     }
 
-    public function updateSectionInSection(Request $request, int $parent_section_id, int $child_section_id): Response
+    public function updateSection(Request $request, int $section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/update_section_in_section', $this->jsonSchemaValidationService);
 
-        $result = $this->adminSectionService->updateSectionInSection(
-            $parent_section_id,
-            $child_section_id,
+        $result = $this->adminSectionService->updateSection(
+            $section_id,
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $result->getChildSection()->getId(), 'position' => $result->getPosition()]
+            ['id' => $section_id, 'position' => $data['position'] ?? null]
         );
     }
 

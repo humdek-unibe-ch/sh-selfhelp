@@ -134,19 +134,21 @@ INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`met
 ('admin_styles_get', 'v1', '/admin/styles', 'App\\Controller\\Api\\V1\\Admin\\AdminStyleController::getStyles', 'GET', NULL, NULL),
 
 -- Admin Page Sections 
-('admin_add_section_to_page', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'POST', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+'), JSON_OBJECT('sectionData', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'))),
-('admin_update_section_in_page', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updateSectionInPage', 'PUT', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '[0-9]+'), JSON_OBJECT('position', JSON_OBJECT('in', 'body', 'required', true))) ,
-('admin_remove_section_from_page', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '[0-9]+'), NULL),
+('admin_pages_create_section', 'v1', '/admin/pages/{page_keyword}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createPageSection', 'POST', JSON_OBJECT('page_keyword', '[\\w-]+'), JSON_OBJECT('styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
+('admin_pages_add_section', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'PUT', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+'), JSON_OBJECT('sectionId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
+('admin_pages_remove_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '[0-9]+'), NULL),
 
 -- Admin Section in Section 
-('admin_add_section_to_section', 'v1', '/admin/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'POST', JSON_OBJECT('parent_section_id', '[0-9]+'), JSON_OBJECT('styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
-('admin_update_section_in_section', 'v1', '/admin/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSectionInSection', 'PUT', JSON_OBJECT('parent_section_id', '[0-9]+', 'child_section_id', '[0-9]+'), JSON_OBJECT('position', JSON_OBJECT('in', 'body', 'required', true))),
-('admin_remove_section_from_section', 'v1', '/admin/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT('parent_section_id', '[0-9]+', 'child_section_id', '[0-9]+'), NULL),
-('admin_delete_section', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT('section_id', '[0-9]+'), NULL),
+('admin_sections_create', 'v1', '/admin/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT('parent_section_id', '\\d+'), JSON_OBJECT('styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
+('admin_sections_add', 'v1', '/admin/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'PUT', JSON_OBJECT('parent_section_id', '[0-9]+'), JSON_OBJECT('sectionId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
+('admin_sections_remove', 'v1', '/admin/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT('parent_section_id', '[0-9]+', 'child_section_id', '[0-9]+'), NULL),
 
--- Admin Create Section 
-('admin_create_section_in_page', 'v1', '/admin/pages/{page_keyword}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createPageSection', 'POST', JSON_OBJECT('page_keyword', '[\\w-]+'), JSON_OBJECT('styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
-('admin_create_section_in_section', 'v1', '/admin/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT('parent_section_id', '\\d+'), JSON_OBJECT('styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', true))),
+-- Admin Section
+('admin_sections_update', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT('section_id', '[0-9]+'), NULL),
+('admin_sections_delete', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT('section_id', '[0-9]+'), NULL),
+('admin_sections_get', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT('section_id', '[0-9]+'), NULL),
+('admin_sections_get_children_sections', 'v1', '/admin/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getChildrenSections', 'PUT', JSON_OBJECT('parent_section_id', '[0-9]+'), NULL),
+
 
 -- Public pages route
 ('pages_get_all','v1','/pages','App\\Controller\\Api\\V1\\Frontend\\PageController::getPages','GET',NULL,NULL),
@@ -209,15 +211,14 @@ JOIN `permissions`   AS p
   ON p.`name` = 'page.update'
 WHERE ar.`route_name` IN (
 	'admin_pages_update',
-	'admin_add_section_to_page',
-	'admin_update_section_in_page',
-	'admin_remove_section_from_page',
-	'admin_add_section_to_section',
-	'admin_update_section_in_section',
-	'admin_remove_section_from_section',
-	'admin_delete_section',
-    'admin_create_section_in_page',
-    'admin_create_section_in_section'
+	'admin_pages_create_section',
+	'admin_pages_add_section',
+	'admin_pages_remove_section',
+	'admin_sections_create',
+	'admin_sections_add',
+	'admin_sections_remove',
+	'admin_sections_update',
+    'admin_sections_delete'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
