@@ -241,7 +241,7 @@ class AdminPageController extends AbstractController
 
     public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
-        $pageSection = $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
-        return $this->responseFormatter->formatSuccess($pageSection, 'responses/admin/page_section');
+        $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
+        return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 }
