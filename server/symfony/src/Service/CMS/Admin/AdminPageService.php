@@ -700,38 +700,60 @@ class AdminPageService extends UserContextAwareService
     {
         $this->entityManager->beginTransaction();
         try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-            if (!$page) {
+            $parentPage = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$parentPage) {
                 $this->throwNotFound('Page not found');
             }
 
-            if (!$this->hasAccess($page->getId(), 'update')) {
+            if (!$this->hasAccess($parentPage->getId(), 'update')) {
                 $this->throwForbidden('Access denied to modify this page');
             }
 
-            $section = $this->sectionRepository->find($sectionId);
-            if (!$section) {
+            $childSection = $this->sectionRepository->find($sectionId);
+            if (!$childSection) {
                 $this->throwNotFound('Section not found');
             }
 
-            $existing = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $section]);
-            if ($existing) {
-                throw new ServiceException('Section already exists in this page. Use the update endpoint to change its position.', Response::HTTP_CONFLICT);
+
+            // Remove from SectionsHierarchy if this section is currently a child in any section
+            $sectionsHierarchyRepo = $this->entityManager->getRepository(SectionsHierarchy::class);
+            $attachedHierarchies = $sectionsHierarchyRepo->findBy(['childSection' => $childSection]);
+            foreach ($attachedHierarchies as $attached) {
+                $this->entityManager->remove($attached);
+            }
+            if (count($attachedHierarchies) > 0) {
+                $this->entityManager->flush();
             }
 
-            $pagesSection = new PagesSection();
-            $pagesSection->setPage($page);
-            $pagesSection->setIdPages($page->getId());
-            $pagesSection->setSection($section);
-            $pagesSection->setIdSections($section->getId());
-            $pagesSection->setPosition($position);
-            $this->entityManager->persist($pagesSection);
-            $this->entityManager->flush(); // Flush to get the new entity into the DB before normalization
 
-            $this->normalizePageSectionPositions($page->getId());
+            // For PagesSection, check for existing relationship
+            $existing = $this->entityManager->getRepository(PagesSection::class)
+                ->findOneBy(['page' => $parentPage, 'section' => $childSection]);
+            if ($existing) {
+                // Just update the position and normalize
+                $existing->setPosition($position);
+                $this->entityManager->flush();
+                $this->normalizePageSectionPositions($parentPage->getId());
+                $this->entityManager->commit();
+                return $existing;
+            }
+
+            $pageSection = new PagesSection();
+            $pageSection->setPage($parentPage);
+            $pageSection->setIdPages($parentPage->getId());
+            $pageSection->setSection($childSection);
+            $pageSection->setIdSections($childSection->getId());
+            $pageSection->setPosition($position);
+            $this->entityManager->persist($pageSection);
+            $this->entityManager->flush();
+            $this->normalizePageSectionPositions($parentPage->getId());
+            $this->entityManager->commit();
+            return $pageSection;
+
+            $this->normalizePageSectionPositions($parentPage->getId());
 
             $this->entityManager->commit();
-            return $pagesSection;
+            return $pageHierarchy;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);

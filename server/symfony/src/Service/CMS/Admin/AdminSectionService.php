@@ -108,18 +108,38 @@ class AdminSectionService extends UserContextAwareService
             if (!$childSection) {
                 $this->throwNotFound('Child section not found');
             }
+            // Remove from PagesSection if this section is currently attached to any page
+            $pagesSectionRepo = $this->entityManager->getRepository(PagesSection::class);
+            $attachedPagesSections = $pagesSectionRepo->findBy(['section' => $childSection]);
+            foreach ($attachedPagesSections as $attached) {
+                $this->entityManager->remove($attached);
+            }
+            if (count($attachedPagesSections) > 0) {
+                $this->entityManager->flush();
+            }
+
 
             $existing = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parentSection, 'childSection' => $childSection]);
             if ($existing) {
-                throw new ServiceException('Child section already exists in this parent. Use the update endpoint to change its position.', Response::HTTP_CONFLICT);
+                // Just update the position and normalize
+                $existing->setPosition($position);
+                $this->entityManager->flush();
+                $this->normalizeSectionHierarchyPositions($parent_section_id);
+                $this->entityManager->commit();
+                return $existing;
             }
 
             $sectionHierarchy = new SectionsHierarchy();
             $sectionHierarchy->setParentSection($parentSection);
+            $sectionHierarchy->setParent($parentSection->getId());
             $sectionHierarchy->setChildSection($childSection);
+            $sectionHierarchy->setChild($childSection->getId());
             $sectionHierarchy->setPosition($position);
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
+            $this->normalizeSectionHierarchyPositions($parent_section_id);
+            $this->entityManager->commit();
+            return $sectionHierarchy;
 
             $this->normalizeSectionHierarchyPositions($parent_section_id);
 
