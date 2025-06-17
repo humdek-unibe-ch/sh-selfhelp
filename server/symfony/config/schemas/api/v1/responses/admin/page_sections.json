@@ -32,35 +32,7 @@
     ],
     "definitions": {
         "sectionItem": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "description": "Unique identifier for the section."
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the section."
-                },
-                "id_styles": {
-                    "type": "integer",
-                    "description": "Identifier for the style associated with the section."
-                },
-                "style_name": {
-                    "type": "string",
-                    "description": "Name of the style."
-                },
-                "can_have_children": {
-                    "type": "integer",
-                    "description": "Whether the style can have children."
-                },
-                "position": {
-                    "type": "integer",
-                    "description": "Position of the section."
-                },
-                "level": {
-                    "type": "integer",
-                    "description": "Nesting level of the section."
+            "$ref": "../../entities/page_section_entity.json"
                 },
                 "path": {
                     "type": "string",

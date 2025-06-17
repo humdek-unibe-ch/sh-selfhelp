@@ -781,8 +781,9 @@ class AdminPageService extends UserContextAwareService
      * @param string $pageKeyword The keyword of the page.
      * @param int $sectionId The ID of the section to remove.
      * @throws ServiceException If the relationship does not exist.
+     * @return PagesSection The removed page-section relationship.
      */
-    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
+    public function removeSectionFromPage(string $pageKeyword, int $sectionId): PagesSection
     {
         $this->entityManager->beginTransaction();
         try {
@@ -802,6 +803,7 @@ class AdminPageService extends UserContextAwareService
             $this->normalizePageSectionPositions($page->getId());
 
             $this->entityManager->commit();
+            return $pageSection;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);

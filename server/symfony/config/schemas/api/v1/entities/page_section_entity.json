@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PageSectionEntity",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique identifier for the section."
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the section."
+    },
+    "id_styles": {
+      "type": "integer",
+      "description": "Identifier for the style associated with the section."
+    },
+    "style_name": {
+      "type": "string",
+      "description": "Name of the style."
+    },
+    "can_have_children": {
+      "type": "integer",
+      "description": "Whether the style can have children."
+    }
+  },
+  "required": ["id", "name", "id_styles", "style_name", "can_have_children"]
+}

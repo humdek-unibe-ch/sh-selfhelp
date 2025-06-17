@@ -54,9 +54,9 @@ class AdminSectionController extends AbstractController
 
     public function removeSectionFromSection(int $parent_section_id, int $child_section_id): Response
     {
-        $this->adminSectionService->removeSectionFromSection($parent_section_id, $child_section_id);
+        $section = $this->adminSectionService->removeSectionFromSection($parent_section_id, $child_section_id);
 
-        return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
+        return $this->apiResponseFormatter->formatSuccess($section, 'responses/admin/page_section');
     }
 
     public function deleteSection(int $section_id): Response

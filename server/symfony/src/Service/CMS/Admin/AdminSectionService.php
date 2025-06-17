@@ -113,20 +113,24 @@ class AdminSectionService extends UserContextAwareService
     }
 
     /**
-     * Removes a child section from a parent section.
+     * Removes a child section from a parent section and returns the removed Section entity.
      *
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @throws ServiceException If the relationship does not exist.
+     * @return Section The removed child section entity.
      */
-    public function removeSectionFromSection(int $parent_section_id, int $child_section_id): void
+    public function removeSectionFromSection(int $parent_section_id, int $child_section_id): Section
     {
         $this->entityManager->beginTransaction();
         try {
-            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parent_section_id, 'childSection' => $child_section_id]);
+            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)
+                ->findOneBy(['parentSection' => $parent_section_id, 'childSection' => $child_section_id]);
             if (!$sectionHierarchy) {
                 $this->throwNotFound('Section hierarchy relationship not found.');
             }
+
+            $section = $sectionHierarchy->getChildSection();
 
             $this->entityManager->remove($sectionHierarchy);
             $this->entityManager->flush();
@@ -134,6 +138,7 @@ class AdminSectionService extends UserContextAwareService
             $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
+            return $section;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);

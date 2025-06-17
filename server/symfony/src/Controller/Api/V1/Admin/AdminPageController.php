@@ -207,12 +207,12 @@ class AdminPageController extends AbstractController
         }
     }
 
-    public function addSectionToPage(Request $request, string $pageKeyword): Response
+    public function addSectionToPage(Request $request, string $page_keyword): Response
     {
         $data = $this->validateRequest($request, 'requests/page/add_section_to_page', $this->jsonSchemaValidationService);
 
         $result = $this->adminPageService->addSectionToPage(
-            $pageKeyword,
+            $page_keyword,
             $data['sectionId'],
             $data['position'] ?? null
         );
@@ -224,13 +224,13 @@ class AdminPageController extends AbstractController
         );
     }
 
-    public function updateSectionInPage(Request $request, string $pageKeyword, int $sectionId): Response
+    public function updateSectionInPage(Request $request, string $page_keyword, int $section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/page/update_section_in_page', $this->jsonSchemaValidationService);
 
         $result = $this->adminPageService->updateSectionInPage(
-            $pageKeyword,
-            $sectionId,
+            $page_keyword,
+            $section_id,
             $data['position'] ?? null
         );
 
@@ -239,10 +239,9 @@ class AdminPageController extends AbstractController
         );
     }
 
-    public function removeSectionFromPage(string $pageKeyword, int $sectionId): Response
+    public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
-        $this->adminPageService->removeSectionFromPage($pageKeyword, $sectionId);
-
-        return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
+        $pageSection = $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
+        return $this->responseFormatter->formatSuccess($pageSection, 'responses/admin/page_section');
     }
 }
