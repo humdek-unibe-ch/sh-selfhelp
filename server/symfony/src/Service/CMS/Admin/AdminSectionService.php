@@ -122,9 +122,9 @@ class AdminSectionService extends UserContextAwareService
             $existing = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parentSection, 'childSection' => $childSection]);
             if ($existing) {
                 // Just update the position and normalize
-                $existing->setPosition($position);
-                $this->entityManager->flush();
+                $existing->setPosition($position);                
                 $this->normalizeSectionHierarchyPositions($parent_section_id);
+                $this->entityManager->flush();
                 $this->entityManager->commit();
                 return $existing;
             }
@@ -386,13 +386,16 @@ class AdminSectionService extends UserContextAwareService
             ['position' => 'ASC', 'childSection' => 'ASC']
         );
 
-        $currentPosition = 10;
+        // Sort by position, but if a section was just moved, use its new position
+        usort($sectionHierarchies, function ($a, $b) {
+            return ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0);
+        });
+
+        $currentPosition = 0;
         foreach ($sectionHierarchies as $sectionHierarchy) {
             $sectionHierarchy->setPosition($currentPosition);
             $currentPosition += 10;
         }
-
-        $this->entityManager->flush();
     }
 
 }

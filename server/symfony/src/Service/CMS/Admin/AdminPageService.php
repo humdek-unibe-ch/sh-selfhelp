@@ -236,6 +236,18 @@ class AdminPageService extends UserContextAwareService
             }
         }
 
+        // Recursively sort children by position
+        $sortChildren = function (&$nodes) use (&$sortChildren) {
+            usort($nodes, function ($a, $b) {
+                return ($a['position'] ?? 0) <=> ($b['position'] ?? 0);
+            });
+            foreach ($nodes as &$node) {
+                if (!empty($node['children'])) {
+                    $sortChildren($node['children']);
+                }
+            }
+        };
+        $sortChildren($rootSections);
         return $rootSections;
     }
 
@@ -732,8 +744,9 @@ class AdminPageService extends UserContextAwareService
             if ($existing) {
                 // Just update the position and normalize
                 $existing->setPosition($position);
-                $this->entityManager->flush();
+                // Do NOT flush yet, normalize first
                 $this->normalizePageSectionPositions($parentPage->getId());
+                $this->entityManager->flush();
                 $this->entityManager->commit();
                 return $existing;
             }
@@ -798,18 +811,23 @@ class AdminPageService extends UserContextAwareService
      */
     private function normalizePageSectionPositions(int $pageId): void
     {
+        // Accept an optional $movedSection, so we can ensure its new position is considered
         $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(
             ['page' => $pageId],
             ['position' => 'ASC', 'idSections' => 'ASC']
         );
 
-        $currentPosition = 10;
+        // Sort by position, but if a section was just moved, use its new position
+        usort($pageSections, function ($a, $b) {
+            return ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0);
+        });
+
+        $currentPosition = 0;
         foreach ($pageSections as $pageSection) {
             $pageSection->setPosition($currentPosition);
             $currentPosition += 10;
         }
-
-        $this->entityManager->flush();
+        // Do NOT flush here; let the caller flush after normalization
     }
 
     /************************* END PAGE & SECTION RELATIONSHIPS *************************/

@@ -237,7 +237,7 @@ BEGIN
             s.id_styles,
             st.`name` AS style_name,
             st.can_have_children,
-            ps.`position` + 10 AS position,      -- Start at 10
+            ps.`position` AS position,      -- Start at 10
             0 AS `level`,
             CAST(s.id AS CHAR(200)) AS `path`
         FROM pages_sections ps
@@ -256,7 +256,7 @@ BEGIN
             s.id_styles,
             st.`name` AS style_name,
             st.can_have_children,
-            sh.position + 10 AS position,        -- Add 10 to each level
+            sh.position AS position,        -- Add 10 to each level
             h.`level` + 1,
             CONCAT(h.`path`, ',', s.id) AS `path`
         FROM section_hierarchy h
@@ -280,6 +280,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 
 DELIMITER $$
 
