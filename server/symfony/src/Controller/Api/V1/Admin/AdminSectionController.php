@@ -73,15 +73,15 @@ class AdminSectionController extends AbstractController
     {
         $data = $this->validateRequest($request, 'requests/section/create_page_section', $this->jsonSchemaValidationService);
 
-        $pageSection = $this->adminSectionService->createPageSection(
+        $sectionId = $this->adminSectionService->createPageSection(
             $page_keyword,
             $data['styleId'],
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            $pageSection,
-            'responses/admin/section/section_created',
+            ['id' => $sectionId],
+            'responses/admin/common/entity_created',
             Response::HTTP_CREATED
         );
     }
@@ -93,15 +93,15 @@ class AdminSectionController extends AbstractController
     {
         $data = $this->validateRequest($request, 'requests/section/create_child_section', $this->jsonSchemaValidationService);
 
-        $section = $this->adminSectionService->createChildSection(
+        $sectionId = $this->adminSectionService->createChildSection(
             $parent_section_id,
             $data['styleId'],
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            $section,
-            'responses/admin/section/section_created',
+            ['id' => $sectionId],
+            'responses/admin/common/entity_created',
             Response::HTTP_CREATED
         );
     }

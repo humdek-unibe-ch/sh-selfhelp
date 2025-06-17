@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EntityCreatedEnvelope",
+  "allOf": [
+    { "$ref": "../../common/_response_envelope.json" },
+    {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "ID of the created entity."
+            }
+          },
+          "required": ["id"]
+        }
+      },
+      "required": ["data"]
+    }
+  ]
+}

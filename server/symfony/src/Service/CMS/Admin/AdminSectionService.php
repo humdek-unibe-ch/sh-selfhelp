@@ -87,10 +87,9 @@ class AdminSectionService extends UserContextAwareService
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @param int|null $position The new position.
-     * @return SectionsHierarchy The updated section hierarchy relationship.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function updateSectionInSection(int $parent_section_id, int $child_section_id, ?int $position): SectionsHierarchy
+    public function updateSectionInSection(int $parent_section_id, int $child_section_id, ?int $position): void
     {
         $this->entityManager->beginTransaction();
         try {
@@ -192,10 +191,10 @@ class AdminSectionService extends UserContextAwareService
      * @param string $page_keyword The keyword of the page to add the section to
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the section on the page
-     * @return PagesSection The new page-section relationship
+     * @return int The ID of the new section
      * @throws ServiceException If the page or style is not found
      */
-    public function createPageSection(string $page_keyword, int $styleId, ?int $position): PagesSection
+    public function createPageSection(string $page_keyword, int $styleId, ?int $position): int
     {
         $this->entityManager->beginTransaction();
         try {
@@ -217,6 +216,7 @@ class AdminSectionService extends UserContextAwareService
             $section = new Section();
             $section->setName(time() . '-' . $style->getName());
             $section->setStyle($style);
+            $section->setIdStyles($style->getId());
             $this->entityManager->persist($section);
             $this->entityManager->flush(); // Flush to get the section ID
 
@@ -233,7 +233,7 @@ class AdminSectionService extends UserContextAwareService
             $this->normalizePageSectionPositions($page->getId());
 
             $this->entityManager->commit();
-            return $pagesSection;
+            return $section->getId();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create section on page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
@@ -246,10 +246,10 @@ class AdminSectionService extends UserContextAwareService
      * @param int $parent_section_id The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
-     * @return SectionsHierarchy The new section hierarchy relationship
+     * @return int The ID of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(int $parent_section_id, int $styleId, ?int $position): SectionsHierarchy
+    public function createChildSection(int $parent_section_id, int $styleId, ?int $position): int
     {
         $this->entityManager->beginTransaction();
         try {
@@ -267,6 +267,7 @@ class AdminSectionService extends UserContextAwareService
             $childSection = new Section();
             $childSection->setName(time() . '-' . $style->getName());
             $childSection->setStyle($style);
+            $childSection->setIdStyles($style->getId());
             $this->entityManager->persist($childSection);
             $this->entityManager->flush(); // Flush to get the section ID
 
@@ -281,7 +282,7 @@ class AdminSectionService extends UserContextAwareService
             $this->normalizeSectionHierarchyPositions($parent_section_id);
 
             $this->entityManager->commit();
-            return $sectionHierarchy;
+            return $childSection->getId();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create child section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);

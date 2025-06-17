@@ -9,7 +9,7 @@
         "data": {
             "type": "object",
             "properties": {
-                "page_keyword": {
+                "pageKeyword": {
                     "type": "string",
                     "description": "The keyword of the page these sections belong to."
                 },
@@ -22,7 +22,7 @@
                 }
             },
             "required": [
-                "page_keyword",
+                "pageKeyword",
                 "sections"
             ]
         }
@@ -33,30 +33,6 @@
     "definitions": {
         "sectionItem": {
             "$ref": "../../entities/page_section_entity.json"
-                },
-                "path": {
-                    "type": "string",
-                    "description": "Materialized path of the section."
-                },
-                "children": {
-                    "type": "array",
-                    "description": "Child sections (recursive).",
-                    "items": {
-                        "$ref": "#/definitions/sectionItem"
-                    }
-                }
-            },
-            "required": [
-                "id",
-                "name",
-                "id_styles",
-                "style_name",
-                "can_have_children",
-                "position",
-                "level",
-                "path",
-                "children"
-            ]
         }
     }
 }
