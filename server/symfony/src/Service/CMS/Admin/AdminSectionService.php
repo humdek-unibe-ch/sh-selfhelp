@@ -37,18 +37,136 @@ class AdminSectionService extends UserContextAwareService
     }
 
     /**
-     * Get a section by its ID
+     * Get a section by its ID with its fields and translations
      * @param int $section_id
-     * @return array|null
+     * @return array
+     * @throws ServiceException If section not found or access denied
      */
-    public function getSection(int $section_id): ?array
+    public function getSection(int $section_id): array
     {
+        // Fetch section
         $section = $this->sectionRepository->find($section_id);
         if (!$section) {
             $this->throwNotFound('Section not found');
         }
-        // Use Symfony serializer or manual normalization as per project
-        return $this->normalizeSection($section);
+
+        // Permission check
+        if (!$this->hasAccess($section->getId(), 'select')) {
+            $this->throwForbidden('Access denied');
+        }
+
+        // Get style and its fields
+        $style = $section->getStyle();
+        if (!$style) {
+            return [
+                'section' => $this->normalizeSection($section),
+                'fields' => [],
+                'languages' => []
+            ];
+        }
+
+        // Get all StylesField for this style
+        $stylesFields = $style->getStylesFields();
+        
+        // Fetch all field translations for this section
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('t, l, f, g, ft')
+            ->from('App\Entity\SectionsFieldsTranslation', 't')
+            ->leftJoin('t.language', 'l')
+            ->leftJoin('t.field', 'f')
+            ->leftJoin('f.type', 'ft')
+            ->leftJoin('t.gender', 'g')
+            ->where('t.section = :section')
+            ->setParameter('section', $section);
+        $translations = $qb->getQuery()->getResult();
+
+        // Group translations by field and language
+        $translationsByFieldLang = [];
+        $languages = [];
+        foreach ($translations as $tr) {
+            $fieldId = $tr->getField() ? $tr->getField()->getId() : $tr->getIdFields();
+            $langId = $tr->getLanguage() ? $tr->getLanguage()->getId() : $tr->getIdLanguages();
+            $genderId = $tr->getGender() ? $tr->getGender()->getId() : $tr->getIdGenders();
+            if (!isset($translationsByFieldLang[$fieldId])) {
+                $translationsByFieldLang[$fieldId] = [];
+            }
+            if (!isset($translationsByFieldLang[$fieldId][$langId])) {
+                $translationsByFieldLang[$fieldId][$langId] = [];
+            }
+            $translationsByFieldLang[$fieldId][$langId][$genderId] = [
+                'content' => $tr->getContent(),
+                'meta' => $tr->getMeta(),
+            ];
+            // Collect unique languages
+            if ($tr->getLanguage()) {
+                $languages[$langId] = [
+                    'id' => $langId,
+                    'locale' => $tr->getLanguage()->getLocale(),
+                ];
+            }
+        }
+        $languages = array_values($languages);
+
+        // Format fields with translations
+        $formattedFields = [];
+        foreach ($stylesFields as $stylesField) {
+            $field = $stylesField->getField();
+            if (!$field) continue;
+            
+            $fieldId = $field->getId();
+            
+            $fieldData = [
+                'id' => $fieldId,
+                'name' => $field->getName(),
+                'type' => $field->getType() ? $field->getType()->getName() : null,
+                'default_value' => $stylesField->getDefaultValue(),
+                'help' => $stylesField->getHelp(),
+                'disabled' => $stylesField->isDisabled(),
+                'hidden' => $stylesField->getHidden(),
+                'display' => $field->isDisplay(),
+                'translations' => []
+            ];
+            
+            // Handle translations based on display flag
+            if ($field->isDisplay()) {
+                // Content field (display=1) - can have translations for each language
+                if (isset($translationsByFieldLang[$fieldId])) {
+                    foreach ($translationsByFieldLang[$fieldId] as $langId => $genderTranslations) {
+                        foreach ($genderTranslations as $genderId => $translation) {
+                            $language = isset($languages[$langId-1]) ? $languages[$langId-1] : null;
+                            $fieldData['translations'][] = [
+                                'language_id' => $langId,
+                                'language_code' => $language ? $language['locale'] : null,
+                                'gender_id' => $genderId,
+                                'content' => $translation['content'],
+                                'meta' => $translation['meta']
+                            ];
+                        }
+                    }
+                }
+            } else {
+                // Property field (display=0) - use language_id = 1 only
+                if (isset($translationsByFieldLang[$fieldId][1])) {
+                    $propertyTranslation = $translationsByFieldLang[$fieldId][1][1] ?? null;
+                    if ($propertyTranslation) {
+                        $fieldData['translations'][] = [
+                            'language_id' => 1,
+                            'language_code' => 'property',  // This is a property, not actually language-specific
+                            'gender_id' => 1,
+                            'content' => $propertyTranslation['content'],
+                            'meta' => $propertyTranslation['meta']
+                        ];
+                    }
+                }
+            }
+            
+            $formattedFields[] = $fieldData;
+        }
+
+        return [
+            'section' => $this->normalizeSection($section),
+            'fields' => $formattedFields,
+        ];
     }
 
     /**
@@ -77,11 +195,25 @@ class AdminSectionService extends UserContextAwareService
      */
     protected function normalizeSection($section): array
     {
+        $style = $section->getStyle();
+        $styleData = null;
+        
+        if ($style) {
+            $styleData = [
+                'id' => $style->getId(),
+                'name' => $style->getName(),
+                'description' => $style->getDescription(),
+                'typeId' => $style->getIdType(),
+                'type' => $style->getType() ? $style->getType()->getLookupValue() : null,
+                'canHaveChildren' => $style->getCanHaveChildren()
+            ];
+        }
+        
         // Adjust as needed for project conventions
         return [
             'id' => $section->getId(),
             'name' => $section->getName(),
-            'style' => $section->getStyle() ? $section->getStyle()->getName() : null,
+            'style' => $styleData
             // Add more fields as needed
         ];
     }

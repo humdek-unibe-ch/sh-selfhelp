@@ -228,7 +228,8 @@ class AdminSectionControllerTest extends BaseControllerTest
     {
         parent::setUp();
         // Create a test section if needed for child section tests (for testCreateChildSection)
-        if (method_exists($this, 'getName') && $this->getName() === 'testCreateChildSection' && !$this->testSectionId) {
+        $testName = $this->name ?? null;
+        if ($testName === 'testCreateChildSection' && !$this->testSectionId) {
              // Only create if testCreateChildSection is running and it's not already created
             $this->createTestSectionForChildTest(); 
         }
@@ -321,6 +322,62 @@ class AdminSectionControllerTest extends BaseControllerTest
             $data,
             'responses/section/child_section_added'
         );
+        $this->assertEmpty($validationErrors, 'Response does not match schema: ' . implode(', ', $validationErrors));
+    }
+    
+    /**
+     * Test getting a section with fields and translations
+     * @group admin
+     * @group section-get
+     */
+    public function testGetSectionWithFields(): void
+    {
+        // Get JWT token for authentication
+        $token = $this->getAdminAccessToken();
+        
+        // First, create a test section to retrieve
+        $this->createTestSectionForChildTest();
+        $this->assertNotNull($this->testSectionId, 'Failed to create test section');
+        
+        // Send request to get the section
+        $this->client->request(
+            'GET',
+            sprintf('/cms-api/v1/admin/sections/%d', $this->testSectionId),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+        );
+        
+        // Check response (should be 200 OK)
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), 'Failed to get section: ' . $response->getContent());
+        
+        // Parse response data
+        $responseContent = $response->getContent();
+        $data = json_decode($responseContent);
+        
+        // Validate response structure
+        $this->assertNotNull($data);
+        $this->assertTrue(property_exists($data, 'data'), 'Response does not have data property');
+        $this->assertTrue(property_exists($data->data, 'section'), 'Response data does not have section property');
+        $this->assertTrue(property_exists($data->data, 'fields'), 'Response data does not have fields property');
+        $this->assertTrue(property_exists($data->data, 'languages'), 'Response data does not have languages property');
+        
+        // Validate section data
+        $section = $data->data->section;
+        $this->assertEquals($this->testSectionId, $section->id, 'Section ID mismatch');
+        $this->assertTrue(property_exists($section, 'name'), 'Section does not have name property');
+        $this->assertNotNull($section->style, 'Section style is null');
+        $this->assertEquals(self::DEFAULT_STYLE_ID_1, $section->style->id, 'Section style ID mismatch');
+        
+        // Validate fields array (may be empty depending on the style)
+        $this->assertIsArray($data->data->fields, 'Fields is not an array');
+        
+        // Validate languages array (may be empty if no translations exist)
+        $this->assertIsArray($data->data->languages, 'Languages is not an array');
+        
+        // Validate against JSON schema
+        $validationErrors = $this->jsonSchemaValidationService->validate($data, 'responses/admin/section');
         $this->assertEmpty($validationErrors, 'Response does not match schema: ' . implode(', ', $validationErrors));
     }
     
