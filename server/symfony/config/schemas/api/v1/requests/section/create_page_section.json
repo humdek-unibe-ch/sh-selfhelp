@@ -6,8 +6,7 @@
     "properties": {
         "position": {
             "type": "integer",
-            "description": "The position of the section on the page",
-            "minimum": 0
+            "description": "The position of the section on the page"
         },
         "styleId": {
             "type": "integer",

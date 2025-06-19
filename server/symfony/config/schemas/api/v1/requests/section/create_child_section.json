@@ -6,8 +6,7 @@
     "properties": {
         "position": {
             "type": "integer",
-            "description": "The position of the child section within the parent section",
-            "minimum": 0
+            "description": "The position of the child section within the parent section"
         },
         "styleId": {
             "type": "integer",
