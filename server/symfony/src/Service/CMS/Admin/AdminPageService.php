@@ -34,7 +34,6 @@ class AdminPageService extends UserContextAwareService
     /**
      * CMS select page keyword
      */
-    private const CMS_SELECT_PAGE_KEYWORD = 'cmsSelect';
 
     // ACL group name constants
     private const GROUP_ADMIN = 'admin';
@@ -48,16 +47,16 @@ class AdminPageService extends UserContextAwareService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
         private readonly TransactionService $transactionService,
         ACLService $aclService,
         UserContextService $userContextService,
-        PageRepository $pageRepository
+        PageRepository $pageRepository,
+        SectionRepository $sectionRepository
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository); 
+        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository); 
     }
 
     /**

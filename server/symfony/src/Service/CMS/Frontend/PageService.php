@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PageService extends UserContextAwareService
 {
     public function __construct(
-        private readonly SectionRepository $sectionRepository,
+        SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
         UserContextService $userContextService,
         ?ACLService $aclService = null

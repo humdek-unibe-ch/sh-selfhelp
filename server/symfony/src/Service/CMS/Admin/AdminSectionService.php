@@ -26,14 +26,14 @@ class AdminSectionService extends UserContextAwareService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly SectionRepository $sectionRepository,
         private readonly TransactionService $transactionService,
         private readonly StyleRepository $styleRepository,
         ACLService $aclService,
         UserContextService $userContextService,
-        PageRepository $pageRepository
+        PageRepository $pageRepository,
+        SectionRepository $sectionRepository
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository);
+        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -50,7 +50,8 @@ class AdminSectionService extends UserContextAwareService
             $this->throwNotFound('Section not found');
         }
         // Permission check
-        $this->checkAccess($page_keyword, 'update');
+        $this->checkAccess($page_keyword, 'select');
+        $this->checkSectionInPage($page_keyword,$section_id);
 
         // Get style and its fields
         $style = $section->getStyle();
@@ -174,6 +175,7 @@ class AdminSectionService extends UserContextAwareService
     public function getChildrenSections(string $page_keyword, int $parent_section_id): array
     {
         $this->checkAccess($page_keyword, 'select');
+        $this->checkSectionInPage($page_keyword,$parent_section_id);
         $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
         $sections = [];
@@ -232,6 +234,7 @@ class AdminSectionService extends UserContextAwareService
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
+        $this->checkSectionInPage($page_keyword,$parent_section_id);
         $this->entityManager->beginTransaction();
         try {
             $parentSection = $this->sectionRepository->find($parent_section_id);
@@ -308,6 +311,7 @@ class AdminSectionService extends UserContextAwareService
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
+        $this->checkSectionInPage($page_keyword,$parent_section_id);
         $this->entityManager->beginTransaction();
         try {
             $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)
@@ -341,6 +345,7 @@ class AdminSectionService extends UserContextAwareService
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
+        $this->checkSectionInPage($page_keyword,$section_id);
         $this->entityManager->beginTransaction();
         try {
             $section = $this->sectionRepository->find($section_id);
@@ -390,6 +395,7 @@ class AdminSectionService extends UserContextAwareService
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
+        
         $this->entityManager->beginTransaction();
         try {
             $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
@@ -444,6 +450,7 @@ class AdminSectionService extends UserContextAwareService
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
+        $this->checkSectionInPage($page_keyword,$parent_section_id);
         $this->entityManager->beginTransaction();
         try {
             $parentSection = $this->sectionRepository->find($parent_section_id);
