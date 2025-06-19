@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 class PageService extends UserContextAwareService
 {
     public function __construct(
-        private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
         UserContextService $userContextService,
@@ -146,9 +145,7 @@ class PageService extends UserContextAwareService
         }
 
         // Check if user has access to the page
-        if (!$this->hasAccess($page->getId(), 'select')) {
-            $this->throwForbidden('Access denied');
-        }
+        $this->checkAccess($page_keyword, 'select');
 
         return [
             'id' => $page->getId(),

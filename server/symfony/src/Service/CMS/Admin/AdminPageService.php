@@ -48,16 +48,16 @@ class AdminPageService extends UserContextAwareService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
         private readonly TransactionService $transactionService,
         ACLService $aclService,
-        UserContextService $userContextService
+        UserContextService $userContextService,
+        PageRepository $pageRepository
     ) {
-        parent::__construct($userContextService, $aclService);
+        parent::__construct($userContextService, $aclService, $pageRepository); 
     }
 
     /**
@@ -76,9 +76,7 @@ class AdminPageService extends UserContextAwareService
         }
 
         // Check if user has access to the page
-        if (!$this->hasAccess($page->getId(), 'select')) {
-            $this->throwForbidden('Access denied');
-        }
+        $this->checkAccess($pageKeyword, 'select');
 
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();
@@ -176,20 +174,14 @@ class AdminPageService extends UserContextAwareService
      */
     public function getPageSections(string $pageKeyword): array
     {
-        // Check if user has admin access to cms
-        if (!$this->hasAccess($this->pageRepository->findOneBy(['keyword' => self::CMS_SELECT_PAGE_KEYWORD])->getId(), 'select')) {
-            $this->throwForbidden('Access denied');
-        }
+        $this->checkAccess($pageKeyword, 'select');
 
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
-
         // Check if user has access to the page
-        if (!$this->hasAccess($page->getId(), 'select')) {
-            $this->throwForbidden('Access denied');
-        }
+        $this->checkAccess($pageKeyword, 'select');
 
         // Call stored procedure for hierarchical sections
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
@@ -483,9 +475,7 @@ class AdminPageService extends UserContextAwareService
             }
 
             // Check if user has update access to the page
-            if (!$this->hasAccess($page->getId(), 'update')) {
-                $this->throwForbidden('Access denied: You do not have permission to update this page');
-            }
+            $this->checkAccess($pageKeyword, 'update');
 
             // Store original page for transaction logging
             $originalPage = clone $page;
@@ -644,9 +634,7 @@ class AdminPageService extends UserContextAwareService
             }
 
             // Check if user has delete access to the page
-            if (!$this->hasAccess($page->getId(), 'delete')) {
-                $this->throwForbidden('Access denied: You do not have permission to delete this page');
-            }
+            $this->checkAccess($pageKeyword, 'delete');
 
             // Check if the page has children
             $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);
@@ -718,9 +706,7 @@ class AdminPageService extends UserContextAwareService
                 $this->throwNotFound('Page not found');
             }
 
-            if (!$this->hasAccess($parentPage->getId(), 'update')) {
-                $this->throwForbidden('Access denied to modify this page');
-            }
+            $this->checkAccess($pageKeyword, 'update');
 
             $childSection = $this->sectionRepository->find($sectionId);
             if (!$childSection) {

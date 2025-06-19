@@ -29,11 +29,11 @@ class AdminSectionService extends UserContextAwareService
         private readonly SectionRepository $sectionRepository,
         private readonly TransactionService $transactionService,
         private readonly StyleRepository $styleRepository,
-        private readonly PageRepository $pageRepository,
         ACLService $aclService,
-        UserContextService $userContextService
+        UserContextService $userContextService,
+        PageRepository $pageRepository
     ) {
-        parent::__construct($userContextService, $aclService);
+        parent::__construct($userContextService, $aclService, $pageRepository);
     }
 
     /**
@@ -42,18 +42,15 @@ class AdminSectionService extends UserContextAwareService
      * @return array
      * @throws ServiceException If section not found or access denied
      */
-    public function getSection(int $section_id): array
+    public function getSection(string $page_keyword, int $section_id): array
     {
         // Fetch section
         $section = $this->sectionRepository->find($section_id);
         if (!$section) {
             $this->throwNotFound('Section not found');
         }
-
         // Permission check
-        if (!$this->hasAccess($section->getId(), 'select')) {
-            $this->throwForbidden('Access denied');
-        }
+        $this->checkAccess($page_keyword, 'update');
 
         // Get style and its fields
         $style = $section->getStyle();
@@ -174,8 +171,9 @@ class AdminSectionService extends UserContextAwareService
      * @param int $parent_section_id
      * @return array
      */
-    public function getChildrenSections(int $parent_section_id): array
+    public function getChildrenSections(string $page_keyword, int $parent_section_id): array
     {
+        $this->checkAccess($page_keyword, 'select');
         $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
         $sections = [];
@@ -221,6 +219,7 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Adds a child section to a parent section.
      *
+     * @param string $page_keyword The page keyword.
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @param int|null $position The desired position.
@@ -229,8 +228,10 @@ class AdminSectionService extends UserContextAwareService
      * @return SectionsHierarchy The new section hierarchy relationship.
      * @throws ServiceException If the relationship already exists or entities are not found.
      */
-    public function addSectionToSection(int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageId = null, ?int $oldParentSectionId = null): SectionsHierarchy
+    public function addSectionToSection(string $page_keyword, int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageId = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
         $this->entityManager->beginTransaction();
         try {
             $parentSection = $this->sectionRepository->find($parent_section_id);
@@ -297,13 +298,16 @@ class AdminSectionService extends UserContextAwareService
 
     /**
      * Removes a child section from a parent section and returns the removed Section entity.
-     *
+     * 
+     * @param string $page_keyword The page keyword.
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function removeSectionFromSection(int $parent_section_id, int $child_section_id): void
+    public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): void
     {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
         $this->entityManager->beginTransaction();
         try {
             $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)
@@ -329,11 +333,14 @@ class AdminSectionService extends UserContextAwareService
      *
      * This will remove the section and all its relationships (parent, child, and page attachments).
      *
+     * @param string $page_keyword The page keyword.
      * @param int $section_id The ID of the section to delete.
      * @throws ServiceException If the section is not found.
      */
-    public function deleteSection(int $section_id): void
+    public function deleteSection(string $page_keyword, int $section_id): void
     {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
         $this->entityManager->beginTransaction();
         try {
             $section = $this->sectionRepository->find($section_id);
@@ -381,15 +388,13 @@ class AdminSectionService extends UserContextAwareService
      */
     public function createPageSection(string $page_keyword, int $styleId, ?int $position): int
     {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
         $this->entityManager->beginTransaction();
         try {
             $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
             if (!$page) {
                 $this->throwNotFound('Page not found');
-            }
-
-            if (!$this->hasAccess($page->getId(), 'update')) {
-                $this->throwForbidden('Access denied to modify this page');
             }
 
             $style = $this->styleRepository->find($styleId);
@@ -428,14 +433,17 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      *
+     * @param string $page_keyword The page keyword.
      * @param int $parent_section_id The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
      * @return int The ID of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(int $parent_section_id, int $styleId, ?int $position): int
+    public function createChildSection(string $page_keyword, int $parent_section_id, int $styleId, ?int $position): int
     {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
         $this->entityManager->beginTransaction();
         try {
             $parentSection = $this->sectionRepository->find($parent_section_id);

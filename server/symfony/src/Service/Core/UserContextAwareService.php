@@ -3,6 +3,7 @@
 namespace App\Service\Core;
 
 use App\Entity\User;
+use App\Repository\PageRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 
@@ -10,13 +11,13 @@ abstract class UserContextAwareService extends BaseService
 {
     protected UserContextService $userContextService;
     protected ?ACLService $aclService;
+    protected ?PageRepository $pageRepository;
 
-    public function __construct(
-        UserContextService $userContextService,
-        ?ACLService $aclService = null
-    ) {
+    public function __construct(UserContextService $userContextService, ?ACLService $aclService = null, ?PageRepository $pageRepository = null)
+    {
         $this->userContextService = $userContextService;
         $this->aclService = $aclService;
+        $this->pageRepository = $pageRepository;
     }
 
     /**
@@ -36,10 +37,14 @@ abstract class UserContextAwareService extends BaseService
     }
 
     /**
-     * Check if the current user has access to a resource
+     * Check if the current user has access to page
      */
-    protected function hasAccess(int $pageId, string $permission = 'select'): bool
+    protected function checkAccess(string $page_keyword, string $permission = 'select'): void
     {
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
         $user = $this->getCurrentUser();
         $userId = 1; // guest user
         if ($user) {
@@ -47,9 +52,9 @@ abstract class UserContextAwareService extends BaseService
         }
 
         if ($this->aclService instanceof ACLService) {
-            return $this->aclService->hasAccess($userId, $pageId, $permission);
+            if (!$this->aclService->hasAccess($userId, $page->getId(), $permission)) {
+                $this->throwForbidden('Access denied');
+            }
         }
-        
-        return false;
     }
 }
