@@ -9,12 +9,21 @@
             "description": "The ID of the child section to add."
         },
         "position": {
-            "type": ["integer", "null"],
+            "type": "integer",
             "description": "The position of the child section within the parent. If null, it will be added at the end."
+        },
+        "oldParentSectionId": {
+            "type": "integer",
+            "description": "The ID of the old parent section to remove the relationship from (optional)."
+        },
+        "oldParentPageId": {
+            "type": "string",
+            "description": "The keyword of the old parent page to remove the relationship from (optional)."
         }
     },
     "required": [
-        "childSectionId"
+        "childSectionId",
+        "position"
     ],
     "additionalProperties": false
 }

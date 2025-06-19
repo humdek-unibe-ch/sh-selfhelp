@@ -214,7 +214,8 @@ class AdminPageController extends AbstractController
         $result = $this->adminPageService->addSectionToPage(
             $page_keyword,
             $data['sectionId'],
-            $data['position'] ?? null
+            $data['position'],
+            $data['oldParentSectionId'] ?? null,
         );
 
         return $this->responseFormatter->formatSuccess(

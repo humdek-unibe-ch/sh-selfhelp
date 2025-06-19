@@ -705,10 +705,11 @@ class AdminPageService extends UserContextAwareService
      * @param string $pageKeyword The keyword of the page.
      * @param int $sectionId The ID of the section to add.
      * @param int|null $position The desired position (e.g., 5, 15, 25). This will be normalized.
+     * @param int|null $oldParentSectionId The ID of the old parent section to remove the relationship from (optional).
      * @return PagesSection The new page-section relationship.
      * @throws ServiceException If the relationship already exists, or if entities are not found.
      */
-    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position): PagesSection
+    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position, ?int $oldParentSectionId = null): PagesSection
     {
         $this->entityManager->beginTransaction();
         try {
@@ -726,17 +727,20 @@ class AdminPageService extends UserContextAwareService
                 $this->throwNotFound('Section not found');
             }
 
-
-            // Remove from SectionsHierarchy if this section is currently a child in any section
-            $sectionsHierarchyRepo = $this->entityManager->getRepository(SectionsHierarchy::class);
-            $attachedHierarchies = $sectionsHierarchyRepo->findBy(['childSection' => $childSection]);
-            foreach ($attachedHierarchies as $attached) {
-                $this->entityManager->remove($attached);
+            //remove old parent section relationship
+            if ($oldParentSectionId !== null) {
+                $oldParentSection = $this->sectionRepository->find($oldParentSectionId);
+                if ($oldParentSection) {
+                    $oldRelationship = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy([
+                        'parentSection' => $oldParentSection,
+                        'childSection' => $childSection
+                    ]);
+                    if ($oldRelationship) {
+                        $this->entityManager->remove($oldRelationship);
+                        $this->entityManager->flush();
+                    }
+                }
             }
-            if (count($attachedHierarchies) > 0) {
-                $this->entityManager->flush();
-            }
-
 
             // For PagesSection, check for existing relationship
             $existing = $this->entityManager->getRepository(PagesSection::class)

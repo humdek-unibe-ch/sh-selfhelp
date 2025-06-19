@@ -224,10 +224,12 @@ class AdminSectionService extends UserContextAwareService
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @param int|null $position The desired position.
+     * @param string|null $oldParentPageId The ID of the old parent page to remove the relationship from (optional).
+     * @param int|null $oldParentSectionId The ID of the old parent section to remove the relationship from (optional).
      * @return SectionsHierarchy The new section hierarchy relationship.
      * @throws ServiceException If the relationship already exists or entities are not found.
      */
-    public function addSectionToSection(int $parent_section_id, int $child_section_id, ?int $position): SectionsHierarchy
+    public function addSectionToSection(int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageId = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
         $this->entityManager->beginTransaction();
         try {
@@ -240,25 +242,35 @@ class AdminSectionService extends UserContextAwareService
             if (!$childSection) {
                 $this->throwNotFound('Child section not found');
             }
-            // Remove from PagesSection if this section is currently attached to any page
-            $pagesSectionRepo = $this->entityManager->getRepository(PagesSection::class);
-            $attachedPagesSections = $pagesSectionRepo->findBy(['section' => $childSection]);
-            foreach ($attachedPagesSections as $attached) {
-                $this->entityManager->remove($attached);
-            }
-            if (count($attachedPagesSections) > 0) {
-                $this->entityManager->flush();
+
+            //remove old parent page relationship
+            if ($oldParentPageId !== null) {
+                $oldParentPage = $this->pageRepository->find($oldParentPageId);
+                if ($oldParentPage) {
+                    $oldRelationship = $this->entityManager->getRepository(PagesSection::class)->findOneBy([
+                        'page' => $oldParentPage,
+                        'section' => $childSection
+                    ]);
+                    if ($oldRelationship) {
+                        $this->entityManager->remove($oldRelationship);
+                        $this->entityManager->flush();
+                    }
+                }
             }
 
-
-            $existing = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy(['parentSection' => $parentSection, 'childSection' => $childSection]);
-            if ($existing) {
-                // Just update the position and normalize
-                $existing->setPosition($position);                
-                $this->normalizeSectionHierarchyPositions($parent_section_id);
-                $this->entityManager->flush();
-                $this->entityManager->commit();
-                return $existing;
+            //remove old parent section relationship
+            if ($oldParentSectionId !== null) {
+                $oldParentSection = $this->sectionRepository->find($oldParentSectionId);
+                if ($oldParentSection) {
+                    $oldRelationship = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy([
+                        'parentSection' => $oldParentSection,
+                        'childSection' => $childSection
+                    ]);
+                    if ($oldRelationship) {
+                        $this->entityManager->remove($oldRelationship);
+                        $this->entityManager->flush();
+                    }
+                }
             }
 
             $sectionHierarchy = new SectionsHierarchy();
@@ -280,31 +292,6 @@ class AdminSectionService extends UserContextAwareService
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
-        }
-    }
-
-    /**
-     * Updates the position of a section in the hierarchy by section_id.
-     *
-     * @param int $section_id The ID of the section to update.
-     * @param int|null $position The new position.
-     * @throws ServiceException If the section is not found in any hierarchy.
-     */
-    public function updateSection(int $section_id, ?int $position): void
-    {
-        $this->entityManager->beginTransaction();
-        try {
-            $sectionHierarchy = $this->entityManager->getRepository(SectionsHierarchy::class)
-                ->findOneBy(['child' => $section_id]);
-            if (!$sectionHierarchy) {
-                $this->throwNotFound('Section hierarchy relationship not found. Use the add endpoint to create it.');
-            }
-            $sectionHierarchy->setPosition($position);
-            $this->entityManager->flush();
-            $this->entityManager->commit();
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to update section position: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
 

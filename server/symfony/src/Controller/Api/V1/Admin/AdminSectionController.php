@@ -56,27 +56,15 @@ class AdminSectionController extends AbstractController
         $result = $this->adminSectionService->addSectionToSection(
             $parent_section_id,
             $data['childSectionId'],
-            $data['position'] ?? null
+            $data['position'],
+            $data['oldParentPageId'] ?? null,
+            $data['oldParentSectionId'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
             ['id' => $result->getChildSection()->getId(), 'position' => $result->getPosition()],
             null,
             Response::HTTP_CREATED
-        );
-    }
-
-    public function updateSection(Request $request, int $section_id): Response
-    {
-        $data = $this->validateRequest($request, 'requests/section/update_section_in_section', $this->jsonSchemaValidationService);
-
-        $result = $this->adminSectionService->updateSection(
-            $section_id,
-            $data['position'] ?? null
-        );
-
-        return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $section_id, 'position' => $data['position'] ?? null]
         );
     }
 
