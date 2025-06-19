@@ -221,7 +221,7 @@ class AdminPageController extends AbstractController
         return $this->responseFormatter->formatSuccess(
             ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()],
             null,
-            Response::HTTP_CREATED
+            Response::HTTP_OK
         );
     }
 

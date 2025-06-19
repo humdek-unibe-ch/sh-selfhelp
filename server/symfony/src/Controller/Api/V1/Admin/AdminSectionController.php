@@ -64,7 +64,7 @@ class AdminSectionController extends AbstractController
         return $this->apiResponseFormatter->formatSuccess(
             ['id' => $result->getChildSection()->getId(), 'position' => $result->getPosition()],
             null,
-            Response::HTTP_CREATED
+            Response::HTTP_OK
         );
     }
 
