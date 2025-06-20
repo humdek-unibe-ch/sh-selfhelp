@@ -401,56 +401,145 @@ class AdminPageService extends UserContextAwareService
      */
     private function reorderPagePositions(int $pageId, ?int $parentId, string $positionType): void
     {
-        // Get all pages with positions for the given parent and position type
-        $pages = $positionType === 'nav'
-            ? $this->pageRepository->findPagesWithNavPosition($parentId)
-            : $this->pageRepository->findPagesWithFooterPosition($parentId);
-
-        // Get the current page and its position
-        $currentPage = $this->pageRepository->find($pageId);
-        $currentPosition = $positionType === 'nav'
-            ? $currentPage->getNavPosition()
-            : $currentPage->getFooterPosition();
-
-        // Create a map of all pages (excluding current page) with their positions
-        $pageMap = [];
-        foreach ($pages as $page) {
-            if ($page->getId() !== $pageId) {
-                $position = $positionType === 'nav'
-                    ? $page->getNavPosition()
-                    : $page->getFooterPosition();
-
-                if ($position !== null) {
-                    $pageMap[] = [
-                        'id' => $page->getId(),
-                        'position' => $position
-                    ];
+        $em = $this->entityManager;
+        try {
+            // Get the current page entity
+            $currentPage = $this->pageRepository->find($pageId);
+            if (!$currentPage) {
+                throw new \RuntimeException('Page not found for reordering');
+            }
+            
+            // Get ALL pages for the given parent, regardless of position
+            // This ensures we don't miss any pages during reordering
+            $qb = $this->pageRepository->createQueryBuilder('p');
+            
+            if ($parentId !== null) {
+                $qb->andWhere('p.parentPage = :parentId')
+                   ->setParameter('parentId', $parentId);
+            } else {
+                $qb->andWhere('p.parentPage IS NULL');
+            }        
+               
+            // Get all pages for this parent
+            $allPages = $qb->getQuery()->getResult();
+            
+            // Filter to only include pages with the relevant position or the current page
+            $relevantPages = [];
+            foreach ($allPages as $page) {
+                $position = $positionType === 'nav' ? $page->getNavPosition() : $page->getFooterPosition();
+                
+                // Include page if it has a position or if it's the current page
+                if ($position !== null || $page->getId() === $pageId) {
+                    $relevantPages[] = $page;
                 }
             }
+            
+            // Prepare array of [page, position, id] for sorting
+            $pagePositions = [];
+            foreach ($relevantPages as $page) {
+                $position = $positionType === 'nav' ? $page->getNavPosition() : $page->getFooterPosition();
+                $pagePositions[] = [
+                    'entity' => $page,
+                    'position' => $position,
+                    'id' => $page->getId(), // Store ID to ensure stable sorting
+                    'originalPosition' => $position // Keep track of original position for debugging
+                ];
+            }
+            
+            // Debug log of original positions
+            $originalPositions = array_map(function($pp) {
+                return [
+                    'id' => $pp['id'],
+                    'position' => $pp['position']
+                ];
+            }, $pagePositions);
+            
+            // Sort by position with special handling:
+            // 1. Negative positions first (in ascending order: -1, -2, etc.)
+            // 2. Non-negative positions next (in ascending order: 0, 5, 10, etc.)
+            // 3. Null positions last
+            // 4. If positions are equal, sort by ID for stability
+            usort($pagePositions, function ($a, $b) {
+                // Handle null values (null values should be last)
+                if ($a['position'] === null && $b['position'] === null) {
+                    // If both positions are null, sort by ID for stability
+                    return $a['id'] <=> $b['id'];
+                }
+                if ($a['position'] === null) {
+                    return 1; // a is null, so it goes after b
+                }
+                if ($b['position'] === null) {
+                    return -1; // b is null, so it goes after a
+                }
+                
+                // Both are non-null, so compare them
+                // If one is negative and one is non-negative, negative comes first
+                if ($a['position'] < 0 && $b['position'] >= 0) {
+                    return -1;
+                }
+                if ($a['position'] >= 0 && $b['position'] < 0) {
+                    return 1;
+                }
+                
+                // If positions are equal, sort by ID for stability
+                if ($a['position'] === $b['position']) {
+                    return $a['id'] <=> $b['id'];
+                }
+                
+                // Otherwise, just compare the values normally
+                return $a['position'] <=> $b['position'];
+            });
+            
+            // Debug log of sorted positions before normalization
+            $sortedPositions = array_map(function($pp) {
+                return [
+                    'id' => $pp['id'],
+                    'position' => $pp['position']
+                ];
+            }, $pagePositions);
+
+            // Renormalize positions: 0, 10, 20, ...
+            $normalized = [];
+            $pos = 0;
+            
+            // Assign normalized positions (0, 10, 20, ...)
+            foreach ($pagePositions as $pp) {
+                // Only normalize if the original position wasn't null
+                // or if this is the current page we're updating
+                if ($pp['position'] !== null || $pp['entity']->getId() === $pageId) {
+                    $normalized[] = [
+                        'entity' => $pp['entity'],
+                        'newPosition' => $pos,
+                        'id' => $pp['entity']->getId(),
+                        'oldPosition' => $pp['position']
+                    ];
+                    $pos += 10;
+                }
+            }
+            
+            // Debug log of normalized positions
+            $normalizedPositions = array_map(function($item) {
+                return [
+                    'id' => $item['id'],
+                    'oldPosition' => $item['oldPosition'],
+                    'newPosition' => $item['newPosition']
+                ];
+            }, $normalized);
+
+            // Set new positions in a single batch
+            foreach ($normalized as $item) {
+                if ($positionType === 'nav') {
+                    $item['entity']->setNavPosition($item['newPosition']);
+                } else {
+                    $item['entity']->setFooterPosition($item['newPosition']);
+                }
+            }
+
+            // Perform a single flush for better performance
+            $em->flush();
+        } catch (\Throwable $e) {
+            throw $e;
         }
-
-        // Add the current page to the map
-        $pageMap[] = [
-            'id' => $pageId,
-            'position' => $currentPosition ?? PHP_INT_MAX // If null, place at the end
-        ];
-
-        // Sort pages by position
-        usort($pageMap, function ($a, $b) {
-            return $a['position'] <=> $b['position'];
-        });
-
-        // Reassign positions in multiples of 10
-        $finalPositions = [];
-        $position = 10;
-
-        foreach ($pageMap as $page) {
-            $finalPositions[$page['id']] = $position;
-            $position += 10;
-        }
-
-        // Update all positions in the database
-        $this->pageRepository->updatePagePositions($finalPositions, $positionType);
     }
 
     /**
@@ -491,6 +580,7 @@ class AdminPageService extends UserContextAwareService
 
             if (array_key_exists('navPosition', $pageData)) {
                 $page->setNavPosition($pageData['navPosition']);
+                $this->entityManager->flush();
                 // Only reorder positions if setting to a non-null value
                 if ($pageData['navPosition'] !== null) {
                     // Reorder nav positions if needed

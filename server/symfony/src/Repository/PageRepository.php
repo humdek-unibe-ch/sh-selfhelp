@@ -65,7 +65,7 @@ class PageRepository extends ServiceEntityRepository
     }
     
     /**
-     * Update page positions in a batch
+     * Update page positions in a batch using Doctrine ORM.
      *
      * @param array $pagePositions Array of [pageId => position]
      * @param string $positionType 'nav' or 'footer'
@@ -73,25 +73,22 @@ class PageRepository extends ServiceEntityRepository
      */
     public function updatePagePositions(array $pagePositions, string $positionType): bool
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $success = true;
-        
+        $em = $this->getEntityManager();
+        $pages = $em->getRepository(Page::class)->findBy([
+            'id' => array_keys($pagePositions)
+        ]);
+        $fieldSetter = $positionType === 'nav' ? 'setNavPosition' : 'setFooterPosition';
         try {
-            foreach ($pagePositions as $pageId => $position) {
-                $positionField = $positionType === 'nav' ? 'nav_position' : 'footer_position';
-                
-                $conn->executeStatement(
-                    "UPDATE pages SET $positionField = :position WHERE id = :id",
-                    [
-                        'position' => $position,
-                        'id' => $pageId
-                    ]
-                );
+            foreach ($pages as $page) {
+                $pageId = $page->getId();
+                if (array_key_exists($pageId, $pagePositions)) {
+                    $page->$fieldSetter($pagePositions[$pageId]);
+                }
             }
+            $em->flush();
+            return true;
         } catch (\Exception $e) {
-            $success = false;
+            return false;
         }
-        
-        return $success;
     }
 }

@@ -35,17 +35,17 @@ class PageService extends UserContextAwareService
             if ($a['nav_position'] === null && $b['nav_position'] === null) {
                 return strcasecmp($a['keyword'] ?? '', $b['keyword'] ?? '');
             }
-            
+
             // If only a's position is null, it should go after b
             if ($a['nav_position'] === null) {
                 return 1;
             }
-            
+
             // If only b's position is null, it should go after a
             if ($b['nav_position'] === null) {
                 return -1;
             }
-            
+
             // If both have positions, compare them normally
             return $a['nav_position'] <=> $b['nav_position'];
         });
@@ -82,8 +82,15 @@ class PageService extends UserContextAwareService
         $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
         $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACTIONS, LookupService::PAGE_ACTIONS_SECTIONS);
 
-        // First, filter the pages as you were doing
-        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId) {
+        // If mode is both, do not remove any type
+        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId, $mode) {
+            // TODO: Adjust the filtering once the structure is adjusted
+            if ($mode === LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB) {
+                return $item['acl_select'] == 1 &&
+                    $item['id_actions'] == $sectionsTypeId &&
+                    in_array($item['id_type'], ['2', '3', '4']) &&
+                    $item['url'] != '';
+            }
             return $item['id_pageAccessTypes'] != $removeTypeId &&
                 $item['acl_select'] == 1 &&
                 $item['id_actions'] == $sectionsTypeId &&
@@ -104,7 +111,7 @@ class PageService extends UserContextAwareService
                     $page['protocol'] = 'https';
                 }
             }
-            
+
             $page['children'] = []; // Initialize children array
             $pagesMap[$page['id_pages']] = &$page;
         }

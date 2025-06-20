@@ -54,11 +54,12 @@ class AdminSectionController extends AbstractController
         $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->addSectionToSection(
-            $page_keyword,
-            $data['childSectionId'],
-            $data['position'],
-            $data['oldParentPageId'] ?? null,
-            $data['oldParentSectionId'] ?? null
+            page_keyword: $page_keyword,
+            parent_section_id: $parent_section_id,
+            child_section_id: $data['childSectionId'],
+            position: $data['position'],
+            oldParentPageId: $data['oldParentPageId'] ?? null,
+            oldParentSectionId: $data['oldParentSectionId'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
