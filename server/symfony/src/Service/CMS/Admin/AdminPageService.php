@@ -708,4 +708,37 @@ class AdminPageService extends UserContextAwareService
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
+
+    /**
+     * Removes a section from a page.
+     *
+     * @param string $pageKeyword The keyword of the page.
+     * @param int $sectionId The ID of the section to remove.
+     * @throws ServiceException If the relationship does not exist.
+     */
+    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
+    {
+        $this->entityManager->beginTransaction();
+        try {
+            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
+            $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
+            if (!$pageSection) {
+                $this->throwNotFound('Section is not associated with this page.');
+            }
+
+            $this->entityManager->remove($pageSection);
+            $this->entityManager->flush();
+
+            $this->positionManagementService->normalizePageSectionPositions($page->getId());
+
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
 }

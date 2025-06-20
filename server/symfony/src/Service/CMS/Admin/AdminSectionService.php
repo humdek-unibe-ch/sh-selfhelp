@@ -286,7 +286,7 @@ class AdminSectionService extends UserContextAwareService
             $sectionHierarchy->setPosition($position);
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
-            $this->normalizeSectionHierarchyPositions($parent_section_id);
+            $this->positionManagementService->normalizeSectionHierarchyPositions($parent_section_id, true);
             $this->entityManager->commit();
             return $sectionHierarchy;
         } catch (\Throwable $e) {
@@ -318,7 +318,7 @@ class AdminSectionService extends UserContextAwareService
 
             $this->entityManager->remove($sectionHierarchy);
             $this->entityManager->flush();
-            $this->normalizeSectionHierarchyPositions($parent_section_id);
+            $this->positionManagementService->normalizeSectionHierarchyPositions($parent_section_id, true);
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -420,7 +420,7 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->persist($pagesSection);
             $this->entityManager->flush();
 
-            $this->normalizePageSectionPositions($page->getId());
+            $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
 
             $this->entityManager->commit();
             return $section->getId();
@@ -474,35 +474,13 @@ class AdminSectionService extends UserContextAwareService
             $sectionHierarchy->setPosition($position);
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
-            $this->normalizeSectionHierarchyPositions($parent_section_id);
+            $this->positionManagementService->normalizeSectionHierarchyPositions($parent_section_id, true);
             $this->entityManager->commit();
             return $childSection->getId();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create child section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
-    }
-
-    /**
-     * Normalizes the positions of sections on a page.
-     * 
-     * @param int $pageId The ID of the page to normalize section positions for
-     * @param bool $flush Whether to flush changes to the database
-     */
-    private function normalizePageSectionPositions(int $pageId, bool $flush = true): void
-    {
-        $this->positionManagementService->normalizePageSectionPositions($pageId, $flush);
-    }
-
-    /**
-     * Normalizes the positions of all child sections within a specific parent section.
-     * 
-     * @param int $parentSectionId The ID of the parent section
-     * @param bool $flush Whether to flush changes to the database
-     */
-    private function normalizeSectionHierarchyPositions(int $parentSectionId, bool $flush = true): void
-    {
-        $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, $flush);
     }
 
 }

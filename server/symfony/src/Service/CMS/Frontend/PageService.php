@@ -19,9 +19,10 @@ class PageService extends UserContextAwareService
         SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
         UserContextService $userContextService,
-        ?ACLService $aclService = null
+        ACLService $aclService,
+        PageRepository $pageRepository
     ) {
-        parent::__construct($userContextService, $aclService);
+        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -72,9 +73,6 @@ class PageService extends UserContextAwareService
         }
 
         // Get all pages with ACL for the user using the ACLService (cached)
-        if (!$this->aclService) {
-            throw new ServiceException('ACLService not available', Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
         $allPages = $this->aclService->getAllUserAcls($userId);
 
         // Determine which type to remove based on mode
