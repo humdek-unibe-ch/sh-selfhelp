@@ -2,9 +2,15 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\Section;
-use App\Entity\SectionsHierarchy;
+use App\Entity\Field;
+use App\Entity\FieldType;
+use App\Entity\Page;
 use App\Entity\PagesSection;
+use App\Entity\Section;
+use App\Entity\SectionsFieldsTranslation;
+use App\Entity\SectionsHierarchy;
+use App\Entity\Style;
+use App\Entity\StylesField;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
@@ -39,20 +45,40 @@ class AdminSectionService extends UserContextAwareService
 
     /**
      * Get a section by its ID with its fields and translations
+     * @param string|null $page_keyword
      * @param int $section_id
      * @return array
      * @throws ServiceException If section not found or access denied
      */
-    public function getSection(string $page_keyword, int $section_id): array
+    public function getSection(?string $page_keyword, int $section_id): array
     {
         // Fetch section
         $section = $this->sectionRepository->find($section_id);
         if (!$section) {
             $this->throwNotFound('Section not found');
         }
+        
+        // If page_keyword is not provided, find it from the section
+        if ($page_keyword === null) {
+            // Get the page from the section by finding which page this section belongs to
+            $pageSection = $this->entityManager->getRepository(PagesSection::class)
+                ->findOneBy(['section' => $section_id]);
+            
+            if ($pageSection) {
+                $page = $pageSection->getPage();
+                if ($page) {
+                    $page_keyword = $page->getKeyword();
+                }
+            }
+            
+            if (!$page_keyword) {
+                $this->throwNotFound('Page not found for this section');
+            }
+        }
+        
         // Permission check
         $this->checkAccess($page_keyword, 'select');
-        $this->checkSectionInPage($page_keyword,$section_id);
+        $this->checkSectionInPage($page_keyword, $section_id);
 
         // Get style and its fields
         $style = $section->getStyle();
@@ -165,6 +191,7 @@ class AdminSectionService extends UserContextAwareService
         return [
             'section' => $this->normalizeSection($section),
             'fields' => $formattedFields,
+            'languages' => $languages,
         ];
     }
 
@@ -331,22 +358,41 @@ class AdminSectionService extends UserContextAwareService
      *
      * This will remove the section and all its relationships (parent, child, and page attachments).
      *
-     * @param string $page_keyword The page keyword.
+     * @param string|null $page_keyword The page keyword.
      * @param int $section_id The ID of the section to delete.
      * @throws ServiceException If the section is not found.
      */
-    public function deleteSection(string $page_keyword, int $section_id): void
+    public function deleteSection(?string $page_keyword, int $section_id): void
     {
+        $section = $this->sectionRepository->find($section_id);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
+        }
+        
+        // If page_keyword is not provided, find it from the section
+        if ($page_keyword === null) {
+            // Get the page from the section by finding which page this section belongs to
+            $pageSection = $this->entityManager->getRepository(PagesSection::class)
+                ->findOneBy(['section' => $section_id]);
+            
+            if ($pageSection) {
+                $page = $pageSection->getPage();
+                if ($page) {
+                    $page_keyword = $page->getKeyword();
+                }
+            }
+            
+            if (!$page_keyword) {
+                $this->throwNotFound('Page not found for this section');
+            }
+        }
+        
         // Permission check
         $this->checkAccess($page_keyword, 'update');
-        $this->checkSectionInPage($page_keyword,$section_id);
+        $this->checkSectionInPage($page_keyword, $section_id);
+        
         $this->entityManager->beginTransaction();
         try {
-            $section = $this->sectionRepository->find($section_id);
-            if (!$section) {
-                $this->throwNotFound('Section not found');
-            }
-
             // Remove from pages_sections
             $pagesSections = $this->entityManager->getRepository(PagesSection::class)->findBy(['section' => $section]);
             foreach ($pagesSections as $pagesSection) {
@@ -434,25 +480,44 @@ class AdminSectionService extends UserContextAwareService
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      *
-     * @param string $page_keyword The page keyword.
+     * @param string|null $page_keyword The page keyword.
      * @param int $parent_section_id The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
-     * @return int The ID of the new section
+     * @return array The ID and position of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
+    public function createChildSection(?string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
     {
+        $parentSection = $this->sectionRepository->find($parent_section_id);
+        if (!$parentSection) {
+            $this->throwNotFound('Parent section not found');
+        }
+        
+        // If page_keyword is not provided, find it from the parent section
+        if ($page_keyword === null) {
+            // Get the page from the parent section by finding which page this section belongs to
+            $pageSection = $this->entityManager->getRepository(PagesSection::class)
+                ->findOneBy(['section' => $parent_section_id]);
+            
+            if ($pageSection) {
+                $page = $pageSection->getPage();
+                if ($page) {
+                    $page_keyword = $page->getKeyword();
+                }
+            }
+            
+            if (!$page_keyword) {
+                $this->throwNotFound('Page not found for parent section');
+            }
+        }
+        
         // Permission check
         $this->checkAccess($page_keyword, 'update');
-        $this->checkSectionInPage($page_keyword,$parent_section_id);
+        $this->checkSectionInPage($page_keyword, $parent_section_id);
+        
         $this->entityManager->beginTransaction();
         try {
-            $parentSection = $this->sectionRepository->find($parent_section_id);
-            if (!$parentSection) {
-                $this->throwNotFound('Parent section not found');
-            }
-
             $style = $this->styleRepository->find($styleId);
             if (!$style) {
                 $this->throwNotFound('Style not found');

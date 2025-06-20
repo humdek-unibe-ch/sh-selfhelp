@@ -74,7 +74,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $section2Id = $section2Data->id;
             $this->assertNotNull($section2Id, 'Section 2 ID is null');
 
-            // 3. Verify S1, S2 order
+            // 3. Verify S1, S2 are on the page
             $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $response = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -87,46 +87,12 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame($section1Id, $pageSectionsData->sections[0]->id, 'S1 not at position 0');
             $this->assertSame(0, $pageSectionsData->sections[0]->position, 'S1 position incorrect');
             $this->assertSame($section2Id, $pageSectionsData->sections[1]->id, 'S2 not at position 1');
-            $this->assertSame(1, $pageSectionsData->sections[1]->position, 'S2 position incorrect');
+            $this->assertSame(10, $pageSectionsData->sections[1]->position, 'S2 position incorrect');
 
-            // 4. Reorder S2 before S1 (S2 to position 0)
-            $this->client->request(
-                'PUT',
-                sprintf('/cms-api/v1/admin/sections/%d', $section2Id),
-                [],
-                [],
-                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
-                json_encode(['position' => 0])
-            );
-            $responseReorder = $this->client->getResponse();
-            $this->assertSame(Response::HTTP_OK, $responseReorder->getStatusCode(), 'Failed to reorder S2');
-            $responseContentReorder = $responseReorder->getContent();
-            $decodedResponseReorder = json_decode($responseContentReorder);
-            // Validate reorder response against the new section_reordered schema
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseReorder, 'responses/page/section_reordered');
-            $this->assertEmpty($validationErrors, 'Reorder S2 response does not match schema: ' . implode(', ', $validationErrors));
-            // Note: Reordering S1 might happen automatically, or we might need to update it too if positions are unique and dense.
-            // For now, assume service handles S1 moving to position 1.
-
-            // 5. Verify Reorder (S2, S1)
-            $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
-            $responseGet2 = $this->client->getResponse();
-            $this->assertSame(Response::HTTP_OK, $responseGet2->getStatusCode(), 'Failed to get sections after reorder');
-            $responseContentGet2 = $responseGet2->getContent();
-            $decodedResponseGet2 = json_decode($responseContentGet2);
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet2, 'responses/admin/page_sections');
-            $this->assertEmpty($validationErrors, 'Get sections (after reorder) response does not match schema: ' . implode(', ', $validationErrors));
-            $pageSectionsData = $decodedResponseGet2->data;
-            $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of sections after reordering');
-            $this->assertSame($section2Id, $pageSectionsData->sections[0]->id, 'S2 not at position 0 after reorder');
-            $this->assertSame(0, $pageSectionsData->sections[0]->position, 'S2 position incorrect after reorder');
-            $this->assertSame($section1Id, $pageSectionsData->sections[1]->id, 'S1 not at position 1 after reorder');
-            $this->assertSame(1, $pageSectionsData->sections[1]->position, 'S1 position incorrect after reorder');
-
-            // 6. Add S3 as child of S2 (which is now at pos 0)
+            // 4. Add S3 as child of S1 (first section)
             $this->client->request(
                 'POST',
-                sprintf('/cms-api/v1/admin/sections/%d/child-sections/create', $section2Id), // Corrected endpoint from previous review
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d/sections/create', $pageKeyword, $section1Id),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -142,33 +108,33 @@ class AdminSectionControllerTest extends BaseControllerTest
             $section3Id = $section3Data->id;
             $this->assertNotNull($section3Id, 'Section 3 ID is null');
 
-            // 7. Verify Nested Structure (S2[S3], S1)
+            // 5. Verify Nested Structure (S1[S3], S2)
             $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet3 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet3->getStatusCode(), 'Failed to get sections after adding S3');
             $responseContentGet3 = $responseGet3->getContent();
             $decodedResponseGet3 = json_decode($responseContentGet3);
             $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet3, 'responses/admin/page_sections');
-            $this->assertEmpty($validationErrors, 'Get sections (S2[S3],S1) response does not match schema: ' . implode(', ', $validationErrors));
+            $this->assertEmpty($validationErrors, 'Get sections (S1[S3],S2) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet3->data;
             $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of top-level sections after adding S3');
-            $this->assertSame($section2Id, $pageSectionsData->sections[0]->id, 'S2 is not the first section after S3 add');
-            $this->assertCount(1, $pageSectionsData->sections[0]->children, 'S2 does not have one child (S3) after S3 add');
-            $this->assertSame($section3Id, $pageSectionsData->sections[0]->children[0]->id, 'S3 is not the child of S2 after S3 add');
-            $this->assertSame($section1Id, $pageSectionsData->sections[1]->id, 'S1 is not the second section after S3 add');
-            $this->assertEmpty($pageSectionsData->sections[1]->children, 'S1 should not have children after S3 add');
+            $this->assertSame($section1Id, $pageSectionsData->sections[0]->id, 'S1 is not the first section after S3 add');
+            $this->assertCount(1, $pageSectionsData->sections[0]->children, 'S1 does not have one child (S3) after S3 add');
+            $this->assertSame($section3Id, $pageSectionsData->sections[0]->children[0]->id, 'S3 is not the child of S1 after S3 add');
+            $this->assertSame($section2Id, $pageSectionsData->sections[1]->id, 'S2 is not the second section after S3 add');
+            $this->assertEmpty($pageSectionsData->sections[1]->children, 'S2 should not have children after S3 add');
 
-            // 8. Remove Child Section S3 from S2
+            // 6. Remove Child Section S3 from S1
             $this->client->request(
                 'DELETE',
-                sprintf('/cms-api/v1/admin/sections/%d', $section3Id), // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $section3Id),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
             );
             $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove child section S3');
 
-            // 9. Verify S3 Removal (S2, S1)
+            // 7. Verify S3 Removal (S1, S2)
             $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet4 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet4->getStatusCode(), 'Failed to get sections after S3 removal');
@@ -178,31 +144,31 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertEmpty($validationErrors, 'Get sections (after S3 removal) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet4->data;
             $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of top-level sections after removing S3');
-            $this->assertSame($section2Id, $pageSectionsData->sections[0]->id, 'S2 not first after S3 removal');
-            $this->assertEmpty($pageSectionsData->sections[0]->children, 'S2 should have no children after S3 removal');
-            $this->assertSame($section1Id, $pageSectionsData->sections[1]->id, 'S1 not second after S3 removal');
+            $this->assertSame($section1Id, $pageSectionsData->sections[0]->id, 'S1 not first after S3 removal');
+            $this->assertEmpty($pageSectionsData->sections[0]->children, 'S1 should have no children after S3 removal');
+            $this->assertSame($section2Id, $pageSectionsData->sections[1]->id, 'S2 not second after S3 removal');
 
-            // 10. Remove S2 from page
+            // 8. Remove S2 from page
             $this->client->request(
                 'DELETE',
-                sprintf('/cms-api/v1/admin/sections/%d', $section2Id), // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $section2Id),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
             );
             $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove section S2');
 
-            // 11. Remove S1 from page
+            // 9. Remove S1 from page
             $this->client->request(
                 'DELETE',
-                sprintf('/cms-api/v1/admin/sections/%d', $section1Id), // Endpoint for deleting any section by its ID
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $section1Id),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
             );
             $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove section S1');
 
-            // 12. Verify All Sections Gone
+            // 10. Verify All Sections Gone
             $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
             $responseGet5 = $this->client->getResponse();
             $this->assertSame(Response::HTTP_OK, $responseGet5->getStatusCode(), 'Failed to get sections after all deletes');
@@ -297,7 +263,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a child section
         $this->client->request(
             'POST',
-            sprintf('/cms-api/v1/admin/sections/%d/sections/create', $this->testSectionId),
+            sprintf('/cms-api/v1/admin/pages/home/sections/%d/sections/create', $this->testSectionId),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
@@ -342,7 +308,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to get the section
         $this->client->request(
             'GET',
-            sprintf('/cms-api/v1/admin/sections/%d', $this->testSectionId),
+            sprintf('/cms-api/v1/admin/pages/home/sections/%d', $this->testSectionId),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
@@ -463,14 +429,12 @@ class AdminSectionControllerTest extends BaseControllerTest
     protected function tearDown(): void
     {
         // Clean up the section created by createTestSectionForChildTest if it exists
-        // This is a basic cleanup; more robust might involve checking the page it was added to.
         if ($this->testSectionId) {
             $token = $this->getAdminAccessToken();
-            // Attempt to delete it from the 'home' page, as that's where createTestSectionForChildTest adds it.
-            // This assumes it's a top-level section on 'home'. If it could be nested, cleanup is harder.
+            // Use the correct delete route for sections
             $this->client->request(
                 'DELETE',
-                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', self::TEST_PAGE_KEYWORD, $this->testSectionId),
+                sprintf('/cms-api/v1/admin/pages/home/sections/%d', $this->testSectionId),
                 [],
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

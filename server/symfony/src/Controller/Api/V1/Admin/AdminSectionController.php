@@ -28,9 +28,9 @@ class AdminSectionController extends AbstractController
         $section = $this->adminSectionService->getSection($page_keyword, $section_id);
         return $this->apiResponseFormatter->formatSuccess(
             [
-                'pageKeyword' => $page_keyword,
                 'section' => $section['section'] ?? $section,
                 'fields' => $section['fields'] ?? [],
+                'languages' => $section['languages'] ?? [],
             ],
             'responses/admin/section',
             Response::HTTP_OK
@@ -132,6 +132,18 @@ class AdminSectionController extends AbstractController
             ],
             null,
             Response::HTTP_CREATED
+        );
+    }
+
+    /**
+     * Update a section (placeholder - not yet implemented)
+     */
+    public function updateSection(Request $request, string $page_keyword, int $section_id): Response
+    {
+        // TODO: Implement section update functionality
+        return $this->apiResponseFormatter->formatError(
+            'Section update functionality not yet implemented',
+            Response::HTTP_NOT_IMPLEMENTED
         );
     }
 }

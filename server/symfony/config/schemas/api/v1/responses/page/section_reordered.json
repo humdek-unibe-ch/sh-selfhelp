@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Page Section Reordered Response",
-    "description": "Schema for the successful response of reordering a page section.",
+    "title": "Section Reordered Success Response",
+    "description": "Schema for the successful response when a section is reordered.",
     "allOf": [
         { "$ref": "../common/_response_envelope.json" }
     ],
@@ -11,11 +11,11 @@
             "properties": {
                 "id": {
                     "type": "integer",
-                    "description": "Unique identifier for the section."
+                    "description": "The ID of the reordered section."
                 },
                 "position": {
                     "type": "integer",
-                    "description": "New position of the section."
+                    "description": "The new position of the section."
                 }
             },
             "required": [

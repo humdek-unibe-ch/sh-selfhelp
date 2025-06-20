@@ -93,7 +93,7 @@ class AdminPageController extends AbstractController
         try {
             $sections = $this->adminPageService->getPageSections($page_keyword);
             return $this->responseFormatter->formatSuccess([
-                'page_keyword' => $page_keyword,
+                'pageKeyword' => $page_keyword,
                 'sections' => $sections
             ], 'responses/admin/page_sections');
         } catch (ServiceException $e) {

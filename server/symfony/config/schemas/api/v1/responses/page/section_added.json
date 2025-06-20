@@ -1,31 +1,30 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Section Added to Page Response",
-    "description": "Response schema for adding a section to a page",
-    "type": "object",
+    "title": "Section Added to Page Success Response",
+    "description": "Schema for the successful response when a section is added to a page.",
     "allOf": [
-        {
-            "$ref": "../../common/_response_envelope.json"
-        },
-        {
+        { "$ref": "../common/_response_envelope.json" }
+    ],
+    "properties": {
+        "data": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "integer",
-                            "description": "The ID of the section"
-                        },
-                        "position": {
-                            "type": "integer",
-                            "description": "The position of the section on the page"
-                        }
-                    },
-                    "required": ["id", "position"]
+                "id": {
+                    "type": "integer",
+                    "description": "The ID of the added section."
+                },
+                "position": {
+                    "type": "integer",
+                    "description": "The position of the section on the page."
                 }
             },
-            "required": ["data"]
+            "required": [
+                "id",
+                "position"
+            ]
         }
+    },
+    "required": [
+        "data"
     ]
 }
