@@ -27,7 +27,11 @@ class AdminSectionController extends AbstractController
     {
         $section = $this->adminSectionService->getSection($page_keyword, $section_id);
         return $this->apiResponseFormatter->formatSuccess(
-            $section,
+            [
+                'pageKeyword' => $page_keyword,
+                'section' => $section['section'] ?? $section,
+                'fields' => $section['fields'] ?? [],
+            ],
             'responses/admin/section',
             Response::HTTP_OK
         );
@@ -41,6 +45,7 @@ class AdminSectionController extends AbstractController
         $children = $this->adminSectionService->getChildrenSections($page_keyword, $parent_section_id);
         return $this->apiResponseFormatter->formatSuccess(
             [
+                'pageKeyword' => $page_keyword,
                 'parent_section_id' => $parent_section_id,
                 'sections' => $children
             ],
@@ -90,15 +95,18 @@ class AdminSectionController extends AbstractController
     {
         $data = $this->validateRequest($request, 'requests/section/create_page_section', $this->jsonSchemaValidationService);
 
-        $sectionId = $this->adminSectionService->createPageSection(
+        $result = $this->adminSectionService->createPageSection(
             $page_keyword,
             $data['styleId'],
             $data['position'] ?? null
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $sectionId],
-            'responses/admin/common/entity_created',
+            [
+                'id' => $result['id'],
+                'position' => $result['position'],
+            ],
+            null,
             Response::HTTP_CREATED
         );
     }
@@ -110,7 +118,7 @@ class AdminSectionController extends AbstractController
     {
         $data = $this->validateRequest($request, 'requests/section/create_child_section', $this->jsonSchemaValidationService);
 
-        $sectionId = $this->adminSectionService->createChildSection(
+        $result = $this->adminSectionService->createChildSection(
             $page_keyword,
             $parent_section_id,
             $data['styleId'],
@@ -118,8 +126,11 @@ class AdminSectionController extends AbstractController
         );
 
         return $this->apiResponseFormatter->formatSuccess(
-            ['id' => $sectionId],
-            'responses/admin/common/entity_created',
+            [
+                'id' => $result['id'],
+                'position' => $result['position'],
+            ],
+            null,
             Response::HTTP_CREATED
         );
     }

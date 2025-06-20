@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Mapping the ManyToOne Relationship
+In this example, each category can be associated with many products. But, each product can be associated with only one category. This relationship can be summarized as: many products to one category (or equivalently, one category to many products).
+
+From the perspective of the Product entity, this is a many-to-one relationship. From the perspective of the Category entity, this is a one-to-many relationship.
+
+When you define entities you can check the DB structure in this file: @server\db\sh_structure.sql
+Define the enitites with orm attribute. Generate the required getter and setters
+Print in chat: "ENTITY RULE" when you desing an entity
+
+NEVER run doctrine migration in terminal. This command will be allwasy run manually

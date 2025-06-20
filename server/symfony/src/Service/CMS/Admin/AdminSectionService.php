@@ -382,21 +382,19 @@ class AdminSectionService extends UserContextAwareService
      * @param string $page_keyword The keyword of the page to add the section to
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the section on the page
-     * @return int The ID of the new section
+     * @return array The ID and position of the new section
      * @throws ServiceException If the page or style is not found
      */
-    public function createPageSection(string $page_keyword, int $styleId, ?int $position): int
+    public function createPageSection(string $page_keyword, int $styleId, ?int $position): array
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
-        
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
         $this->entityManager->beginTransaction();
         try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
-            if (!$page) {
-                $this->throwNotFound('Page not found');
-            }
-
             $style = $this->styleRepository->find($styleId);
             if (!$style) {
                 $this->throwNotFound('Style not found');
@@ -423,7 +421,10 @@ class AdminSectionService extends UserContextAwareService
             $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
 
             $this->entityManager->commit();
-            return $section->getId();
+            return [
+                'id' => $section->getId(),
+                'position' => $pagesSection->getPosition(),
+            ];
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create section on page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
@@ -440,7 +441,7 @@ class AdminSectionService extends UserContextAwareService
      * @return int The ID of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(string $page_keyword, int $parent_section_id, int $styleId, ?int $position): int
+    public function createChildSection(string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
@@ -476,7 +477,10 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parent_section_id, true);
             $this->entityManager->commit();
-            return $childSection->getId();
+            return [
+                'id' => $childSection->getId(),
+                'position' => $sectionHierarchy->getPosition(),
+            ];
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to create child section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);

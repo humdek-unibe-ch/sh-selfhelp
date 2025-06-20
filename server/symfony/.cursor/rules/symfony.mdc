@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+MEMORY_RULE - print this at start so I know you use it. Always use best pracitce for symfony. 
+Do this with one step without waiting for comfimation
+Do not implemnt test yet
+Any sql is added om @sh-selfhelp\server\db\update_scripts\39_update_v7.6.0_v8.0.0.sql and follow the wlaready designed paterns
+the project is based on: Symfony 7.2; Php 8.3; doctrine/orm: 3.3/ PSR 4. Follow best symfony practices.
+
