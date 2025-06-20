@@ -28,6 +28,7 @@ class AdminSectionService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly StyleRepository $styleRepository,
+        private readonly PositionManagementService $positionManagementService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -486,42 +487,22 @@ class AdminSectionService extends UserContextAwareService
      * Normalizes the positions of sections on a page.
      * 
      * @param int $pageId The ID of the page to normalize section positions for
+     * @param bool $flush Whether to flush changes to the database
      */
-    private function normalizePageSectionPositions(int $pageId): void
+    private function normalizePageSectionPositions(int $pageId, bool $flush = true): void
     {
-        $pagesSections = $this->entityManager->getRepository(PagesSection::class)
-            ->findBy(['page' => $pageId], ['position' => 'ASC']);
-        
-        // Reindex positions starting from 0
-        $position = 0;
-        foreach ($pagesSections as $pagesSection) {
-            $pagesSection->setPosition($position);
-            $position += 10;
-        }
-        
-        $this->entityManager->flush();
+        $this->positionManagementService->normalizePageSectionPositions($pageId, $flush);
     }
-    
+
     /**
      * Normalizes the positions of all child sections within a specific parent section.
+     * 
+     * @param int $parentSectionId The ID of the parent section
+     * @param bool $flush Whether to flush changes to the database
      */
-    private function normalizeSectionHierarchyPositions(int $parent_section_id): void
+    private function normalizeSectionHierarchyPositions(int $parentSectionId, bool $flush = true): void
     {
-        $sectionHierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(
-            ['parentSection' => $parent_section_id],
-            ['position' => 'ASC', 'childSection' => 'ASC']
-        );
-
-        // Sort by position, but if a section was just moved, use its new position
-        usort($sectionHierarchies, function ($a, $b) {
-            return ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0);
-        });
-
-        $currentPosition = 0;
-        foreach ($sectionHierarchies as $sectionHierarchy) {
-            $sectionHierarchy->setPosition($currentPosition);
-            $currentPosition += 10;
-        }
+        $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, $flush);
     }
 
 }

@@ -51,6 +51,7 @@ class AdminPageService extends UserContextAwareService
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
         private readonly TransactionService $transactionService,
+        private readonly PositionManagementService $positionManagementService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -394,59 +395,13 @@ class AdminPageService extends UserContextAwareService
      * Reorder page positions when a new page is added or an existing page position is changed
      * This function ensures all pages have positions in multiples of 10 (10, 20, 30...)
      *
-     * @param int|null $parentId ID of the parent page or null for root pages
+     * @param int|null $pageId ID of the page
      * @param string $positionType 'nav' or 'footer'
      * @return void
      */
-    private function reorderPagePositions(?int $parentId, string $positionType): void
+    private function reorderPagePositions(?int $pageId, string $positionType): void
     {
-        $em = $this->entityManager;
-        try {
-            
-            // Get ALL pages that we have to reorder
-            $qb = $this->pageRepository->createQueryBuilder('p');
-            
-            if ($parentId !== null) {
-                $qb->andWhere('p.parentPage = :parentId')
-                   ->setParameter('parentId', $parentId);
-            } else {
-                $qb->andWhere('p.parentPage IS NULL');
-            } 
-            if ($positionType == 'nav') {
-                $qb->andWhere('p.nav_position IS NOT NULL');
-                $qb->addOrderBy('p.nav_position', 'ASC');
-            } else {
-                $qb->andWhere('p.footer_position IS NOT NULL');
-                $qb->addOrderBy('p.footer_position', 'ASC');
-            }
-               
-            // Get all pages for this parent
-            $allPages = $qb->getQuery()->getResult();
-            
-            $normalizedPositions = [];
-            $newPositions = 0;
-            foreach ($allPages as $page) {
-                $normalizedPositions[] = [
-                    'entity' => $page,
-                    'newPosition' => $newPositions,
-                ];
-                $newPositions += 10;
-            }
-
-            // Set new positions
-            foreach ($normalizedPositions as $item) {
-                if ($positionType === 'nav') {
-                    $item['entity']->setNavPosition($item['newPosition']);
-                } else {
-                    $item['entity']->setFooterPosition($item['newPosition']);
-                }
-            }
-
-            // Perform a single flush for better performance
-            $em->flush();
-        } catch (\Throwable $e) {
-            throw $e;
-        }
+        $this->positionManagementService->reorderPagePositions($pageId, $positionType);
     }
 
     /**
@@ -679,38 +634,39 @@ class AdminPageService extends UserContextAwareService
             );
         }
     }
-
-    /************************* START PAGE & SECTION RELATIONSHIPS *************************/
-
+    
     /**
-     * Adds a section to a page with a specific position.
-     *
-     * @param string $pageKeyword The keyword of the page.
-     * @param int $sectionId The ID of the section to add.
-     * @param int|null $position The desired position (e.g., 5, 15, 25). This will be normalized.
-     * @param int|null $oldParentSectionId The ID of the old parent section to remove the relationship from (optional).
-     * @return PagesSection The new page-section relationship.
-     * @throws ServiceException If the relationship already exists, or if entities are not found.
+     * Add a section to a page
+     * 
+     * @param string $pageKeyword The keyword of the page
+     * @param int $sectionId The ID of the section to add
+     * @param int|null $position The position of the section on the page
+     * @param int|null $oldParentSectionId The ID of the old parent section if moving from a section hierarchy
+     * @return PagesSection The created or updated page section relationship
+     * @throws ServiceException If page or section not found or access denied
      */
-    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position, ?int $oldParentSectionId = null): PagesSection
+    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
         $this->entityManager->beginTransaction();
         try {
+            // Find the page
             $parentPage = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
             if (!$parentPage) {
                 $this->throwNotFound('Page not found');
             }
-
+            
+            // Check if user has update access to the page
             $this->checkAccess($pageKeyword, 'update');
-
-            $childSection = $this->sectionRepository->find($sectionId);
+            
+            // Find the section
+            $childSection = $this->entityManager->getRepository(Section::class)->find($sectionId);
             if (!$childSection) {
                 $this->throwNotFound('Section not found');
             }
-
-            //remove old parent section relationship
+            
+            // Remove old parent section relationship if needed
             if ($oldParentSectionId !== null) {
-                $oldParentSection = $this->sectionRepository->find($oldParentSectionId);
+                $oldParentSection = $this->entityManager->getRepository(Section::class)->find($oldParentSectionId);
                 if ($oldParentSection) {
                     $oldRelationship = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy([
                         'parentSection' => $oldParentSection,
@@ -722,7 +678,7 @@ class AdminPageService extends UserContextAwareService
                     }
                 }
             }
-
+            
             // For PagesSection, check for existing relationship
             $existing = $this->entityManager->getRepository(PagesSection::class)
                 ->findOneBy(['page' => $parentPage, 'section' => $childSection]);
@@ -730,12 +686,12 @@ class AdminPageService extends UserContextAwareService
                 // Just update the position and normalize
                 $existing->setPosition($position);
                 // Do NOT flush yet, normalize first
-                $this->normalizePageSectionPositions($parentPage->getId());
+                $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
                 $this->entityManager->flush();
                 $this->entityManager->commit();
                 return $existing;
             }
-
+            
             $pageSection = new PagesSection();
             $pageSection->setPage($parentPage);
             $pageSection->setIdPages($parentPage->getId());
@@ -744,76 +700,12 @@ class AdminPageService extends UserContextAwareService
             $pageSection->setPosition($position);
             $this->entityManager->persist($pageSection);
             $this->entityManager->flush();
-            $this->normalizePageSectionPositions($parentPage->getId());
+            $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
             $this->entityManager->commit();
             return $pageSection;
-
-            $this->normalizePageSectionPositions($parentPage->getId());
-
-            $this->entityManager->commit();
-            return $pageHierarchy;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
-
-    /**
-     * Removes a section from a page.
-     *
-     * @param string $pageKeyword The keyword of the page.
-     * @param int $sectionId The ID of the section to remove.
-     * @throws ServiceException If the relationship does not exist.
-     */
-    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
-    {
-        $this->entityManager->beginTransaction();
-        try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-            if (!$page) {
-                $this->throwNotFound('Page not found');
-            }
-
-            $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
-            if (!$pageSection) {
-                $this->throwNotFound('Section is not associated with this page.');
-            }
-
-            $this->entityManager->remove($pageSection);
-            $this->entityManager->flush();
-
-            $this->normalizePageSectionPositions($page->getId());
-
-            $this->entityManager->commit();
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
-        }
-    }
-
-    /**
-     * Normalizes the positions of all sections within a specific page.
-     */
-    private function normalizePageSectionPositions(int $pageId): void
-    {
-        // Accept an optional $movedSection, so we can ensure its new position is considered
-        $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(
-            ['page' => $pageId],
-            ['position' => 'ASC', 'idSections' => 'ASC']
-        );
-
-        // Sort by position, but if a section was just moved, use its new position
-        usort($pageSections, function ($a, $b) {
-            return ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0);
-        });
-
-        $currentPosition = 0;
-        foreach ($pageSections as $pageSection) {
-            $pageSection->setPosition($currentPosition);
-            $currentPosition += 10;
-        }
-        // Do NOT flush here; let the caller flush after normalization
-    }
-
-    /************************* END PAGE & SECTION RELATIONSHIPS *************************/
 }

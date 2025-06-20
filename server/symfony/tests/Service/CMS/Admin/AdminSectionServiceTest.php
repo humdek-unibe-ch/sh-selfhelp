@@ -18,6 +18,7 @@ use App\Service\ACL\ACLService;
 use App\Service\CMS\Admin\AdminSectionService;
 use App\Service\Core\TransactionService;
 use App\Service\Auth\UserContextService;
+use App\Service\CMS\Admin\PositionManagementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,26 +35,29 @@ class AdminSectionServiceTest extends TestCase
     private $pageRepository;
     private $aclService;
     private $userContextService;
+    private $positionManagementService;
     private $adminSectionService;
 
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->sectionRepository = $this->createMock(SectionRepository::class);
         $this->transactionService = $this->createMock(TransactionService::class);
         $this->styleRepository = $this->createMock(StyleRepository::class);
-        $this->pageRepository = $this->createMock(PageRepository::class);
+        $this->positionManagementService = $this->createMock(PositionManagementService::class);
         $this->aclService = $this->createMock(ACLService::class);
         $this->userContextService = $this->createMock(UserContextService::class);
+        $this->pageRepository = $this->createMock(PageRepository::class);
+        $this->sectionRepository = $this->createMock(SectionRepository::class);
 
         $this->adminSectionService = new AdminSectionService(
             $this->entityManager,
-            $this->sectionRepository,
             $this->transactionService,
             $this->styleRepository,
-            $this->pageRepository,
+            $this->positionManagementService,
             $this->aclService,
-            $this->userContextService
+            $this->userContextService,
+            $this->pageRepository,
+            $this->sectionRepository
         );
     }
 
@@ -73,8 +77,8 @@ class AdminSectionServiceTest extends TestCase
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('Section not found');
 
-        // Call the method
-        $this->adminSectionService->getSection(999);
+        // Call the method with page keyword and section id
+        $this->adminSectionService->getSection('test-page', 999);
     }
 
     /**
@@ -84,8 +88,14 @@ class AdminSectionServiceTest extends TestCase
     {
         // Create mock section
         $sectionId = 123;
+        $pageKeyword = 'test-page';
         $section = $this->createMock(Section::class);
         $section->method('getId')->willReturn($sectionId);
+
+        // Create mock page
+        $pageId = 456;
+        $page = $this->createMock(\App\Entity\Page::class);
+        $page->method('getId')->willReturn($pageId);
 
         // Configure mocks
         $this->sectionRepository
@@ -93,19 +103,26 @@ class AdminSectionServiceTest extends TestCase
             ->method('find')
             ->with($sectionId)
             ->willReturn($section);
+            
+        // Mock page repository to return our page
+        $this->pageRepository
+            ->expects($this->once())
+            ->method('findOneBy')
+            ->with(['keyword' => $pageKeyword])
+            ->willReturn($page);
 
         $this->aclService
             ->expects($this->once())
             ->method('hasAccess')
-            ->with($sectionId, 'select')
+            ->with($pageId, 'select')
             ->willReturn(false);
 
         // Assert exception is thrown
         $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('Access denied to section');
+        $this->expectExceptionMessage('Access denied');
 
-        // Call the method
-        $this->adminSectionService->getSection(123);
+        // Call the method with page keyword and section id
+        $this->adminSectionService->getSection($pageKeyword, $sectionId);
     }
 
     /**
@@ -161,49 +178,12 @@ class AdminSectionServiceTest extends TestCase
         
         $style = $this->createMock(Style::class);
         $style->method('getId')->willReturn($styleId);
-        $style->method('getStylesFields')->willReturn($styleFields);
+        // Create a mock collection for stylesFields
+        $stylesFieldsCollection = new ArrayCollection([$styleField1, $styleField2]);
+        $style->method('getStylesFields')->willReturn($stylesFieldsCollection);
         
         $section->method('getStyle')->willReturn($style);
         $section->method('getName')->willReturn('Test Section');
-
-        // Mock field types
-        $fieldType1 = $this->createMock(FieldType::class);
-        $fieldType1->method('getId')->willReturn(10);
-        $fieldType1->method('getName')->willReturn('text');
-        
-        $fieldType2 = $this->createMock(FieldType::class);
-        $fieldType2->method('getId')->willReturn(11);
-        $fieldType2->method('getName')->willReturn('textarea');
-        
-        // Mock field data
-        $field1 = $this->createMock(Field::class);
-        $field1->method('getId')->willReturn(1);
-        $field1->method('getName')->willReturn('title');
-        $field1->method('getType')->willReturn($fieldType1);
-        $field1->method('isDisplay')->willReturn(true);
-
-        $field2 = $this->createMock(Field::class);
-        $field2->method('getId')->willReturn(2);
-        $field2->method('getName')->willReturn('content');
-        $field2->method('getType')->willReturn($fieldType2);
-        $field2->method('isDisplay')->willReturn(true);
-
-        // Mock style fields
-        $styleField1 = $this->createMock(StylesField::class);
-        $styleField1->method('getField')->willReturn($field1);
-        $styleField1->method('getDefaultValue')->willReturn('Default Title');
-        $styleField1->method('getHelp')->willReturn('Enter title');
-        $styleField1->method('isDisabled')->willReturn(false);
-        $styleField1->method('getHidden')->willReturn(0);
-
-        $styleField2 = $this->createMock(StylesField::class);
-        $styleField2->method('getField')->willReturn($field2);
-        $styleField2->method('getDefaultValue')->willReturn('Default Content');
-        $styleField2->method('getHelp')->willReturn('Enter content');
-        $styleField2->method('isDisabled')->willReturn(false);
-        $styleField2->method('getHidden')->willReturn(0);
-
-        $styleFields = [$styleField1, $styleField2];
 
         // Mock translations
         $language1 = $this->createMock(Language::class);
@@ -265,13 +245,36 @@ class AdminSectionServiceTest extends TestCase
             ->method('createQueryBuilder')
             ->willReturn($queryBuilder);
 
+        // Create a mock Query object
+        $query = $this->createMock(\Doctrine\ORM\Query::class);
+        $query->method('getResult')->willReturn($translations);
+        
         $queryBuilder
             ->expects($this->once())
             ->method('getQuery')
-            ->willReturn((object)['getResult' => function() use ($translations) { return $translations; }]);
+            ->willReturn($query);
 
-        // Call the method
-        $result = $this->adminSectionService->getSection($sectionId);
+        // Mock the checkSectionInPage method
+        $this->adminSectionService = $this->getMockBuilder(AdminSectionService::class)
+            ->setConstructorArgs([
+                $this->entityManager,
+                $this->transactionService,
+                $this->styleRepository,
+                $this->positionManagementService,
+                $this->aclService,
+                $this->userContextService,
+                $this->pageRepository,
+                $this->sectionRepository
+            ])
+            ->onlyMethods(['checkSectionInPage'])
+            ->getMock();
+            
+        $this->adminSectionService->method('checkSectionInPage')
+            ->with('test-page', $sectionId)
+            ->willReturn(true);
+            
+        // Call the method with page keyword and section id
+        $result = $this->adminSectionService->getSection('test-page', $sectionId);
 
         // Assert the result structure
         $this->assertIsArray($result);
