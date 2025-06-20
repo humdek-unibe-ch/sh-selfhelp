@@ -1308,11 +1308,6 @@ DEALLOCATE PREPARE stmt;
 -- shoudl be here
 -- --------------------------- API ROUTES ------------------------------------------------------------------------
 
--- Admin Section Routes
-INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
-('admin_section_get_v1', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT('section_id', '[0-9]+'), JSON_OBJECT('section_id', JSON_OBJECT('in', 'path', 'required', true))),
-('admin_child_section_create_v1', 'v1', '/admin/sections/{parent_section_id}/child-sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT('parent_section_id', '[0-9]+'), JSON_OBJECT('parent_section_id', JSON_OBJECT('in', 'path', 'required', true), 'styleId', JSON_OBJECT('in', 'body', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', false))),
-('admin_section_update_v1', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT('section_id', '[0-9]+'), JSON_OBJECT('section_id', JSON_OBJECT('in', 'path', 'required', true), 'position', JSON_OBJECT('in', 'body', 'required', false)));
 
 CALL add_unique_key('lookups', 'uniq_type_lookup', 'type_code,lookup_code');
 CALL add_unique_key('languages', 'UNIQ_A0D153794180C698', 'locale');

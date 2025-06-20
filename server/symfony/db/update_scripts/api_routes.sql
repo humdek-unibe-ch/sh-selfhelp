@@ -198,7 +198,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ), NULL),
 
 -- Admin Section in Section 
-('admin_sections_create_child', 'v1', '/admin/sections/{parent_section_id}/child-sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT(
+('admin_sections_create_child', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT(
     'parent_section_id', '\\d+'
 ), JSON_OBJECT(
     'styleId', JSON_OBJECT('in', 'body', 'required', true),
