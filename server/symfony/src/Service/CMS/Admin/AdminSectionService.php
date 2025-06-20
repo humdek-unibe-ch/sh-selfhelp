@@ -288,11 +288,6 @@ class AdminSectionService extends UserContextAwareService
             $this->normalizeSectionHierarchyPositions($parent_section_id);
             $this->entityManager->commit();
             return $sectionHierarchy;
-
-            $this->normalizeSectionHierarchyPositions($parent_section_id);
-
-            $this->entityManager->commit();
-            return $sectionHierarchy;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
@@ -322,9 +317,7 @@ class AdminSectionService extends UserContextAwareService
 
             $this->entityManager->remove($sectionHierarchy);
             $this->entityManager->flush();
-
             $this->normalizeSectionHierarchyPositions($parent_section_id);
-
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -480,9 +473,7 @@ class AdminSectionService extends UserContextAwareService
             $sectionHierarchy->setPosition($position);
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
-
             $this->normalizeSectionHierarchyPositions($parent_section_id);
-
             $this->entityManager->commit();
             return $childSection->getId();
         } catch (\Throwable $e) {
@@ -504,7 +495,8 @@ class AdminSectionService extends UserContextAwareService
         // Reindex positions starting from 0
         $position = 0;
         foreach ($pagesSections as $pagesSection) {
-            $pagesSection->setPosition($position++);
+            $pagesSection->setPosition($position);
+            $position += 10;
         }
         
         $this->entityManager->flush();
