@@ -527,7 +527,97 @@ class AdminSectionControllerTest extends BaseControllerTest
         }
         parent::tearDown();
     }
-}
-{
-    
+
+    /**
+     * Test updating a section with content and property fields
+     * @group admin
+     * @group section-update
+     */
+    public function testUpdateSection(): void
+    {
+        $token = $this->getAdminAccessToken();
+        $pageKeyword = self::TEST_PAGE_KEYWORD;
+        
+        // Create a test section first
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode(['styleId' => self::DEFAULT_STYLE_ID_1, 'position' => 0])
+        );
+        
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create test section');
+        $createData = json_decode($response->getContent(), true);
+        $sectionId = $createData['data']['id'];
+        
+        try {
+            // Update the section with new name and field values
+            $updateData = [
+                'sectionId' => $sectionId,
+                'sectionName' => 'updated-test-section',
+                'contentFields' => [
+                    [
+                        'fieldId' => 22,
+                        'languageId' => 2,
+                        'value' => 'Updated content text'
+                    ]
+                ],
+                'propertyFields' => [
+                    [
+                        'fieldId' => 23,
+                        'value' => 'Updated property value'
+                    ],
+                    [
+                        'fieldId' => 46,
+                        'value' => true
+                    ]
+                ]
+            ];
+            
+            $this->client->request(
+                'PUT',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+                json_encode($updateData)
+            );
+            
+            $response = $this->client->getResponse();
+            $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to update section: ' . $response->getContent());
+            
+            $responseData = json_decode($response->getContent(), true);
+            $this->assertArrayHasKey('data', $responseData);
+            $this->assertArrayHasKey('section', $responseData['data']);
+            $this->assertSame('updated-test-section', $responseData['data']['section']['name']);
+            
+            // Verify the section was actually updated by getting it again
+            $this->client->request(
+                'GET',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+            
+            $getResponse = $this->client->getResponse();
+            $this->assertSame(Response::HTTP_OK, $getResponse->getStatusCode(), 'Failed to get updated section');
+            
+            $getData = json_decode($getResponse->getContent(), true);
+            $this->assertSame('updated-test-section', $getData['data']['section']['name']);
+            
+        } finally {
+            // Clean up - delete the test section
+            $this->client->request(
+                'DELETE',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+        }
+    }
 }

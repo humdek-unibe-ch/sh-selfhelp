@@ -220,15 +220,21 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ), NULL),
 
 -- Admin Section
-('admin_sections_update', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT(
+('admin_sections_update', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
     'section_id', '[0-9]+'
 ), JSON_OBJECT(
-    'position', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
+    'sectionId', JSON_OBJECT('in', 'body', 'required', true, 'type', 'integer'),
+    'sectionName', JSON_OBJECT('in', 'body', 'required', true, 'type', 'string'),
+    'contentFields', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
+    'propertyFields', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
 )),
-('admin_sections_delete', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT(
+('admin_sections_delete', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
     'section_id', '[0-9]+'
 ), NULL),
-('admin_sections_get', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT(
+('admin_sections_get', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
     'section_id', '[0-9]+'
 ), NULL),
 ('admin_sections_get_children_sections', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getChildrenSections', 'GET', JSON_OBJECT(

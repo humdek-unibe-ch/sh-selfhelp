@@ -597,4 +597,176 @@ class AdminSectionService extends UserContextAwareService
         }
     }
 
+    /**
+     * Update an existing section and its field translations
+     * 
+     * @param string $pageKeyword The keyword of the page the section belongs to
+     * @param int $sectionId The ID of the section to update
+     * @param string $sectionName The new name for the section
+     * @param array $contentFields The content fields to update (display=1 fields)
+     * @param array $propertyFields The property fields to update (display=0 fields)
+     * @return Section The updated section
+     * @throws ServiceException If section not found or access denied
+     */
+    public function updateSection(string $pageKeyword, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields): Section
+    {
+        $this->entityManager->beginTransaction();
+
+        try {
+            // Find the section
+            $section = $this->sectionRepository->find($sectionId);
+            if (!$section) {
+                $this->throwNotFound('Section not found');
+            }
+
+            // Check if user has update access to the page
+            $this->checkAccess($pageKeyword, 'update');
+            $this->checkSectionInPage($pageKeyword, $sectionId);
+
+            // Store original section for transaction logging
+            $originalSection = clone $section;
+
+            // Update section name
+            if ($sectionName) {
+                $section->setName($sectionName);
+            }
+
+            // Flush section changes first to ensure we have a valid section ID
+            $this->entityManager->flush();
+
+            // Update content field translations (display=1 fields)
+            foreach ($contentFields as $field) {
+                $fieldId = $field['fieldId'];
+                $languageId = $field['languageId'];
+                $content = $field['value'];
+
+                // For content fields, we use gender_id = 1 as default
+                $genderId = 1;
+
+                // Check if translation exists
+                $existingTranslation = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                    ->findOneBy([
+                        'idSections' => $section->getId(),
+                        'idFields' => $fieldId,
+                        'idLanguages' => $languageId,
+                        'idGenders' => $genderId
+                    ]);
+
+                if ($existingTranslation) {
+                    // Update existing translation
+                    $existingTranslation->setContent($content);
+                } else {
+                    // Create new translation
+                    $newTranslation = new SectionsFieldsTranslation();
+                    $newTranslation->setIdSections($section->getId());
+                    $newTranslation->setIdFields($fieldId);
+                    $newTranslation->setIdLanguages($languageId);
+                    $newTranslation->setIdGenders($genderId);
+                    $newTranslation->setContent($content);
+
+                    // Also set the entity relationships
+                    $newTranslation->setSection($section);
+
+                    // Get the Field entity
+                    $fieldEntity = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+                    if ($fieldEntity) {
+                        $newTranslation->setField($fieldEntity);
+                    }
+
+                    // Get the Language entity
+                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+                    if ($language) {
+                        $newTranslation->setLanguage($language);
+                    }
+
+                    // Get the Gender entity
+                    $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)->find($genderId);
+                    if ($gender) {
+                        $newTranslation->setGender($gender);
+                    }
+
+                    $this->entityManager->persist($newTranslation);
+                }
+            }
+
+            // Update property field translations (display=0 fields)
+            foreach ($propertyFields as $field) {
+                $fieldId = $field['fieldId'];
+                $content = is_bool($field['value']) ? ($field['value'] ? '1' : '0') : (string) $field['value'];
+
+                // For property fields, we use language_id = 1 and gender_id = 1
+                $languageId = 1;
+                $genderId = 1;
+
+                // Check if translation exists
+                $existingTranslation = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                    ->findOneBy([
+                        'idSections' => $section->getId(),
+                        'idFields' => $fieldId,
+                        'idLanguages' => $languageId,
+                        'idGenders' => $genderId
+                    ]);
+
+                if ($existingTranslation) {
+                    // Update existing translation
+                    $existingTranslation->setContent($content);
+                } else {
+                    // Create new translation
+                    $newTranslation = new SectionsFieldsTranslation();
+                    $newTranslation->setIdSections($section->getId());
+                    $newTranslation->setIdFields($fieldId);
+                    $newTranslation->setIdLanguages($languageId);
+                    $newTranslation->setIdGenders($genderId);
+                    $newTranslation->setContent($content);
+
+                    // Also set the entity relationships
+                    $newTranslation->setSection($section);
+
+                    // Get the Field entity
+                    $fieldEntity = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+                    if ($fieldEntity) {
+                        $newTranslation->setField($fieldEntity);
+                    }
+
+                    // Get the Language entity (always language ID 1 for properties)
+                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+                    if ($language) {
+                        $newTranslation->setLanguage($language);
+                    }
+
+                    // Get the Gender entity (always gender ID 1 for properties)
+                    $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)->find($genderId);
+                    if ($gender) {
+                        $newTranslation->setGender($gender);
+                    }
+
+                    $this->entityManager->persist($newTranslation);
+                }
+            }
+
+            // Flush all changes again
+            $this->entityManager->flush();
+
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                \App\Service\Core\LookupService::TRANSACTION_TYPES_UPDATE,
+                \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                'sections',
+                $section->getId(),
+                (object) array("old_section" => $originalSection, "new_section" => $section),
+                'Section updated: ' . $section->getName() . ' (ID: ' . $section->getId() . ')'
+            );
+
+            $this->entityManager->commit();
+            return $section;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to update section: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
+        }
+    }
+
 }

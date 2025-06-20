@@ -2,6 +2,10 @@
 UPDATE version
 SET version = 'v8.0.0';
 
+-- Section update functionality added
+-- Updated API routes for section management to include page_keyword parameter
+-- Added section update endpoint with proper field handling for content and property fields
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS add_index //
 CREATE PROCEDURE add_index(

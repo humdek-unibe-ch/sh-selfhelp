@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Update Section Request Schema",
+    "description": "Schema for the request to update an existing section",
+    "type": "object",
+    "properties": {
+        "sectionId": {
+            "type": "integer",
+            "description": "ID of the section to update"
+        },
+        "sectionName": {
+            "type": "string",
+            "description": "Name of the section"
+        },
+        "contentFields": {
+            "type": "array",
+            "description": "List of content field translations to update (display=1 fields)",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "fieldId": {
+                        "type": "integer",
+                        "description": "ID of the field to update"
+                    },
+                    "languageId": {
+                        "type": "integer",
+                        "description": "ID of the language for the field content"
+                    },
+                    "value": {
+                        "type": ["string", "null"],
+                        "description": "Content value of the field"
+                    }
+                },
+                "required": ["fieldId", "languageId", "value"],
+                "additionalProperties": false
+            },
+            "minItems": 0
+        },
+        "propertyFields": {
+            "type": "array",
+            "description": "List of property field values to update (display=0 fields)",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "fieldId": {
+                        "type": "integer",
+                        "description": "ID of the field to update"
+                    },
+                    "value": {
+                        "type": ["string", "boolean", "number", "null"],
+                        "description": "Property value of the field"
+                    }
+                },
+                "required": ["fieldId", "value"],
+                "additionalProperties": false
+            },
+            "minItems": 0
+        }
+    },
+    "required": ["contentFields", "propertyFields"],
+    "additionalProperties": false
+} 

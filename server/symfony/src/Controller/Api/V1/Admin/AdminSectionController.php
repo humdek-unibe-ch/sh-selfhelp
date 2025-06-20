@@ -136,14 +136,40 @@ class AdminSectionController extends AbstractController
     }
 
     /**
-     * Update a section (placeholder - not yet implemented)
+     * Update a section
      */
     public function updateSection(Request $request, string $page_keyword, int $section_id): Response
     {
-        // TODO: Implement section update functionality
-        return $this->apiResponseFormatter->formatError(
-            'Section update functionality not yet implemented',
-            Response::HTTP_NOT_IMPLEMENTED
-        );
+        try {
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/section/update_section', $this->jsonSchemaValidationService);
+            
+            // Update the section
+            $section = $this->adminSectionService->updateSection(
+                $page_keyword,
+                $section_id,
+                isset($data['sectionName']) ? $data['sectionName'] : null,
+                $data['contentFields'],
+                $data['propertyFields']
+            );
+            
+            // Return updated section with fields
+            $sectionWithFields = $this->adminSectionService->getSection($page_keyword, $section->getId());
+            
+            return $this->apiResponseFormatter->formatSuccess(
+                [
+                    'section' => $sectionWithFields['section'],
+                    'fields' => $sectionWithFields['fields'],
+                    'languages' => $sectionWithFields['languages'],
+                ],
+                'responses/admin/section',
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
