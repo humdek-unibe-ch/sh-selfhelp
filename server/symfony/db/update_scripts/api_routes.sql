@@ -318,7 +318,6 @@ WHERE ar.`route_name` IN (
   'admin_languages_get_all','admin_languages_get_one','admin_languages_create','admin_languages_update', 'admin_languages_delete'
 );
 
-
 -- give role admin to all users who had group admins
 INSERT IGNORE INTO users_roles (id_users, id_roles)
 SELECT ug.id_users, r.id
@@ -326,60 +325,3 @@ FROM users_groups ug
 INNER JOIN `groups` g ON ug.id_groups = g.id
 INNER JOIN roles  r ON r.name = 'admin'
 WHERE g.name = 'admin';
-
--- Insert admin routes for pages
-INSERT IGNORE INTO `api_routes` (`name`, `version`, `path`, `controller`, `method`, `permissions`) VALUES
-('admin_pages_get', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_pages_create', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage', 'POST', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.create')
-)),
-('admin_pages_get_single', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPage', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_pages_update', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updatePage', 'PUT', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_pages_delete', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage', 'DELETE', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.delete')
-)),
-('admin_pages_fields_get', 'v1', '/admin/pages/{page_keyword}/fields', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageFields', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_pages_sections_get', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_pages_sections_create', 'v1', '/admin/pages/{page_keyword}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createPageSection', 'POST', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_pages_sections_add', 'v1', '/admin/pages/{page_keyword}/sections/add', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'POST', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_pages_remove_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-
--- Insert admin routes for sections
-INSERT IGNORE INTO `api_routes` (`name`, `version`, `path`, `controller`, `method`, `permissions`) VALUES
-('admin_sections_get', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_sections_children_get', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getChildrenSections', 'GET', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.read')
-)),
-('admin_sections_add', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/add', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'POST', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_sections_remove', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_sections_create_child', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_sections_delete', 'v1', '/admin/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-)),
-('admin_sections_update', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT(
-    'required', JSON_ARRAY('admin.page.update')
-));
