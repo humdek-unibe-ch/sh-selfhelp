@@ -99,6 +99,18 @@ class AdminSectionControllerTest extends BaseControllerTest
                 json_encode(['styleId' => self::DEFAULT_STYLE_ID_1, 'position' => 0])
             );
             $responseS3 = $this->client->getResponse();
+            
+            // Debug: Log the actual response if it's not what we expect
+            if ($responseS3->getStatusCode() !== Response::HTTP_CREATED) {
+                $responseContent = $responseS3->getContent();
+                $this->fail(sprintf(
+                    'Failed to create child section S3. Expected status %d but got %d. Response: %s', 
+                    Response::HTTP_CREATED, 
+                    $responseS3->getStatusCode(), 
+                    $responseContent
+                ));
+            }
+            
             $this->assertSame(Response::HTTP_CREATED, $responseS3->getStatusCode(), 'Failed to create child section S3');
             $responseContentS3 = $responseS3->getContent();
             $decodedResponseS3 = json_decode($responseContentS3);
@@ -132,7 +144,20 @@ class AdminSectionControllerTest extends BaseControllerTest
                 [],
                 ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
             );
-            $this->assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode(), 'Failed to remove child section S3');
+            $deleteResponse = $this->client->getResponse();
+            
+            // Debug: Log the actual response if it's not what we expect
+            if ($deleteResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
+                $responseContent = $deleteResponse->getContent();
+                $this->fail(sprintf(
+                    'Failed to remove child section S3. Expected status %d but got %d. Response: %s', 
+                    Response::HTTP_NO_CONTENT, 
+                    $deleteResponse->getStatusCode(), 
+                    $responseContent
+                ));
+            }
+            
+            $this->assertSame(Response::HTTP_NO_CONTENT, $deleteResponse->getStatusCode(), 'Failed to remove child section S3');
 
             // 7. Verify S3 Removal (S1, S2)
             $this->client->request('GET', sprintf('/cms-api/v1/admin/pages/%s/sections', $pageKeyword), [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
@@ -254,7 +279,29 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Get JWT token for authentication
         $token = $this->getAdminAccessToken();
         
-        // Create request data
+        // First, create a parent section to add a child to
+        $parentRequestData = [
+            'styleId' => self::DEFAULT_STYLE_ID_1, 
+            'position' => 0
+        ];
+        
+        // Create parent section
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/home/sections/create'),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode($parentRequestData)
+        );
+        
+        $parentResponse = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_CREATED, $parentResponse->getStatusCode(), 'Failed to create parent section: ' . $parentResponse->getContent());
+        
+        $parentData = json_decode($parentResponse->getContent());
+        $parentSectionId = $parentData->data->id;
+        
+        // Now create request data for child section
         $requestData = [
             'styleId' => self::DEFAULT_STYLE_ID_2, 
             'position' => 0 // Add at the beginning
@@ -263,18 +310,31 @@ class AdminSectionControllerTest extends BaseControllerTest
         // Send request to create a child section
         $this->client->request(
             'POST',
-            sprintf('/cms-api/v1/admin/pages/home/sections/%d/sections/create', $this->testSectionId),
+            sprintf('/cms-api/v1/admin/pages/home/sections/%d/sections/create', $parentSectionId),
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
             json_encode($requestData)
         );
+
+        $response = $this->client->getResponse();
         
+        // Debug: Log the actual response if it's not what we expect
+        if ($response->getStatusCode() !== Response::HTTP_CREATED) {
+            $responseContent = $response->getContent();
+            $this->fail(sprintf(
+                'Expected status %d but got %d. Response: %s', 
+                Response::HTTP_CREATED, 
+                $response->getStatusCode(), 
+                $responseContent
+            ));
+        }
+
         // Check response
-        $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         
         // Parse response data
-        $responseContent = $this->client->getResponse()->getContent();
+        $responseContent = $response->getContent();
         $data = json_decode($responseContent);
         
         // Validate response structure
@@ -369,18 +429,41 @@ class AdminSectionControllerTest extends BaseControllerTest
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
             json_encode($requestData)
         );
+
+        $response = $this->client->getResponse();
+        $responseContent = $response->getContent();
         
+        // Debug: Log the actual response to understand the structure
+        if ($response->getStatusCode() !== Response::HTTP_BAD_REQUEST) {
+            $this->fail(sprintf(
+                'Expected validation error (status %d) but got %d. Response: %s', 
+                Response::HTTP_BAD_REQUEST, 
+                $response->getStatusCode(), 
+                $responseContent
+            ));
+        }
+
         // Check response (should be 400 Bad Request)
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
         // Parse response data
-        $responseContent = $this->client->getResponse()->getContent();
         $data = json_decode($responseContent);
         
+        // Debug: Log the response structure
+        if (!$data) {
+            $this->fail('Response is not valid JSON: ' . $responseContent);
+        }
+        
+        // The validation errors are in the 'validation.errors' field, not 'errors'
+        if (!property_exists($data, 'validation') || !property_exists($data->validation, 'errors')) {
+            $this->fail('Response does not have validation.errors property. Actual response structure: ' . json_encode($data, JSON_PRETTY_PRINT));
+        }
+
         // Validate error response structure
         $this->assertNotNull($data);
-        $this->assertTrue(property_exists($data, 'errors'), 'Response does not have errors property');
-        $this->assertNotEmpty($data->errors, 'No validation errors returned');
+        $this->assertTrue(property_exists($data, 'validation'), 'Response does not have validation property');
+        $this->assertTrue(property_exists($data->validation, 'errors'), 'Response does not have validation.errors property');
+        $this->assertNotEmpty($data->validation->errors, 'No validation errors returned');
     }
     
     /**

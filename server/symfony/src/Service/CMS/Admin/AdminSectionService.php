@@ -389,7 +389,52 @@ class AdminSectionService extends UserContextAwareService
         
         // Permission check
         $this->checkAccess($page_keyword, 'update');
-        $this->checkSectionInPage($page_keyword, $section_id);
+        
+        // For child sections, we need to check if they belong to the page hierarchy
+        // instead of directly checking if they're in the page
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
+        // Check if this section belongs to the page (either directly or as a child)
+        // First, check if it's directly associated with the page
+        $directPageSection = $this->entityManager->getRepository(PagesSection::class)
+            ->findOneBy(['page' => $page, 'section' => $section_id]);
+        
+        $belongsToPage = false;
+        if ($directPageSection) {
+            $belongsToPage = true;
+        } else {
+            // If not directly associated, check if it's a child of a section that belongs to this page
+            $hierarchyEntry = $this->entityManager->getRepository(SectionsHierarchy::class)
+                ->findOneBy(['childSection' => $section]);
+            
+            if ($hierarchyEntry) {
+                $parentSection = $hierarchyEntry->getParentSection();
+                if ($parentSection) {
+                    // Recursively check if the parent section belongs to the page
+                    $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+                    $sectionIds = array_map(function($section) {
+                        return is_array($section) && isset($section['id']) ? (string)$section['id'] : null;
+                    }, $flatSections);
+                    
+                    if (in_array((string)$parentSection->getId(), $sectionIds, true)) {
+                        $belongsToPage = true;
+                    }
+                }
+            }
+        }
+        
+        if (!$belongsToPage) {
+            // Debug: Include what sections we found in the error message
+            $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+            $sectionIds = array_map(function($section) {
+                return is_array($section) && isset($section['id']) ? (string)$section['id'] : null;
+            }, $flatSections);
+            $foundSections = implode(', ', array_filter($sectionIds));
+            $this->throwForbidden("Section $section_id is not associated with page {$page->getKeyword()} (ID: {$page->getId()}). Found sections: [$foundSections]");
+        }
         
         $this->entityManager->beginTransaction();
         try {

@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Entity\PagesSection;
 use App\Entity\Section;
 use App\Entity\SectionsHierarchy;
+use App\Entity\PageType;
 use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
@@ -18,6 +19,7 @@ use App\Repository\PageTypeRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\CMS\Admin\PositionManagementService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
@@ -711,6 +713,8 @@ class AdminPageService extends UserContextAwareService
 
     /**
      * Removes a section from a page.
+     * If the section is directly associated with the page, it removes the association.
+     * If the section is a child section in the page hierarchy, it deletes the section completely.
      *
      * @param string $pageKeyword The keyword of the page.
      * @param int $sectionId The ID of the section to remove.
@@ -725,15 +729,57 @@ class AdminPageService extends UserContextAwareService
                 $this->throwNotFound('Page not found');
             }
 
+            // Check if user has update access to the page
+            $this->checkAccess($pageKeyword, 'update');
+
+            // First, check if the section is directly associated with the page
             $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
-            if (!$pageSection) {
-                $this->throwNotFound('Section is not associated with this page.');
+            
+            if ($pageSection) {
+                // Direct page section - just remove the association
+                $this->entityManager->remove($pageSection);
+                $this->entityManager->flush();
+                $this->positionManagementService->normalizePageSectionPositions($page->getId());
+            } else {
+                // Not directly associated - check if it's a child section in the page hierarchy
+                $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
+                if (!$section) {
+                    $this->throwNotFound('Section not found');
+                }
+                
+                // Check if this section belongs to the page hierarchy (either directly or as a child)
+                $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+                $sectionIds = array_map(function($s) {
+                    return is_array($s) && isset($s['id']) ? (string)$s['id'] : null;
+                }, $flatSections);
+                
+                if (!in_array((string)$sectionId, $sectionIds, true)) {
+                    $this->throwNotFound('Section is not associated with this page.');
+                }
+                
+                // This is a child section that belongs to the page hierarchy - delete it completely
+                // Remove from pages_sections (if any)
+                $pagesSections = $this->entityManager->getRepository(PagesSection::class)->findBy(['section' => $section]);
+                foreach ($pagesSections as $ps) {
+                    $this->entityManager->remove($ps);
+                }
+
+                // Remove from sections_hierarchy as parent
+                $hierarchiesAsParent = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['parentSection' => $section]);
+                foreach ($hierarchiesAsParent as $hierarchy) {
+                    $this->entityManager->remove($hierarchy);
+                }
+
+                // Remove from sections_hierarchy as child
+                $hierarchiesAsChild = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['childSection' => $section]);
+                foreach ($hierarchiesAsChild as $hierarchy) {
+                    $this->entityManager->remove($hierarchy);
+                }
+
+                // Finally remove the section itself
+                $this->entityManager->remove($section);
+                $this->entityManager->flush();
             }
-
-            $this->entityManager->remove($pageSection);
-            $this->entityManager->flush();
-
-            $this->positionManagementService->normalizePageSectionPositions($page->getId());
 
             $this->entityManager->commit();
         } catch (\Throwable $e) {
