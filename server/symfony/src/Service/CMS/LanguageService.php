@@ -43,16 +43,55 @@ class LanguageService extends BaseService
     }
 
     /**
-     * Get all languages except the default one (ID = 1)
+     * Get all languages except the internal one (ID = 1)
+     * Always returns the default language first, followed by other languages
      * 
      * @return array
      */
     public function getAllNonInternalLanguages(): array
     {
+        // Get all non-internal languages
         $languages = $this->languageRepository->findAllExceptInternal();
-        return array_map(function (Language $language) {
+        
+        // Get default language from CMS preferences
+        $defaultLanguage = null;
+        $defaultLanguageId = null;
+        
+        try {
+            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                $defaultLanguage = $cmsPreference->getDefaultLanguage();
+                $defaultLanguageId = $defaultLanguage->getId();
+            }
+        } catch (\Exception $e) {
+            // If there's an error getting the default language, continue without it
+        }
+        
+        // Convert entities to arrays
+        $languageArrays = array_map(function (Language $language) {
             return EntityUtil::convertEntityToArray($language);
         }, $languages);
+        
+        // If we have a default language, ensure it's first in the array
+        if ($defaultLanguageId !== null) {
+            $defaultLanguageArray = null;
+            $otherLanguages = [];
+            
+            foreach ($languageArrays as $langArray) {
+                if ($langArray['id'] === $defaultLanguageId) {
+                    $defaultLanguageArray = $langArray;
+                } else {
+                    $otherLanguages[] = $langArray;
+                }
+            }
+            
+            // If default language was found in the results, put it first
+            if ($defaultLanguageArray !== null) {
+                return array_merge([$defaultLanguageArray], $otherLanguages);
+            }
+        }
+        
+        return $languageArrays;
     }
 
     /**

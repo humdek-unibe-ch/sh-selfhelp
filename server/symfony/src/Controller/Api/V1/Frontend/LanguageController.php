@@ -18,7 +18,8 @@ class LanguageController extends AbstractController
     }
 
     /**
-     * Get all languages except the default one (ID = 1)
+     * Get all languages except 1 (ID = 1)
+     * Always returns the default language first, followed by other languages
      * 
      * @return JsonResponse
      */

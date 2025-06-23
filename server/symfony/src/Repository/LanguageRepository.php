@@ -42,4 +42,19 @@ class LanguageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
+    /**
+     * Find a language by locale
+     * 
+     * @param string $locale
+     * @return Language|null
+     */
+    public function findByLocale(string $locale): ?Language
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.locale = :locale')
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

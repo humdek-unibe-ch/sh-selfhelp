@@ -2,25 +2,37 @@
 
 namespace App\Service\CMS\Frontend;
 
-use App\Exception\ServiceException;
+use App\Entity\Page;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
-use App\Repository\LookupRepository;
-use App\Repository\AclRepository;
-use App\Service\Auth\UserContextService;
-use App\Service\ACL\ACLService;
-use App\Service\Core\LookupService;
+use App\Repository\SectionsFieldsTranslationRepository;
+use App\Repository\StylesFieldRepository;
+use App\Service\ACLService;
+use App\Service\Core\ServiceException;
 use App\Service\Core\UserContextAwareService;
+use App\Service\UserContextService;
+use App\Repository\LookupRepository;
+use App\Service\ACL\ACLService as ACLACLService;
+use App\Service\Auth\UserContextService as AuthUserContextService;
+use App\Service\Core\LookupService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class PageService extends UserContextAwareService
 {
+    // Default values for language and gender
+    private const PROPERTY_LANGUAGE_ID = 1; // Language ID 1 is for properties, not a real language
+    private const DEFAULT_GENDER_ID = 1;   // Assuming 1 is the default gender ID
+
     public function __construct(
         SectionRepository $sectionRepository,
         private readonly LookupRepository $lookupRepository,
-        UserContextService $userContextService,
-        ACLService $aclService,
-        PageRepository $pageRepository
+        AuthUserContextService $userContextService,
+        ACLACLService $aclService,
+        PageRepository $pageRepository,
+        private readonly SectionsFieldsTranslationRepository $translationRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly StylesFieldRepository $stylesFieldRepository
     ) {
         parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
@@ -135,14 +147,14 @@ class PageService extends UserContextAwareService
     }
 
     /**
-     * Get page by keyword
-     * TODO: Adjust this method
+     * Get page by keyword with translated sections
      * 
      * @param string $page_keyword The page keyword
-     * @return array The page object
+     * @param string|null $locale Optional locale for translations (e.g. 'en', 'de')
+     * @return array The page object with translated sections
      * @throws ServiceException If page not found or access denied
      */
-    public function getPage(string $page_keyword): array
+    public function getPage(string $page_keyword, ?string $locale = null): array
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
         if (!$page) {
@@ -151,6 +163,9 @@ class PageService extends UserContextAwareService
 
         // Check if user has access to the page
         $this->checkAccess($page_keyword, 'select');
+        
+        // Determine which language ID to use for translations
+        $languageId = $this->determineLanguageId($locale);
 
         return [
             'id' => $page->getId(),
@@ -160,20 +175,191 @@ class PageService extends UserContextAwareService
             'is_headless' => $page->isHeadless(),
             'nav_position' => $page->getNavPosition(),
             'footer_position' => $page->getFooterPosition(),
-            'sections' => $this->getPageSections($page->getId())
+            'sections' => $this->getPageSections($page->getId(), $languageId)
         ];
     }
 
     /**
-     * Get page sections
-     * TODO: Adjust this method
+     * Get page sections with translations
      * 
-     * @param int $page_id The page id
-     * @return array The page sections in a hierarchical structure
-     * @throws ServiceException If page not found or access denied
+     * @param int $page_id The page ID
+     * @param int $languageId The language ID for translations
+     * @return array The page sections in a hierarchical structure with translations
      */
-    public function getPageSections(int $page_id): array
+    public function getPageSections(int $page_id, int $languageId): array
     {
-        return $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+        // Get hierarchical sections
+        $sections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+        
+        // Extract all section IDs from the hierarchical structure
+        $sectionIds = $this->extractSectionIds($sections);
+        
+        // Get default language ID for fallback translations
+        $defaultLanguageId = null;
+        try {
+            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
+            }
+        } catch (\Exception $e) {
+            // If there's an error getting the default language, continue without fallback
+        }
+        
+        // Fetch all translations for these sections in one query
+        $translations = $this->translationRepository->fetchTranslationsForSections(
+            $sectionIds,
+            $languageId,
+            self::DEFAULT_GENDER_ID
+        );
+        
+        // If requested language is not the default language, fetch default language translations for fallback
+        $defaultTranslations = [];
+        if ($defaultLanguageId !== null && $languageId !== $defaultLanguageId) {
+            $defaultTranslations = $this->translationRepository->fetchTranslationsForSections(
+                $sectionIds,
+                $defaultLanguageId,
+                self::DEFAULT_GENDER_ID
+            );
+        }
+        
+        // Fetch property translations (language ID 1) for fields of type 1
+        $propertyTranslations = $this->translationRepository->fetchTranslationsForSections(
+            $sectionIds,
+            self::PROPERTY_LANGUAGE_ID,
+            self::DEFAULT_GENDER_ID
+        );
+        
+        // Apply translations to the sections recursively with fallback
+        $this->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
+        
+        return $sections;
+    }
+    
+    /**
+     * Recursively extract all section IDs from a hierarchical sections structure
+     * 
+     * @param array $sections Hierarchical sections structure
+     * @return array Flat array of section IDs
+     */
+    private function extractSectionIds(array $sections): array
+    {
+        $ids = [];
+        
+        foreach ($sections as $section) {
+            if (isset($section['id'])) {
+                $ids[] = $section['id'];
+            }
+            
+            // Process children recursively
+            if (!empty($section['children'])) {
+                $childIds = $this->extractSectionIds($section['children']);
+                $ids = array_merge($ids, $childIds);
+            }
+        }
+        
+        return $ids;
+    }
+    
+    /**
+     * Apply translations to sections recursively
+     * 
+     * @param array &$sections The sections to apply translations to (passed by reference)
+     * @param array $translations The translations keyed by section ID
+     * @param array $defaultTranslations Default language translations for fallback
+     * @param array $propertyTranslations Property translations (language ID 1) for fields of type 1
+     */
+    private function applySectionTranslations(
+        array &$sections, 
+        array $translations, 
+        array $defaultTranslations = [], 
+        array $propertyTranslations = []
+    ): void {
+        foreach ($sections as &$section) {
+            $sectionId = $section['id'] ?? null;
+            
+            if ($sectionId) {
+                // Get the section's style ID to fetch default values if needed
+                $styleId = $section['id_styles'] ?? null;
+                $defaultFieldValues = [];
+                
+                // First apply property translations (for fields of type 1)
+                if (isset($propertyTranslations[$sectionId])) {
+                    $section = array_merge($section, $propertyTranslations[$sectionId]);
+                }
+                
+                // Then apply default language translations as fallback
+                if (isset($defaultTranslations[$sectionId])) {
+                    $section = array_merge($section, $defaultTranslations[$sectionId]);
+                }
+                
+                // Finally apply requested language translations (overriding any fallbacks)
+                if (isset($translations[$sectionId])) {
+                    $section = array_merge($section, $translations[$sectionId]);
+                }
+                
+                // For any fields that still don't have values, use default values from styles_fields table
+                if ($styleId) {
+                    // Get all fields for this section's style
+                    $stylesFields = $this->stylesFieldRepository->findDefaultValuesByStyleId($styleId);
+                    
+                    // Apply default values for fields that don't have translations
+                    foreach ($stylesFields as $fieldName => $defaultValue) {
+                        // Only apply default value if the field doesn't already have a value
+                        if (!isset($section[$fieldName]) || empty($section[$fieldName]['content'])) {
+                            $section[$fieldName] = [
+                                'content' => $defaultValue,
+                                'meta' => null
+                            ];
+                        }
+                    }
+                }
+            }
+            
+            // Process children recursively
+            if (isset($section['children']) && is_array($section['children'])) {
+                $this->applySectionTranslations(
+                    $section['children'], 
+                    $translations, 
+                    $defaultTranslations, 
+                    $propertyTranslations
+                );
+            }
+        }
+    }
+    
+    /**
+     * Determine which language ID to use for translations
+     * 
+     * @param string|null $locale Explicitly provided locale (e.g. 'en', 'de')
+     * @return int The language ID to use
+     */
+    private function determineLanguageId(?string $locale = null): int
+    {
+        // If locale is explicitly provided, find corresponding language ID
+        if ($locale !== null) {
+            $language = $this->entityManager->getRepository('App\\Entity\\Language')->findByLocale($locale);
+            if ($language) {
+                return $language->getId();
+            }
+        }
+        
+        // If user is logged in, use their preferred language
+        $user = $this->getCurrentUser();
+        if ($user && $user->getIdLanguages()) {
+            return $user->getIdLanguages();
+        }
+        
+        // Otherwise use default language from CMS preferences
+        try {
+            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                return $cmsPreference->getDefaultLanguage()->getId();
+            }
+        } catch (\Exception $e) {
+            // If there's an error getting the default language, use fallback
+        }
+        
+        // Fallback to language ID 2 if no default language is configured
+        return 2;
     }
 }
