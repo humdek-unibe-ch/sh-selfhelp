@@ -497,6 +497,33 @@ class AdminPageService extends UserContextAwareService
             // Flush page changes first to ensure we have a valid page ID
             $this->entityManager->flush();
 
+            // Validate that all fields belong to the page's page type
+            if (!empty($fields)) {
+                $fieldIds = array_column($fields, 'fieldId');
+                $validFieldIds = $this->entityManager->getRepository(\App\Entity\PagesField::class)
+                    ->createQueryBuilder('pf')
+                    ->select('pf.idFields')
+                    ->where('pf.idPages = :pageId')
+                    ->andWhere('pf.idFields IN (:fieldIds)')
+                    ->setParameter('pageId', $page->getId())
+                    ->setParameter('fieldIds', $fieldIds)
+                    ->getQuery()
+                    ->getScalarResult();
+                
+                $validFieldIds = array_column($validFieldIds, 'idFields');
+                $invalidFieldIds = array_diff($fieldIds, $validFieldIds);
+                
+                if (!empty($invalidFieldIds)) {
+                    throw new ServiceException(
+                        sprintf("Fields [%s] do not belong to page %s", 
+                            implode(', ', $invalidFieldIds), 
+                            $page->getKeyword()
+                        ),
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+            }
+
             // Update field translations
             foreach ($fields as $field) {
                 $fieldId = $field['fieldId'];

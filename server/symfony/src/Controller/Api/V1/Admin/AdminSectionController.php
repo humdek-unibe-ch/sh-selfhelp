@@ -165,6 +165,8 @@ class AdminSectionController extends AbstractController
                 'responses/admin/section',
                 Response::HTTP_OK
             );
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
         } catch (\Exception $e) {
             return $this->apiResponseFormatter->formatError(
                 $e->getMessage(),

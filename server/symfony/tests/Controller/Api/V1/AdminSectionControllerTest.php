@@ -14,7 +14,7 @@ class AdminSectionControllerTest extends BaseControllerTest
     private const DEFAULT_STYLE_ID_2 = 11; // alert  style
     private const TITLE_FIELD_ID = 22; // title field
     private const CSS_FIELD_ID = 23; // css field
-    private const IS_EXPANDED_FIELD_ID = 25; // link field
+    private const IS_EXPANDED_FIELD_ID = 46; // is_expanded field (belongs to card style)
     private const DEFAULT_LANGUAGE_ID = 2; // Assuming default language ID for page creation
 
     private $testSectionId = null; // Will store the ID of a test section for child section tests
@@ -706,6 +706,78 @@ class AdminSectionControllerTest extends BaseControllerTest
             
         } finally {
             // Clean up - delete the test section
+            $this->client->request(
+                'DELETE',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+                 }
+     }
+
+    /**
+     * Test updating a section with invalid field IDs that don't belong to the style
+     * @group admin
+     * @group section-update-validation
+     */
+    public function testUpdateSectionWithInvalidFields(): void
+    {
+        $token = $this->getAdminAccessToken();
+        $pageKeyword = self::TEST_PAGE_KEYWORD;
+        
+        // Create a test section first
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode(['styleId' => self::DEFAULT_STYLE_ID_1, 'position' => 0])
+        );
+        
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create test section');
+        
+        $responseData = json_decode($response->getContent(), true);
+        $sectionId = $responseData['data']['id'];
+        
+        try {
+            // Try to update the section with invalid field IDs (fields that don't belong to the style)
+            $updateData = [
+                'contentFields' => [
+                    [
+                        'fieldId' => 999, // Non-existent field ID
+                        'languageId' => 2,
+                        'value' => 'This should fail'
+                    ]
+                ],
+                'propertyFields' => [
+                    [
+                        'fieldId' => 998, // Another non-existent field ID
+                        'value' => 'This should also fail'
+                    ]
+                ]
+            ];
+            
+            $this->client->request(
+                'PUT',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+                json_encode($updateData)
+            );
+            
+            $response = $this->client->getResponse();
+            $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), 'Should have failed with invalid field IDs');
+            
+            $responseData = json_decode($response->getContent(), true);
+            $this->assertIsArray($responseData, 'Response should be valid JSON');
+            $this->assertArrayHasKey('error', $responseData, 'Response should have error key');
+            $this->assertStringContainsString('do not belong to style', $responseData['error'], 'Error message should mention invalid fields');
+        } finally {
+            // Clean up: delete the test section
             $this->client->request(
                 'DELETE',
                 sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),

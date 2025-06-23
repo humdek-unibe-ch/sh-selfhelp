@@ -634,6 +634,37 @@ class AdminSectionService extends UserContextAwareService
             // Flush section changes first to ensure we have a valid section ID
             $this->entityManager->flush();
 
+            // Validate that all fields belong to the section's style
+            $allFieldIds = array_merge(
+                array_column($contentFields, 'fieldId'),
+                array_column($propertyFields, 'fieldId')
+            );
+            
+            if (!empty($allFieldIds)) {
+                $validFieldIds = $this->entityManager->getRepository(\App\Entity\StylesField::class)
+                    ->createQueryBuilder('sf')
+                    ->select('IDENTITY(sf.field)')
+                    ->where('sf.style = :styleId')
+                    ->andWhere('sf.field IN (:fieldIds)')
+                    ->setParameter('styleId', $section->getIdStyles())
+                    ->setParameter('fieldIds', $allFieldIds)
+                    ->getQuery()
+                    ->getScalarResult();
+                
+                $validFieldIds = array_column($validFieldIds, 1); // Extract field IDs from result
+                $invalidFieldIds = array_diff($allFieldIds, $validFieldIds);
+                
+                if (!empty($invalidFieldIds)) {
+                    throw new ServiceException(
+                        sprintf("Fields [%s] do not belong to style %d", 
+                            implode(', ', $invalidFieldIds), 
+                            $section->getIdStyles()
+                        ),
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+            }
+
             // Update content field translations (display=1 fields)
             foreach ($contentFields as $field) {
                 $fieldId = $field['fieldId'];
