@@ -500,23 +500,36 @@ class AdminPageService extends UserContextAwareService
             // Validate that all fields belong to the page's page type
             if (!empty($fields)) {
                 $fieldIds = array_column($fields, 'fieldId');
-                $validFieldIds = $this->entityManager->getRepository(\App\Entity\PagesField::class)
-                    ->createQueryBuilder('pf')
-                    ->select('pf.idFields')
-                    ->where('pf.idPages = :pageId')
-                    ->andWhere('pf.idFields IN (:fieldIds)')
-                    ->setParameter('pageId', $page->getId())
+                // Get the page type ID from the page entity
+                $pageType = $page->getPageType();
+                if (!$pageType) {
+                    throw new ServiceException(
+                        sprintf("Page %s does not have a page type assigned", $page->getKeyword()),
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+                $pageTypeId = $pageType->getId();
+
+                // Get all valid field IDs for this page type from pageType_fields
+                $validFieldIds = $this->entityManager->getRepository(\App\Entity\PageTypeField::class)
+                    ->createQueryBuilder('ptf')
+                    ->select('ptf.idFields')
+                    ->where('ptf.idPageType = :pageTypeId')
+                    ->andWhere('ptf.idFields IN (:fieldIds)')
+                    ->setParameter('pageTypeId', $pageTypeId)
                     ->setParameter('fieldIds', $fieldIds)
                     ->getQuery()
                     ->getScalarResult();
-                
+
                 $validFieldIds = array_column($validFieldIds, 'idFields');
                 $invalidFieldIds = array_diff($fieldIds, $validFieldIds);
-                
+
                 if (!empty($invalidFieldIds)) {
                     throw new ServiceException(
-                        sprintf("Fields [%s] do not belong to page %s", 
-                            implode(', ', $invalidFieldIds), 
+                        sprintf(
+                            "Fields [%s] do not belong to page type %s (page %s)",
+                            implode(', ', $invalidFieldIds),
+                            $pageType->getName(),
                             $page->getKeyword()
                         ),
                         Response::HTTP_BAD_REQUEST
