@@ -23,6 +23,7 @@ use App\Service\CMS\Admin\PositionManagementService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
+use App\Service\CMS\Common\SectionUtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,6 +55,7 @@ class AdminPageService extends UserContextAwareService
         private readonly ManagerRegistry $doctrine,
         private readonly TransactionService $transactionService,
         private readonly PositionManagementService $positionManagementService,
+        private readonly SectionUtilityService $sectionUtilityService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -187,64 +189,10 @@ class AdminPageService extends UserContextAwareService
 
         // Call stored procedure for hierarchical sections
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-        return $this->buildNestedSections($flatSections);
+        return $this->sectionUtilityService->buildNestedSections($flatSections);
     }
 
     /** Private methods */
-    /**
-     * @brief Transforms a flat array of sections into a nested hierarchical structure
-     * 
-     * @param array $sections Flat array of section objects with level and path properties
-     * @return array Nested array with children properly nested under their parents
-     */
-    private function buildNestedSections(array $sections): array
-    {
-        // Create a map of sections by ID for quick lookup
-        $sectionsById = [];
-        $rootSections = [];
-
-        // First pass: index all sections by ID
-        foreach ($sections as $section) {
-            $section['children'] = [];
-            $sectionsById[$section['id']] = $section;
-        }
-
-        // Second pass: build the hierarchy
-        foreach ($sections as $section) {
-            $id = $section['id'];
-
-            // If it's a root section (level 0), add to root array
-            if ($section['level'] === 0) {
-                $rootSections[] = &$sectionsById[$id];
-            } else {
-                // Find parent using the path
-                $pathParts = explode(',', $section['path']);
-                if (count($pathParts) >= 2) {
-                    $parentId = (int)$pathParts[count($pathParts) - 2];
-
-                    // If parent exists, add this as its child
-                    if (isset($sectionsById[$parentId])) {
-                        $sectionsById[$parentId]['children'][] = &$sectionsById[$id];
-                    }
-                }
-            }
-        }
-
-        // Recursively sort children by position
-        $sortChildren = function (&$nodes) use (&$sortChildren) {
-            usort($nodes, function ($a, $b) {
-                return ($a['position'] ?? 0) <=> ($b['position'] ?? 0);
-            });
-            foreach ($nodes as &$node) {
-                if (!empty($node['children'])) {
-                    $sortChildren($node['children']);
-                }
-            }
-        };
-        $sortChildren($rootSections);
-        return $rootSections;
-    }
-
     /**
      * Create a new page
      * 

@@ -15,6 +15,7 @@ use App\Repository\LookupRepository;
 use App\Service\ACL\ACLService as ACLACLService;
 use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
+use App\Service\CMS\Common\SectionUtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,7 +33,8 @@ class PageService extends UserContextAwareService
         PageRepository $pageRepository,
         private readonly SectionsFieldsTranslationRepository $translationRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly StylesFieldRepository $stylesFieldRepository
+        private readonly StylesFieldRepository $stylesFieldRepository,
+        private readonly SectionUtilityService $sectionUtilityService
     ) {
         parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
@@ -188,8 +190,11 @@ class PageService extends UserContextAwareService
      */
     public function getPageSections(int $page_id, int $languageId): array
     {
-        // Get hierarchical sections
-        $sections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+        // Get flat sections with hierarchical information
+        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+        
+        // Build nested hierarchical structure
+        $sections = $this->sectionUtilityService->buildNestedSections($flatSections);
         
         // Extract all section IDs from the hierarchical structure
         $sectionIds = $this->extractSectionIds($sections);
@@ -280,7 +285,6 @@ class PageService extends UserContextAwareService
             if ($sectionId) {
                 // Get the section's style ID to fetch default values if needed
                 $styleId = $section['id_styles'] ?? null;
-                $defaultFieldValues = [];
                 
                 // First apply property translations (for fields of type 1)
                 if (isset($propertyTranslations[$sectionId])) {
@@ -301,12 +305,13 @@ class PageService extends UserContextAwareService
                 if ($styleId) {
                     // Get all fields for this section's style
                     $stylesFields = $this->stylesFieldRepository->findDefaultValuesByStyleId($styleId);
+                    $fields = [];
                     
                     // Apply default values for fields that don't have translations
                     foreach ($stylesFields as $fieldName => $defaultValue) {
                         // Only apply default value if the field doesn't already have a value
                         if (!isset($section[$fieldName]) || empty($section[$fieldName]['content'])) {
-                            $section[$fieldName] = [
+                            $fields[$fieldName] = [
                                 'content' => $defaultValue,
                                 'meta' => null
                             ];
@@ -314,6 +319,7 @@ class PageService extends UserContextAwareService
                     }
                 }
             }
+            $section['fields'] = $fields;
             
             // Process children recursively
             if (isset($section['children']) && is_array($section['children'])) {
