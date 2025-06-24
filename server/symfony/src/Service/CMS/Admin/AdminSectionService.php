@@ -14,11 +14,13 @@ use App\Entity\StylesField;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
+use App\Repository\StylesFieldRepository;
 use App\Repository\PageRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
+use App\Service\CMS\Common\SectionUtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,13 +36,16 @@ class AdminSectionService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly StyleRepository $styleRepository,
+        private readonly StylesFieldRepository $stylesFieldRepository,
         private readonly PositionManagementService $positionManagementService,
+        private readonly SectionUtilityService $sectionUtilityService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
         SectionRepository $sectionRepository
     ) {
         parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
+        $this->sectionUtilityService->setStylesFieldRepository($this->stylesFieldRepository);
     }
 
     /**
@@ -223,6 +228,10 @@ class AdminSectionService extends UserContextAwareService
      */
     protected function normalizeSection($section): array
     {
+        // Use the common utility service for basic normalization
+        $normalizedSection = $this->sectionUtilityService->normalizeSection($section);
+        
+        // Add admin-specific fields
         $style = $section->getStyle();
         $styleData = null;
         
@@ -237,13 +246,10 @@ class AdminSectionService extends UserContextAwareService
             ];
         }
         
-        // Adjust as needed for project conventions
-        return [
-            'id' => $section->getId(),
-            'name' => $section->getName(),
+        // Merge with utility service normalization and add admin-specific fields
+        return array_merge($normalizedSection, [
             'style' => $styleData
-            // Add more fields as needed
-        ];
+        ]);
     }
 
     /**

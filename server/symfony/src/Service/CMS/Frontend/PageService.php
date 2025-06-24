@@ -37,6 +37,7 @@ class PageService extends UserContextAwareService
         private readonly SectionUtilityService $sectionUtilityService
     ) {
         parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
+        $this->sectionUtilityService->setStylesFieldRepository($stylesFieldRepository);
     }
 
     /**
@@ -197,7 +198,7 @@ class PageService extends UserContextAwareService
         $sections = $this->sectionUtilityService->buildNestedSections($flatSections);
         
         // Extract all section IDs from the hierarchical structure
-        $sectionIds = $this->extractSectionIds($sections);
+        $sectionIds = $this->sectionUtilityService->extractSectionIds($sections);
         
         // Get default language ID for fallback translations
         $defaultLanguageId = null;
@@ -235,103 +236,14 @@ class PageService extends UserContextAwareService
         );
         
         // Apply translations to the sections recursively with fallback
-        $this->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
+        $this->sectionUtilityService->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
         
         return $sections;
     }
     
-    /**
-     * Recursively extract all section IDs from a hierarchical sections structure
-     * 
-     * @param array $sections Hierarchical sections structure
-     * @return array Flat array of section IDs
-     */
-    private function extractSectionIds(array $sections): array
-    {
-        $ids = [];
-        
-        foreach ($sections as $section) {
-            if (isset($section['id'])) {
-                $ids[] = $section['id'];
-            }
-            
-            // Process children recursively
-            if (!empty($section['children'])) {
-                $childIds = $this->extractSectionIds($section['children']);
-                $ids = array_merge($ids, $childIds);
-            }
-        }
-        
-        return $ids;
-    }
+
     
-    /**
-     * Apply translations to sections recursively
-     * 
-     * @param array &$sections The sections to apply translations to (passed by reference)
-     * @param array $translations The translations keyed by section ID
-     * @param array $defaultTranslations Default language translations for fallback
-     * @param array $propertyTranslations Property translations (language ID 1) for fields of type 1
-     */
-    private function applySectionTranslations(
-        array &$sections, 
-        array $translations, 
-        array $defaultTranslations = [], 
-        array $propertyTranslations = []
-    ): void {
-        foreach ($sections as &$section) {
-            $sectionId = $section['id'] ?? null;
-            
-            if ($sectionId) {
-                // Get the section's style ID to fetch default values if needed
-                $styleId = $section['id_styles'] ?? null;
-                
-                // First apply property translations (for fields of type 1)
-                if (isset($propertyTranslations[$sectionId])) {
-                    $section = array_merge($section, $propertyTranslations[$sectionId]);
-                }
-                
-                // Then apply default language translations as fallback
-                if (isset($defaultTranslations[$sectionId])) {
-                    $section = array_merge($section, $defaultTranslations[$sectionId]);
-                }
-                
-                // Finally apply requested language translations (overriding any fallbacks)
-                if (isset($translations[$sectionId])) {
-                    $section = array_merge($section, $translations[$sectionId]);
-                }
-                
-                // For any fields that still don't have values, use default values from styles_fields table
-                if ($styleId) {
-                    // Get all fields for this section's style
-                    $stylesFields = $this->stylesFieldRepository->findDefaultValuesByStyleId($styleId);
-                    $fields = [];
-                    
-                    // Apply default values for fields that don't have translations
-                    foreach ($stylesFields as $fieldName => $defaultValue) {
-                        // Only apply default value if the field doesn't already have a value
-                        if (!isset($section[$fieldName]) || empty($section[$fieldName]['content'])) {
-                            $fields[$fieldName] = [
-                                'content' => $defaultValue,
-                                'meta' => null
-                            ];
-                        }
-                    }
-                }
-            }
-            $section['fields'] = $fields;
-            
-            // Process children recursively
-            if (isset($section['children']) && is_array($section['children'])) {
-                $this->applySectionTranslations(
-                    $section['children'], 
-                    $translations, 
-                    $defaultTranslations, 
-                    $propertyTranslations
-                );
-            }
-        }
-    }
+
     
     /**
      * Determine which language ID to use for translations
