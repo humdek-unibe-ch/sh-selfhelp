@@ -6,6 +6,15 @@ SET version = 'v8.0.0';
 -- Updated API routes for section management to include page_keyword parameter
 -- Added section update endpoint with proper field handling for content and property fields
 
+-- Section Export/Import API Routes Enhancement
+-- Updated section export/import functionality to properly handle:
+-- - Complete field information including display, default_value, help, disabled, hidden
+-- - Hierarchical structure with proper position handling
+-- - Style names and language locales instead of IDs for portability
+-- - Meta data for translations
+-- - Recursive child section handling with proper position management
+-- - Enhanced error handling and validation for style and language resolution
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS add_index //
 CREATE PROCEDURE add_index(
@@ -19,8 +28,8 @@ BEGIN
 		(
 			SELECT COUNT(*)
             FROM information_schema.STATISTICS 
-			WHERE `table_schema` = DATABASE()
-			AND `table_name` = param_table
+				WHERE `table_schema` = DATABASE()
+				AND `table_name` = param_table
             AND `index_name` = param_index_name
 		) > 0,
         "SELECT 'The index already exists in the table'",
@@ -54,7 +63,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_user_acl //
 CREATE PROCEDURE get_user_acl(
     IN param_user_id INT,
-    IN param_page_id INT  -- -1 means “all pages”
+    IN param_page_id INT  -- -1 means "all pages"
 )
 BEGIN
 
@@ -79,7 +88,7 @@ BEGIN
         is_system
     FROM
     (
-        -- 1) Group‐based ACL
+        -- 1) Group-based ACL
         SELECT
             ug.id_users,
             acl.id_pages,
@@ -108,7 +117,7 @@ BEGIN
 
         UNION ALL
 
-        -- 2) User‐specific ACL
+        -- 2) User-specific ACL
         SELECT
             acl.id_users,
             acl.id_pages,
@@ -135,7 +144,7 @@ BEGIN
 
         UNION ALL
 
-        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it’s open)
+        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it's open)
         SELECT
             param_user_id       AS id_users,
             p.id                AS id_pages,

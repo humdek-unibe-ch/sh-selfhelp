@@ -254,13 +254,13 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('admin_sections_import_to_page', 'v1', '/admin/pages/{page_keyword}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
     'page_keyword', '[a-zA-Z0-9_-]+'
 ), JSON_OBJECT(
-    'sections', JSON_OBJECT('in', 'body', 'required', true)
+    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
 )),
 ('admin_sections_import_to_section', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
     'page_keyword', '[a-zA-Z0-9_-]+',
     'parent_section_id', '[0-9]+'
 ), JSON_OBJECT(
-    'sections', JSON_OBJECT('in', 'body', 'required', true)
+    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
 )),
 
 -- Public pages route
@@ -299,7 +299,7 @@ SELECT
   p.`id`       AS id_permissions
 FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
-  ON p.`name` = 'page.create'
+  ON p.`name` = 'admin.page.create'
 WHERE ar.`route_name` IN (
   'admin_pages_create'
 );
@@ -310,7 +310,7 @@ SELECT
   p.`id`       AS id_permissions
 FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
-  ON p.`name` = 'page.delete'
+  ON p.`name` = 'admin.page.delete'
 WHERE ar.`route_name` IN (
   'admin_pages_delete'
 );
@@ -321,7 +321,7 @@ SELECT
   p.`id`       AS id_permissions
 FROM `api_routes`     AS ar
 JOIN `permissions`   AS p
-  ON p.`name` = 'page.update'
+  ON p.`name` = 'admin.page.update'
 WHERE ar.`route_name` IN (
 	'admin_pages_update',
 	'admin_pages_create_section',

@@ -824,21 +824,25 @@ class AdminSectionService extends UserContextAwareService
             $this->throwNotFound('Page not found');
         }
         
-        // Get all sections for this page
+        // Get all sections for this page with positions
         $pageSections = $this->entityManager->getRepository(PagesSection::class)
-            ->findBy(['page' => $page]);
+            ->findBy(['page' => $page], ['position' => 'ASC']);
         
         if (empty($pageSections)) {
             return [];
         }
         
-        // Extract section IDs
-        $sectionIds = array_map(function($pageSection) {
-            return $pageSection->getSection()->getId();
-        }, $pageSections);
+        // Extract section IDs and their positions
+        $sectionIds = [];
+        $pagePositions = [];
+        foreach ($pageSections as $pageSection) {
+            $sectionId = $pageSection->getSection()->getId();
+            $sectionIds[] = $sectionId;
+            $pagePositions[$sectionId] = $pageSection->getPosition();
+        }
         
-        // Build section hierarchy
-        $sectionsData = $this->buildSectionsExportData($sectionIds);
+        // Build section hierarchy with positions
+        $sectionsData = $this->buildSectionsExportData($sectionIds, $pagePositions);
         
         return $sectionsData;
     }
@@ -900,18 +904,21 @@ class AdminSectionService extends UserContextAwareService
     }
     
     /**
-     * Build export data for sections
+     * Build export data for sections with proper hierarchy
      * 
      * @param array $sectionIds Array of section IDs to export
+     * @param array $pagePositions Optional page positions for root sections
      * @return array JSON-serializable array with sections data
      */
-    private function buildSectionsExportData(array $sectionIds): array
+    private function buildSectionsExportData(array $sectionIds, array $pagePositions = []): array
     {
         if (empty($sectionIds)) {
             return [];
         }
         
-        $sectionsData = [];
+        // Get all sections data first
+        $allSectionsData = [];
+        $hierarchyMap = [];
         
         foreach ($sectionIds as $sectionId) {
             $section = $this->sectionRepository->find($sectionId);
@@ -919,65 +926,189 @@ class AdminSectionService extends UserContextAwareService
                 continue;
             }
             
-            // Get section data
-            $sectionData = [
-                'name' => $section->getName(),
-                'style_name' => $section->getStyle() ? $section->getStyle()->getName() : null,
-                'fields' => [],
-                'children' => []
-            ];
+            // Get section data with complete field information
+            $sectionData = $this->buildSingleSectionExportData($section);
+            $allSectionsData[$sectionId] = $sectionData;
             
-            // Get section fields and translations
-            $translations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
-                ->findBy(['section' => $section]);
+            // Build hierarchy map
+            $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
+                ->findBy(['parentSection' => $section], ['position' => 'ASC']);
             
-            foreach ($translations as $translation) {
-                $field = $translation->getField();
-                $language = $translation->getLanguage();
-                $gender = $translation->getGender();
-                
-                if (!$field || !$language) {
-                    continue;
-                }
-                
-                $fieldName = $field->getName();
-                $locale = $language->getLocale();
-                $genderCode = $gender ? $gender->getName() : 'default';
-                
-                // Skip fields without names
-                if (empty($fieldName)) {
-                    continue;
-                }
-                
-                // Group fields by name, locale, and gender
-                if (!isset($sectionData['fields'][$fieldName])) {
-                    $sectionData['fields'][$fieldName] = [
-                        'type' => $field->getType() ? $field->getType()->getName() : null,
-                        'translations' => []
+            foreach ($hierarchies as $hierarchy) {
+                $childId = $hierarchy->getChildSection()->getId();
+                if (in_array($childId, $sectionIds)) {
+                    if (!isset($hierarchyMap[$sectionId])) {
+                        $hierarchyMap[$sectionId] = [];
+                    }
+                    $hierarchyMap[$sectionId][] = [
+                        'id' => $childId,
+                        'position' => $hierarchy->getPosition()
                     ];
                 }
-                
-                $sectionData['fields'][$fieldName]['translations'][] = [
-                    'locale' => $locale,
-                    'gender' => $genderCode,
-                    'content' => $translation->getContent()
-                ];
             }
-            
-            // Get child sections
-            $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
-                ->findBy(['parentSection' => $section]);
-            
-            $childSectionIds = [];
-            foreach ($hierarchies as $hierarchy) {
-                $childSectionIds[] = $hierarchy->getChildSection()->getId();
-            }
-            
-            // Add section data to result
-            $sectionsData[] = $sectionData;
         }
         
-        return $sectionsData;
+        // Build hierarchical structure
+        return $this->buildHierarchicalStructure($allSectionsData, $hierarchyMap, $sectionIds, $pagePositions);
+    }
+    
+    /**
+     * Build export data for a single section
+     * 
+     * @param Section $section The section to export
+     * @return array Complete section data
+     */
+    private function buildSingleSectionExportData(Section $section): array
+    {
+        $sectionData = [
+            'name' => $section->getName(),
+            'style_name' => $section->getStyle() ? $section->getStyle()->getName() : null,
+            'fields' => [],
+            'children' => []
+        ];
+        
+        // Get style and its fields configuration
+        $style = $section->getStyle();
+        if (!$style) {
+            return $sectionData;
+        }
+        
+        // Get all style fields for this style
+        $stylesFields = $this->stylesFieldRepository->findBy(['style' => $style]);
+        
+        // Get all translations for this section
+        $translations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+            ->findBy(['section' => $section]);
+        
+        // Group translations by field
+        $translationsByField = [];
+        foreach ($translations as $translation) {
+            $fieldId = $translation->getField() ? $translation->getField()->getId() : $translation->getIdFields();
+            if (!isset($translationsByField[$fieldId])) {
+                $translationsByField[$fieldId] = [];
+            }
+            $translationsByField[$fieldId][] = $translation;
+        }
+        
+        // Build fields data with complete information
+        foreach ($stylesFields as $stylesField) {
+            $field = $stylesField->getField();
+            if (!$field) {
+                continue;
+            }
+            
+            $fieldData = [
+                'name' => $field->getName(),
+                'type' => $field->getType() ? $field->getType()->getName() : null,
+                'display' => $field->isDisplay(),
+                'default_value' => $stylesField->getDefaultValue(),
+                'help' => $stylesField->getHelp(),
+                'disabled' => $stylesField->isDisabled(),
+                'hidden' => $stylesField->getHidden(),
+                'translations' => []
+            ];
+            
+            // Add translations for this field
+            $fieldId = $field->getId();
+            if (isset($translationsByField[$fieldId])) {
+                foreach ($translationsByField[$fieldId] as $translation) {
+                    $language = $translation->getLanguage();
+                    $gender = $translation->getGender();
+                    
+                    if ($language) {
+                        $fieldData['translations'][] = [
+                            'locale' => $language->getLocale(),
+                            'gender' => $gender ? $gender->getName() : 'default',
+                            'content' => $translation->getContent(),
+                            'meta' => $translation->getMeta()
+                        ];
+                    }
+                }
+            }
+            
+            $sectionData['fields'][] = $fieldData;
+        }
+        
+        return $sectionData;
+    }
+    
+    /**
+     * Build hierarchical structure from flat sections data
+     * 
+     * @param array $allSectionsData All sections data indexed by ID
+     * @param array $hierarchyMap Hierarchy relationships
+     * @param array $rootSectionIds Root level section IDs
+     * @param array $pagePositions Page positions for root sections
+     * @return array Hierarchical structure
+     */
+    private function buildHierarchicalStructure(array $allSectionsData, array $hierarchyMap, array $rootSectionIds, array $pagePositions = []): array
+    {
+        $result = [];
+        
+        // Find root sections (sections that are not children of any other section in our export)
+        $childSectionIds = [];
+        foreach ($hierarchyMap as $children) {
+            foreach ($children as $child) {
+                $childSectionIds[] = $child['id'];
+            }
+        }
+        
+        $actualRootIds = array_diff($rootSectionIds, $childSectionIds);
+        
+        // Sort root sections by page position if available
+        if (!empty($pagePositions)) {
+            usort($actualRootIds, function($a, $b) use ($pagePositions) {
+                $posA = $pagePositions[$a] ?? 0;
+                $posB = $pagePositions[$b] ?? 0;
+                return $posA <=> $posB;
+            });
+        }
+        
+        // Build structure for each root section
+        foreach ($actualRootIds as $rootId) {
+            if (isset($allSectionsData[$rootId])) {
+                $sectionData = $allSectionsData[$rootId];
+                if (isset($pagePositions[$rootId])) {
+                    $sectionData['position'] = $pagePositions[$rootId];
+                }
+                $sectionData['children'] = $this->buildChildrenStructure($rootId, $allSectionsData, $hierarchyMap);
+                $result[] = $sectionData;
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Build children structure recursively
+     * 
+     * @param int $parentId Parent section ID
+     * @param array $allSectionsData All sections data
+     * @param array $hierarchyMap Hierarchy relationships
+     * @return array Children structure
+     */
+    private function buildChildrenStructure(int $parentId, array $allSectionsData, array $hierarchyMap): array
+    {
+        $children = [];
+        
+        if (isset($hierarchyMap[$parentId])) {
+            // Sort children by position
+            usort($hierarchyMap[$parentId], function($a, $b) {
+                return ($a['position'] ?? 0) <=> ($b['position'] ?? 0);
+            });
+            
+            foreach ($hierarchyMap[$parentId] as $child) {
+                $childId = $child['id'];
+                if (isset($allSectionsData[$childId])) {
+                    $childData = $allSectionsData[$childId];
+                    $childData['position'] = $child['position'];
+                    $childData['children'] = $this->buildChildrenStructure($childId, $allSectionsData, $hierarchyMap);
+                    $children[] = $childData;
+                }
+            }
+        }
+        
+        return $children;
     }
     
     /**
@@ -1075,7 +1206,6 @@ class AdminSectionService extends UserContextAwareService
     private function importSections(array $sectionsData, ?Page $page = null, ?Section $parentSection = null): array
     {
         $importedSections = [];
-        $position = 1;
         
         foreach ($sectionsData as $sectionData) {
             // Create new section
@@ -1110,13 +1240,29 @@ class AdminSectionService extends UserContextAwareService
                 $this->importSectionFields($section, $sectionData['fields']);
             }
             
+            // Get position from data or use auto-increment
+            $position = $sectionData['position'] ?? null;
+            
             // Add section to page or parent section
             if ($page) {
                 // Add to page
                 $pageSection = new PagesSection();
                 $pageSection->setPage($page);
                 $pageSection->setSection($section);
-                $pageSection->setPosition($position++);
+                
+                if ($position !== null) {
+                    $pageSection->setPosition($position);
+                } else {
+                    // Auto-assign position if not provided
+                    $maxPosition = $this->entityManager->createQueryBuilder()
+                        ->select('MAX(ps.position)')
+                        ->from(PagesSection::class, 'ps')
+                        ->where('ps.page = :page')
+                        ->setParameter('page', $page)
+                        ->getQuery()
+                        ->getSingleScalarResult();
+                    $pageSection->setPosition(($maxPosition ?? 0) + 1);
+                }
                 
                 $this->entityManager->persist($pageSection);
             } elseif ($parentSection) {
@@ -1124,7 +1270,20 @@ class AdminSectionService extends UserContextAwareService
                 $sectionHierarchy = new SectionsHierarchy();
                 $sectionHierarchy->setParentSection($parentSection);
                 $sectionHierarchy->setChildSection($section);
-                $sectionHierarchy->setPosition($position++);
+                
+                if ($position !== null) {
+                    $sectionHierarchy->setPosition($position);
+                } else {
+                    // Auto-assign position if not provided
+                    $maxPosition = $this->entityManager->createQueryBuilder()
+                        ->select('MAX(sh.position)')
+                        ->from(SectionsHierarchy::class, 'sh')
+                        ->where('sh.parentSection = :parent')
+                        ->setParameter('parent', $parentSection)
+                        ->getQuery()
+                        ->getSingleScalarResult();
+                    $sectionHierarchy->setPosition(($maxPosition ?? 0) + 1);
+                }
                 
                 $this->entityManager->persist($sectionHierarchy);
             }
@@ -1136,7 +1295,7 @@ class AdminSectionService extends UserContextAwareService
                 'id' => $section->getId(),
                 'name' => $section->getName(),
                 'style_name' => $styleName,
-                'position' => $position - 1
+                'position' => $position
             ];
             
             // Import child sections recursively if present
@@ -1157,7 +1316,17 @@ class AdminSectionService extends UserContextAwareService
      */
     private function importSectionFields(Section $section, array $fieldsData): void
     {
-        foreach ($fieldsData as $fieldName => $fieldData) {
+        $style = $section->getStyle();
+        if (!$style) {
+            return;
+        }
+        
+        foreach ($fieldsData as $fieldData) {
+            $fieldName = $fieldData['name'] ?? null;
+            if (!$fieldName) {
+                continue;
+            }
+            
             // Find or create field
             $field = $this->entityManager->getRepository(Field::class)
                 ->findOneBy(['name' => $fieldName]);
@@ -1166,6 +1335,7 @@ class AdminSectionService extends UserContextAwareService
                 // Create new field if it doesn't exist
                 $field = new Field();
                 $field->setName($fieldName);
+                $field->setDisplay($fieldData['display'] ?? true);
                 
                 // Set field type if provided
                 if (isset($fieldData['type'])) {
@@ -1181,12 +1351,41 @@ class AdminSectionService extends UserContextAwareService
                 $this->entityManager->flush();
             }
             
+            // Create or update StylesField relationship if it doesn't exist
+            $stylesField = $this->stylesFieldRepository->findOneBy([
+                'style' => $style,
+                'field' => $field
+            ]);
+            
+            if (!$stylesField) {
+                $stylesField = new StylesField();
+                $stylesField->setStyle($style);
+                $stylesField->setField($field);
+            }
+            
+            // Update StylesField properties from import data
+            if (isset($fieldData['default_value'])) {
+                $stylesField->setDefaultValue($fieldData['default_value']);
+            }
+            if (isset($fieldData['help'])) {
+                $stylesField->setHelp($fieldData['help']);
+            }
+            if (isset($fieldData['disabled'])) {
+                $stylesField->setDisabled($fieldData['disabled']);
+            }
+            if (isset($fieldData['hidden'])) {
+                $stylesField->setHidden($fieldData['hidden']);
+            }
+            
+            $this->entityManager->persist($stylesField);
+            
             // Import translations
             if (isset($fieldData['translations']) && is_array($fieldData['translations'])) {
                 foreach ($fieldData['translations'] as $translationData) {
                     $locale = $translationData['locale'] ?? null;
                     $genderCode = $translationData['gender'] ?? 'default';
                     $content = $translationData['content'] ?? '';
+                    $meta = $translationData['meta'] ?? null;
                     
                     if (!$locale) {
                         continue;
@@ -1211,21 +1410,41 @@ class AdminSectionService extends UserContextAwareService
                             ->find(1);
                     }
                     
-                    // Create translation
-                    $translation = new SectionsFieldsTranslation();
-                    $translation->setSection($section);
-                    $translation->setField($field);
-                    $translation->setLanguage($language);
-                    $translation->setGender($gender);
-                    $translation->setContent($content);
+                    // Check if translation already exists
+                    $existingTranslation = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                        ->findOneBy([
+                            'section' => $section,
+                            'field' => $field,
+                            'language' => $language,
+                            'gender' => $gender
+                        ]);
                     
-                    // Also set the ID fields for backward compatibility
-                    $translation->setIdSections($section->getId());
-                    $translation->setIdFields($field->getId());
-                    $translation->setIdLanguages($language->getId());
-                    $translation->setIdGenders($gender->getId());
-                    
-                    $this->entityManager->persist($translation);
+                    if ($existingTranslation) {
+                        // Update existing translation
+                        $existingTranslation->setContent($content);
+                        if ($meta !== null) {
+                            $existingTranslation->setMeta($meta);
+                        }
+                    } else {
+                        // Create new translation
+                        $translation = new SectionsFieldsTranslation();
+                        $translation->setSection($section);
+                        $translation->setField($field);
+                        $translation->setLanguage($language);
+                        $translation->setGender($gender);
+                        $translation->setContent($content);
+                        if ($meta !== null) {
+                            $translation->setMeta($meta);
+                        }
+                        
+                        // Also set the ID fields for backward compatibility
+                        $translation->setIdSections($section->getId());
+                        $translation->setIdFields($field->getId());
+                        $translation->setIdLanguages($language->getId());
+                        $translation->setIdGenders($gender->getId());
+                        
+                        $this->entityManager->persist($translation);
+                    }
                 }
             }
         }

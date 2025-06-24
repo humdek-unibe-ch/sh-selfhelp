@@ -787,4 +787,213 @@ class AdminSectionControllerTest extends BaseControllerTest
             );
         }
     }
+
+    /**
+     * Test exporting all sections from a page
+     * @group admin
+     * @group section-export
+     */
+    public function testExportPageSections(): void
+    {
+        $token = $this->getAdminAccessToken();
+        $pageKeyword = self::TEST_PAGE_KEYWORD;
+        
+        // Create a test section first
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode(['styleId' => self::DEFAULT_STYLE_ID_1, 'position' => 1])
+        );
+        
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create test section');
+        $createData = json_decode($response->getContent(), true);
+        $sectionId = $createData['data']['id'];
+        
+        try {
+            // Export sections from the page
+            $this->client->request(
+                'GET',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/export', $pageKeyword),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+            
+            $response = $this->client->getResponse();
+            $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to export page sections: ' . $response->getContent());
+            
+            $responseData = json_decode($response->getContent(), true);
+            $this->assertArrayHasKey('data', $responseData);
+            $this->assertArrayHasKey('sectionsData', $responseData['data']);
+            $this->assertIsArray($responseData['data']['sectionsData']);
+            
+            // Check if our created section is in the export
+            $sectionsData = $responseData['data']['sectionsData'];
+            $this->assertNotEmpty($sectionsData, 'Export should contain at least one section');
+            
+            // Verify the structure of exported sections
+            foreach ($sectionsData as $sectionData) {
+                $this->assertArrayHasKey('name', $sectionData);
+                $this->assertArrayHasKey('style_name', $sectionData);
+                $this->assertArrayHasKey('fields', $sectionData);
+                $this->assertArrayHasKey('children', $sectionData);
+                $this->assertIsArray($sectionData['fields']);
+                $this->assertIsArray($sectionData['children']);
+            }
+            
+        } finally {
+            // Clean up - delete the test section
+            $this->client->request(
+                'DELETE',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+        }
+    }
+
+    /**
+     * Test exporting a specific section with its children
+     * @group admin
+     * @group section-export
+     */
+    public function testExportSection(): void
+    {
+        $token = $this->getAdminAccessToken();
+        $pageKeyword = self::TEST_PAGE_KEYWORD;
+        
+        // Create a parent section first
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/create', $pageKeyword),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode(['styleId' => self::DEFAULT_STYLE_ID_1, 'position' => 1])
+        );
+        
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'Failed to create parent section');
+        $createData = json_decode($response->getContent(), true);
+        $parentSectionId = $createData['data']['id'];
+        
+        try {
+            // Export the specific section
+            $this->client->request(
+                'GET',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d/export', $pageKeyword, $parentSectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+            
+            $response = $this->client->getResponse();
+            $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to export section: ' . $response->getContent());
+            
+            $responseData = json_decode($response->getContent(), true);
+            $this->assertArrayHasKey('data', $responseData);
+            $this->assertArrayHasKey('sectionsData', $responseData['data']);
+            $this->assertIsArray($responseData['data']['sectionsData']);
+            
+            $sectionsData = $responseData['data']['sectionsData'];
+            $this->assertNotEmpty($sectionsData, 'Export should contain the section');
+            
+            // Verify the structure of the exported section
+            $sectionData = $sectionsData[0];
+            $this->assertArrayHasKey('name', $sectionData);
+            $this->assertArrayHasKey('style_name', $sectionData);
+            $this->assertArrayHasKey('fields', $sectionData);
+            $this->assertArrayHasKey('children', $sectionData);
+            $this->assertIsArray($sectionData['fields']);
+            $this->assertIsArray($sectionData['children']);
+            
+        } finally {
+            // Clean up - delete the test section
+            $this->client->request(
+                'DELETE',
+                sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $parentSectionId),
+                [],
+                [],
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+            );
+        }
+    }
+
+    /**
+     * Test importing sections to a page
+     * @group admin
+     * @group section-import
+     */
+    public function testImportSectionsToPage(): void
+    {
+        $token = $this->getAdminAccessToken();
+        $pageKeyword = self::TEST_PAGE_KEYWORD;
+        
+        // Prepare test sections data for import
+        $sectionsData = [
+            [
+                'name' => 'Imported Test Section',
+                'style_name' => 'header', // Assuming this style exists
+                'fields' => [
+                    [
+                        'name' => 'title',
+                        'type' => 'text',
+                        'display' => true,
+                        'default_value' => '',
+                        'help' => '',
+                        'disabled' => false,
+                        'hidden' => false,
+                        'translations' => [
+                            [
+                                'locale' => 'en',
+                                'gender' => 'default',
+                                'content' => 'Test Title',
+                                'meta' => null
+                            ]
+                        ]
+                    ]
+                ],
+                'children' => []
+            ]
+        ];
+        
+        // Import sections to the page
+        $this->client->request(
+            'POST',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/import', $pageKeyword),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token, 'CONTENT_TYPE' => 'application/json'],
+            json_encode(['sections' => $sectionsData])
+        );
+        
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed to import sections to page: ' . $response->getContent());
+        
+        $responseData = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('data', $responseData);
+        $this->assertArrayHasKey('importedSections', $responseData['data']);
+        $this->assertIsArray($responseData['data']['importedSections']);
+        $this->assertNotEmpty($responseData['data']['importedSections']);
+        
+        $importedSection = $responseData['data']['importedSections'][0];
+        $this->assertArrayHasKey('id', $importedSection);
+        $this->assertArrayHasKey('name', $importedSection);
+        $this->assertSame('Imported Test Section', $importedSection['name']);
+        
+        // Clean up - delete the imported section
+        $sectionId = $importedSection['id'];
+        $this->client->request(
+            'DELETE',
+            sprintf('/cms-api/v1/admin/pages/%s/sections/%d', $pageKeyword, $sectionId),
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+        );
+    }
 }
