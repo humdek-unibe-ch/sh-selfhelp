@@ -203,9 +203,6 @@ class SectionUtilityService
                 'name' => $section->getName(),
                 'id_styles' => $section->getStyle() ? $section->getStyle()->getId() : null,
                 'style_name' => $section->getStyle() ? $section->getStyle()->getName() : null,
-                'position' => $section->getPosition(),
-                'created_at' => $section->getCreatedAt() ? $section->getCreatedAt()->format('Y-m-d H:i:s') : null,
-                'updated_at' => $section->getUpdatedAt() ? $section->getUpdatedAt()->format('Y-m-d H:i:s') : null,
             ];
         } else if (is_array($section)) {
             // It's already an array, ensure it has the expected structure
@@ -214,9 +211,6 @@ class SectionUtilityService
                 'name' => $section['name'] ?? null,
                 'id_styles' => $section['id_styles'] ?? null,
                 'style_name' => $section['style_name'] ?? null,
-                'position' => $section['position'] ?? null,
-                'created_at' => $section['created_at'] ?? null,
-                'updated_at' => $section['updated_at'] ?? null,
             ], $section);
         }
         

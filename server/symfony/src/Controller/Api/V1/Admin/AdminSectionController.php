@@ -36,24 +36,6 @@ class AdminSectionController extends AbstractController
             Response::HTTP_OK
         );
     }
-
-    /**
-     * Get all children sections for a parent section
-     */
-    public function getChildrenSections(string $page_keyword, int $parent_section_id): Response
-    {
-        $children = $this->adminSectionService->getChildrenSections($page_keyword, $parent_section_id);
-        return $this->apiResponseFormatter->formatSuccess(
-            [
-                'pageKeyword' => $page_keyword,
-                'parent_section_id' => $parent_section_id,
-                'sections' => $children
-            ],
-            'responses/admin/section_children',
-            Response::HTTP_OK
-        );
-    }
-
     public function addSectionToSection(Request $request, string $page_keyword, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
