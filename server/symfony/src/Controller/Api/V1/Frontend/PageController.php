@@ -57,8 +57,8 @@ class PageController extends AbstractController
         try {
             // Check if locale parameter is provided in the request
             $locale = null;
-            if ($request->query->has('locale')) {
-                $locale = $request->query->get('locale');
+            if ($request->query->has('language')) {
+                $locale = $request->query->get('language');
             }
             
             $page = $this->pageService->getPage($page_keyword, $locale);            

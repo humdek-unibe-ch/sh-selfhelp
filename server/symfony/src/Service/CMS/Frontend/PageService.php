@@ -255,7 +255,7 @@ class PageService extends UserContextAwareService
     {
         // If locale is explicitly provided, find corresponding language ID
         if ($locale !== null) {
-            $language = $this->entityManager->getRepository('App\\Entity\\Language')->findByLocale($locale);
+            $language = $this->entityManager->getRepository('App\Entity\Language')->findOneBy(['locale'=>$locale]);
             if ($language) {
                 return $language->getId();
             }
