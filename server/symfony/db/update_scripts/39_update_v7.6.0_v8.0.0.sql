@@ -54,7 +54,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_user_acl //
 CREATE PROCEDURE get_user_acl(
     IN param_user_id INT,
-    IN param_page_id INT  -- -1 means "all pages"
+    IN param_page_id INT  -- -1 means “all pages”
 )
 BEGIN
 
@@ -75,10 +75,11 @@ BEGIN
         nav_position,
         footer_position,
         id_type,
-        id_pageAccessTypes
+        id_pageAccessTypes,
+        is_system
     FROM
     (
-        -- 1) Group-based ACL
+        -- 1) Group‐based ACL
         SELECT
             ug.id_users,
             acl.id_pages,
@@ -96,7 +97,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM users_groups ug
         JOIN users u             ON ug.id_users   = u.id
         JOIN acl_groups acl      ON acl.id_groups = ug.id_groups
@@ -106,7 +108,7 @@ BEGIN
 
         UNION ALL
 
-        -- 2) User-specific ACL
+        -- 2) User‐specific ACL
         SELECT
             acl.id_users,
             acl.id_pages,
@@ -124,7 +126,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM acl_users acl
         JOIN pages p ON p.id = acl.id_pages
         WHERE acl.id_users = param_user_id
@@ -132,7 +135,7 @@ BEGIN
 
         UNION ALL
 
-        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it's open)
+        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it’s open)
         SELECT
             param_user_id       AS id_users,
             p.id                AS id_pages,
@@ -150,7 +153,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM pages p
         WHERE p.is_open_access = 1
           AND (param_page_id = -1 OR p.id = param_page_id)
@@ -168,12 +172,12 @@ BEGIN
         nav_position,
         footer_position,
         id_type,
+        is_system,
         id_pageAccessTypes;
 
 END
 //
 DELIMITER ;
-
 
 CREATE TABLE IF NOT EXISTS `logPerformance` (
   `id_user_activity` INT(10) UNSIGNED NOT NULL,

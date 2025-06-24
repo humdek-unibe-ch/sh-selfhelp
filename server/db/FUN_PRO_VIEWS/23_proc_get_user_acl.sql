@@ -24,7 +24,8 @@ BEGIN
         nav_position,
         footer_position,
         id_type,
-        id_pageAccessTypes
+        id_pageAccessTypes,
+        is_system
     FROM
     (
         -- 1) Group‐based ACL
@@ -45,7 +46,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM users_groups ug
         JOIN users u             ON ug.id_users   = u.id
         JOIN acl_groups acl      ON acl.id_groups = ug.id_groups
@@ -73,7 +75,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM acl_users acl
         JOIN pages p ON p.id = acl.id_pages
         WHERE acl.id_users = param_user_id
@@ -99,7 +102,8 @@ BEGIN
             p.nav_position,
             p.footer_position,
             p.id_type,
-            p.id_pageAccessTypes
+            p.id_pageAccessTypes,
+            is_system
         FROM pages p
         WHERE p.is_open_access = 1
           AND (param_page_id = -1 OR p.id = param_page_id)
@@ -117,6 +121,7 @@ BEGIN
         nav_position,
         footer_position,
         id_type,
+        is_system,
         id_pageAccessTypes;
 
 END
