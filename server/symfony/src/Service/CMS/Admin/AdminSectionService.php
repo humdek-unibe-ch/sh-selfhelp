@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling section-related operations in the admin panel
+ * MEMORY_RULE - I am Claude Sonnet 4, your AI coding assistant in Cursor
  */
 class AdminSectionService extends UserContextAwareService
 {
@@ -824,27 +825,20 @@ class AdminSectionService extends UserContextAwareService
             $this->throwNotFound('Page not found');
         }
         
-        // Get all sections for this page with positions
-        $pageSections = $this->entityManager->getRepository(PagesSection::class)
-            ->findBy(['page' => $page], ['position' => 'ASC']);
+        // Use existing hierarchical fetching method
+        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
         
-        if (empty($pageSections)) {
+        if (empty($flatSections)) {
             return [];
         }
         
-        // Extract section IDs and their positions
-        $sectionIds = [];
-        $pagePositions = [];
-        foreach ($pageSections as $pageSection) {
-            $sectionId = $pageSection->getSection()->getId();
-            $sectionIds[] = $sectionId;
-            $pagePositions[$sectionId] = $pageSection->getPosition();
-        }
+        // Build hierarchical structure using existing utility method
+        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections);
         
-        // Build section hierarchy with positions
-        $sectionsData = $this->buildSectionsExportData($sectionIds, $pagePositions);
+        // Add field translations to the hierarchical structure
+        $this->addFieldTranslationsToSections($hierarchicalSections);
         
-        return $sectionsData;
+        return $hierarchicalSections;
     }
     
     /**
@@ -867,248 +861,126 @@ class AdminSectionService extends UserContextAwareService
             $this->throwNotFound('Section not found');
         }
         
-        // Get all child sections recursively
-        $childSections = $this->getAllChildSections($section_id);
-        $sectionIds = array_merge([$section_id], $childSections);
-        
-        // Build section export data
-        $sectionsData = $this->buildSectionsExportData($sectionIds);
-        
-        return $sectionsData;
-    }
-    
-    /**
-     * Get all child section IDs recursively for a given section
-     * 
-     * @param int $sectionId The ID of the parent section
-     * @return array Array of child section IDs
-     */
-    private function getAllChildSections(int $sectionId): array
-    {
-        $childIds = [];
-        
-        // Get direct children
-        $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
-            ->findBy(['parentSection' => $sectionId]);
-        
-        foreach ($hierarchies as $hierarchy) {
-            $childId = $hierarchy->getChildSection()->getId();
-            $childIds[] = $childId;
-            
-            // Recursively get children of this child
-            $grandChildIds = $this->getAllChildSections($childId);
-            $childIds = array_merge($childIds, $grandChildIds);
+        // Get the page to use existing hierarchical method
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
         }
         
-        return $childIds;
-    }
-    
-    /**
-     * Build export data for sections with proper hierarchy
-     * 
-     * @param array $sectionIds Array of section IDs to export
-     * @param array $pagePositions Optional page positions for root sections
-     * @return array JSON-serializable array with sections data
-     */
-    private function buildSectionsExportData(array $sectionIds, array $pagePositions = []): array
-    {
-        if (empty($sectionIds)) {
-            return [];
-        }
-        
-        // Get all sections data first
-        $allSectionsData = [];
-        $hierarchyMap = [];
-        
-        foreach ($sectionIds as $sectionId) {
-            $section = $this->sectionRepository->find($sectionId);
-            if (!$section) {
-                continue;
-            }
-            
-            // Get section data with complete field information
-            $sectionData = $this->buildSingleSectionExportData($section);
-            $allSectionsData[$sectionId] = $sectionData;
-            
-            // Build hierarchy map
-            $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
-                ->findBy(['parentSection' => $section], ['position' => 'ASC']);
-            
-            foreach ($hierarchies as $hierarchy) {
-                $childId = $hierarchy->getChildSection()->getId();
-                if (in_array($childId, $sectionIds)) {
-                    if (!isset($hierarchyMap[$sectionId])) {
-                        $hierarchyMap[$sectionId] = [];
-                    }
-                    $hierarchyMap[$sectionId][] = [
-                        'id' => $childId,
-                        'position' => $hierarchy->getPosition()
-                    ];
-                }
-            }
-        }
+        // Get all sections for the page using existing method
+        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
         
         // Build hierarchical structure
-        return $this->buildHierarchicalStructure($allSectionsData, $hierarchyMap, $sectionIds, $pagePositions);
+        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections);
+        
+        // Find the specific section and its subtree
+        $targetSection = $this->findSectionInHierarchy($hierarchicalSections, $section_id);
+        
+        if (!$targetSection) {
+            $this->throwNotFound('Section not found in page hierarchy');
+        }
+        
+        // Add field translations to the section subtree
+        $this->addFieldTranslationsToSections([$targetSection]);
+        
+        return [$targetSection];
     }
     
     /**
-     * Build export data for a single section
+     * Find a section in hierarchical structure recursively
      * 
-     * @param Section $section The section to export
-     * @return array Complete section data
+     * @param array $sections Hierarchical sections array
+     * @param int $sectionId The section ID to find
+     * @return array|null The found section with its children, or null if not found
      */
-    private function buildSingleSectionExportData(Section $section): array
+    private function findSectionInHierarchy(array $sections, int $sectionId): ?array
     {
-        $sectionData = [
-            'name' => $section->getName(),
-            'style_name' => $section->getStyle() ? $section->getStyle()->getName() : null,
-            'fields' => [],
-            'children' => []
-        ];
-        
-        // Get style and its fields configuration
-        $style = $section->getStyle();
-        if (!$style) {
-            return $sectionData;
-        }
-        
-        // Get all style fields for this style
-        $stylesFields = $this->stylesFieldRepository->findBy(['style' => $style]);
-        
-        // Get all translations for this section
-        $translations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
-            ->findBy(['section' => $section]);
-        
-        // Group translations by field
-        $translationsByField = [];
-        foreach ($translations as $translation) {
-            $fieldId = $translation->getField() ? $translation->getField()->getId() : $translation->getIdFields();
-            if (!isset($translationsByField[$fieldId])) {
-                $translationsByField[$fieldId] = [];
+        foreach ($sections as $section) {
+            if ($section['id'] == $sectionId) {
+                return $section;
             }
-            $translationsByField[$fieldId][] = $translation;
+            
+            // Search in children recursively
+            if (!empty($section['children'])) {
+                $found = $this->findSectionInHierarchy($section['children'], $sectionId);
+                if ($found !== null) {
+                    return $found;
+                }
+            }
         }
         
-        // Build fields data with complete information
-        foreach ($stylesFields as $stylesField) {
-            $field = $stylesField->getField();
-            if (!$field) {
+        return null;
+    }
+    
+    /**
+     * Add field translations to sections recursively (modular method)
+     * Only exports field names with their values - minimal data needed for import
+     * 
+     * @param array &$sections Hierarchical sections array (passed by reference)
+     */
+    private function addFieldTranslationsToSections(array &$sections): void
+    {
+        foreach ($sections as &$section) {
+            $sectionId = $section['id'] ?? null;
+            if (!$sectionId) {
                 continue;
             }
             
-            $fieldData = [
-                'name' => $field->getName(),
-                'type' => $field->getType() ? $field->getType()->getName() : null,
-                'display' => $field->isDisplay(),
-                'default_value' => $stylesField->getDefaultValue(),
-                'help' => $stylesField->getHelp(),
-                'disabled' => $stylesField->isDisabled(),
-                'hidden' => $stylesField->getHidden(),
-                'translations' => []
+            // Clean up section structure - keep only essential fields
+            $cleanSection = [
+                'name' => $section['name'] ?? '',
+                'style_name' => $section['style_name'] ?? null,
+                'children' => [],
+                'fields' => []
             ];
             
-            // Add translations for this field
-            $fieldId = $field->getId();
-            if (isset($translationsByField[$fieldId])) {
-                foreach ($translationsByField[$fieldId] as $translation) {
-                    $language = $translation->getLanguage();
-                    $gender = $translation->getGender();
-                    
-                    if ($language) {
-                        $fieldData['translations'][] = [
-                            'locale' => $language->getLocale(),
-                            'gender' => $gender ? $gender->getName() : 'default',
-                            'content' => $translation->getContent(),
-                            'meta' => $translation->getMeta()
-                        ];
-                    }
+            // Get all translations for this section
+            $translations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                ->createQueryBuilder('t')
+                ->leftJoin('t.field', 'f')
+                ->leftJoin('t.language', 'l')
+                ->where('t.section = :sectionId')
+                ->setParameter('sectionId', $sectionId)
+                ->getQuery()
+                ->getResult();
+            
+            // Build minimal fields data - only field names with values (no gender)
+            $fields = [];
+            foreach ($translations as $translation) {
+                $field = $translation->getField();
+                $language = $translation->getLanguage();
+                
+                if (!$field || !$language) {
+                    continue;
                 }
+                
+                $fieldName = $field->getName();
+                $locale = $language->getLocale();
+                
+                // Initialize field if not exists
+                if (!isset($fields[$fieldName])) {
+                    $fields[$fieldName] = [];
+                }
+                
+                // Store translation by locale only (no gender)
+                $fields[$fieldName][$locale] = [
+                    'content' => $translation->getContent(),
+                    'meta' => $translation->getMeta()
+                ];
             }
             
-            $sectionData['fields'][] = $fieldData;
-        }
-        
-        return $sectionData;
-    }
-    
-    /**
-     * Build hierarchical structure from flat sections data
-     * 
-     * @param array $allSectionsData All sections data indexed by ID
-     * @param array $hierarchyMap Hierarchy relationships
-     * @param array $rootSectionIds Root level section IDs
-     * @param array $pagePositions Page positions for root sections
-     * @return array Hierarchical structure
-     */
-    private function buildHierarchicalStructure(array $allSectionsData, array $hierarchyMap, array $rootSectionIds, array $pagePositions = []): array
-    {
-        $result = [];
-        
-        // Find root sections (sections that are not children of any other section in our export)
-        $childSectionIds = [];
-        foreach ($hierarchyMap as $children) {
-            foreach ($children as $child) {
-                $childSectionIds[] = $child['id'];
-            }
-        }
-        
-        $actualRootIds = array_diff($rootSectionIds, $childSectionIds);
-        
-        // Sort root sections by page position if available
-        if (!empty($pagePositions)) {
-            usort($actualRootIds, function($a, $b) use ($pagePositions) {
-                $posA = $pagePositions[$a] ?? 0;
-                $posB = $pagePositions[$b] ?? 0;
-                return $posA <=> $posB;
-            });
-        }
-        
-        // Build structure for each root section
-        foreach ($actualRootIds as $rootId) {
-            if (isset($allSectionsData[$rootId])) {
-                $sectionData = $allSectionsData[$rootId];
-                if (isset($pagePositions[$rootId])) {
-                    $sectionData['position'] = $pagePositions[$rootId];
-                }
-                $sectionData['children'] = $this->buildChildrenStructure($rootId, $allSectionsData, $hierarchyMap);
-                $result[] = $sectionData;
-            }
-        }
-        
-        return $result;
-    }
-    
-    /**
-     * Build children structure recursively
-     * 
-     * @param int $parentId Parent section ID
-     * @param array $allSectionsData All sections data
-     * @param array $hierarchyMap Hierarchy relationships
-     * @return array Children structure
-     */
-    private function buildChildrenStructure(int $parentId, array $allSectionsData, array $hierarchyMap): array
-    {
-        $children = [];
-        
-        if (isset($hierarchyMap[$parentId])) {
-            // Sort children by position
-            usort($hierarchyMap[$parentId], function($a, $b) {
-                return ($a['position'] ?? 0) <=> ($b['position'] ?? 0);
-            });
+            // Add fields to clean section
+            $cleanSection['fields'] = $fields;
             
-            foreach ($hierarchyMap[$parentId] as $child) {
-                $childId = $child['id'];
-                if (isset($allSectionsData[$childId])) {
-                    $childData = $allSectionsData[$childId];
-                    $childData['position'] = $child['position'];
-                    $childData['children'] = $this->buildChildrenStructure($childId, $allSectionsData, $hierarchyMap);
-                    $children[] = $childData;
-                }
+            // Process children recursively
+            if (!empty($section['children'])) {
+                $this->addFieldTranslationsToSections($section['children']);
+                $cleanSection['children'] = $section['children'];
             }
+            
+            // Replace the section with clean version
+            $section = $cleanSection;
         }
-        
-        return $children;
     }
     
     /**
@@ -1235,9 +1107,9 @@ class AdminSectionService extends UserContextAwareService
             $this->entityManager->persist($section);
             $this->entityManager->flush();
             
-            // Import fields and translations
+            // Import fields and translations using new simplified format
             if (isset($sectionData['fields']) && is_array($sectionData['fields'])) {
-                $this->importSectionFields($section, $sectionData['fields']);
+                $this->importSectionFieldsSimplified($section, $sectionData['fields']);
             }
             
             // Get position from data or use auto-increment
@@ -1307,144 +1179,79 @@ class AdminSectionService extends UserContextAwareService
         
         return $importedSections;
     }
+
     
     /**
-     * Import section fields and translations
+     * Import section fields using simplified format (modular method)
+     * Only processes field names with their values - minimal data needed (no gender)
      * 
      * @param Section $section The section to import fields for
-     * @param array $fieldsData The fields data to import
+     * @param array $fieldsData The simplified fields data to import
      */
-    private function importSectionFields(Section $section, array $fieldsData): void
+    private function importSectionFieldsSimplified(Section $section, array $fieldsData): void
     {
-        $style = $section->getStyle();
-        if (!$style) {
-            return;
-        }
-        
-        foreach ($fieldsData as $fieldData) {
-            $fieldName = $fieldData['name'] ?? null;
-            if (!$fieldName) {
-                continue;
-            }
-            
-            // Find or create field
+        foreach ($fieldsData as $fieldName => $localeData) {
+            // Find field by name
             $field = $this->entityManager->getRepository(Field::class)
                 ->findOneBy(['name' => $fieldName]);
             
             if (!$field) {
-                // Create new field if it doesn't exist
-                $field = new Field();
-                $field->setName($fieldName);
-                $field->setDisplay($fieldData['display'] ?? true);
+                // Skip fields that don't exist in the system
+                continue;
+            }
+            
+            // Process each locale
+            foreach ($localeData as $locale => $translationData) {
+                // Find language by locale
+                $language = $this->entityManager->getRepository(\App\Entity\Language::class)
+                    ->findOneBy(['locale' => $locale]);
                 
-                // Set field type if provided
-                if (isset($fieldData['type'])) {
-                    $fieldType = $this->entityManager->getRepository(FieldType::class)
-                        ->findOneBy(['name' => $fieldData['type']]);
-                    
-                    if ($fieldType) {
-                        $field->setType($fieldType);
-                    }
+                if (!$language) {
+                    // Skip translations for languages that don't exist
+                    continue;
                 }
                 
-                $this->entityManager->persist($field);
-                $this->entityManager->flush();
-            }
-            
-            // Create or update StylesField relationship if it doesn't exist
-            $stylesField = $this->stylesFieldRepository->findOneBy([
-                'style' => $style,
-                'field' => $field
-            ]);
-            
-            if (!$stylesField) {
-                $stylesField = new StylesField();
-                $stylesField->setStyle($style);
-                $stylesField->setField($field);
-            }
-            
-            // Update StylesField properties from import data
-            if (isset($fieldData['default_value'])) {
-                $stylesField->setDefaultValue($fieldData['default_value']);
-            }
-            if (isset($fieldData['help'])) {
-                $stylesField->setHelp($fieldData['help']);
-            }
-            if (isset($fieldData['disabled'])) {
-                $stylesField->setDisabled($fieldData['disabled']);
-            }
-            if (isset($fieldData['hidden'])) {
-                $stylesField->setHidden($fieldData['hidden']);
-            }
-            
-            $this->entityManager->persist($stylesField);
-            
-            // Import translations
-            if (isset($fieldData['translations']) && is_array($fieldData['translations'])) {
-                foreach ($fieldData['translations'] as $translationData) {
-                    $locale = $translationData['locale'] ?? null;
-                    $genderCode = $translationData['gender'] ?? 'default';
-                    $content = $translationData['content'] ?? '';
-                    $meta = $translationData['meta'] ?? null;
-                    
-                    if (!$locale) {
-                        continue;
+                // Use default gender (ID 1) since gender is being removed
+                $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
+                    ->find(1);
+                
+                $content = $translationData['content'] ?? '';
+                $meta = $translationData['meta'] ?? null;
+                
+                // Check if translation already exists
+                $existingTranslation = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                    ->findOneBy([
+                        'section' => $section,
+                        'field' => $field,
+                        'language' => $language,
+                        'gender' => $gender
+                    ]);
+                
+                if ($existingTranslation) {
+                    // Update existing translation
+                    $existingTranslation->setContent($content);
+                    if ($meta !== null) {
+                        $existingTranslation->setMeta($meta);
+                    }
+                } else {
+                    // Create new translation
+                    $translation = new SectionsFieldsTranslation();
+                    $translation->setSection($section);
+                    $translation->setField($field);
+                    $translation->setLanguage($language);
+                    $translation->setGender($gender);
+                    $translation->setContent($content);
+                    if ($meta !== null) {
+                        $translation->setMeta($meta);
                     }
                     
-                    // Find language by locale
-                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)
-                        ->findOneBy(['locale' => $locale]);
+                    // Also set the ID fields for backward compatibility
+                    $translation->setIdSections($section->getId());
+                    $translation->setIdFields($field->getId());
+                    $translation->setIdLanguages($language->getId());
+                    $translation->setIdGenders($gender->getId());
                     
-                    if (!$language) {
-                        // Skip translations for languages that don't exist
-                        continue;
-                    }
-                    
-                    // Find gender by name
-                    $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
-                        ->findOneBy(['name' => $genderCode]);
-                    
-                    if (!$gender) {
-                        // Use default gender if not found
-                        $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
-                            ->find(1);
-                    }
-                    
-                    // Check if translation already exists
-                    $existingTranslation = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
-                        ->findOneBy([
-                            'section' => $section,
-                            'field' => $field,
-                            'language' => $language,
-                            'gender' => $gender
-                        ]);
-                    
-                    if ($existingTranslation) {
-                        // Update existing translation
-                        $existingTranslation->setContent($content);
-                        if ($meta !== null) {
-                            $existingTranslation->setMeta($meta);
-                        }
-                    } else {
-                        // Create new translation
-                        $translation = new SectionsFieldsTranslation();
-                        $translation->setSection($section);
-                        $translation->setField($field);
-                        $translation->setLanguage($language);
-                        $translation->setGender($gender);
-                        $translation->setContent($content);
-                        if ($meta !== null) {
-                            $translation->setMeta($meta);
-                        }
-                        
-                        // Also set the ID fields for backward compatibility
-                        $translation->setIdSections($section->getId());
-                        $translation->setIdFields($field->getId());
-                        $translation->setIdLanguages($language->getId());
-                        $translation->setIdGenders($gender->getId());
-                        
-                        $this->entityManager->persist($translation);
-                    }
+                    $this->entityManager->persist($translation);
                 }
             }
         }

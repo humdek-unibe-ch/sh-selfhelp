@@ -22,43 +22,39 @@ The section export/import system provides 4 main API endpoints:
 **Response Format:**
 ```json
 {
-  "data": {
-    "sectionsData": [
-      {
-        "name": "Header Section",
-        "style_name": "header",
-        "position": 1,
-        "fields": [
-          {
-            "name": "title",
-            "type": "text",
-            "display": true,
-            "default_value": "",
-            "help": "Enter the title",
-            "disabled": false,
-            "hidden": false,
-            "translations": [
-              {
-                "locale": "en",
-                "gender": "default",
-                "content": "Welcome Title",
+  "data": [
+    {
+      "name": "Header Section",
+      "style_name": "header",
+      "fields": {
+        "title": {
+          "en": {
+            "content": "Welcome Title",
+            "meta": null
+          },
+          "de-CH": {
+            "content": "Willkommen Titel",
+            "meta": null
+          }
+        }
+      },
+      "children": [
+        {
+          "name": "Sub Section",
+          "style_name": "content",
+          "fields": {
+            "content": {
+              "en": {
+                "content": "Sub content here",
                 "meta": null
               }
-            ]
-          }
-        ],
-        "children": [
-          {
-            "name": "Sub Section",
-            "style_name": "content",
-            "position": 1,
-            "fields": [...],
-            "children": []
-          }
-        ]
-      }
-    ]
-  }
+            }
+          },
+          "children": []
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -81,26 +77,18 @@ The section export/import system provides 4 main API endpoints:
     {
       "name": "Imported Section",
       "style_name": "header",
-      "position": 1,
-      "fields": [
-        {
-          "name": "title",
-          "type": "text",
-          "display": true,
-          "default_value": "",
-          "help": "Enter the title",
-          "disabled": false,
-          "hidden": false,
-          "translations": [
-            {
-              "locale": "en",
-              "gender": "default",
-              "content": "Imported Title",
-              "meta": null
-            }
-          ]
+      "fields": {
+        "title": {
+          "en": {
+            "content": "Imported Title",
+            "meta": null
+          },
+          "de-CH": {
+            "content": "Importierter Titel",
+            "meta": null
+          }
         }
-      ],
+      },
       "children": []
     }
   ]
@@ -115,8 +103,7 @@ The section export/import system provides 4 main API endpoints:
       {
         "id": 123,
         "name": "Imported Section",
-        "style_name": "header",
-        "position": 1
+        "style_name": "header"
       }
     ]
   }
@@ -137,14 +124,13 @@ The section export/import system provides 4 main API endpoints:
 - **Import**: Automatically resolves style names and language locales to their corresponding database IDs
 - **Error Handling**: Logs warnings for missing styles/languages but continues import process
 
-### 2. Complete Field Information
+### 2. Minimal Field Information
 
-The export includes comprehensive field configuration:
-- Field name and type
-- Display flag (content vs property field)
-- Default value, help text
-- Disabled and hidden flags
-- All translations with locale, gender, content, and meta data
+The export includes only essential data needed for import:
+- Field name with translations by locale
+- Content and meta data for each translation
+- No field metadata (type, display, default_value, help, etc.) - these are defined in the database
+- No gender information - simplified to locale-only structure
 
 ### 3. Hierarchical Structure
 
@@ -161,7 +147,7 @@ The export includes comprehensive field configuration:
 ### 5. Translation Support
 
 - Exports all translations for each field
-- Groups by locale and gender
+- Groups by locale only (gender removed for simplification)
 - Includes meta data for advanced field configurations
 - Handles both content fields (display=true) and property fields (display=false)
 

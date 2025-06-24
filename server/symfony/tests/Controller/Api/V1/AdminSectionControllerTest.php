@@ -828,20 +828,19 @@ class AdminSectionControllerTest extends BaseControllerTest
             
             $responseData = json_decode($response->getContent(), true);
             $this->assertArrayHasKey('data', $responseData);
-            $this->assertArrayHasKey('sectionsData', $responseData['data']);
-            $this->assertIsArray($responseData['data']['sectionsData']);
+            $this->assertIsArray($responseData['data']);
             
-            // Check if our created section is in the export
-            $sectionsData = $responseData['data']['sectionsData'];
+            // Check if our created section is in the export (now directly in data array)
+            $sectionsData = $responseData['data'];
             $this->assertNotEmpty($sectionsData, 'Export should contain at least one section');
             
-            // Verify the structure of exported sections
+            // Verify the structure of exported sections (simplified format)
             foreach ($sectionsData as $sectionData) {
                 $this->assertArrayHasKey('name', $sectionData);
                 $this->assertArrayHasKey('style_name', $sectionData);
                 $this->assertArrayHasKey('fields', $sectionData);
                 $this->assertArrayHasKey('children', $sectionData);
-                $this->assertIsArray($sectionData['fields']);
+                $this->assertIsArray($sectionData['fields']); // Now contains field_name => locale => gender => {content, meta}
                 $this->assertIsArray($sectionData['children']);
             }
             
@@ -897,19 +896,18 @@ class AdminSectionControllerTest extends BaseControllerTest
             
             $responseData = json_decode($response->getContent(), true);
             $this->assertArrayHasKey('data', $responseData);
-            $this->assertArrayHasKey('sectionsData', $responseData['data']);
-            $this->assertIsArray($responseData['data']['sectionsData']);
+            $this->assertIsArray($responseData['data']);
             
-            $sectionsData = $responseData['data']['sectionsData'];
+            $sectionsData = $responseData['data'];
             $this->assertNotEmpty($sectionsData, 'Export should contain the section');
             
-            // Verify the structure of the exported section
+            // Verify the structure of the exported section (simplified format)
             $sectionData = $sectionsData[0];
             $this->assertArrayHasKey('name', $sectionData);
             $this->assertArrayHasKey('style_name', $sectionData);
             $this->assertArrayHasKey('fields', $sectionData);
             $this->assertArrayHasKey('children', $sectionData);
-            $this->assertIsArray($sectionData['fields']);
+            $this->assertIsArray($sectionData['fields']); // Now contains field_name => locale => gender => {content, meta}
             $this->assertIsArray($sectionData['children']);
             
         } finally {
@@ -934,27 +932,16 @@ class AdminSectionControllerTest extends BaseControllerTest
         $token = $this->getAdminAccessToken();
         $pageKeyword = self::TEST_PAGE_KEYWORD;
         
-        // Prepare test sections data for import
+        // Prepare test sections data for import (simplified format - no gender)
         $sectionsData = [
             [
                 'name' => 'Imported Test Section',
                 'style_name' => 'header', // Assuming this style exists
                 'fields' => [
-                    [
-                        'name' => 'title',
-                        'type' => 'text',
-                        'display' => true,
-                        'default_value' => '',
-                        'help' => '',
-                        'disabled' => false,
-                        'hidden' => false,
-                        'translations' => [
-                            [
-                                'locale' => 'en',
-                                'gender' => 'default',
-                                'content' => 'Test Title',
-                                'meta' => null
-                            ]
+                    'title' => [
+                        'en' => [
+                            'content' => 'Test Title',
+                            'meta' => null
                         ]
                     ]
                 ],
