@@ -238,6 +238,26 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'parent_section_id', '[0-9]+'
 ), NULL),
 
+-- Section Export/Import routes
+('admin_sections_export_page', 'v1', '/admin/pages/{page_keyword}/sections/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportPageSections', 'GET', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+'
+), NULL),
+('admin_sections_export_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportSection', 'GET', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
+    'section_id', '[0-9]+'
+), NULL),
+('admin_sections_import_to_page', 'v1', '/admin/pages/{page_keyword}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+'
+), JSON_OBJECT(
+    'sections', JSON_OBJECT('in', 'body', 'required', true)
+)),
+('admin_sections_import_to_section', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
+    'parent_section_id', '[0-9]+'
+), JSON_OBJECT(
+    'sections', JSON_OBJECT('in', 'body', 'required', true)
+)),
+
 -- Public pages route
 ('pages_get_all', 'v1', '/pages', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', NULL, NULL),
 ('pages_get_one', 'v1', '/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', NULL, NULL),

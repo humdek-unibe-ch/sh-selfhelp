@@ -6,9 +6,11 @@ use App\Service\CMS\Admin\AdminSectionService;
 use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
+use App\Service\CMS\Common\SectionUtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminSectionController extends AbstractController
 {
@@ -17,7 +19,8 @@ class AdminSectionController extends AbstractController
     public function __construct(
         private readonly AdminSectionService $adminSectionService,
         private readonly ApiResponseFormatter $apiResponseFormatter,
-        private readonly JsonSchemaValidationService $jsonSchemaValidationService
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService,
+        private readonly SectionUtilityService $sectionUtilityService
     ) {}
 
     /**
@@ -145,6 +148,122 @@ class AdminSectionController extends AbstractController
                     'languages' => $sectionWithFields['languages'],
                 ],
                 'responses/admin/section',
+                Response::HTTP_OK
+            );
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    
+    /**
+     * Export all sections of a given page (including all nested sections) as JSON
+     * 
+     * @param string $page_keyword The keyword of the page to export sections from
+     * @return Response JSON response with all page sections
+     */
+    public function exportPageSections(string $page_keyword): Response
+    {
+        try {
+            $sectionsData = $this->adminSectionService->exportPageSections($page_keyword);
+            
+            return $this->apiResponseFormatter->formatSuccess(
+                ['sectionsData' => $sectionsData],
+                null,
+                Response::HTTP_OK
+            );
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    
+    /**
+     * Export a selected section (and all of its nested children) as JSON
+     * 
+     * @param string $page_keyword The keyword of the page containing the section
+     * @param int $section_id The ID of the section to export
+     * @return Response JSON response with the section and its children
+     */
+    public function exportSection(string $page_keyword, int $section_id): Response
+    {
+        try {
+            $sectionData = $this->adminSectionService->exportSection($page_keyword, $section_id);
+            
+            return $this->apiResponseFormatter->formatSuccess(
+                ['sectionsData' => $sectionData],
+                null,
+                Response::HTTP_OK
+            );
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    
+    /**
+     * Import sections from JSON into a target page
+     * 
+     * @param Request $request The request containing the sections JSON data
+     * @param string $page_keyword The keyword of the target page
+     * @return Response JSON response with the result of the import operation
+     */
+    public function importSectionsToPage(Request $request, string $page_keyword): Response
+    {
+        try {
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/section/import_sections', $this->jsonSchemaValidationService);
+            
+            // Import the sections
+            $result = $this->adminSectionService->importSectionsToPage($page_keyword, $data['sections']);
+            
+            return $this->apiResponseFormatter->formatSuccess(
+                ['importedSections' => $result],
+                null,
+                Response::HTTP_OK
+            );
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    
+    /**
+     * Import sections from JSON into a specific section
+     * 
+     * @param Request $request The request containing the sections JSON data
+     * @param string $page_keyword The keyword of the target page
+     * @param int $parent_section_id The ID of the parent section to import into
+     * @return Response JSON response with the result of the import operation
+     */
+    public function importSectionsToSection(Request $request, string $page_keyword, int $parent_section_id): Response
+    {
+        try {
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/section/import_sections', $this->jsonSchemaValidationService);
+            
+            // Import the sections
+            $result = $this->adminSectionService->importSectionsToSection($page_keyword, $parent_section_id, $data['sections']);
+            
+            return $this->apiResponseFormatter->formatSuccess(
+                ['importedSections' => $result],
+                null,
                 Response::HTTP_OK
             );
         } catch (\App\Exception\ServiceException $e) {

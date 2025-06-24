@@ -57,6 +57,7 @@ VALUES
   ('admin.page.update',   'Can edit existing pages'),
   ('admin.page.delete',   'Can delete pages'),
   ('admin.page.insert',   'Can insert content into pages'),
+  ('admin.page.export',   'Can export sections from pages'),
   ('admin.settings',   'Full access to CMS settings');
 
 -- 3) Grant those permissions to the admin role
@@ -242,6 +243,26 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'parent_section_id', '[0-9]+'
 ), NULL),
 
+-- Section Export/Import routes
+('admin_sections_export_page', 'v1', '/admin/pages/{page_keyword}/sections/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportPageSections', 'GET', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+'
+), NULL),
+('admin_sections_export_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportSection', 'GET', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
+    'section_id', '[0-9]+'
+), NULL),
+('admin_sections_import_to_page', 'v1', '/admin/pages/{page_keyword}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+'
+), JSON_OBJECT(
+    'sections', JSON_OBJECT('in', 'body', 'required', true)
+)),
+('admin_sections_import_to_section', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
+    'page_keyword', '[a-zA-Z0-9_-]+',
+    'parent_section_id', '[0-9]+'
+), JSON_OBJECT(
+    'sections', JSON_OBJECT('in', 'body', 'required', true)
+)),
+
 -- Public pages route
 ('pages_get_all', 'v1', '/pages', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', NULL, NULL),
 ('pages_get_one', 'v1', '/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', NULL, NULL),
@@ -322,6 +343,17 @@ JOIN `permissions`   AS p
   ON p.`name` = 'admin.settings'
 WHERE ar.`route_name` IN (
   'admin_languages_get_all','admin_languages_get_one','admin_languages_create','admin_languages_update', 'admin_languages_delete'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.page.export'
+WHERE ar.`route_name` IN (
+  'admin_sections_export_page','admin_sections_export_section','admin_sections_import_to_page','admin_sections_import_to_section'
 );
 
 -- give role admin to all users who had group admins

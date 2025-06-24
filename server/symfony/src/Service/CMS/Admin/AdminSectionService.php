@@ -806,4 +806,430 @@ class AdminSectionService extends UserContextAwareService
         }
     }
 
+    /**
+     * Export all sections of a given page (including all nested sections) as JSON
+     * 
+     * @param string $page_keyword The keyword of the page to export sections from
+     * @return array JSON-serializable array with all page sections
+     * @throws ServiceException If page not found or access denied
+     */
+    public function exportPageSections(string $page_keyword): array
+    {
+        // Permission check
+        $this->checkAccess($page_keyword, 'select');
+        
+        // Get the page
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
+        // Get all sections for this page
+        $pageSections = $this->entityManager->getRepository(PagesSection::class)
+            ->findBy(['page' => $page]);
+        
+        if (empty($pageSections)) {
+            return [];
+        }
+        
+        // Extract section IDs
+        $sectionIds = array_map(function($pageSection) {
+            return $pageSection->getSection()->getId();
+        }, $pageSections);
+        
+        // Build section hierarchy
+        $sectionsData = $this->buildSectionsExportData($sectionIds);
+        
+        return $sectionsData;
+    }
+    
+    /**
+     * Export a selected section (and all of its nested children) as JSON
+     * 
+     * @param string $page_keyword The keyword of the page containing the section
+     * @param int $section_id The ID of the section to export
+     * @return array JSON-serializable array with the section and its children
+     * @throws ServiceException If section not found or access denied
+     */
+    public function exportSection(string $page_keyword, int $section_id): array
+    {
+        // Permission check
+        $this->checkAccess($page_keyword, 'select');
+        $this->checkSectionInPage($page_keyword, $section_id);
+        
+        // Get the section
+        $section = $this->sectionRepository->find($section_id);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
+        }
+        
+        // Get all child sections recursively
+        $childSections = $this->getAllChildSections($section_id);
+        $sectionIds = array_merge([$section_id], $childSections);
+        
+        // Build section export data
+        $sectionsData = $this->buildSectionsExportData($sectionIds);
+        
+        return $sectionsData;
+    }
+    
+    /**
+     * Get all child section IDs recursively for a given section
+     * 
+     * @param int $sectionId The ID of the parent section
+     * @return array Array of child section IDs
+     */
+    private function getAllChildSections(int $sectionId): array
+    {
+        $childIds = [];
+        
+        // Get direct children
+        $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
+            ->findBy(['parentSection' => $sectionId]);
+        
+        foreach ($hierarchies as $hierarchy) {
+            $childId = $hierarchy->getChildSection()->getId();
+            $childIds[] = $childId;
+            
+            // Recursively get children of this child
+            $grandChildIds = $this->getAllChildSections($childId);
+            $childIds = array_merge($childIds, $grandChildIds);
+        }
+        
+        return $childIds;
+    }
+    
+    /**
+     * Build export data for sections
+     * 
+     * @param array $sectionIds Array of section IDs to export
+     * @return array JSON-serializable array with sections data
+     */
+    private function buildSectionsExportData(array $sectionIds): array
+    {
+        if (empty($sectionIds)) {
+            return [];
+        }
+        
+        $sectionsData = [];
+        
+        foreach ($sectionIds as $sectionId) {
+            $section = $this->sectionRepository->find($sectionId);
+            if (!$section) {
+                continue;
+            }
+            
+            // Get section data
+            $sectionData = [
+                'name' => $section->getName(),
+                'style_name' => $section->getStyle() ? $section->getStyle()->getName() : null,
+                'fields' => [],
+                'children' => []
+            ];
+            
+            // Get section fields and translations
+            $translations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
+                ->findBy(['section' => $section]);
+            
+            foreach ($translations as $translation) {
+                $field = $translation->getField();
+                $language = $translation->getLanguage();
+                $gender = $translation->getGender();
+                
+                if (!$field || !$language) {
+                    continue;
+                }
+                
+                $fieldName = $field->getName();
+                $locale = $language->getLocale();
+                $genderCode = $gender ? $gender->getName() : 'default';
+                
+                // Skip fields without names
+                if (empty($fieldName)) {
+                    continue;
+                }
+                
+                // Group fields by name, locale, and gender
+                if (!isset($sectionData['fields'][$fieldName])) {
+                    $sectionData['fields'][$fieldName] = [
+                        'type' => $field->getType() ? $field->getType()->getName() : null,
+                        'translations' => []
+                    ];
+                }
+                
+                $sectionData['fields'][$fieldName]['translations'][] = [
+                    'locale' => $locale,
+                    'gender' => $genderCode,
+                    'content' => $translation->getContent()
+                ];
+            }
+            
+            // Get child sections
+            $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
+                ->findBy(['parentSection' => $section]);
+            
+            $childSectionIds = [];
+            foreach ($hierarchies as $hierarchy) {
+                $childSectionIds[] = $hierarchy->getChildSection()->getId();
+            }
+            
+            // Add section data to result
+            $sectionsData[] = $sectionData;
+        }
+        
+        return $sectionsData;
+    }
+    
+    /**
+     * Import sections from JSON into a target page
+     * 
+     * @param string $page_keyword The keyword of the target page
+     * @param array $sectionsData The sections data to import
+     * @return array Result of the import operation
+     * @throws ServiceException If page not found or access denied
+     */
+    public function importSectionsToPage(string $page_keyword, array $sectionsData): array
+    {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
+        
+        // Get the page
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
+        // Start transaction
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $importedSections = $this->importSections($sectionsData, $page);
+            
+            // Commit transaction
+            $this->entityManager->commit();
+            
+            return $importedSections;
+        } catch (\Throwable $e) {
+            // Rollback transaction
+            $this->entityManager->rollback();
+            
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to import sections: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
+        }
+    }
+    
+    /**
+     * Import sections from JSON into a specific section
+     * 
+     * @param string $page_keyword The keyword of the target page
+     * @param int $parent_section_id The ID of the parent section to import into
+     * @param array $sectionsData The sections data to import
+     * @return array Result of the import operation
+     * @throws ServiceException If section not found or access denied
+     */
+    public function importSectionsToSection(string $page_keyword, int $parent_section_id, array $sectionsData): array
+    {
+        // Permission check
+        $this->checkAccess($page_keyword, 'update');
+        $this->checkSectionInPage($page_keyword, $parent_section_id);
+        
+        // Get the parent section
+        $parentSection = $this->sectionRepository->find($parent_section_id);
+        if (!$parentSection) {
+            $this->throwNotFound('Parent section not found');
+        }
+        
+        // Start transaction
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $importedSections = $this->importSections($sectionsData, null, $parentSection);
+            
+            // Commit transaction
+            $this->entityManager->commit();
+            
+            return $importedSections;
+        } catch (\Throwable $e) {
+            // Rollback transaction
+            $this->entityManager->rollback();
+            
+            throw $e instanceof ServiceException ? $e : new ServiceException(
+                'Failed to import sections: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous_exception' => $e->getMessage()]
+            );
+        }
+    }
+    
+    /**
+     * Import sections from JSON data
+     * 
+     * @param array $sectionsData The sections data to import
+     * @param Page|null $page The target page (if importing to page)
+     * @param Section|null $parentSection The parent section (if importing to section)
+     * @return array Result of the import operation
+     */
+    private function importSections(array $sectionsData, ?Page $page = null, ?Section $parentSection = null): array
+    {
+        $importedSections = [];
+        $position = 1;
+        
+        foreach ($sectionsData as $sectionData) {
+            // Create new section
+            $section = new Section();
+            $section->setName($sectionData['name'] ?? 'Imported Section');
+            
+            // Find style by name
+            $styleName = $sectionData['style_name'] ?? null;
+            if ($styleName) {
+                $style = $this->styleRepository->findOneBy(['name' => $styleName]);
+                if ($style) {
+                    $section->setStyle($style);
+                } else {
+                    // Log warning but continue with import
+                    $this->transactionService->logTransaction(
+                        \App\Service\Core\LookupService::TRANSACTION_TYPES_UPDATE, // Using update type for warnings
+                        \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                        'sections',
+                        0,
+                        (object) ['message' => "Style not found: {$styleName}", 'warning' => true],
+                        "Style not found during section import: {$styleName}"
+                    );
+                }
+            }
+            
+            // Persist section
+            $this->entityManager->persist($section);
+            $this->entityManager->flush();
+            
+            // Import fields and translations
+            if (isset($sectionData['fields']) && is_array($sectionData['fields'])) {
+                $this->importSectionFields($section, $sectionData['fields']);
+            }
+            
+            // Add section to page or parent section
+            if ($page) {
+                // Add to page
+                $pageSection = new PagesSection();
+                $pageSection->setPage($page);
+                $pageSection->setSection($section);
+                $pageSection->setPosition($position++);
+                
+                $this->entityManager->persist($pageSection);
+            } elseif ($parentSection) {
+                // Add to parent section
+                $sectionHierarchy = new SectionsHierarchy();
+                $sectionHierarchy->setParentSection($parentSection);
+                $sectionHierarchy->setChildSection($section);
+                $sectionHierarchy->setPosition($position++);
+                
+                $this->entityManager->persist($sectionHierarchy);
+            }
+            
+            $this->entityManager->flush();
+            
+            // Record the imported section
+            $importedSections[] = [
+                'id' => $section->getId(),
+                'name' => $section->getName(),
+                'style_name' => $styleName,
+                'position' => $position - 1
+            ];
+            
+            // Import child sections recursively if present
+            if (isset($sectionData['children']) && is_array($sectionData['children'])) {
+                $childResults = $this->importSections($sectionData['children'], null, $section);
+                $importedSections = array_merge($importedSections, $childResults);
+            }
+        }
+        
+        return $importedSections;
+    }
+    
+    /**
+     * Import section fields and translations
+     * 
+     * @param Section $section The section to import fields for
+     * @param array $fieldsData The fields data to import
+     */
+    private function importSectionFields(Section $section, array $fieldsData): void
+    {
+        foreach ($fieldsData as $fieldName => $fieldData) {
+            // Find or create field
+            $field = $this->entityManager->getRepository(Field::class)
+                ->findOneBy(['name' => $fieldName]);
+            
+            if (!$field) {
+                // Create new field if it doesn't exist
+                $field = new Field();
+                $field->setName($fieldName);
+                
+                // Set field type if provided
+                if (isset($fieldData['type'])) {
+                    $fieldType = $this->entityManager->getRepository(FieldType::class)
+                        ->findOneBy(['name' => $fieldData['type']]);
+                    
+                    if ($fieldType) {
+                        $field->setType($fieldType);
+                    }
+                }
+                
+                $this->entityManager->persist($field);
+                $this->entityManager->flush();
+            }
+            
+            // Import translations
+            if (isset($fieldData['translations']) && is_array($fieldData['translations'])) {
+                foreach ($fieldData['translations'] as $translationData) {
+                    $locale = $translationData['locale'] ?? null;
+                    $genderCode = $translationData['gender'] ?? 'default';
+                    $content = $translationData['content'] ?? '';
+                    
+                    if (!$locale) {
+                        continue;
+                    }
+                    
+                    // Find language by locale
+                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)
+                        ->findOneBy(['locale' => $locale]);
+                    
+                    if (!$language) {
+                        // Skip translations for languages that don't exist
+                        continue;
+                    }
+                    
+                    // Find gender by name
+                    $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
+                        ->findOneBy(['name' => $genderCode]);
+                    
+                    if (!$gender) {
+                        // Use default gender if not found
+                        $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
+                            ->find(1);
+                    }
+                    
+                    // Create translation
+                    $translation = new SectionsFieldsTranslation();
+                    $translation->setSection($section);
+                    $translation->setField($field);
+                    $translation->setLanguage($language);
+                    $translation->setGender($gender);
+                    $translation->setContent($content);
+                    
+                    // Also set the ID fields for backward compatibility
+                    $translation->setIdSections($section->getId());
+                    $translation->setIdFields($field->getId());
+                    $translation->setIdLanguages($language->getId());
+                    $translation->setIdGenders($gender->getId());
+                    
+                    $this->entityManager->persist($translation);
+                }
+            }
+        }
+        
+        $this->entityManager->flush();
+    }
 }
