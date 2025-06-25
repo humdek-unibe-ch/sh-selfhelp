@@ -530,10 +530,11 @@ class AdminSectionService extends UserContextAwareService
      * 
      * @param string $page_keyword The keyword of the target page
      * @param array $sectionsData The sections data to import
+     * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If page not found or access denied
      */
-    public function importSectionsToPage(string $page_keyword, array $sectionsData): array
+    public function importSectionsToPage(string $page_keyword, array $sectionsData, ?int $position = null): array
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
@@ -548,7 +549,10 @@ class AdminSectionService extends UserContextAwareService
         $this->entityManager->beginTransaction();
         
         try {
-            $importedSections = $this->importSections($sectionsData, $page);
+            $importedSections = $this->importSections($sectionsData, $page, null, $position);
+            
+            // Normalize positions after import
+            $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
             
             // Commit transaction
             $this->entityManager->commit();
@@ -572,10 +576,11 @@ class AdminSectionService extends UserContextAwareService
      * @param string $page_keyword The keyword of the target page
      * @param int $parent_section_id The ID of the parent section to import into
      * @param array $sectionsData The sections data to import
+     * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If section not found or access denied
      */
-    public function importSectionsToSection(string $page_keyword, int $parent_section_id, array $sectionsData): array
+    public function importSectionsToSection(string $page_keyword, int $parent_section_id, array $sectionsData, ?int $position = null): array
     {
         // Permission check
         $this->checkAccess($page_keyword, 'update');
@@ -591,7 +596,10 @@ class AdminSectionService extends UserContextAwareService
         $this->entityManager->beginTransaction();
         
         try {
-            $importedSections = $this->importSections($sectionsData, null, $parentSection);
+            $importedSections = $this->importSections($sectionsData, null, $parentSection, $position);
+            
+            // Normalize positions after import
+            $this->positionManagementService->normalizeSectionHierarchyPositions($parent_section_id, true);
             
             // Commit transaction
             $this->entityManager->commit();
@@ -615,16 +623,22 @@ class AdminSectionService extends UserContextAwareService
      * @param array $sectionsData The sections data to import
      * @param Page|null $page The target page (if importing to page)
      * @param Section|null $parentSection The parent section (if importing to section)
+     * @param int|null $globalPosition The global position for the first level of imported sections
      * @return array Result of the import operation
      */
-    private function importSections(array $sectionsData, ?Page $page = null, ?Section $parentSection = null): array
+    private function importSections(array $sectionsData, ?Page $page = null, ?Section $parentSection = null, ?int $globalPosition = null): array
     {
         $importedSections = [];
+        $currentPosition = $globalPosition;
         
-        foreach ($sectionsData as $sectionData) {
+        foreach ($sectionsData as $index => $sectionData) {
             // Create new section
             $section = new Section();
-            $section->setName($sectionData['name'] ?? 'Imported Section');
+            
+            // Add timestamp suffix to section name to ensure uniqueness
+            $timestamp = time();
+            $baseName = $sectionData['name'] ?? 'Imported Section';
+            $section->setName($baseName . '-' . $timestamp);
             
             // Find style by name
             $styleName = $sectionData['style_name'] ?? null;
@@ -654,8 +668,15 @@ class AdminSectionService extends UserContextAwareService
                 $this->importSectionFieldsSimplified($section, $sectionData['fields']);
             }
             
-            // Get position from data or use auto-increment
-            $position = $sectionData['position'] ?? null;
+            // Determine position for this section
+            $sectionPosition = null;
+            if ($currentPosition !== null) {
+                // Use the global position for the first section, then increment
+                $sectionPosition = $currentPosition + $index;
+            } else {
+                // Use section-specific position if provided, otherwise auto-assign
+                $sectionPosition = $sectionData['position'] ?? null;
+            }
             
             // Add section to page or parent section
             if ($page) {
@@ -666,8 +687,8 @@ class AdminSectionService extends UserContextAwareService
                 $pageSection->setSection($section);
                 $pageSection->setIdSections($section->getId());
                 
-                if ($position !== null) {
-                    $pageSection->setPosition($position);
+                if ($sectionPosition !== null) {
+                    $pageSection->setPosition($sectionPosition);
                 } else {
                     // Auto-assign position if not provided
                     $maxPosition = $this->entityManager->createQueryBuilder()
@@ -687,8 +708,8 @@ class AdminSectionService extends UserContextAwareService
                 $sectionHierarchy->setParentSection($parentSection);
                 $sectionHierarchy->setChildSection($section);
                 
-                if ($position !== null) {
-                    $sectionHierarchy->setPosition($position);
+                if ($sectionPosition !== null) {
+                    $sectionHierarchy->setPosition($sectionPosition);
                 } else {
                     // Auto-assign position if not provided
                     $maxPosition = $this->entityManager->createQueryBuilder()
@@ -711,7 +732,7 @@ class AdminSectionService extends UserContextAwareService
                 'id' => $section->getId(),
                 'name' => $section->getName(),
                 'style_name' => $styleName,
-                'position' => $position
+                'position' => $sectionPosition
             ];
             
             // Import child sections recursively if present

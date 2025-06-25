@@ -63,6 +63,10 @@
                 },
                 "required": ["name"]
             }
+        },
+        "position": {
+            "type": "integer",
+            "description": "The position where the sections should be inserted"
         }
     },
     "required": ["sections"]

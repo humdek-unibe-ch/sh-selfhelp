@@ -14,6 +14,9 @@ SET version = 'v8.0.0';
 -- - Meta data for translations
 -- - Recursive child section handling with proper position management
 -- - Enhanced error handling and validation for style and language resolution
+-- - Added position parameter support for section import operations
+-- - Section names now include timestamp suffix for uniqueness during import
+-- - Fixed PagesSection entity ID assignment issue for proper persistence
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS add_index //

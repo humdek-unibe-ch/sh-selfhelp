@@ -254,13 +254,15 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('admin_sections_import_to_page', 'v1', '/admin/pages/{page_keyword}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
     'page_keyword', '[a-zA-Z0-9_-]+'
 ), JSON_OBJECT(
-    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
+    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
+    'position', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
 )),
 ('admin_sections_import_to_section', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
     'page_keyword', '[a-zA-Z0-9_-]+',
     'parent_section_id', '[0-9]+'
 ), JSON_OBJECT(
-    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
+    'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
+    'position', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
 )),
 
 -- Public pages route

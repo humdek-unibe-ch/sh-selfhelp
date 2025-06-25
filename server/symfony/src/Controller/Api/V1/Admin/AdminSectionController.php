@@ -227,7 +227,11 @@ class AdminSectionController extends AbstractController
             $data = $this->validateRequest($request, 'requests/section/import_sections', $this->jsonSchemaValidationService);
             
             // Import the sections
-            $result = $this->adminSectionService->importSectionsToPage($page_keyword, $data['sections']);
+            $result = $this->adminSectionService->importSectionsToPage(
+                $page_keyword, 
+                $data['sections'], 
+                $data['position'] ?? null
+            );
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
@@ -259,7 +263,12 @@ class AdminSectionController extends AbstractController
             $data = $this->validateRequest($request, 'requests/section/import_sections', $this->jsonSchemaValidationService);
             
             // Import the sections
-            $result = $this->adminSectionService->importSectionsToSection($page_keyword, $parent_section_id, $data['sections']);
+            $result = $this->adminSectionService->importSectionsToSection(
+                $page_keyword, 
+                $parent_section_id, 
+                $data['sections'], 
+                $data['position'] ?? null
+            );
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
