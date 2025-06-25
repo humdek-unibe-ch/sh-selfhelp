@@ -2,16 +2,9 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\Field;
-use App\Entity\Language;
 use App\Entity\Page;
-use App\Entity\PageTypeField;
-use App\Entity\PagesFieldsTranslation;
-use App\Entity\User;
-use App\Entity\PagesSection;
-use App\Entity\Section;
-use App\Entity\SectionsHierarchy;
 use App\Entity\PageType;
+use App\Entity\PagesSection;
 use App\Exception\ServiceException;
 use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
@@ -20,6 +13,9 @@ use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\CMS\Admin\PositionManagementService;
+use App\Service\CMS\Admin\PageFieldService;
+use App\Service\CMS\Admin\SectionRelationshipService;
+use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
@@ -30,20 +26,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling page-related operations in the admin panel
+ * ENTITY RULE
  */
 class AdminPageService extends UserContextAwareService
 {
-    /************************* START ADMIN PAGES *************************/
-    /**
-     * CMS select page keyword
-     */
+    use TranslationManagerTrait;
 
     // ACL group name constants
     private const GROUP_ADMIN = 'admin';
     private const GROUP_SUBJECT = 'subject';
     private const GROUP_THERAPIST = 'therapist';
-
-    /************************* END ADMIN PAGES *************************/
 
     /**
      * Constructor
@@ -56,6 +48,8 @@ class AdminPageService extends UserContextAwareService
         private readonly TransactionService $transactionService,
         private readonly PositionManagementService $positionManagementService,
         private readonly SectionUtilityService $sectionUtilityService,
+        private readonly PageFieldService $pageFieldService,
+        private readonly SectionRelationshipService $sectionRelationshipService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -73,100 +67,7 @@ class AdminPageService extends UserContextAwareService
      */
     public function getPageWithFields(string $pageKeyword): array
     {
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-
-        if (!$page) {
-            $this->throwNotFound('Page not found');
-        }
-
-        // Check if user has access to the page
-        $this->checkAccess($pageKeyword, 'select');
-
-        // Get page type fields based on the page's type
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('ptf', 'f', 'ft')
-            ->from('App\Entity\PageTypeField', 'ptf')
-            ->innerJoin('ptf.field', 'f')
-            ->innerJoin('f.type', 'ft')
-            ->where('ptf.pageType = :pageTypeId')
-            ->setParameter('pageTypeId', $page->getPageType()->getId())
-            ->orderBy('f.name', 'ASC');
-
-        $pageTypeFields = $qb->getQuery()->getResult();
-
-        // Get page fields associated with this page
-        $pageFieldsMap = [];
-        $pageFields = $this->entityManager->getRepository(PageTypeField::class)->findBy(['pageType' => $page->getPageType()->getId()]);
-        foreach ($pageFields as $pageField) {
-            $pageFieldsMap[$pageField->getField()->getId()] = $pageField;
-        }
-
-        // Get all translations for this page's fields
-        $translationsMap = [];
-        $translations = $this->entityManager->getRepository(PagesFieldsTranslation::class)
-            ->findBy(['idPages' => $page->getId()]);
-
-        foreach ($translations as $translation) {
-            $fieldId = $translation->getIdFields();
-            $langId = $translation->getIdLanguages();
-            if (!isset($translationsMap[$fieldId])) {
-                $translationsMap[$fieldId] = [];
-            }
-            $translationsMap[$fieldId][$langId] = $translation;
-        }
-
-        // Format fields with translations
-        $formattedFields = [];
-        foreach ($pageTypeFields as $pageTypeField) {
-            $field = $pageTypeField->getField();
-            $fieldId = $field->getId();
-
-            // Get the pageField if it exists for this field
-            $pageField = $pageFieldsMap[$fieldId] ?? null;
-
-            $fieldData = [
-                'id' => $fieldId,
-                'name' => $field->getName(),
-                'type' => $field->getType() ? $field->getType()->getName() : null,
-                'default_value' => $pageField ? $pageField->getDefaultValue() : null,
-                'help' => $pageField ? $pageField->getHelp() : null,
-                'display' => $field->isDisplay(),  // Whether it's a content field (1) or property field (0)
-                'translations' => []
-            ];
-
-            // Handle translations based on display flag
-            if ($field->isDisplay()) {
-                // Content field (display=1) - can have translations for each language
-                if (isset($translationsMap[$fieldId])) {
-                    foreach ($translationsMap[$fieldId] as $translation) {
-                        $language = $translation->getLanguage();
-                        $fieldData['translations'][] = [
-                            'language_id' => $language->getId(),
-                            'language_code' => $language->getLocale(),
-                            'content' => $translation->getContent()
-                        ];
-                    }
-                }
-            } else {
-                // Property field (display=0) - use language_id = 1 only
-                $propertyTranslation = $translationsMap[$fieldId][1] ?? null;
-                if ($propertyTranslation) {
-                    $fieldData['translations'][] = [
-                        'language_id' => 1,
-                        'language_code' => 'property',  // This is a property, not actually language-specific
-                        'content' => $propertyTranslation->getContent()
-                    ];
-                }
-            }
-
-            $formattedFields[] = $fieldData;
-        }
-
-        // Return page data with fields and their translations
-        return [
-            'page' => $page,
-            'fields' => $formattedFields
-        ];
+        return $this->pageFieldService->getPageWithFields($pageKeyword);
     }
 
     /**
@@ -485,49 +386,8 @@ class AdminPageService extends UserContextAwareService
                 }
             }
 
-            // Update field translations
-            foreach ($fields as $field) {
-                $fieldId = $field['fieldId'];
-                $languageId = $field['languageId'];
-                $content = $field['content'];
-
-                // Check if translation exists
-                $existingTranslation = $this->entityManager->getRepository(PagesFieldsTranslation::class)
-                    ->findOneBy([
-                        'idPages' => $page->getId(),
-                        'idFields' => $fieldId,
-                        'idLanguages' => $languageId
-                    ]);
-
-                if ($existingTranslation) {
-                    // Update existing translation
-                    $existingTranslation->setContent($content);
-                } else {
-                    // Create new translation
-                    $newTranslation = new PagesFieldsTranslation();
-                    $newTranslation->setIdPages($page->getId());
-                    $newTranslation->setIdFields($fieldId);
-                    $newTranslation->setIdLanguages($languageId);
-                    $newTranslation->setContent($content);
-
-                    // Also set the entity relationships
-                    $newTranslation->setPage($page);
-
-                    // Get the Field entity
-                    $field = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
-                    if ($field) {
-                        $newTranslation->setField($field);
-                    }
-
-                    // Get the Language entity
-                    $language = $this->entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
-                    if ($language) {
-                        $newTranslation->setLanguage($language);
-                    }
-
-                    $this->entityManager->persist($newTranslation);
-                }
-            }
+            // Update field translations using dedicated service
+            $this->pageFieldService->updatePageFields($page, $fields);
 
             // Flush all changes again
             $this->entityManager->flush();
@@ -637,66 +497,7 @@ class AdminPageService extends UserContextAwareService
      */
     public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
-        $this->entityManager->beginTransaction();
-        try {
-            // Find the page
-            $parentPage = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-            if (!$parentPage) {
-                $this->throwNotFound('Page not found');
-            }
-            
-            // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
-            
-            // Find the section
-            $childSection = $this->entityManager->getRepository(Section::class)->find($sectionId);
-            if (!$childSection) {
-                $this->throwNotFound('Section not found');
-            }
-            
-            // Remove old parent section relationship if needed
-            if ($oldParentSectionId !== null) {
-                $oldParentSection = $this->entityManager->getRepository(Section::class)->find($oldParentSectionId);
-                if ($oldParentSection) {
-                    $oldRelationship = $this->entityManager->getRepository(SectionsHierarchy::class)->findOneBy([
-                        'parentSection' => $oldParentSection,
-                        'childSection' => $childSection
-                    ]);
-                    if ($oldRelationship) {
-                        $this->entityManager->remove($oldRelationship);
-                        $this->entityManager->flush();
-                    }
-                }
-            }
-            
-            // For PagesSection, check for existing relationship
-            $existing = $this->entityManager->getRepository(PagesSection::class)
-                ->findOneBy(['page' => $parentPage, 'section' => $childSection]);
-            if ($existing) {
-                // Just update the position and normalize
-                $existing->setPosition($position);
-                // Do NOT flush yet, normalize first
-                $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
-                $this->entityManager->flush();
-                $this->entityManager->commit();
-                return $existing;
-            }
-            
-            $pageSection = new PagesSection();
-            $pageSection->setPage($parentPage);
-            $pageSection->setIdPages($parentPage->getId());
-            $pageSection->setSection($childSection);
-            $pageSection->setIdSections($childSection->getId());
-            $pageSection->setPosition($position);
-            $this->entityManager->persist($pageSection);
-            $this->entityManager->flush();
-            $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
-            $this->entityManager->commit();
-            return $pageSection;
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
-        }
+        return $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
     }
 
     /**
@@ -710,69 +511,6 @@ class AdminPageService extends UserContextAwareService
      */
     public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
     {
-        $this->entityManager->beginTransaction();
-        try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-            if (!$page) {
-                $this->throwNotFound('Page not found');
-            }
-
-            // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
-
-            // First, check if the section is directly associated with the page
-            $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
-            
-            if ($pageSection) {
-                // Direct page section - just remove the association
-                $this->entityManager->remove($pageSection);
-                $this->entityManager->flush();
-                $this->positionManagementService->normalizePageSectionPositions($page->getId());
-            } else {
-                // Not directly associated - check if it's a child section in the page hierarchy
-                $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
-                if (!$section) {
-                    $this->throwNotFound('Section not found');
-                }
-                
-                // Check if this section belongs to the page hierarchy (either directly or as a child)
-                $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-                $sectionIds = array_map(function($s) {
-                    return is_array($s) && isset($s['id']) ? (string)$s['id'] : null;
-                }, $flatSections);
-                
-                if (!in_array((string)$sectionId, $sectionIds, true)) {
-                    $this->throwNotFound('Section is not associated with this page.');
-                }
-                
-                // This is a child section that belongs to the page hierarchy - delete it completely
-                // Remove from pages_sections (if any)
-                $pagesSections = $this->entityManager->getRepository(PagesSection::class)->findBy(['section' => $section]);
-                foreach ($pagesSections as $ps) {
-                    $this->entityManager->remove($ps);
-                }
-
-                // Remove from sections_hierarchy as parent
-                $hierarchiesAsParent = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['parentSection' => $section]);
-                foreach ($hierarchiesAsParent as $hierarchy) {
-                    $this->entityManager->remove($hierarchy);
-                }
-
-                // Remove from sections_hierarchy as child
-                $hierarchiesAsChild = $this->entityManager->getRepository(SectionsHierarchy::class)->findBy(['childSection' => $section]);
-                foreach ($hierarchiesAsChild as $hierarchy) {
-                    $this->entityManager->remove($hierarchy);
-                }
-
-                // Finally remove the section itself
-                $this->entityManager->remove($section);
-                $this->entityManager->flush();
-            }
-
-            $this->entityManager->commit();
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
-            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to remove section from page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
-        }
+        $this->sectionRelationshipService->removeSectionFromPage($pageKeyword, $sectionId);
     }
 }

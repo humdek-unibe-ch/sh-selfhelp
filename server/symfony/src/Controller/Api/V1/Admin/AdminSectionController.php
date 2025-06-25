@@ -48,7 +48,7 @@ class AdminSectionController extends AbstractController
             parent_section_id: $parent_section_id,
             child_section_id: $data['childSectionId'],
             position: $data['position'],
-            oldParentPageId: $data['oldParentPageId'] ?? null,
+            oldParentPageKeyword: $data['oldParentPageId'] ?? null,
             oldParentSectionId: $data['oldParentSectionId'] ?? null
         );
 
