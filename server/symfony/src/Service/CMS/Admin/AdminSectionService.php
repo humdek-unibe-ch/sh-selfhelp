@@ -379,15 +379,54 @@ class AdminSectionService extends UserContextAwareService
         $targetSection = $this->findSectionInHierarchy($hierarchicalSections, $section_id);
         
         if (!$targetSection) {
-            $this->throwNotFound('Section not found in page hierarchy');
+            // If not found in hierarchy, create a basic structure from the section entity
+            $style = $section->getStyle();
+            $targetSection = [
+                'id' => $section->getId(),
+                'name' => $section->getName(),
+                'style_name' => $style ? $style->getName() : null,
+                'children' => $this->getChildrenSectionsForExport($page->getId(), $section_id)
+            ];
         }
         
         // Add field translations to the section subtree
-        $this->addFieldTranslationsToSections([$targetSection]);
+        $sectionsArray = [$targetSection];
+        $this->addFieldTranslationsToSections($sectionsArray);
         
-        return [$targetSection];
+        return $sectionsArray;
     }
     
+    /**
+     * Get children sections for export in hierarchical format
+     * 
+     * @param int $pageId The page ID
+     * @param int $parentSectionId The parent section ID
+     * @return array Array of child sections
+     */
+    private function getChildrenSectionsForExport(int $pageId, int $parentSectionId): array
+    {
+        // Get child sections using sections hierarchy
+        $childHierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
+            ->findBy(['parent' => $parentSectionId], ['position' => 'ASC']);
+        
+        $children = [];
+        foreach ($childHierarchies as $hierarchy) {
+            $childSection = $hierarchy->getChildSection();
+            if ($childSection) {
+                $style = $childSection->getStyle();
+                $childData = [
+                    'id' => $childSection->getId(),
+                    'name' => $childSection->getName(),
+                    'style_name' => $style ? $style->getName() : null,
+                    'children' => $this->getChildrenSectionsForExport($pageId, $childSection->getId())
+                ];
+                $children[] = $childData;
+            }
+        }
+        
+        return $children;
+    }
+
     /**
      * Find a section in hierarchical structure recursively
      * 
@@ -398,7 +437,8 @@ class AdminSectionService extends UserContextAwareService
     private function findSectionInHierarchy(array $sections, int $sectionId): ?array
     {
         foreach ($sections as $section) {
-            if ($section['id'] == $sectionId) {
+            // Use strict comparison to ensure type safety
+            if (isset($section['id']) && (int)$section['id'] === $sectionId) {
                 return $section;
             }
             
