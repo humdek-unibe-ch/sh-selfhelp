@@ -390,7 +390,9 @@ class SectionExportImportService extends UserContextAwareService
                 // Add to parent section
                 $sectionHierarchy = new SectionsHierarchy();
                 $sectionHierarchy->setParentSection($parentSection);
+                $sectionHierarchy->setParent($parentSection->getId());
                 $sectionHierarchy->setChildSection($section);
+                $sectionHierarchy->setChild($section->getId());
                 
                 if ($sectionPosition !== null) {
                     $sectionHierarchy->setPosition($sectionPosition);
