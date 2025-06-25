@@ -662,7 +662,9 @@ class AdminSectionService extends UserContextAwareService
                 // Add to page
                 $pageSection = new PagesSection();
                 $pageSection->setPage($page);
+                $pageSection->setIdPages($page->getId());
                 $pageSection->setSection($section);
+                $pageSection->setIdSections($section->getId());
                 
                 if ($position !== null) {
                     $pageSection->setPosition($position);
