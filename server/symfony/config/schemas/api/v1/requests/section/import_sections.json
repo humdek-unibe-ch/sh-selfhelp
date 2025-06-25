@@ -19,39 +19,35 @@
                         "description": "The name of the style to use for the section"
                     },
                     "fields": {
-                        "type": "object",
-                        "description": "Fields data for the section",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "description": "The name of the field type"
-                                },
-                                "translations": {
-                                    "type": "array",
-                                    "description": "Translations for the field",
-                                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "description": "Fields data for the section in simplified export format",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "description": "Field translations organized by locale",
+                                    "additionalProperties": {
                                         "type": "object",
                                         "properties": {
-                                            "locale": {
-                                                "type": "string",
-                                                "description": "The locale code of the language"
-                                            },
-                                            "gender": {
-                                                "type": "string",
-                                                "description": "The name of the gender"
-                                            },
                                             "content": {
                                                 "type": "string",
                                                 "description": "The translated content"
+                                            },
+                                            "meta": {
+                                                "type": ["string", "null"],
+                                                "description": "Additional metadata for the field"
                                             }
                                         },
-                                        "required": ["locale", "content"]
+                                        "required": ["content"]
                                     }
                                 }
+                            },
+                            {
+                                "type": "array",
+                                "description": "Empty array for sections without fields (backward compatibility)",
+                                "maxItems": 0
                             }
-                        }
+                        ]
                     },
                     "children": {
                         "type": "array",

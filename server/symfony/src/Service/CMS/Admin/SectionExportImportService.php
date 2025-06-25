@@ -249,7 +249,7 @@ class SectionExportImportService extends UserContextAwareService
                 'name' => $section['name'] ?? '',
                 'style_name' => $section['style_name'] ?? null,
                 'children' => [],
-                'fields' => []
+                'fields' => (object)[]
             ];
             
             // Get all translations for this section
@@ -287,8 +287,8 @@ class SectionExportImportService extends UserContextAwareService
                 ];
             }
             
-            // Add fields to clean section
-            $cleanSection['fields'] = $fields;
+            // Add fields to clean section - use object if empty to match JSON schema
+            $cleanSection['fields'] = empty($fields) ? (object)[] : $fields;
             
             // Process children recursively
             if (!empty($section['children'])) {
@@ -348,7 +348,7 @@ class SectionExportImportService extends UserContextAwareService
             $this->entityManager->flush();
             
             // Import fields and translations using new simplified format
-            if (isset($sectionData['fields']) && is_array($sectionData['fields'])) {
+            if (isset($sectionData['fields']) && is_array($sectionData['fields']) && !empty($sectionData['fields'])) {
                 $this->importSectionFieldsSimplified($section, $sectionData['fields']);
             }
             
