@@ -386,11 +386,18 @@ class AuthController extends AbstractController
             $user->setIdLanguages($languageId);
             $this->entityManager->flush();
 
+            // Generate new JWT token with updated language
+            $newToken = $this->jwtService->createToken($user);
+
+            // Get user language info for response
+            $userLanguageInfo = $this->getUserLanguageInfo($user);
+
             return $this->responseFormatter->formatSuccess([
                 'message' => 'User language updated successfully',
                 'language_id' => $languageId,
                 'language_locale' => $language->getLocale(),
-                'language_name' => $language->getLanguage()
+                'language_name' => $language->getLanguage(),
+                'access_token' => $newToken
             ], null, Response::HTTP_OK, true);
 
         } catch (\App\Exception\RequestValidationException $e) {
