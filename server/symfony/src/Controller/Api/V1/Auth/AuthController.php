@@ -40,6 +40,53 @@ class AuthController extends AbstractController
     ) {}
 
     /**
+     * Get user language information with fallback to CMS preferences
+     * 
+     * @param User $user
+     * @return array ['language_id' => int, 'language_locale' => string|null]
+     */
+    private function getUserLanguageInfo(\App\Entity\User $user): array
+    {
+        $userLanguageId = $user->getIdLanguages();
+        $userLanguageLocale = null;
+        
+        if ($userLanguageId) {
+            $userLanguage = $this->entityManager->getRepository('App\Entity\Language')->find($userLanguageId);
+            if ($userLanguage) {
+                $userLanguageLocale = $userLanguage->getLocale();
+            }
+        } else {
+            // User doesn't have language set, use CMS default
+            try {
+                $cmsPreference = $this->entityManager->getRepository('App\Entity\CmsPreference')->findOneBy([]);
+                if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                    $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
+                    $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
+                } else {
+                    // No CMS default language set, use fallback
+                    $userLanguageId = 2;
+                    $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                    if ($fallbackLanguage) {
+                        $userLanguageLocale = $fallbackLanguage->getLocale();
+                    }
+                }
+            } catch (\Exception $e) {
+                // If there's an error getting the default language, use fallback
+                $userLanguageId = 2;
+                $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                if ($fallbackLanguage) {
+                    $userLanguageLocale = $fallbackLanguage->getLocale();
+                }
+            }
+        }
+        
+        return [
+            'language_id' => $userLanguageId,
+            'language_locale' => $userLanguageLocale
+        ];
+    }
+
+    /**
      * Login endpoint
      * 
      * @route /auth/login
@@ -76,13 +123,18 @@ class AuthController extends AbstractController
             $token = $this->jwtService->createToken($user);
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
+            // Get user language with fallback to CMS preferences
+            $userLanguageInfo = $this->getUserLanguageInfo($user);
+
             return $this->responseFormatter->formatSuccess([
                 'access_token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
                 'user' => [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
-                    'name' => $user->getName()
+                    'name' => $user->getName(),
+                    'language_id' => $userLanguageInfo['language_id'],
+                    'language_locale' => $userLanguageInfo['language_locale']
                 ]
             ], 'responses/auth/login', Response::HTTP_OK, true);
         } catch (\App\Exception\RequestValidationException $e) {
@@ -139,13 +191,18 @@ class AuthController extends AbstractController
             $token = $this->jwtService->createToken($user);
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
+            // Get user language with fallback to CMS preferences
+            $userLanguageInfo = $this->getUserLanguageInfo($user);
+
             return $this->responseFormatter->formatSuccess([
                 'access_token' => $token,
                 'refresh_token' => $refreshToken->getTokenHash(),
                 'user' => [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
-                    'name' => $user->getName()
+                    'name' => $user->getName(),
+                    'language_id' => $userLanguageInfo['language_id'],
+                    'language_locale' => $userLanguageInfo['language_locale']
                 ]
             ], 'responses/auth/2fa_verify', Response::HTTP_OK, true);
         } catch (\App\Exception\RequestValidationException $e) {
@@ -288,6 +345,67 @@ class AuthController extends AbstractController
             ]);
             return $this->responseFormatter->formatError(
                 'An unexpected error occurred during logout.',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Set user language endpoint
+     * 
+     * @route /auth/set-language
+     * @method POST
+     */
+    public function setUserLanguage(Request $request): JsonResponse
+    {
+        try {
+            // Get the authenticated user
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->responseFormatter->formatError(
+                    'User not authenticated',
+                    Response::HTTP_UNAUTHORIZED
+                );
+            }
+
+            // Validate request against JSON schema
+            $data = $this->validateRequest($request, 'requests/auth/set_language', $this->jsonSchemaValidationService);
+
+            $languageId = (int) $data['language_id'];
+
+            // Validate that the language exists
+            $language = $this->entityManager->getRepository('App\Entity\Language')->find($languageId);
+            if (!$language) {
+                return $this->responseFormatter->formatError(
+                    'Invalid language ID',
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
+            // Update user's language
+            $user->setIdLanguages($languageId);
+            $this->entityManager->flush();
+
+            return $this->responseFormatter->formatSuccess([
+                'message' => 'User language updated successfully',
+                'language_id' => $languageId,
+                'language_locale' => $language->getLocale(),
+                'language_name' => $language->getLanguage()
+            ], null, Response::HTTP_OK, true);
+
+        } catch (\App\Exception\RequestValidationException $e) {
+            // Let the ApiExceptionListener handle this
+            throw $e;
+        } catch (\InvalidArgumentException $e) {
+            // Let the ApiExceptionListener handle this too
+            throw $e;
+        } catch (\Exception $e) {
+            $this->logger->error('Set user language error', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return $this->responseFormatter->formatError(
+                'An error occurred while setting user language.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }

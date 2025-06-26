@@ -38,13 +38,14 @@ class AdminPageController extends AbstractController
      * Get all pages for admin
      * 
      * @route /admin/pages
+     * @route /admin/pages/{language_id}
      * @method GET
      */
-    public function getPages(): JsonResponse
+    public function getPages(Request $request, ?int $language_id = null): JsonResponse
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB, $language_id);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_acl_page_definition',

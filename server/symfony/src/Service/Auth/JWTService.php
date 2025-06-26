@@ -44,13 +44,43 @@ class JWTService
         // Get permission names
         $permissionNames = $user->getPermissionNames();
         
+        // Determine user language with fallback to CMS preferences
+        $userLanguageId = $user->getIdLanguages();
+        $userLanguageLocale = null;
+        
+        if ($userLanguageId) {
+            // User has a language set, get the locale
+            $userLanguage = $this->entityManager->getRepository('App\Entity\Language')->find($userLanguageId);
+            if ($userLanguage) {
+                $userLanguageLocale = $userLanguage->getLocale();
+            }
+        } else {
+            // User doesn't have language set, use CMS default
+            try {
+                $cmsPreference = $this->entityManager->getRepository('App\Entity\CmsPreference')->findOneBy([]);
+                if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                    $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
+                    $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
+                }
+            } catch (\Exception $e) {
+                // If there's an error getting the default language, use fallback
+                $userLanguageId = 2; // Fallback language ID
+                $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                if ($fallbackLanguage) {
+                    $userLanguageLocale = $fallbackLanguage->getLocale();
+                }
+            }
+        }
+        
         // Create payload with custom claims
         $payload = [
             'roles' => $roleNames,
             'permissions' => $permissionNames,
             'id_users' => $user->getId(),
             'email' => $user->getEmail(),
-            'user_name' => $user->getName()
+            'user_name' => $user->getName(),
+            'language_id' => $userLanguageId,
+            'language_locale' => $userLanguageLocale
         ];
         
         // Note: Token TTL is configured in lexik_jwt_authentication.yaml

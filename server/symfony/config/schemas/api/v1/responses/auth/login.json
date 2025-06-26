@@ -32,12 +32,22 @@
             "name": {
               "type": "string",
               "description": "User's name."
+            },
+            "language_id": {
+              "type": ["integer", "null"],
+              "description": "User's preferred language ID."
+            },
+            "language_locale": {
+              "type": ["string", "null"],
+              "description": "User's preferred language locale (e.g., 'en', 'de')."
             }
           },
           "required": [
             "id",
             "email",
-            "name"
+            "name",
+            "language_id",
+            "language_locale"
           ]
         }
       },

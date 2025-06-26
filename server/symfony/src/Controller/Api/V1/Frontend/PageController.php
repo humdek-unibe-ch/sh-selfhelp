@@ -28,12 +28,13 @@ class PageController extends AbstractController
 
     /**
      * @Route("/cms-api/v1/pages", name="pages", methods={"GET"})
+     * @Route("/cms-api/v1/pages/{language_id}", name="pages_with_language", methods={"GET"})
      */
-    public function getPages(): JsonResponse
+    public function getPages(Request $request, ?int $language_id = null): JsonResponse
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_WEB);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_WEB, $language_id);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_acl_page_definition',
@@ -55,20 +56,16 @@ class PageController extends AbstractController
     public function getPage(Request $request, string $page_keyword): JsonResponse
     {
         try {
-            // Check if locale parameter is provided in the request
-            $locale = null;
-            if ($request->query->has('language')) {
-                $locale = $request->query->get('language');
-            }
+            // Get language_id from query parameter
+            $language_id = $request->query->get('language_id') ? (int) $request->query->get('language_id') : null;
             
-            $page = $this->pageService->getPage($page_keyword, $locale);            
+            $page = $this->pageService->getPage($page_keyword, $language_id);
             return $this->responseFormatter->formatSuccess(
-                ['page' => $page],
+                $page,
                 'responses/frontend/get_page',
-                Response::HTTP_OK // Explicitly pass the status code
+                Response::HTTP_OK
             );
         } catch (\Throwable $e) {
-            // Attempt to get a valid HTTP status code from the exception, default to 500
             $statusCode = (is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() <= 599) ? $e->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
             return $this->responseFormatter->formatError(
                 $e->getMessage(),

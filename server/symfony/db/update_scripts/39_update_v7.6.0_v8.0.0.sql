@@ -18,6 +18,16 @@ SET version = 'v8.0.0';
 -- - Section names now include timestamp suffix for uniqueness during import
 -- - Fixed PagesSection entity ID assignment issue for proper persistence
 
+-- Page Title Translation Enhancement
+-- Added locale parameter support for page listing endpoints
+-- Enhanced page service to fetch and display page titles with translations
+-- Added PagesFieldsTranslationRepository for optimized translation queries
+-- Updated frontend and admin controllers to accept locale parameter
+-- Added fallback mechanism for default language when translations are missing
+-- New API routes:
+-- - /pages/{locale} - Frontend pages with locale
+-- - /admin/pages/{locale} - Admin pages with locale
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS add_index //
 CREATE PROCEDURE add_index(
@@ -1332,6 +1342,30 @@ UPDATE styleGroup
 SET position = 0, `description` = 'Reserved for internal system styles. Modifying or using these styles externally may cause unexpected behavior.'
 WHERE `name` = 'intern';
 
+UPDATE pages
+SET id_actions = (SELECT id FROM lookups WHERE type_code = 'pageActions' AND lookup_code = 'sections')
+WHERE keyword IN ('profile-link', 'logout');
+
+UPDATE pages
+SET is_system = 1
+WHERE keyword IN ('logout', 'profile-link');
+
+UPDATE pages
+SET url = '/missing'
+WHERE keyword = 'missing';
+
+UPDATE pages
+SET url = '/no-access'
+WHERE keyword = 'no_access';
+
+UPDATE pages
+SET url = '/no-access-guest'
+WHERE keyword = 'no_access_guest';
+
+UPDATE pages
+SET url = '/profile-link'
+WHERE keyword = 'profile-link';
+
 
 
 
@@ -1367,3 +1401,34 @@ SET @page_keyword = 'cms-api_v1_admin_get_access'; INSERT IGNORE INTO `pages` (`
 SET @page_keyword = 'cms-api_v1_admin_get_pages'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[pages:method]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Admin - get pages'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Admin - get pages'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
 SET @page_keyword = 'cms-api_v1_admin_page_fields'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_fields:method]/[slug:page_keyword]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Fields'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Fields'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
 SET @page_keyword = 'cms-api_v1_admin_page_sections'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_sections:method]/[slug:page_keyword]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Sections'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Sections'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
+
+-- Add new API routes with language_id parameter support
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('pages_get_all_with_language', 'v1', '/pages/{language_id}', 'App\\\\Controller\\\\Api\\\\V1\\\\Frontend\\\\PageController::getPages', 'GET', JSON_OBJECT(
+    'language_id', '[0-9]+'
+), NULL),
+('admin_pages_get_all_with_language', 'v1', '/admin/pages/{language_id}', 'App\\\\Controller\\\\Api\\\\V1\\\\Admin\\\\AdminPageController::getPages', 'GET', JSON_OBJECT(
+    'language_id', '[0-9]+'
+), NULL);
+
+-- Add permissions for the new admin route with language_id
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_api_routes`)
+SELECT ag.id_groups, ar.id
+FROM `acl_groups` ag
+CROSS JOIN `api_routes` ar
+WHERE ag.id_groups IN (
+    SELECT id FROM `groups` WHERE name IN ('admin')
+)
+AND ar.`route_name` IN (
+    'admin_pages_get_all_with_language'
+);
+
+-- Remove old locale-based routes if they exist
+DELETE FROM `api_routes` WHERE `route_name` IN ('pages_get_all_with_locale', 'admin_pages_get_all_with_locale');
+
+-- Page translation functionality enhancement
+-- Changed from locale-based to language_id-based parameters to reduce SQL queries
+-- Updated controllers and services to accept language_id directly instead of converting from locale
+-- Removed unnecessary locale-to-language_id conversions in PageService::determineLanguageId()
+-- Enhanced login and 2FA responses to include language_id and language_locale
+-- Added proper JSON schema validation for language setting endpoint

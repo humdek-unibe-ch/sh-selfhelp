@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Auth 2FA Verify Success Response",
-  "description": "Schema for a successful 2FA verification, providing tokens and user details.",
+  "description": "Schema for a successful two-factor authentication verification, providing tokens and user details.",
   "allOf": [
     { "$ref": "../common/_response_envelope.json" }
   ],
@@ -32,12 +32,22 @@
             "name": {
               "type": "string",
               "description": "User's name."
+            },
+            "language_id": {
+              "type": ["integer", "null"],
+              "description": "User's preferred language ID."
+            },
+            "language_locale": {
+              "type": ["string", "null"],
+              "description": "User's preferred language locale (e.g., 'en', 'de')."
             }
           },
           "required": [
             "id",
             "email",
-            "name"
+            "name",
+            "language_id",
+            "language_locale"
           ]
         }
       },

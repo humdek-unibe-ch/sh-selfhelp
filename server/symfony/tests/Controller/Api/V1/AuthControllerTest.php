@@ -5,6 +5,7 @@ namespace App\Tests\Controller\Api\V1;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Users2faCode;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Tests\Controller\Api\V1\BaseControllerTest;
 
 class AuthControllerTest extends BaseControllerTest
 {    
@@ -346,6 +347,106 @@ class AuthControllerTest extends BaseControllerTest
         );
         // After logout, accessing a protected route should result in an unauthorized error (401)
         $this->assertSame(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode(), 'Access token should be invalid after logout. Attempt to access /cms-api/v1/admin/pages did not return 401.');
+    }
+
+    /**
+     * Test login includes user language information
+     */
+    public function testLoginIncludesLanguageInfo(): void
+    {
+        $client = static::createClient();
+        
+        // Make login request
+        $client->request('POST', '/cms-api/v1/auth/login', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode([
+            'email' => 'admin@example.com',
+            'password' => 'password123'
+        ]));
+        
+        $this->assertResponseIsSuccessful();
+        $response = json_decode($client->getResponse()->getContent(), true);
+        
+        $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('user', $response['data']);
+        $this->assertArrayHasKey('language_id', $response['data']['user']);
+        $this->assertArrayHasKey('language_locale', $response['data']['user']);
+        
+        // Verify language information is present
+        $user = $response['data']['user'];
+        $this->assertIsInt($user['language_id']);
+        $this->assertIsString($user['language_locale']);
+    }
+    
+    /**
+     * Test setting user language
+     */
+    public function testSetUserLanguage(): void
+    {
+        $client = static::createClient();
+        
+        // First login to get access token
+        $client->request('POST', '/cms-api/v1/auth/login', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode([
+            'email' => 'admin@example.com',
+            'password' => 'password123'
+        ]));
+        
+        $this->assertResponseIsSuccessful();
+        $loginResponse = json_decode($client->getResponse()->getContent(), true);
+        $accessToken = $loginResponse['data']['access_token'];
+        
+        // Now set user language
+        $client->request('POST', '/cms-api/v1/auth/set-language', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $accessToken,
+        ], json_encode([
+            'language_id' => 2 // Assuming language ID 2 exists
+        ]));
+        
+        $this->assertResponseIsSuccessful();
+        $response = json_decode($client->getResponse()->getContent(), true);
+        
+        $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('language_id', $response['data']);
+        $this->assertArrayHasKey('language_locale', $response['data']);
+        $this->assertArrayHasKey('language_name', $response['data']);
+        $this->assertEquals(2, $response['data']['language_id']);
+    }
+    
+    /**
+     * Test setting invalid language ID
+     */
+    public function testSetInvalidLanguageId(): void
+    {
+        $client = static::createClient();
+        
+        // First login to get access token
+        $client->request('POST', '/cms-api/v1/auth/login', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode([
+            'email' => 'admin@example.com',
+            'password' => 'password123'
+        ]));
+        
+        $this->assertResponseIsSuccessful();
+        $loginResponse = json_decode($client->getResponse()->getContent(), true);
+        $accessToken = $loginResponse['data']['access_token'];
+        
+        // Try to set invalid language ID
+        $client->request('POST', '/cms-api/v1/auth/set-language', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $accessToken,
+        ], json_encode([
+            'language_id' => 999999 // Invalid language ID
+        ]));
+        
+        $this->assertResponseStatusCodeSame(400);
+        $response = json_decode($client->getResponse()->getContent(), true);
+        
+        $this->assertArrayHasKey('error', $response);
+        $this->assertStringContainsString('Invalid language ID', $response['error']['message']);
     }
 
     protected function tearDown(): void

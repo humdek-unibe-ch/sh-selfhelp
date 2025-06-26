@@ -111,25 +111,18 @@ CREATE TABLE `api_routes_permissions` (
 -- Insert API routes with proper versioned controllers
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 -- Auth routes
-('auth_login', 'v1', '/auth/login', 'App\\Controller\\Api\\V1\\Auth\\AuthController::login', 'POST', NULL, JSON_OBJECT(
-    'user', JSON_OBJECT('in', 'body', 'required', true),
-    'password', JSON_OBJECT('in', 'body', 'required', true)
-)),
-('auth_two_factor_verify', 'v1', '/auth/two-factor-verify', 'App\\Controller\\Api\\V1\\Auth\\AuthController::twoFactorVerify', 'POST', NULL, JSON_OBJECT(
-    'code', JSON_OBJECT('in', 'body', 'required', true),
-    'id_users', JSON_OBJECT('in', 'body', 'required', true)
-)),
-('auth_refresh_token', 'v1', '/auth/refresh-token', 'App\\Controller\\Api\\V1\\Auth\\AuthController::refreshToken', 'POST', NULL, JSON_OBJECT(
-    'refresh_token', JSON_OBJECT('in', 'body', 'required', true)
-)),
-('auth_logout', 'v1', '/auth/logout', 'App\\Controller\\Api\\V1\\Auth\\AuthController::logout', 'POST', NULL, JSON_OBJECT(
-    'access_token', JSON_OBJECT('in', 'body', 'required', false),
-    'refresh_token', JSON_OBJECT('in', 'body', 'required', false)
-)),
+('auth_login', 'v1', '/auth/login', 'App\\Controller\\Api\\V1\\Auth\\AuthController::login', 'POST', NULL, NULL),
+('auth_2fa_verify', 'v1', '/auth/two-factor-verify', 'App\\Controller\\Api\\V1\\Auth\\AuthController::twoFactorVerify', 'POST', NULL, NULL),
+('auth_refresh_token', 'v1', '/auth/refresh-token', 'App\\Controller\\Api\\V1\\Auth\\AuthController::refreshToken', 'POST', NULL, NULL),
+('auth_logout', 'v1', '/auth/logout', 'App\\Controller\\Api\\V1\\Auth\\AuthController::logout', 'POST', NULL, NULL),
+('auth_set_language', 'v1', '/auth/set-language', 'App\\Controller\\Api\\V1\\Auth\\AuthController::setUserLanguage', 'POST', NULL, NULL),
 
 -- Admin routes
 ('admin_lookups', 'v1', '/admin/lookups', 'App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups', 'GET', NULL, NULL),
 ('admin_pages_get_all', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', NULL, NULL),
+('admin_pages_get_all_with_language', 'v1', '/admin/pages/{language_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', JSON_OBJECT(
+    'language_id', '[0-9]+'
+), NULL),
 ('admin_pages_get_one', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPage', 'GET', JSON_OBJECT(
     'page_keyword', '[A-Za-z0-9_-]+'
 ), NULL),
@@ -267,6 +260,9 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 
 -- Public pages route
 ('pages_get_all', 'v1', '/pages', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', NULL, NULL),
+('pages_get_all_with_language', 'v1', '/pages/{language_id}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', JSON_OBJECT(
+    'language_id', '[0-9]+'
+), NULL),
 ('pages_get_one', 'v1', '/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', NULL, NULL),
 ('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL);
 
@@ -280,6 +276,7 @@ JOIN `permissions`   AS p
   ON p.`name` = 'admin.page.read'
 WHERE ar.`route_name` IN (
   'admin_pages_get_all',
+  'admin_pages_get_all_with_language',
   'admin_pages_get_one',
   'admin_pages_sections_get'
 );

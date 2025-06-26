@@ -7,6 +7,7 @@ use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
+use App\Repository\PagesFieldsTranslationRepository;
 use App\Service\ACLService;
 use App\Service\Core\ServiceException;
 use App\Service\Core\UserContextAwareService;
@@ -34,7 +35,8 @@ class PageService extends UserContextAwareService
         private readonly SectionsFieldsTranslationRepository $translationRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly StylesFieldRepository $stylesFieldRepository,
-        private readonly SectionUtilityService $sectionUtilityService
+        private readonly SectionUtilityService $sectionUtilityService,
+        private readonly PagesFieldsTranslationRepository $pagesFieldsTranslationRepository
     ) {
         parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
         $this->sectionUtilityService->setStylesFieldRepository($stylesFieldRepository);
@@ -77,9 +79,10 @@ class PageService extends UserContextAwareService
      * Get all published pages for the current user, filtered by mode and ACL
      *
      * @param string $mode Either 'web' or 'mobile'
+     * @param int|null $language_id Optional language ID for translations
      * @return array
      */
-    public function getAllAccessiblePagesForUser(string $mode): array
+    public function getAllAccessiblePagesForUser(string $mode, ?int $language_id = null): array
     {
         $user = $this->getCurrentUser();
         $userId = 1; // guest user
@@ -111,6 +114,33 @@ class PageService extends UserContextAwareService
                 $item['url'] != '';
         }));
 
+        // Determine which language ID to use for translations
+        $languageId = $this->determineLanguageId($language_id);
+        
+        // Get default language ID for fallback translations
+        $defaultLanguageId = null;
+        try {
+            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
+            }
+        } catch (\Exception $e) {
+            // If there's an error getting the default language, continue without fallback
+        }
+
+        // Extract page IDs for fetching translations
+        $pageIds = array_column($filteredPages, 'id_pages');
+        
+        // Fetch all page title translations in one query
+        $pageTitleTranslations = [];
+        if (!empty($pageIds)) {
+            $pageTitleTranslations = $this->pagesFieldsTranslationRepository->fetchTitleTranslationsWithFallback(
+                $pageIds,
+                $languageId,
+                $defaultLanguageId
+            );
+        }
+
         // Create a map of pages by their ID for quick lookup
         $pagesMap = [];
         foreach ($filteredPages as &$page) {
@@ -122,6 +152,19 @@ class PageService extends UserContextAwareService
                     $page['protocol'] = $parts['scheme'] ?? 'https';
                 } else {
                     $page['protocol'] = 'https';
+                }
+            }
+
+            // Add title translations to page
+            $pageId = $page['id_pages'];
+            $page['title'] = null; // Default title
+            if (isset($pageTitleTranslations[$pageId])) {
+                // Look for a 'title' field first, otherwise take the first available field
+                if (isset($pageTitleTranslations[$pageId]['title'])) {
+                    $page['title'] = $pageTitleTranslations[$pageId]['title'];
+                } else {
+                    // Take the first available translation field as title
+                    $page['title'] = reset($pageTitleTranslations[$pageId]) ?: null;
                 }
             }
 
@@ -153,11 +196,11 @@ class PageService extends UserContextAwareService
      * Get page by keyword with translated sections
      * 
      * @param string $page_keyword The page keyword
-     * @param string|null $locale Optional locale for translations (e.g. 'en', 'de')
+     * @param int|null $language_id Optional language ID for translations
      * @return array The page object with translated sections
      * @throws ServiceException If page not found or access denied
      */
-    public function getPage(string $page_keyword, ?string $locale = null): array
+    public function getPage(string $page_keyword, ?int $language_id = null): array
     {
         $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
         if (!$page) {
@@ -168,7 +211,7 @@ class PageService extends UserContextAwareService
         $this->checkAccess($page_keyword, 'select');
         
         // Determine which language ID to use for translations
-        $languageId = $this->determineLanguageId($locale);
+        $languageId = $this->determineLanguageId($language_id);
 
         return [
             'id' => $page->getId(),
@@ -241,24 +284,17 @@ class PageService extends UserContextAwareService
         return $sections;
     }
     
-
-    
-
-    
     /**
      * Determine which language ID to use for translations
      * 
-     * @param string|null $locale Explicitly provided locale (e.g. 'en', 'de')
+     * @param int|null $language_id Explicitly provided language ID
      * @return int The language ID to use
      */
-    private function determineLanguageId(?string $locale = null): int
+    private function determineLanguageId(?int $language_id = null): int
     {
-        // If locale is explicitly provided, find corresponding language ID
-        if ($locale !== null) {
-            $language = $this->entityManager->getRepository('App\Entity\Language')->findOneBy(['locale'=>$locale]);
-            if ($language) {
-                return $language->getId();
-            }
+        // If language_id is explicitly provided, use it
+        if ($language_id !== null) {
+            return $language_id;
         }
         
         // If user is logged in, use their preferred language

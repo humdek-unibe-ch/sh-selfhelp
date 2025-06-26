@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Set User Language Request",
+  "description": "Schema for setting a user's default language",
+  "type": "object",
+  "properties": {
+    "language_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the language to set as the user's default"
+    }
+  },
+  "required": ["language_id"],
+  "additionalProperties": false
+} 
