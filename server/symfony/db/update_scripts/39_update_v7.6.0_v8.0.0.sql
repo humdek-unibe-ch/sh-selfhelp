@@ -1428,11 +1428,11 @@ WHERE type_code = 'pageActions';
 -- -------------------------- add configuration pages ----------------------------------------------------------
 
 -- add css config page
-INSERT IGNORE INTO `pageType` (`name`) VALUES ('sh_global_css');
+INSERT IGNORE INTO `pageType` (`name`) VALUES ('global_css');
 
 INSERT IGNORE INTO `pages` (`keyword`, `url`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
-VALUES ('sh_global_css', NULL, NULL, 0, 0, NULL, (SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1), (SELECT id FROM lookups WHERE lookup_code = 'web'));
-SET @id_page_values = (SELECT id FROM pages WHERE keyword = 'sh_global_css');
+VALUES ('sh-global-css', NULL, NULL, 0, 0, NULL, (SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1), (SELECT id FROM lookups WHERE lookup_code = 'web'));
+SET @id_page_values = (SELECT id FROM pages WHERE keyword = 'sh-global-css');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_values, '1', '0', '1', '0');
 
 -- add new fieldType css
@@ -1441,11 +1441,11 @@ INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('css', '15');
 -- add new filed `custom_css` from type JSON
 INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('custom_css', get_field_type_id('css'), '0');
 
-INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1), get_field_id('custom_css'), NULL, 'Enter your own CSS rules in this field to customize the appearance of your pages, elements, or components. Any CSS classes or styles you define here will be automatically loaded on your site. You can then use the class names you define in your content, layouts, or widgets.');
-INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1), get_field_id('title'), NULL, 'Page title');
-INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1), get_field_id('description'), NULL, 'Page description');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000001', 'Custom CSS');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1), get_field_id('custom_css'), NULL, 'Enter your own CSS rules in this field to customize the appearance of your pages, elements, or components. Any CSS classes or styles you define here will be automatically loaded on your site. You can then use the class names you define in your content, layouts, or widgets.');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1), get_field_id('title'), NULL, 'Page title');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1), get_field_id('description'), NULL, 'Page description');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000002', 'Custom CSS');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000003', 'Custom CSS');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('description'), '0000000002', 'Geben Sie in diesem Feld Ihre eigenen CSS-Regeln ein, um das Erscheinungsbild Ihrer Seiten, Elemente oder Komponenten individuell anzupassen. Alle hier definierten CSS-Klassen oder -Stile werden automatisch auf Ihrer Website geladen. Anschließend können Sie die von Ihnen vergebenen Klassennamen in Ihren Inhalten, Layouts oder Widgets verwenden.');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('description'), '0000000003', 'Enter your own CSS rules in this field to customize the appearance of your pages, elements, or components. Any CSS classes or styles you define here will be automatically loaded on your site. You can then use the class names you define in your content, layouts, or widgets.');
 
@@ -1454,8 +1454,8 @@ INSERT IGNORE INTO `pageType` (`name`) VALUES ('global_values');
 
 -- add translation page
 INSERT IGNORE INTO `pages` (`keyword`, `url`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
-VALUES ('sh_global_values', NULL, NULL, 0, 10, NULL, (SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'));
-SET @id_page_values = (SELECT id FROM pages WHERE keyword = 'sh_global_values');
+VALUES ('sh-global-values', NULL, NULL, 0, 10, NULL, (SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'));
+SET @id_page_values = (SELECT id FROM pages WHERE keyword = 'sh-global-values');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_values, '1', '0', '1', '0');
 
 -- add new filed `selfhelpTranslations` from type JSON
@@ -1463,8 +1463,9 @@ INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('global_value
 
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1), get_field_id('global_values'), NULL, 'JSON object where can be defined global translation keys and use the key to load the proper translation based on the selected language. A key is accessed by {{key_name}}, and this will be replaced with the value for the selected language');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1), get_field_id('title'), NULL, 'Page title');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000001', 'Global Values');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1), get_field_id('description'), NULL, 'Page description');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000002', 'Global Values');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000003', 'Global Values');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('description'), '0000000002', 'JSON object where can be defined global translation keys and use the key to load the proper translation based on the selected language. A key is accessed by {{key_name}}, and this will be replaced with the value for the selected language');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('description'), '0000000003', 'JSON object where can be defined global translation keys and use the key to load the proper translation based on the selected language. A key is accessed by {{key_name}}, and this will be replaced with the value for the selected language');
 
