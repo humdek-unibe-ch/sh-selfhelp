@@ -82,7 +82,7 @@ class PageService extends UserContextAwareService
      * @param int|null $language_id Optional language ID for translations
      * @return array
      */
-    public function getAllAccessiblePagesForUser(string $mode, ?int $language_id = null): array
+    public function getAllAccessiblePagesForUser(string $mode, ?int $language_id = null, bool $admin): array
     {
         $user = $this->getCurrentUser();
         $userId = 1; // guest user
@@ -98,15 +98,25 @@ class PageService extends UserContextAwareService
         $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
 
         // If mode is both, do not remove any type
-        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $mode) {
-            // TODO: Adjust the filtering once the structure is adjusted
-            if ($mode === LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB) {
-                return $item['acl_select'] == 1 &&
-                    $item['url'] != '';
+        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $mode, $admin) {
+
+            // Base ACL check
+            if ($item['acl_select'] != 1) {
+                return false;
             }
-            return $item['id_pageAccessTypes'] != $removeTypeId &&
-                $item['acl_select'] == 1 &&
-                $item['url'] != '';
+
+            // If admin is true, then all pages (normal filtering)
+            // If not admin, then only pages with id_type = 2 or 3 (core and experiment pages)
+            if (!$admin && isset($item['id_type']) && !in_array($item['id_type'], [2, 3])) {
+                return false;
+            }
+
+            // Apply mode-based filtering
+            if ($mode === LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB) {
+                return true;
+            }
+            
+            return $item['id_pageAccessTypes'] != $removeTypeId;
         }));
 
         // Determine which language ID to use for translations
@@ -139,16 +149,6 @@ class PageService extends UserContextAwareService
         // Create a map of pages by their ID for quick lookup
         $pagesMap = [];
         foreach ($filteredPages as &$page) {
-            // Set default protocol if missing
-            if (!isset($page['protocol']) || $page['protocol'] === null) {
-                // Extract protocol from URL if possible, otherwise default to https
-                if (!empty($page['url']) && strpos($page['url'], '://') !== false) {
-                    $parts = parse_url($page['url']);
-                    $page['protocol'] = $parts['scheme'] ?? 'https';
-                } else {
-                    $page['protocol'] = 'https';
-                }
-            }
 
             // Add title translations to page
             $pageId = $page['id_pages'];

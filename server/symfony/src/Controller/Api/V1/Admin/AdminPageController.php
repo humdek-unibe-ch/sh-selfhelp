@@ -45,7 +45,7 @@ class AdminPageController extends AbstractController
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB, $language_id);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB, $language_id, true);            
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_acl_page_definition',

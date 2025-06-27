@@ -1423,6 +1423,30 @@ CALL drop_table_column('pages', 'id_navigation_section');
 DELETE FROM lookups
 WHERE type_code = 'pageActions';
 
+-- -------------------------- add configuration pages ----------------------------------------------------------
+
+-- add css config page
+INSERT IGNORE INTO `pageType` (`name`) VALUES ('sh_global_css');
+
+-- add translation page
+INSERT IGNORE INTO `pages` (`keyword`, `url`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES ('sh_global_css', NULL, NULL, 0, 0, NULL, (SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'web'));
+SET @id_page_values = (SELECT id FROM pages WHERE keyword = 'sh_global_css');
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_values, '1', '0', '1', '0');
+
+-- add new fieldType css
+INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'css', '15');
+
+-- add new filed `custom_css` from type JSON
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'custom_css', get_field_type_id('css'), '0');
+
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 0,1), get_field_id('custom_css'), NULL, 'Enter your own CSS rules in this field to customize the appearance of your pages, elements, or components. Any CSS classes or styles you define here will be automatically loaded on your site. You can then use the class names you define in your content, layouts, or widgets.');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000001', 'Custom CSS');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000002', 'Custom CSS');
+
+-- -------------------------- add configuration pages ----------------------------------------------------------
+
 
 
 
