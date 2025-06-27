@@ -96,21 +96,16 @@ class PageService extends UserContextAwareService
         // Determine which type to remove based on mode
         $removeType = $mode === LookupService::PAGE_ACCESS_TYPES_MOBILE ? LookupService::PAGE_ACCESS_TYPES_WEB : LookupService::PAGE_ACCESS_TYPES_MOBILE;
         $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
-        $sectionsTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACTIONS, LookupService::PAGE_ACTIONS_SECTIONS);
 
         // If mode is both, do not remove any type
-        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $sectionsTypeId, $mode) {
+        $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $mode) {
             // TODO: Adjust the filtering once the structure is adjusted
             if ($mode === LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB) {
                 return $item['acl_select'] == 1 &&
-                    $item['id_actions'] == $sectionsTypeId &&
-                    in_array($item['id_type'], ['2', '3', '4']) &&
                     $item['url'] != '';
             }
             return $item['id_pageAccessTypes'] != $removeTypeId &&
                 $item['acl_select'] == 1 &&
-                $item['id_actions'] == $sectionsTypeId &&
-                in_array($item['id_type'], ['2', '3', '4']) &&
                 $item['url'] != '';
         }));
 

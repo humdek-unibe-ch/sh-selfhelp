@@ -20,18 +20,6 @@ class Page
     #[ORM\Column(name: 'url', type: 'string', length: 255, nullable: true)]
     private ?string $url = null;
 
-    #[ORM\Column(name: 'protocol', type: 'string', length: 100, nullable: true, options: ['comment' => 'pipe separated list of HTTP Methods (GET|POST)'])]
-    private ?string $protocol = null;
-
-    // --- RELATIONSHIPS (ENTITY RULE) ---
-    #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_actions', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
-    private ?Lookup $action = null;
-
-    #[ORM\ManyToOne(targetEntity: Section::class)]
-    #[ORM\JoinColumn(name: 'id_navigation_section', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
-    private ?Section $navigationSection = null;
-
     #[ORM\ManyToOne(targetEntity: Page::class)]
     #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     private ?Page $parentPage = null;
@@ -85,41 +73,6 @@ class Page
     {
         $this->url = $url;
 
-        return $this;
-    }
-
-    public function getProtocol(): ?string
-    {
-        return $this->protocol;
-    }
-
-    public function setProtocol(?string $protocol): static
-    {
-        $this->protocol = $protocol;
-
-        return $this;
-    }
-
-    // --- RELATIONSHIP GETTERS/SETTERS (ENTITY RULE) ---
-    public function getAction(): ?Lookup
-    {
-        return $this->action;
-    }
-
-    public function setAction(?Lookup $action): static
-    {
-        $this->action = $action;
-        return $this;
-    }
-
-    public function getNavigationSection(): ?Section
-    {
-        return $this->navigationSection;
-    }
-
-    public function setNavigationSection(?Section $navigationSection): static
-    {
-        $this->navigationSection = $navigationSection;
         return $this;
     }
 

@@ -27,7 +27,6 @@ final class LookupService
     public const GROUP_TYPES = 'groupTypes';
     public const USER_TYPES = 'userTypes';
     public const USER_STATUS = 'userStatus';
-    public const PAGE_ACTIONS = 'pageActions';
     public const STYLE_TYPE = 'styleType';
     public const PLUGINS = 'plugins';
 
@@ -129,15 +128,6 @@ final class LookupService
     public const USER_STATUS_ACTIVE = 'active';
     public const USER_STATUS_LOCKED = 'locked';
 
-    // pageActions
-    public const PAGE_ACTIONS_BACKEND = 'backend';
-    public const PAGE_ACTIONS_NAVIGATION = 'navigation';
-    public const PAGE_ACTIONS_SECTIONS = 'sections';
-    public const PAGE_ACTIONS_COMPONENT = 'component';
-    public const PAGE_ACTIONS_AJAX = 'ajax';
-    public const PAGE_ACTIONS_CMS_API = 'cms-api';
-    public const PAGE_ACTIONS_EXPERIMENT = 'experiment';
-    public const PAGE_ACTIONS_EXPORT = 'export';
 
     // styleType
     public const STYLE_TYPE_VIEW = 'view';

@@ -148,16 +148,6 @@ class AdminPageService extends UserContextAwareService
             }
         }
 
-        // Get action if provided
-        $actionCode = LookupService::PAGE_ACTIONS_SECTIONS;
-        $action = $this->lookupRepository->findOneBy([
-            'typeCode' => 'pageActions',
-            'lookupCode' => $actionCode
-        ]);
-        if (!$action) {
-            $this->throwNotFound("Action with code '{$actionCode}' not found");
-        }
-
         // Get default page type (experiment)
         $pageType = $this->pageTypeRepository->findOneBy(['name' => 'experiment']);
         if (!$pageType) {
@@ -176,8 +166,6 @@ class AdminPageService extends UserContextAwareService
         $page->setParentPage($parentPage);
         $page->setPageType($pageType);
         $page->setIsSystem(false);
-        $page->setAction($action);
-        $page->setProtocol('GET');
 
         $this->entityManager->beginTransaction();
         try {

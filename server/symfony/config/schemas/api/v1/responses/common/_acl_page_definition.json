@@ -19,9 +19,6 @@
                 "acl_delete": { "type": "integer", "enum": [0, 1] },
                 "keyword": { "type": "string" },
                 "url": { "type": "string" },
-                "protocol": { "type": "string" },
-                "id_actions": { "type": "integer" },
-                "id_navigation_section": { "type": ["integer", "null"] },
                 "parent": { "type": ["integer", "null"] },
                 "is_headless": { "type": "integer", "enum": [0, 1] },
                 "nav_position": { "type": ["integer", "null"] },
@@ -35,7 +32,7 @@
             },
             "required": [
                 "id_users", "id_pages", "acl_select", "acl_insert", "acl_update", "acl_delete",
-                "keyword", "url", "protocol", "id_actions", "id_navigation_section",
+                "keyword", "url",
                 "parent", "is_headless", "nav_position", "footer_position",
                 "id_type", "id_pageAccessTypes", "children"
             ]

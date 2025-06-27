@@ -76,7 +76,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_user_acl //
 CREATE PROCEDURE get_user_acl(
     IN param_user_id INT,
-    IN param_page_id INT  -- -1 means "all pages"
+    IN param_page_id INT  -- -1 means “all pages”
 )
 BEGIN
 
@@ -88,20 +88,17 @@ BEGIN
         MAX(acl_update) AS acl_update,
         MAX(acl_delete) AS acl_delete,
         keyword,
-        url,
-        protocol,
-        id_actions,
-        id_navigation_section,
+        url,                
         parent,
         is_headless,
         nav_position,
-        footer_position,
+        footer_position,        
         id_type,
         id_pageAccessTypes,
         is_system
     FROM
     (
-        -- 1) Group-based ACL
+        -- 1) Group‐based ACL
         SELECT
             ug.id_users,
             acl.id_pages,
@@ -110,15 +107,12 @@ BEGIN
             acl.acl_update,
             acl.acl_delete,
             p.keyword,
-            p.url,
-            p.protocol,
-            p.id_actions,
-            p.id_navigation_section,
+            p.url,            
             p.parent,
             p.is_headless,
             p.nav_position,
-            p.footer_position,
-            p.id_type,
+            p.footer_position,       
+            id_type,     
             p.id_pageAccessTypes,
             is_system
         FROM users_groups ug
@@ -130,7 +124,7 @@ BEGIN
 
         UNION ALL
 
-        -- 2) User-specific ACL
+        -- 2) User‐specific ACL
         SELECT
             acl.id_users,
             acl.id_pages,
@@ -139,15 +133,12 @@ BEGIN
             acl.acl_update,
             acl.acl_delete,
             p.keyword,
-            p.url,
-            p.protocol,
-            p.id_actions,
-            p.id_navigation_section,
+            p.url,          
             p.parent,
             p.is_headless,
             p.nav_position,
-            p.footer_position,
-            p.id_type,
+            p.footer_position,     
+            id_type,       
             p.id_pageAccessTypes,
             is_system
         FROM acl_users acl
@@ -157,7 +148,7 @@ BEGIN
 
         UNION ALL
 
-        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it's open)
+        -- 3) Open-access pages (only all if param_page_id = -1, or just that page if it’s open)
         SELECT
             param_user_id       AS id_users,
             p.id                AS id_pages,
@@ -166,15 +157,12 @@ BEGIN
             0                   AS acl_update,
             0                   AS acl_delete,
             p.keyword,
-            p.url,
-            p.protocol,
-            p.id_actions,
-            p.id_navigation_section,
+            p.url,           
             p.parent,
             p.is_headless,
             p.nav_position,
-            p.footer_position,
-            p.id_type,
+            p.footer_position,  
+            id_type,          
             p.id_pageAccessTypes,
             is_system
         FROM pages p
@@ -185,21 +173,19 @@ BEGIN
     GROUP BY
         id_pages,
         keyword,
-        url,
-        protocol,
-        id_actions,
-        id_navigation_section,
+        url,      
         parent,
         is_headless,
         nav_position,
-        footer_position,
-        id_type,
+        footer_position,     
+        id_type,   
         is_system,
         id_pageAccessTypes;
 
 END
 //
 DELIMITER ;
+
 
 CREATE TABLE IF NOT EXISTS `logPerformance` (
   `id_user_activity` INT(10) UNSIGNED NOT NULL,
@@ -1366,6 +1352,77 @@ UPDATE pages
 SET url = '/profile-link'
 WHERE keyword = 'profile-link';
 
+DELETE FROM pages 
+WHERE keyword IN ("admin-link",
+"cmsSelect",
+"cmsInsert",
+"cmsUpdate",
+"cmsDelete",
+"userSelect",
+"userInsert",
+"userUpdate",
+"userDelete",
+"groupSelect",
+"groupInsert",
+"groupUpdate",
+"groupDelete",
+"export",
+"exportData",
+"assetSelect",
+"assetInsert",
+"assetUpdate",
+"assetDelete",
+"userGenCode",
+"email",
+"exportDelete",
+"groupUpdateCustom",
+"data",
+"cmsPreferences",
+"cmsPreferencesUpdate",
+"language",
+"moduleScheduledJobs",
+"moduleScheduledJobsCompose",
+"cmsExport",
+"cmsImport",
+"moduleFormsActions",
+"moduleFormsAction",
+"ajax_get_groups",
+"ajax_get_table_names",
+"ajax_get_table_fields",
+"ajax_search_anchor_section",
+"ajax_search_data_source",
+"ajax_search_user_chat",
+"ajax_set_data_filter",
+"ajax_set_user_language",
+"ajax_get_lookups",
+"ajax_get_languages",
+"sh_globals",
+"sh_modules",
+"ajax_get_assets",
+"moduleScheduledJobsCalendar",
+"dataDelete",
+"cms-api_v1_admin_get_access",
+"cms-api_v1_admin_get_pages",
+"cms-api_v1_admin_page_fields",
+"cms-api_v1_admin_page_sections",
+"cms-api_v1_content_get_all_routes",
+"cms-api_v1_content_get_page",
+"cms-api_v1_content_put_page",
+"cms-api_v1_auth_login",
+"cms-api_v1_auth_two-factor-verify",
+"cms-api_v1_auth_refresh_token",
+"cms-api_v1_auth_logout",
+"callback");
+
+CALL drop_foreign_key('pages', 'FK_2074E575E8D3C633');
+CALL drop_foreign_key('pages', 'FK_2074E575DBD5589F');
+CALL drop_table_column('pages', 'protocol');
+CALL drop_table_column('pages', 'id_actions');
+CALL drop_table_column('pages', 'id_navigation_section');
+
+DELETE FROM lookups
+WHERE type_code = 'pageActions';
+
 
 
 
@@ -1387,44 +1444,18 @@ WHERE keyword = 'profile-link';
 -- check the cache page
 -- remove page protocol field; it will not be used in the new version
 
--- for old to work and test:
-INSERT IGNORE INTO `lookups` (`type_code`,`lookup_code`,`lookup_value`,`lookup_description`) VALUES ('pageActions','cms-api','cms-api',NULL);
-SET @page_keyword = 'cms-api_v1_content_get_all_routes'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[content:class]/[all_routes:method]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Navigation Pages'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Navigation Pages');
-INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (1, (SELECT `id` FROM `pages` WHERE `keyword` = 'home'), '1','0','0','0');
-SET @page_keyword = 'cms-api_v1_content_get_page'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Page'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Page');
-SET @page_keyword = 'cms-api_v1_content_put_page'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[content:class]/[page:method]/[slug:keyword]', 'PUT', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Put Data to Page'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Put Data to Page');
-SET @page_keyword = 'cms-api_v1_auth_login'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[login:method]', 'POST', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Login'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Login');
-SET @page_keyword = 'cms-api_v1_auth_two-factor-verify'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[two_factor_verify:method]', 'POST', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Two Factor Authentication'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Two Factor Authentication');
-SET @page_keyword = 'cms-api_v1_auth_refresh_token'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[refresh_token:method]', 'POST', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Refresh Token'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Refresh Token');
-SET @page_keyword = 'cms-api_v1_auth_logout'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[auth:class]/[logout:method]', 'POST', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 1); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Logout'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Logout');
-SET @page_keyword = 'cms-api_v1_admin_get_access'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[access:method]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Admin - get access'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Admin - get access'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
-SET @page_keyword = 'cms-api_v1_admin_get_pages'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[pages:method]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Admin - get pages'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Admin - get pages'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
-SET @page_keyword = 'cms-api_v1_admin_page_fields'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_fields:method]/[slug:page_keyword]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Fields'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Fields'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
-SET @page_keyword = 'cms-api_v1_admin_page_sections'; INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_sections:method]/[slug:page_keyword]', 'GET', (SELECT `id` FROM `lookups` WHERE `type_code` = 'pageActions' AND `lookup_code` = 'cms-api' LIMIT 1), NULL, NULL, '0', NULL, NULL, (SELECT `id` FROM `pageType` WHERE `name` = 'intern' LIMIT 1), (SELECT `id` FROM `lookups` WHERE `lookup_code` = 'mobile_and_web' LIMIT 1), 0); INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Sections'), ((SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Sections'); INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT `id` FROM `groups` WHERE `name` = 'admin'), (SELECT `id` FROM `pages` WHERE `keyword` = @page_keyword), '1','0','0','0');
+-- core pages: users,
+-- groups,
+-- export,
+-- assets,
+-- data,
+-- cms_preferences,
+-- languages,
+-- scheduled_jobs,
+-- actions,
+-- cache,
+-- clockwork
 
--- Add new API routes with language_id parameter support
-INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
-('pages_get_all_with_language', 'v1', '/pages/{language_id}', 'App\\\\Controller\\\\Api\\\\V1\\\\Frontend\\\\PageController::getPages', 'GET', JSON_OBJECT(
-    'language_id', '[0-9]+'
-), NULL),
-('admin_pages_get_all_with_language', 'v1', '/admin/pages/{language_id}', 'App\\\\Controller\\\\Api\\\\V1\\\\Admin\\\\AdminPageController::getPages', 'GET', JSON_OBJECT(
-    'language_id', '[0-9]+'
-), NULL);
-
--- Add permissions for the new admin route with language_id
-INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_api_routes`)
-SELECT ag.id_groups, ar.id
-FROM `acl_groups` ag
-CROSS JOIN `api_routes` ar
-WHERE ag.id_groups IN (
-    SELECT id FROM `groups` WHERE name IN ('admin')
-)
-AND ar.`route_name` IN (
-    'admin_pages_get_all_with_language'
-);
-
--- Remove old locale-based routes if they exist
-DELETE FROM `api_routes` WHERE `route_name` IN ('pages_get_all_with_locale', 'admin_pages_get_all_with_locale');
 
 -- Page translation functionality enhancement
 -- Changed from locale-based to language_id-based parameters to reduce SQL queries
