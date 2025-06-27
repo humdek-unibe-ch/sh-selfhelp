@@ -15,7 +15,7 @@ class FieldType
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'name', type: 'string', length: 100)]
+    #[ORM\Column(name: 'name', type: 'string', length: 100, unique: true)]
     private string $name;
 
     #[ORM\Column(name: 'position', type: 'integer')]
