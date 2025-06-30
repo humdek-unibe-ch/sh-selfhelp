@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Create User Request",
+  "description": "Schema for creating a new user",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "User's email address"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "User's display name"
+    },
+    "user_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "User's username"
+    },
+    "password": {
+      "type": "string",
+      "minLength": 6,
+      "description": "User's password"
+    },
+    "user_type_id": {
+      "type": "integer",
+      "description": "User type ID from lookups table"
+    },
+    "blocked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user is blocked"
+    },
+    "id_genders": {
+      "type": "integer",
+      "description": "Gender ID"
+    },
+    "id_languages": {
+      "type": "integer",
+      "description": "Language ID"
+    },
+    "validation_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16,
+      "description": "Validation code for the user"
+    },
+    "group_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Array of group IDs to assign to the user"
+    },
+    "role_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Array of role IDs to assign to the user"
+    }
+  },
+  "required": ["email"],
+  "additionalProperties": false
+} 

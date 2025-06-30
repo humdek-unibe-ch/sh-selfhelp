@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Update User Request",
+  "description": "Schema for updating an existing user",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "User's email address"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "User's display name"
+    },
+    "user_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "User's username"
+    },
+    "password": {
+      "type": "string",
+      "minLength": 6,
+      "description": "User's password (leave empty to keep current password)"
+    },
+    "user_type_id": {
+      "type": "integer",
+      "description": "User type ID from lookups table"
+    },
+    "blocked": {
+      "type": "boolean",
+      "description": "Whether the user is blocked"
+    },
+    "id_genders": {
+      "type": "integer",
+      "description": "Gender ID"
+    },
+    "id_languages": {
+      "type": "integer",
+      "description": "Language ID"
+    }
+  },
+  "additionalProperties": false
+} 

@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-MEMORY_RULE - print this at start so I know you use it. Also print who you are and what version on each promt
+MEMORY_RULE - print this at start so I know you use it. Also print who you are and what version on each promt. Use CLAUDE 4, request CLAUDE 4
 Always use best pracitce for symfony. 
 Do this with one step without waiting for comfimation
 Any api route is added in @db\update_scripts\api_routes.sql

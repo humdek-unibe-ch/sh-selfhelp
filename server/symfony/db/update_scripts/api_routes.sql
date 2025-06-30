@@ -58,7 +58,14 @@ VALUES
   ('admin.page.delete',   'Can delete pages'),
   ('admin.page.insert',   'Can insert content into pages'),
   ('admin.page.export',   'Can export sections from pages'),
-  ('admin.settings',   'Full access to CMS settings');
+  ('admin.settings',   'Full access to CMS settings'),
+  ('admin.user.read',   'Can read existing users'),
+  ('admin.user.create',   'Can create new users'),
+  ('admin.user.update',   'Can edit existing users'),
+  ('admin.user.delete',   'Can delete users'),
+  ('admin.user.block',   'Can block users'),
+  ('admin.user.unblock',   'Can unblock users'),
+  ('admin.user.impersonate',   'Can impersonate users');
 
 -- 3) Grant those permissions to the admin role
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
@@ -355,6 +362,105 @@ WHERE ar.`route_name` IN (
   'admin_sections_export_page','admin_sections_export_section','admin_sections_import_to_page','admin_sections_import_to_section'
 );
 
+-- User Management API Routes
+
+-- Get users with pagination
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_get_all_v1', 'v1', '/admin/users', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUsers', 'GET', NULL, JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'sort', JSON_OBJECT('in', 'query', 'required', false),
+    'sortDirection', JSON_OBJECT('in', 'query', 'required', false)
+));
+
+-- Get single user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_get_one_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserById', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Create user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_create_v1', 'v1', '/admin/users', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::createUser', 'POST', NULL, JSON_OBJECT(
+    'email', JSON_OBJECT('in', 'body', 'required', true),
+    'name', JSON_OBJECT('in', 'body', 'required', false),
+    'user_name', JSON_OBJECT('in', 'body', 'required', false),
+    'password', JSON_OBJECT('in', 'body', 'required', false),
+    'user_type_id', JSON_OBJECT('in', 'body', 'required', false),
+    'blocked', JSON_OBJECT('in', 'body', 'required', false),
+    'id_genders', JSON_OBJECT('in', 'body', 'required', false),
+    'id_languages', JSON_OBJECT('in', 'body', 'required', false),
+    'validation_code', JSON_OBJECT('in', 'body', 'required', false),
+    'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false),
+    'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
+));
+
+-- Update user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_update_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::updateUser', 'PUT', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'email', JSON_OBJECT('in', 'body', 'required', false),
+    'name', JSON_OBJECT('in', 'body', 'required', false),
+    'user_name', JSON_OBJECT('in', 'body', 'required', false),
+    'password', JSON_OBJECT('in', 'body', 'required', false),
+    'user_type_id', JSON_OBJECT('in', 'body', 'required', false),
+    'blocked', JSON_OBJECT('in', 'body', 'required', false),
+    'id_genders', JSON_OBJECT('in', 'body', 'required', false),
+    'id_languages', JSON_OBJECT('in', 'body', 'required', false)
+));
+
+-- Delete user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_delete_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::deleteUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Block/Unblock user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_block_v1', 'v1', '/admin/users/{userId}/block', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::toggleUserBlock', 'PATCH', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'blocked', JSON_OBJECT('in', 'body', 'required', true)
+));
+
+-- Get user groups
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_groups_get_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserGroups', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Add groups to user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_groups_add_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::addGroupsToUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Remove groups from user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_groups_remove_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::removeGroupsFromUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Get user roles
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_roles_get_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserRoles', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Add roles to user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_roles_add_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::addRolesToUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Remove roles from user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_roles_remove_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::removeRolesFromUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
+    'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Send activation mail
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_send_activation_v1', 'v1', '/admin/users/{userId}/send-activation-mail', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::sendActivationMail', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Clean user data
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_clean_data_v1', 'v1', '/admin/users/{userId}/clean-data', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::cleanUserData', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
+-- Impersonate user
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_users_impersonate_v1', 'v1', '/admin/users/{userId}/impersonate', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::impersonateUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
+
 -- give role admin to all users who had group admins
 INSERT IGNORE INTO users_roles (id_users, id_roles)
 SELECT ug.id_users, r.id
@@ -362,3 +468,81 @@ FROM users_groups ug
 INNER JOIN `groups` g ON ug.id_groups = g.id
 INNER JOIN roles  r ON r.name = 'admin'
 WHERE g.name = 'admin';
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.read'
+WHERE ar.`route_name` IN (
+  'admin_users_get_all_v1',
+  'admin_users_get_one_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.create'
+WHERE ar.`route_name` IN (
+  'admin_users_create_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.update'
+WHERE ar.`route_name` IN (
+  'admin_users_update_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.delete'
+WHERE ar.`route_name` IN (
+  'admin_users_delete_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.block'
+WHERE ar.`route_name` IN (
+  'admin_users_block_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.unblock'
+WHERE ar.`route_name` IN (
+  'admin_users_unblock_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.user.impersonate'
+WHERE ar.`route_name` IN (
+  'admin_users_impersonate_v1'
+);
