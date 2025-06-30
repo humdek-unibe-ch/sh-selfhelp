@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Permissions List Response",
+  "description": "Schema for the permissions list API response",
+  "properties": {
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Permission ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Permission name (e.g., 'admin.user.read')"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Permission description"
+          }
+        },
+        "required": ["id", "name", "description"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["permissions"],
+  "additionalProperties": false
+} 

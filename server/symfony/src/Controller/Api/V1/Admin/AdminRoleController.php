@@ -226,4 +226,24 @@ class AdminRoleController extends AbstractController
             );
         }
     }
+
+    /**
+     * Get all available permissions
+     * 
+     * @route /admin/permissions
+     * @method GET
+     */
+    #[Route('/cms-api/v1/admin/permissions', name: 'admin_permissions_list', methods: ['GET'])]
+    public function getAllPermissions(): JsonResponse
+    {
+        try {
+            $permissions = $this->adminRoleService->getAllPermissions();
+            return $this->responseFormatter->formatSuccess(['permissions' => $permissions]);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                $e->getCode() ?: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 } 

@@ -61,7 +61,7 @@ class AdminUserService extends UserContextAwareService
         if ($sort && in_array($sort, $validSortFields)) {
             switch ($sort) {
                 case 'user_type':
-                    $qb->orderBy('ut.lookup_value', $sortDirection);
+                    $qb->orderBy('ut.lookupValue', $sortDirection);
                     break;
                 case 'last_login':
                     $qb->orderBy('u.last_login', $sortDirection);

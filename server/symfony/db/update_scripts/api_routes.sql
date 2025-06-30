@@ -649,6 +649,10 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
     'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
+-- Get all permissions
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_permissions_get_all_v1', 'v1', '/admin/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getAllPermissions', 'GET', NULL, NULL);
+
 -- Create permissions for groups and roles management
 INSERT IGNORE INTO `permissions` (`name`, `description`)
 VALUES
@@ -661,7 +665,8 @@ VALUES
   ('admin.role.create', 'Can create new roles'),
   ('admin.role.update', 'Can edit existing roles'),
   ('admin.role.delete', 'Can delete roles'),
-  ('admin.role.permissions', 'Can manage role permissions');
+  ('admin.role.permissions', 'Can manage role permissions'),
+  ('admin.permission.read', 'Can read all available permissions');
 
 -- Grant group permissions to admin role
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
@@ -674,7 +679,7 @@ WHERE r.name = 'admin' AND p.name IN (
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
 SELECT r.id, p.id FROM roles r, permissions p 
 WHERE r.name = 'admin' AND p.name IN (
-  'admin.role.read', 'admin.role.create', 'admin.role.update', 'admin.role.delete', 'admin.role.permissions'
+  'admin.role.read', 'admin.role.create', 'admin.role.update', 'admin.role.delete', 'admin.role.permissions', 'admin.permission.read'
 );
 
 -- Link group routes to permissions
@@ -793,6 +798,18 @@ WHERE ar.`route_name` IN (
   'admin_roles_permissions_add_v1',
   'admin_roles_permissions_remove_v1',
   'admin_roles_permissions_update_v1'
+);
+
+-- Link permissions endpoint to permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.permission.read'
+WHERE ar.`route_name` IN (
+  'admin_permissions_get_all_v1'
 );
 
 
@@ -919,6 +936,32 @@ JOIN `permissions`   AS p
 WHERE ar.`route_name` IN (
   'admin_assets_delete_v1'
 );
+
+-- Add permissions API route
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_permissions_get_all_v1', 'v1', '/admin/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getAllPermissions', 'GET', NULL, NULL);
+
+-- Add permission for reading all permissions
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES ('admin.permission.read', 'Can read all available permissions');
+
+-- Grant permission to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name = 'admin.permission.read';
+
+-- Link permissions endpoint to permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.permission.read'
+WHERE ar.`route_name` IN (
+  'admin_permissions_get_all_v1'
+);
+
 
 -- allways last
 -- give role admin to all users who had group admins
