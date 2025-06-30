@@ -52,12 +52,12 @@ class AdminUserService extends UserContextAwareService
         
         // Apply search filter
         if ($search) {
-            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search)')
+            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search) OR vc.code LIKE :search')
                ->setParameter('search', '%' . $search . '%');
         }
 
         // Apply sorting
-        $validSortFields = ['email', 'name', 'last_login', 'blocked', 'user_type'];
+        $validSortFields = ['email', 'name', 'last_login', 'blocked', 'user_type', 'code'];
         if ($sort && in_array($sort, $validSortFields)) {
             switch ($sort) {
                 case 'user_type':
@@ -78,12 +78,13 @@ class AdminUserService extends UserContextAwareService
         $countQb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(DISTINCT u.id)')
             ->from(User::class, 'u')
+            ->leftJoin('u.validationCodes', 'vc')
             ->where('u.intern = :intern AND u.id_status > 0')
             ->setParameter('intern', false);
         
         // Apply the same search filter to count query
         if ($search) {
-            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search)')
+            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR vc.code LIKE :search)')
                    ->setParameter('search', '%' . $search . '%');
         }
         
@@ -437,13 +438,14 @@ class AdminUserService extends UserContextAwareService
         return $this->entityManager->createQueryBuilder()
             ->select('u')
             ->from(User::class, 'u')
-            ->leftJoin('u.userType', 'ut')
             ->leftJoin('u.usersGroups', 'ug')
+            ->leftJoin('u.userType', 'ut')
             ->leftJoin('ug.group', 'g')
             ->leftJoin('u.userActivities', 'ua')
+            ->leftJoin('u.validationCodes', 'vc')
             ->where('u.intern = :intern AND u.id_status > 0')
             ->setParameter('intern', false)
-            ->addSelect('ut', 'ug', 'g', 'ua');
+            ->addSelect('ut', 'ug', 'g', 'ua', 'vc');
     }
 
     private function formatUserForList(User $user): array
