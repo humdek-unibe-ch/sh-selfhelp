@@ -44,3 +44,8 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             $loggerService: '@App\Service\Core\ApiRequestLoggerService'
+    
+    # Admin Asset Service - needs explicit project directory
+    App\Service\CMS\Admin\AdminAssetService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Assets List Response",
+  "description": "Response schema for assets list",
+  "properties": {
+    "assets": {
+      "type": "array",
+      "description": "List of assets",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Asset ID"
+          },
+          "id_asset_types": {
+            "type": "integer",
+            "description": "Asset type ID"
+          },
+          "folder": {
+            "type": ["string", "null"],
+            "description": "Asset folder"
+          },
+          "file_name": {
+            "type": ["string", "null"],
+            "description": "File name"
+          },
+          "file_path": {
+            "type": "string",
+            "description": "File path"
+          },
+          "url": {
+            "type": "string",
+            "description": "Asset URL"
+          }
+        },
+        "required": ["id", "id_asset_types", "folder", "file_name", "file_path", "url"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["assets"],
+  "additionalProperties": false
+} 

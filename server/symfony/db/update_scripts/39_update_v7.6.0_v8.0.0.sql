@@ -2,6 +2,11 @@
 UPDATE version
 SET version = 'v8.0.0';
 
+-- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API
+
+-- Ensure upload directory structure exists for assets
+-- Note: This is handled by the AdminAssetService when creating assets
+
 -- Section update functionality added
 -- Updated API routes for section management to include page_keyword parameter
 -- Added section update endpoint with proper field handling for content and property fields

@@ -796,6 +796,130 @@ WHERE ar.`route_name` IN (
 );
 
 
+-- Admin Gender routes
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_genders_get_all_v1', 'v1', '/admin/genders', 'App\\Controller\\Api\\V1\\Admin\\AdminGenderController::getAllGenders', 'GET', NULL, NULL);
+
+-- Admin CMS Preferences routes
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_cms_preferences_get_v1', 'v1', '/admin/cms-preferences', 'App\\Controller\\Api\\V1\\Admin\\AdminCmsPreferenceController::getCmsPreferences', 'GET', NULL, NULL);
+
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_cms_preferences_update_v1', 'v1', '/admin/cms-preferences', 'App\\Controller\\Api\\V1\\Admin\\AdminCmsPreferenceController::updateCmsPreferences', 'PUT', NULL, JSON_OBJECT(
+    'callback_api_key', JSON_OBJECT('in', 'body', 'required', false),
+    'default_language_id', JSON_OBJECT('in', 'body', 'required', false),
+    'anonymous_users', JSON_OBJECT('in', 'body', 'required', false),
+    'firebase_config', JSON_OBJECT('in', 'body', 'required', false)
+));
+
+-- Admin Asset routes
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_assets_get_all_v1', 'v1', '/admin/assets', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::getAllAssets', 'GET', NULL, NULL);
+
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_assets_get_one_v1', 'v1', '/admin/assets/{assetId}', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::getAssetById', 'GET', JSON_OBJECT(
+    'assetId', '[0-9]+'
+), NULL);
+
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_assets_create_v1', 'v1', '/admin/assets', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::createAsset', 'POST', NULL, JSON_OBJECT(
+    'file', JSON_OBJECT('in', 'form', 'required', true),
+    'folder', JSON_OBJECT('in', 'form', 'required', false),
+    'file_name', JSON_OBJECT('in', 'form', 'required', false),
+    'overwrite', JSON_OBJECT('in', 'form', 'required', false)
+));
+
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_assets_delete_v1', 'v1', '/admin/assets/{assetId}', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::deleteAsset', 'DELETE', JSON_OBJECT(
+    'assetId', '[0-9]+'
+), NULL);
+
+-- Create permissions for new features
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.gender.read', 'Can read genders'),
+  ('admin.cms_preferences.read', 'Can read CMS preferences'),
+  ('admin.cms_preferences.update', 'Can update CMS preferences'),
+  ('admin.asset.read', 'Can read assets'),
+  ('admin.asset.create', 'Can create assets'),
+  ('admin.asset.delete', 'Can delete assets');
+
+-- Grant new permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.gender.read', 'admin.cms_preferences.read', 'admin.cms_preferences.update',
+  'admin.asset.read', 'admin.asset.create', 'admin.asset.delete'
+);
+
+-- Link new routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.gender.read'
+WHERE ar.`route_name` IN (
+  'admin_genders_get_all_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.cms_preferences.read'
+WHERE ar.`route_name` IN (
+  'admin_cms_preferences_get_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.cms_preferences.update'
+WHERE ar.`route_name` IN (
+  'admin_cms_preferences_update_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.asset.read'
+WHERE ar.`route_name` IN (
+  'admin_assets_get_all_v1',
+  'admin_assets_get_one_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.asset.create'
+WHERE ar.`route_name` IN (
+  'admin_assets_create_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.asset.delete'
+WHERE ar.`route_name` IN (
+  'admin_assets_delete_v1'
+);
+
 -- allways last
 -- give role admin to all users who had group admins
 INSERT IGNORE INTO users_roles (id_users, id_roles)
