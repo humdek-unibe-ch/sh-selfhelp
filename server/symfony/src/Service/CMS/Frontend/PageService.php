@@ -82,7 +82,7 @@ class PageService extends UserContextAwareService
      * @param int|null $language_id Optional language ID for translations
      * @return array
      */
-    public function getAllAccessiblePagesForUser(string $mode, ?int $language_id = null, bool $admin): array
+    public function getAllAccessiblePagesForUser(string $mode, bool $admin, ?int $language_id = null): array
     {
         $user = $this->getCurrentUser();
         $userId = 1; // guest user

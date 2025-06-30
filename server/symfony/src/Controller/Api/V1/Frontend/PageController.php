@@ -34,7 +34,7 @@ class PageController extends AbstractController
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_WEB, $language_id, false);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_WEB, false, $language_id );            
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_acl_page_definition',
