@@ -307,6 +307,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUserName(): ?string
+    {
+        return $this->user_name;
+    }
+
+    public function setUserName(?string $user_name): static
+    {
+        $this->user_name = $user_name;
+
+        return $this;
+    }
 
     /**
      * Get the roles granted to the user for Symfony Security

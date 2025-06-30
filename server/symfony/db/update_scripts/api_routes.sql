@@ -461,13 +461,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_impersonate_v1', 'v1', '/admin/users/{userId}/impersonate', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::impersonateUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
--- give role admin to all users who had group admins
-INSERT IGNORE INTO users_roles (id_users, id_roles)
-SELECT ug.id_users, r.id
-FROM users_groups ug
-INNER JOIN `groups` g ON ug.id_groups = g.id
-INNER JOIN roles  r ON r.name = 'admin'
-WHERE g.name = 'admin';
+
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT
@@ -546,3 +540,267 @@ JOIN `permissions`   AS p
 WHERE ar.`route_name` IN (
   'admin_users_impersonate_v1'
 );
+
+-- Group Management API Routes
+
+-- Get groups with pagination
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_get_all_v1', 'v1', '/admin/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroups', 'GET', NULL, JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'sort', JSON_OBJECT('in', 'query', 'required', false),
+    'sortDirection', JSON_OBJECT('in', 'query', 'required', false)
+));
+
+-- Get single group
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_get_one_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroupById', 'GET', JSON_OBJECT('groupId', '[0-9]+'), NULL);
+
+-- Create group
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_create_v1', 'v1', '/admin/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::createGroup', 'POST', NULL, JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', true),
+    'description', JSON_OBJECT('in', 'body', 'required', false),
+    'id_group_types', JSON_OBJECT('in', 'body', 'required', false),
+    'requires_2fa', JSON_OBJECT('in', 'body', 'required', false),
+    'acls', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
+));
+
+-- Update group
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_update_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::updateGroup', 'PUT', JSON_OBJECT('groupId', '[0-9]+'), JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', false),
+    'description', JSON_OBJECT('in', 'body', 'required', false),
+    'id_group_types', JSON_OBJECT('in', 'body', 'required', false),
+    'requires_2fa', JSON_OBJECT('in', 'body', 'required', false),
+    'acls', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
+));
+
+-- Delete group
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_delete_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::deleteGroup', 'DELETE', JSON_OBJECT('groupId', '[0-9]+'), NULL);
+
+-- Get group ACLs
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_acls_get_v1', 'v1', '/admin/groups/{groupId}/acls', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroupAcls', 'GET', JSON_OBJECT('groupId', '[0-9]+'), NULL);
+
+-- Update group ACLs
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_groups_acls_update_v1', 'v1', '/admin/groups/{groupId}/acls', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::updateGroupAcls', 'PUT', JSON_OBJECT('groupId', '[0-9]+'), JSON_OBJECT(
+    'acls', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Role Management API Routes
+
+-- Get roles with pagination
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_get_all_v1', 'v1', '/admin/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRoles', 'GET', NULL, JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'sort', JSON_OBJECT('in', 'query', 'required', false),
+    'sortDirection', JSON_OBJECT('in', 'query', 'required', false)
+));
+
+-- Get single role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_get_one_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRoleById', 'GET', JSON_OBJECT('roleId', '[0-9]+'), NULL);
+
+-- Create role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_create_v1', 'v1', '/admin/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::createRole', 'POST', NULL, JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', true),
+    'description', JSON_OBJECT('in', 'body', 'required', false),
+    'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
+));
+
+-- Update role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_update_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::updateRole', 'PUT', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', false),
+    'description', JSON_OBJECT('in', 'body', 'required', false),
+    'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
+));
+
+-- Delete role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_delete_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::deleteRole', 'DELETE', JSON_OBJECT('roleId', '[0-9]+'), NULL);
+
+-- Get role permissions
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_permissions_get_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRolePermissions', 'GET', JSON_OBJECT('roleId', '[0-9]+'), NULL);
+
+-- Add permissions to role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_permissions_add_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::addPermissionsToRole', 'POST', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
+    'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Remove permissions from role
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_permissions_remove_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::removePermissionsFromRole', 'DELETE', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
+    'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Update role permissions (bulk replace)
+INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_roles_permissions_update_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::updateRolePermissions', 'PUT', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
+    'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Create permissions for groups and roles management
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.group.read', 'Can read existing groups'),
+  ('admin.group.create', 'Can create new groups'),
+  ('admin.group.update', 'Can edit existing groups'),
+  ('admin.group.delete', 'Can delete groups'),
+  ('admin.group.acl', 'Can manage group ACLs'),
+  ('admin.role.read', 'Can read existing roles'),
+  ('admin.role.create', 'Can create new roles'),
+  ('admin.role.update', 'Can edit existing roles'),
+  ('admin.role.delete', 'Can delete roles'),
+  ('admin.role.permissions', 'Can manage role permissions');
+
+-- Grant group permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.group.read', 'admin.group.create', 'admin.group.update', 'admin.group.delete', 'admin.group.acl'
+);
+
+-- Grant role permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.role.read', 'admin.role.create', 'admin.role.update', 'admin.role.delete', 'admin.role.permissions'
+);
+
+-- Link group routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.group.read'
+WHERE ar.`route_name` IN (
+  'admin_groups_get_all_v1',
+  'admin_groups_get_one_v1',
+  'admin_groups_acls_get_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.group.create'
+WHERE ar.`route_name` IN (
+  'admin_groups_create_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.group.update'
+WHERE ar.`route_name` IN (
+  'admin_groups_update_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.group.delete'
+WHERE ar.`route_name` IN (
+  'admin_groups_delete_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.group.acl'
+WHERE ar.`route_name` IN (
+  'admin_groups_acls_update_v1'
+);
+
+-- Link role routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.role.read'
+WHERE ar.`route_name` IN (
+  'admin_roles_get_all_v1',
+  'admin_roles_get_one_v1',
+  'admin_roles_permissions_get_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.role.create'
+WHERE ar.`route_name` IN (
+  'admin_roles_create_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.role.update'
+WHERE ar.`route_name` IN (
+  'admin_roles_update_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.role.delete'
+WHERE ar.`route_name` IN (
+  'admin_roles_delete_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.role.permissions'
+WHERE ar.`route_name` IN (
+  'admin_roles_permissions_add_v1',
+  'admin_roles_permissions_remove_v1',
+  'admin_roles_permissions_update_v1'
+);
+
+
+-- allways last
+-- give role admin to all users who had group admins
+INSERT IGNORE INTO users_roles (id_users, id_roles)
+SELECT ug.id_users, r.id
+FROM users_groups ug
+INNER JOIN `groups` g ON ug.id_groups = g.id
+INNER JOIN roles  r ON r.name = 'admin'
+WHERE g.name = 'admin';

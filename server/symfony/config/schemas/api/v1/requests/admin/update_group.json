@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Update Group Request",
+  "description": "Schema for updating an existing group",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Group name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 250,
+      "description": "Group description"
+    },
+    "id_group_types": {
+      "type": "integer",
+      "description": "Group type ID"
+    },
+    "requires_2fa": {
+      "type": "boolean",
+      "description": "Whether the group requires 2FA"
+    },
+    "acls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "integer",
+            "description": "Page ID for ACL"
+          },
+          "acl_select": {
+            "type": "boolean",
+            "default": true,
+            "description": "Select permission"
+          },
+          "acl_insert": {
+            "type": "boolean",
+            "default": false,
+            "description": "Insert permission"
+          },
+          "acl_update": {
+            "type": "boolean",
+            "default": false,
+            "description": "Update permission"
+          },
+          "acl_delete": {
+            "type": "boolean",
+            "default": false,
+            "description": "Delete permission"
+          }
+        },
+        "required": ["page_id"],
+        "additionalProperties": false
+      },
+      "description": "ACLs for the group"
+    }
+  },
+  "additionalProperties": false
+} 

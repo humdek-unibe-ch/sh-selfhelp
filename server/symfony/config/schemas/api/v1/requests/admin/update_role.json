@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Update Role Request",
+  "description": "Schema for updating an existing role",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "description": "Role name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Role description"
+    },
+    "permission_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Array of permission IDs to assign to the role"
+    }
+  },
+  "additionalProperties": false
+} 

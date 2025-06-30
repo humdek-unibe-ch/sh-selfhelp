@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Groups List Response",
+  "description": "Response schema for groups list",
+  "properties": {
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Group ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Group description"
+          },
+          "id_group_types": {
+            "type": ["integer", "null"],
+            "description": "Group type ID"
+          },
+          "requires_2fa": {
+            "type": "boolean",
+            "description": "Whether the group requires 2FA"
+          },
+          "user_count": {
+            "type": "integer",
+            "description": "Number of users in the group"
+          }
+        },
+        "required": ["id", "name", "description", "requires_2fa", "user_count"],
+        "additionalProperties": false
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "description": "Current page number"
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "Number of items per page"
+        },
+        "totalCount": {
+          "type": "integer",
+          "description": "Total number of items"
+        },
+        "totalPages": {
+          "type": "integer",
+          "description": "Total number of pages"
+        },
+        "hasNext": {
+          "type": "boolean",
+          "description": "Whether there is a next page"
+        },
+        "hasPrevious": {
+          "type": "boolean",
+          "description": "Whether there is a previous page"
+        }
+      },
+      "required": ["page", "pageSize", "totalCount", "totalPages", "hasNext", "hasPrevious"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["groups", "pagination"],
+  "additionalProperties": false
+} 

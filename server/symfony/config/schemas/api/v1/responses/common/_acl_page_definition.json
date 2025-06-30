@@ -18,7 +18,7 @@
                 "acl_update": { "type": "integer", "enum": [0, 1] },
                 "acl_delete": { "type": "integer", "enum": [0, 1] },
                 "keyword": { "type": "string" },
-                "url": { "type": "string" },
+                "url": { "type": ["string", "null"] },
                 "parent": { "type": ["integer", "null"] },
                 "is_headless": { "type": "integer", "enum": [0, 1] },
                 "nav_position": { "type": ["integer", "null"] },
