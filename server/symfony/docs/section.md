@@ -61,14 +61,12 @@ Requires a valid JWT token with admin access.
           {
             "language_id": 1,
             "language_code": "en",
-            "gender_id": 1,
             "content": "Example Title",
             "meta": null
           },
           {
             "language_id": 2,
             "language_code": "fr",
-            "gender_id": 1,
             "content": "Titre d'exemple",
             "meta": null
           }
@@ -87,7 +85,7 @@ Requires a valid JWT token with admin access.
           {
             "language_id": 1,
             "language_code": "en",
-            "gender_id": 1,
+            
             "content": "Example Content",
             "meta": {
               "key": "value"
@@ -152,7 +150,7 @@ The response follows the standard API envelope pattern and includes the followin
 - `fields`: An array of fields associated with the section's style, including:
   - Basic field properties (id, name, type, etc.)
   - Default values and display settings
-  - Translations for each field, grouped by language and gender
+  - Translations for each field, grouped by language
 - `languages`: An array of languages found in the translations, with their IDs and locale codes.
 
 ### JSON Schema
@@ -165,7 +163,7 @@ The response is validated against the JSON schema located at:
 - The endpoint checks if the user has permission to view the section.
 - It retrieves the section entity, its style, and all style fields.
 - It fetches translations for the section's fields from the `sections_fields_translation` table.
-- Translations are grouped by field ID, language ID, and gender ID.
+- Translations are grouped by field ID, language ID
 - The response includes all languages present in the translations.
 
 ### Related Entities
@@ -175,4 +173,3 @@ The response is validated against the JSON schema located at:
 - `StylesField`: The fields associated with the style.
 - `SectionsFieldsTranslation`: The translations for each field in the section.
 - `Language`: The languages used in translations.
-- `Gender`: The genders used in translations.

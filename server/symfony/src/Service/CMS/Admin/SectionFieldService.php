@@ -50,12 +50,11 @@ class SectionFieldService extends UserContextAwareService
         
         // Fetch all field translations for this section
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('t, l, f, g, ft')
+        $qb->select('t, l, f, ft')
             ->from('App\Entity\SectionsFieldsTranslation', 't')
             ->leftJoin('t.language', 'l')
             ->leftJoin('t.field', 'f')
             ->leftJoin('f.type', 'ft')
-            ->leftJoin('t.gender', 'g')
             ->where('t.section = :section')
             ->setParameter('section', $section);
         $translations = $qb->getQuery()->getResult();
@@ -65,14 +64,13 @@ class SectionFieldService extends UserContextAwareService
         foreach ($translations as $tr) {
             $fieldId = $tr->getField()->getId();
             $langId = $tr->getLanguage()->getId();
-            $genderId = $tr->getGender()->getId();
             if (!isset($translationsByFieldLang[$fieldId])) {
                 $translationsByFieldLang[$fieldId] = [];
             }
             if (!isset($translationsByFieldLang[$fieldId][$langId])) {
                 $translationsByFieldLang[$fieldId][$langId] = [];
             }
-            $translationsByFieldLang[$fieldId][$langId][$genderId] = [
+            $translationsByFieldLang[$fieldId][$langId] = [
                 'content' => $tr->getContent(),
                 'meta' => $tr->getMeta(),
             ];
@@ -102,26 +100,22 @@ class SectionFieldService extends UserContextAwareService
             if ($field->isDisplay()) {
                 // Content field (display=1) - can have translations for each language
                 if (isset($translationsByFieldLang[$fieldId])) {
-                    foreach ($translationsByFieldLang[$fieldId] as $langId => $genderTranslations) {
-                        foreach ($genderTranslations as $genderId => $translation) {
+                    foreach ($translationsByFieldLang[$fieldId] as $langId => $translation) {
                             $fieldData['translations'][] = [
                                 'language_id' => $langId,
-                                'gender_id' => $genderId,
                                 'content' => $translation['content'],
                                 'meta' => $translation['meta']
                             ];
-                        }
                     }
                 }
             } else {
                 // Property field (display=0) - use language_id = 1 only
                 if (isset($translationsByFieldLang[$fieldId][1])) {
-                    $propertyTranslation = $translationsByFieldLang[$fieldId][1][1] ?? null;
+                    $propertyTranslation = $translationsByFieldLang[$fieldId][1] ?? null;
                     if ($propertyTranslation) {
                         $fieldData['translations'][] = [
                             'language_id' => 1,
                             'language_code' => 'property',  // This is a property, not actually language-specific
-                            'gender_id' => 1,
                             'content' => $propertyTranslation['content'],
                             'meta' => $propertyTranslation['meta']
                         ];

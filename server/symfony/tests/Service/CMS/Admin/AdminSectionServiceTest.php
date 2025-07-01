@@ -2,29 +2,8 @@
 
 namespace App\Tests\Service\CMS\Admin;
 
-use App\Entity\Field;
-use App\Entity\FieldType;
-use App\Entity\Gender;
-use App\Entity\Language;
-use App\Entity\Section;
-use App\Entity\Style;
-use App\Entity\StylesField;
-use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
-use App\Repository\PageRepository;
-use App\Repository\SectionRepository;
-use App\Repository\StyleRepository;
-use App\Service\ACL\ACLService;
 use App\Service\CMS\Admin\AdminSectionService;
-use App\Service\Core\TransactionService;
-use App\Service\Auth\UserContextService;
-use App\Service\CMS\Admin\PositionManagementService;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\TestCase;
-use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\QueryBuilder;
 use App\Tests\Controller\Api\V1\BaseControllerTest;
 
 class AdminSectionServiceTest extends BaseControllerTest

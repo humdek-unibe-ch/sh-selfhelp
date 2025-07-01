@@ -130,7 +130,6 @@ The export includes only essential data needed for import:
 - Field name with translations by locale
 - Content and meta data for each translation
 - No field metadata (type, display, default_value, help, etc.) - these are defined in the database
-- No gender information - simplified to locale-only structure
 
 ### 3. Hierarchical Structure
 
@@ -147,7 +146,7 @@ The export includes only essential data needed for import:
 ### 5. Translation Support
 
 - Exports all translations for each field
-- Groups by locale only (gender removed for simplification)
+- Groups by locale only
 - Includes meta data for advanced field configurations
 - Handles both content fields (display=true) and property fields (display=false)
 

@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class PageService extends UserContextAwareService
 {
-    // Default values for language and gender
+    // Default values for language
     private const PROPERTY_LANGUAGE_ID = 1; // Language ID 1 is for properties, not a real language
 
     public function __construct(

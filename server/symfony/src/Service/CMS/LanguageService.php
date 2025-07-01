@@ -52,7 +52,7 @@ class LanguageService extends BaseService
     public function getAllNonInternalLanguages(): array
     {
         // Clear any cached entities to avoid proxy objects
-        $this->entityManager->clear(Language::class);
+        $this->entityManager->clear();
         
         // Get all non-internal languages
         $languages = $this->languageRepository->findAllExceptInternal();

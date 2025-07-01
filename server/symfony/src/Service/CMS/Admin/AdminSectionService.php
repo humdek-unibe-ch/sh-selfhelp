@@ -486,7 +486,6 @@ class AdminSectionService extends UserContextAwareService
                 ->getQuery()
                 ->getResult();
             
-            // Build minimal fields data - only field names with values (no gender)
             $fields = [];
             foreach ($translations as $translation) {
                 $field = $translation->getField();
@@ -504,7 +503,7 @@ class AdminSectionService extends UserContextAwareService
                     $fields[$fieldName] = [];
                 }
                 
-                // Store translation by locale only (no gender)
+                // Store translation by locale only
                 $fields[$fieldName][$locale] = [
                     'content' => $translation->getContent(),
                     'meta' => $translation->getMeta()
@@ -746,7 +745,7 @@ class AdminSectionService extends UserContextAwareService
     
     /**
      * Import section fields using simplified format (modular method)
-     * Only processes field names with their values - minimal data needed (no gender)
+     * Only processes field names with their values
      * 
      * @param Section $section The section to import fields for
      * @param array $fieldsData The simplified fields data to import
@@ -774,10 +773,6 @@ class AdminSectionService extends UserContextAwareService
                     continue;
                 }
                 
-                // Use default gender (ID 1) since gender is being removed
-                $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
-                    ->find(1);
-                
                 $content = $translationData['content'] ?? '';
                 $meta = $translationData['meta'] ?? null;
                 
@@ -787,7 +782,6 @@ class AdminSectionService extends UserContextAwareService
                         'section' => $section,
                         'field' => $field,
                         'language' => $language,
-                        'gender' => $gender
                     ]);
                 
                 if ($existingTranslation) {

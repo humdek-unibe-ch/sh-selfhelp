@@ -66,10 +66,6 @@
                                             "type": ["string", "null"],
                                             "description": "Language code or 'property' for property fields"
                                         },
-                                        "gender_id": {
-                                            "type": "integer",
-                                            "description": "ID of the gender"
-                                        },
                                         "content": {
                                             "type": ["string", "null"],
                                             "description": "Translated content"
@@ -79,7 +75,7 @@
                                             "description": "Additional metadata for the translation"
                                         }
                                     },
-                                    "required": ["language_id", "gender_id", "content"]
+                                    "required": ["language_id", "content"]
                                 }
                             }
                         },

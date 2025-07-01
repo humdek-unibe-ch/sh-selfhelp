@@ -2,6 +2,7 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Language;
 use App\Entity\Page;
 use App\Entity\Section;
 use App\Entity\PagesSection;
@@ -262,7 +263,6 @@ class SectionExportImportService extends UserContextAwareService
                 ->getQuery()
                 ->getResult();
             
-            // Build minimal fields data - only field names with values (no gender)
             $fields = [];
             foreach ($translations as $translation) {
                 $field = $translation->getField();
@@ -280,7 +280,7 @@ class SectionExportImportService extends UserContextAwareService
                     $fields[$fieldName] = [];
                 }
                 
-                // Store translation by locale only (no gender)
+                // Store translation by locale only
                 $fields[$fieldName][$locale] = [
                     'content' => $translation->getContent(),
                     'meta' => $translation->getMeta()
@@ -429,7 +429,7 @@ class SectionExportImportService extends UserContextAwareService
 
     /**
      * Import section fields using simplified format (modular method)
-     * Only processes field names with their values - minimal data needed (no gender)
+     * Only processes field names with their values - minimal data needed
      * 
      * @param Section $section The section to import fields for
      * @param array $fieldsData The simplified fields data to import
@@ -449,17 +449,13 @@ class SectionExportImportService extends UserContextAwareService
             // Process each locale
             foreach ($localeData as $locale => $translationData) {
                 // Find language by locale
-                $language = $this->entityManager->getRepository(\App\Entity\Language::class)
+                $language = $this->entityManager->getRepository(Language::class)
                     ->findOneBy(['locale' => $locale]);
                 
                 if (!$language) {
                     // Skip translations for languages that don't exist
                     continue;
                 }
-                
-                // Use default gender (ID 1) since gender is being removed
-                $gender = $this->entityManager->getRepository(\App\Entity\Gender::class)
-                    ->find(1);
                 
                 $content = $translationData['content'] ?? '';
                 $meta = $translationData['meta'] ?? null;
@@ -470,7 +466,6 @@ class SectionExportImportService extends UserContextAwareService
                         'section' => $section,
                         'field' => $field,
                         'language' => $language,
-                        'gender' => $gender
                     ]);
                 
                 if ($existingTranslation) {

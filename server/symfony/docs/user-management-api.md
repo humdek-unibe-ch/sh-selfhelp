@@ -76,7 +76,7 @@ GET /cms-api/v1/admin/users/{userId}
     "email": "user@example.com",
     "name": "John Doe",
     "user_name": "johndoe",
-    "id_genders": 1,
+    
     "id_languages": 1,
     "id_userTypes": 72,
     "groups": [
@@ -103,7 +103,7 @@ POST /cms-api/v1/admin/users
   "password": "securepassword",
   "user_type_id": 72,
   "blocked": false,
-  "id_genders": 1,
+  
   "id_languages": 1,
   "validation_code": "CODE123",
   "group_ids": [1, 2],

@@ -840,7 +840,7 @@ class AdminSectionControllerTest extends BaseControllerTest
                 $this->assertArrayHasKey('style_name', $sectionData);
                 $this->assertArrayHasKey('fields', $sectionData);
                 $this->assertArrayHasKey('children', $sectionData);
-                $this->assertIsArray($sectionData['fields']); // Now contains field_name => locale => gender => {content, meta}
+                $this->assertIsArray($sectionData['fields']); // Now contains field_name => locale => {content, meta}
                 $this->assertIsArray($sectionData['children']);
             }
             
