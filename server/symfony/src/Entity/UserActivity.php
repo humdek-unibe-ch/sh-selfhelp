@@ -59,12 +59,7 @@ class UserActivity
         return $this->idUsers;
     }
 
-    public function setIdUsers(int $idUsers): static
-    {
-        $this->idUsers = $idUsers;
 
-        return $this;
-    }
 
     public function getUrl(): ?string
     {
@@ -95,12 +90,7 @@ class UserActivity
         return $this->idType;
     }
 
-    public function setIdType(int $idType): static
-    {
-        $this->idType = $idType;
 
-        return $this;
-    }
 
     public function getExecTime(): ?string
     {

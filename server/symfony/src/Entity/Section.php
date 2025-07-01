@@ -33,13 +33,6 @@ class Section
         return $this->idStyles;
     }
 
-    public function setIdStyles(int $idStyles): static
-    {
-        $this->idStyles = $idStyles;
-
-        return $this;
-    }
-
     public function getName(): ?string
     {
         return $this->name;

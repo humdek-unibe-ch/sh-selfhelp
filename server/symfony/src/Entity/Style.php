@@ -65,24 +65,14 @@ class Style
         return $this->idType;
     }
 
-    public function setIdType(int $idType): static
-    {
-        $this->idType = $idType;
 
-        return $this;
-    }
 
     public function getIdGroup(): ?int
     {
         return $this->idGroup;
     }
 
-    public function setIdGroup(int $idGroup): static
-    {
-        $this->idGroup = $idGroup;
 
-        return $this;
-    }
 
     public function getDescription(): ?string
     {

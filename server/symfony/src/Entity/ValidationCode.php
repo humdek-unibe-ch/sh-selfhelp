@@ -41,12 +41,7 @@ class ValidationCode
         return $this->idUsers;
     }
 
-    public function setIdUsers(?int $idUsers): static
-    {
-        $this->idUsers = $idUsers;
 
-        return $this;
-    }
 
     public function getCreated(): ?\DateTime
     {

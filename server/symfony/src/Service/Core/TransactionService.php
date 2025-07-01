@@ -75,45 +75,85 @@ class TransactionService
             }
         }
         
-        // Get lookup entities for transaction type and by
-        $transactionType = $this->lookupService->findByTypeAndCode(
-            LookupService::TRANSACTION_TYPES,
-            $tranType
-        );
-        
-        $transactionBy = $this->lookupService->findByTypeAndCode(
-            LookupService::TRANSACTION_BY,
-            $tranBy
-        );
-        
         // Create transaction entity
         $transaction = new Transaction();
         
-        // Set the entity relationships directly
-        if ($transactionType) {
-            $transaction->setTransactionType($transactionType);
-        }
+        // Check if we're in an active transaction to avoid EntityManager conflicts
         
-        if ($transactionBy) {
-            $transaction->setTransactionBy($transactionBy);
-        }
+            // Safe to do lookup queries when not in transaction
+            $transactionType = $this->lookupService->findByTypeAndCode(
+                LookupService::TRANSACTION_TYPES,
+                $tranType
+            );
+            
+            $transactionBy = $this->lookupService->findByTypeAndCode(
+                LookupService::TRANSACTION_BY,
+                $tranBy
+            );
+            
+            // Set the entity relationships directly
+            if ($transactionType) {
+                $transaction->setTransactionType($transactionType);
+            }
+            
+            if ($transactionBy) {
+                $transaction->setTransactionBy($transactionBy);
+            }
+       
         
         // Set user if available
         if ($userId) {
             $user = $this->entityManager->getReference('App\Entity\User', $userId);
             $transaction->setUser($user);
         }
+        
         $transaction->setTableName($tableName);
-        $transaction->setIdTableName($entryId);
         $transaction->setTransactionLog(json_encode($log));
         $transaction->setTransactionTime(new \DateTime());
         
-        // Persist and flush
+        // Persist the transaction
         $this->entityManager->persist($transaction);
+        
         $this->entityManager->flush();
         
         return $transaction;
     }
     
-
+    /**
+     * Get transaction type ID by code without doing database queries
+     * This uses a hardcoded mapping to avoid DB queries during active transactions
+     */
+    private function getTransactionTypeIdByCode(string $code): ?int
+    {
+        // Hardcoded mapping for common transaction types
+        // This avoids database queries during active transactions
+        $mapping = [
+            LookupService::TRANSACTION_TYPES_INSERT => 1,
+            LookupService::TRANSACTION_TYPES_UPDATE => 2,
+            LookupService::TRANSACTION_TYPES_DELETE => 3,
+            LookupService::TRANSACTION_TYPES_SELECT => 4,
+            LookupService::TRANSACTION_TYPES_STATUS_CHANGE => 5,
+        ];
+        
+        return $mapping[$code] ?? null;
+    }
+    
+    /**
+     * Get transaction by ID by code without doing database queries
+     * This uses a hardcoded mapping to avoid DB queries during active transactions
+     */
+    private function getTransactionByIdByCode(string $code): ?int
+    {
+        // Hardcoded mapping for common transaction by types
+        // This avoids database queries during active transactions
+        $mapping = [
+            LookupService::TRANSACTION_BY_BY_USER => 1,
+            LookupService::TRANSACTION_BY_BY_SYSTEM => 2,
+            LookupService::TRANSACTION_BY_BY_ANONYMOUS_USER => 3,
+            LookupService::TRANSACTION_BY_BY_CRON_JOB => 4,
+            LookupService::TRANSACTION_BY_BY_SYSTEM_USER => 5,
+        ];
+        
+        return $mapping[$code] ?? null;
+    }
 }

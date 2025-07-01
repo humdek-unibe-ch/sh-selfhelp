@@ -61,7 +61,6 @@ class SectionCreationService extends UserContextAwareService
             $section = new Section();
             $section->setName(time() . '-' . $style->getName());
             $section->setStyle($style);
-            $section->setIdStyles($style->getId());
             $this->entityManager->persist($section);
             $this->entityManager->flush(); // Flush to get the section ID
 
@@ -70,8 +69,6 @@ class SectionCreationService extends UserContextAwareService
             $pagesSection->setPage($page);
             $pagesSection->setSection($section);
             $pagesSection->setPosition($position);
-            $pagesSection->setIdPages($page->getId());
-            $pagesSection->setIdSections($section->getId());
             $this->entityManager->persist($pagesSection);
             $this->entityManager->flush();
 
@@ -138,7 +135,6 @@ class SectionCreationService extends UserContextAwareService
             $childSection = new Section();
             $childSection->setName(time() . '-' . $style->getName());
             $childSection->setStyle($style);
-            $childSection->setIdStyles($style->getId());
             $this->entityManager->persist($childSection);
             $this->entityManager->flush(); // Flush to get the section ID
 

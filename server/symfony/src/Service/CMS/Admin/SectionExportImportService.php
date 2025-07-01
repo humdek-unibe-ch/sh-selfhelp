@@ -367,9 +367,7 @@ class SectionExportImportService extends UserContextAwareService
                 // Add to page
                 $pageSection = new PagesSection();
                 $pageSection->setPage($page);
-                $pageSection->setIdPages($page->getId());
                 $pageSection->setSection($section);
-                $pageSection->setIdSections($section->getId());
                 
                 if ($sectionPosition !== null) {
                     $pageSection->setPosition($sectionPosition);
@@ -494,12 +492,6 @@ class SectionExportImportService extends UserContextAwareService
                     if ($meta !== null) {
                         $translation->setMeta($meta);
                     }
-                    
-                    // Also set the ID fields for backward compatibility
-                    $translation->setIdSections($section->getId());
-                    $translation->setIdFields($field->getId());
-                    $translation->setIdLanguages($language->getId());
-                    $translation->setIdGenders($gender->getId());
                     
                     $this->entityManager->persist($translation);
                 }

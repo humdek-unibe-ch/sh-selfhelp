@@ -2,6 +2,7 @@
 
 namespace App\Service\Core;
 
+use App\Entity\Lookup;
 use App\Entity\ScheduledJob;
 use App\Entity\ScheduledJobsUser;
 use App\Entity\ScheduledJobsMailQueue;
@@ -10,6 +11,7 @@ use App\Entity\ScheduledJobsTask;
 use App\Entity\MailQueue;
 use App\Entity\Notification;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,12 +33,11 @@ class JobSchedulerService extends BaseService
     private LoggerInterface $logger;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $em,
         TransactionService $transactionService,
         LookupService $lookupService,
         LoggerInterface $logger
     ) {
-        $this->entityManager = $entityManager;
         $this->transactionService = $transactionService;
         $this->lookupService = $lookupService;
         $this->logger = $logger;
@@ -49,21 +50,20 @@ class JobSchedulerService extends BaseService
      * @param string $transactionBy Who initiated the transaction
      * @return int|false Job ID if successful, false on failure
      */
-    public function scheduleJob(array $jobData, string $transactionBy): int|false
+    public function scheduleJob(array $jobData, string $transactionBy): ScheduledJob|false
     {
         try {
-            $this->entityManager->beginTransaction();
             
-            $jobId = $this->createScheduledJob($jobData);
-            if (!$jobId) {
+            $job = $this->createScheduledJob($jobData);
+            if (!$job) {
                 throw new \Exception('Failed to create scheduled job');
             }
 
             // Schedule specific job type
             $success = match ($jobData['type']) {
-                $this->lookupService::JOB_TYPES_EMAIL => $this->scheduleEmailJob($jobId, $jobData),
-                $this->lookupService::JOB_TYPES_NOTIFICATION => $this->scheduleNotificationJob($jobId, $jobData),
-                $this->lookupService::JOB_TYPES_TASK => $this->scheduleTaskJob($jobId, $jobData),
+                $this->lookupService::JOB_TYPES_EMAIL => $this->scheduleEmailJob($job, $jobData),
+                $this->lookupService::JOB_TYPES_NOTIFICATION => $this->scheduleNotificationJob($job, $jobData),
+                $this->lookupService::JOB_TYPES_TASK => $this->scheduleTaskJob($job, $jobData),
                 default => throw new \Exception('Unknown job type: ' . $jobData['type'])
             };
 
@@ -73,24 +73,22 @@ class JobSchedulerService extends BaseService
 
             // Add users to the job
             if (isset($jobData['users']) && is_array($jobData['users'])) {
-                $this->addUsersToJob($jobId, $jobData['users']);
+                $this->addUsersToJob($job, $jobData['users']);
             }
 
             // Log the transaction
             $this->transactionService->logTransaction(
                 'insert',
                 $transactionBy,
-                null,
                 'scheduledJobs',
-                $jobId,
-                ['job_type' => $jobData['type'], 'description' => $jobData['description'] ?? '']
+                $job->getId(),
+                false,
+                'Job scheduled: ' . ($jobData['description'] ?? $jobData['type'])
             );
 
-            $this->entityManager->commit();
-            return $jobId;
+            return $job;
 
         } catch (\Exception $e) {
-            $this->entityManager->rollback();
             $this->logger->error('Failed to schedule job', [
                 'error' => $e->getMessage(),
                 'jobData' => $jobData
@@ -107,7 +105,7 @@ class JobSchedulerService extends BaseService
      * @param array $emailConfig Email configuration
      * @return int|false Job ID if successful, false on failure
      */
-    public function scheduleUserValidationEmail(int $userId, string $token, array $emailConfig = []): int|false
+    public function scheduleUserValidationEmail(int $userId, string $token, array $emailConfig = []): ScheduledJob|false
     {
         $defaultConfig = [
             'from_email' => $emailConfig['from_email'] ?? 'noreply@example.com',
@@ -139,9 +137,9 @@ class JobSchedulerService extends BaseService
     public function executeJob(int $jobId, string $transactionBy): bool
     {
         try {
-            $this->entityManager->beginTransaction();
+            $this->em->beginTransaction();
 
-            $job = $this->entityManager->getRepository(ScheduledJob::class)->find($jobId);
+            $job = $this->em->getRepository(ScheduledJob::class)->find($jobId);
             if (!$job) {
                 throw new \Exception('Job not found: ' . $jobId);
             }
@@ -158,14 +156,11 @@ class JobSchedulerService extends BaseService
             };
 
             // Update job status
-            $statusId = $this->lookupService->getLookupIdByValue(
-                $this->lookupService::SCHEDULED_JOBS_STATUS,
-                $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED
-            );
+            $status = $this->em->getRepository(Lookup::class)->findOneBy(['lookup_type' => $this->lookupService::SCHEDULED_JOBS_STATUS, 'lookup_value' => $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED]);
             
-            $job->setIdJobStatus($statusId);
+            $job->setStatus($status);
             $job->setDateExecuted(new \DateTime());
-            $this->entityManager->flush();
+            $this->em->flush();
 
             // Log the execution
             $this->transactionService->logTransaction(
@@ -177,11 +172,11 @@ class JobSchedulerService extends BaseService
                 ['status' => $success ? 'executed' : 'failed']
             );
 
-            $this->entityManager->commit();
+            $this->em->commit();
             return $success;
 
         } catch (\Exception $e) {
-            $this->entityManager->rollback();
+            $this->em->rollback();
             $this->logger->error('Failed to execute job', [
                 'jobId' => $jobId,
                 'error' => $e->getMessage()
@@ -200,16 +195,16 @@ class JobSchedulerService extends BaseService
     public function deleteJob(int $jobId, string $transactionBy): bool
     {
         try {
-            $this->entityManager->beginTransaction();
+            $this->em->beginTransaction();
 
-            $job = $this->entityManager->getRepository(ScheduledJob::class)->find($jobId);
+            $job = $this->em->getRepository(ScheduledJob::class)->find($jobId);
             if (!$job) {
                 throw new \Exception('Job not found: ' . $jobId);
             }
 
-            $deletedStatusId = $this->lookupService->getLookupIdByValue($this->lookupService::SCHEDULED_JOBS_STATUS, $this->lookupService::SCHEDULED_JOBS_STATUS_DELETED);
-            $job->setIdJobStatus($deletedStatusId);
-            $this->entityManager->flush();
+            $deletedStatus = $this->em->getRepository(Lookup::class)->findOneBy(['lookup_type' => $this->lookupService::SCHEDULED_JOBS_STATUS, 'lookup_value' => $this->lookupService::SCHEDULED_JOBS_STATUS_DELETED]);
+            $job->setStatus($deletedStatus);
+            $this->em->flush();
 
             $this->transactionService->logTransaction(
                 'delete',
@@ -220,11 +215,11 @@ class JobSchedulerService extends BaseService
                 ['action' => 'marked_as_deleted']
             );
 
-            $this->entityManager->commit();
+            $this->em->commit();
             return true;
 
         } catch (\Exception $e) {
-            $this->entityManager->rollback();
+            $this->em->rollback();
             $this->logger->error('Failed to delete job', [
                 'jobId' => $jobId,
                 'error' => $e->getMessage()
@@ -263,15 +258,15 @@ class JobSchedulerService extends BaseService
     /**
      * Create the base scheduled job entry
      */
-    private function createScheduledJob(array $jobData): int|false
+    private function createScheduledJob(array $jobData): ScheduledJob|false
     {
         try {
-            $jobTypeId = $this->lookupService->getLookupIdByValue($this->lookupService::JOB_TYPES, $jobData['type']);
-            $statusId = $this->lookupService->getLookupIdByValue($this->lookupService::SCHEDULED_JOBS_STATUS, $this->lookupService::SCHEDULED_JOBS_STATUS_QUEUED);
+            $jobType = $this->em->getRepository(Lookup::class)->findOneBy(['typeCode' => $this->lookupService::JOB_TYPES, 'lookupValue' => $jobData['type']]);
+            $status = $this->em->getRepository(Lookup::class)->findOneBy(['typeCode' => $this->lookupService::SCHEDULED_JOBS_STATUS, 'lookupValue' => $this->lookupService::SCHEDULED_JOBS_STATUS_QUEUED]);
 
             $scheduledJob = new ScheduledJob();
-            $scheduledJob->setIdJobTypes($jobTypeId);
-            $scheduledJob->setIdJobStatus($statusId);
+            $scheduledJob->setJobType($jobType);
+            $scheduledJob->setStatus($status);
             $scheduledJob->setDescription($jobData['description'] ?? '');
             $scheduledJob->setDateCreate(new \DateTime());
             $scheduledJob->setDateToBeExecuted($jobData['date_to_be_executed'] ?? new \DateTime());
@@ -280,10 +275,11 @@ class JobSchedulerService extends BaseService
                 $scheduledJob->setConfig(json_encode($jobData['condition']));
             }
 
-            $this->entityManager->persist($scheduledJob);
-            $this->entityManager->flush();
+            $this->em->persist($scheduledJob);
+            
+            $this->em->flush();
 
-            return $scheduledJob->getId();
+            return $scheduledJob;
 
         } catch (\Exception $e) {
             $this->logger->error('Failed to create scheduled job', ['error' => $e->getMessage()]);
@@ -294,7 +290,7 @@ class JobSchedulerService extends BaseService
     /**
      * Schedule an email job
      */
-    private function scheduleEmailJob(int $jobId, array $jobData): bool
+    private function scheduleEmailJob(ScheduledJob $job, array $jobData): bool
     {
         try {
             $emailConfig = $jobData['email_config'];
@@ -315,16 +311,18 @@ class JobSchedulerService extends BaseService
                 $mailQueue->setBccEmails($emailConfig['bcc_emails']);
             }
 
-            $this->entityManager->persist($mailQueue);
-            $this->entityManager->flush();
+            $this->em->persist($mailQueue);
+
+            $this->em->flush();
 
             // Link scheduled job to mail queue
             $scheduledJobMailQueue = new ScheduledJobsMailQueue();
-            $scheduledJobMailQueue->setIdScheduledJobs($jobId);
-            $scheduledJobMailQueue->setIdMailQueue($mailQueue->getId());
+            $scheduledJobMailQueue->setScheduledJob($job);
+            $scheduledJobMailQueue->setMailQueue($mailQueue);
 
-            $this->entityManager->persist($scheduledJobMailQueue);
-            $this->entityManager->flush();
+            $this->em->persist($scheduledJobMailQueue);
+
+            $this->em->flush();
 
             return true;
 
@@ -350,16 +348,19 @@ class JobSchedulerService extends BaseService
                 $notification->setUrl($notificationConfig['url']);
             }
 
-            $this->entityManager->persist($notification);
-            $this->entityManager->flush();
+            $this->em->persist($notification);
+            
+            $this->em->flush();
 
             // Link scheduled job to notification
             $scheduledJobNotification = new ScheduledJobsNotification();
-            $scheduledJobNotification->setIdScheduledJobs($jobId);
-            $scheduledJobNotification->setIdNotifications($notification->getId());
+            $job = $this->em->getRepository(ScheduledJob::class)->find($jobId);
+            $scheduledJobNotification->setScheduledJob($job);
+            $scheduledJobNotification->setNotification($notification);
 
-            $this->entityManager->persist($scheduledJobNotification);
-            $this->entityManager->flush();
+            $this->em->persist($scheduledJobNotification);
+            
+            $this->em->flush();
 
             return true;
 
@@ -380,16 +381,19 @@ class JobSchedulerService extends BaseService
             $task = new Task();
             $task->setConfig(json_encode($taskConfig));
 
-            $this->entityManager->persist($task);
-            $this->entityManager->flush();
+            $this->em->persist($task);
+            
+            $this->em->flush();
 
             // Link scheduled job to task
             $scheduledJobTask = new ScheduledJobsTask();
-            $scheduledJobTask->setIdScheduledJobs($jobId);
-            $scheduledJobTask->setIdTasks($task->getId());
+            $job = $this->em->getRepository(ScheduledJob::class)->find($jobId);
+            $scheduledJobTask->setScheduledJob($job);
+            $scheduledJobTask->setTask($task);
 
-            $this->entityManager->persist($scheduledJobTask);
-            $this->entityManager->flush();
+            $this->em->persist($scheduledJobTask);
+            
+            $this->em->flush();
 
             return true;
 
@@ -402,16 +406,18 @@ class JobSchedulerService extends BaseService
     /**
      * Add users to a scheduled job
      */
-    private function addUsersToJob(int $jobId, array $userIds): void
+    private function addUsersToJob(ScheduledJob $job, array $userIds): void
     {
         foreach ($userIds as $userId) {
             $scheduledJobUser = new ScheduledJobsUser();
-            $scheduledJobUser->setIdScheduledJobs($jobId);
-            $scheduledJobUser->setIdUsers($userId);
+            $scheduledJobUser->setScheduledJob($job);
+            $user = $this->em->getRepository(User::class)->findOneBy(['id' => $userId]);
+            $scheduledJobUser->setUser($user);
 
-            $this->entityManager->persist($scheduledJobUser);
+            $this->em->persist($scheduledJobUser);
         }
-        $this->entityManager->flush();
+        
+        $this->em->flush();
     }
 
     /**

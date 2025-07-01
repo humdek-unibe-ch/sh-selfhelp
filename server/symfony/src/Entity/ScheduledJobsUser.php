@@ -9,32 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledJobsUser
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_users', type: 'integer')]
-    private int $idUsers;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_scheduledJobs', type: 'integer')]
-    private int $idScheduledJobs;
-
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'scheduledJobsUsers')]
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: ScheduledJob::class)]
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: ScheduledJob::class, inversedBy: 'scheduledJobsUsers')]
     #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?ScheduledJob $scheduledJob = null;
 
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-    public function setIdUsers(int $idUsers): self { $this->idUsers = $idUsers; return $this; }
-
-    public function getIdScheduledJobs(): ?int
-    {
-        return $this->idScheduledJobs;
-    }
-    public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
 
     public function getUser(): ?User
     {

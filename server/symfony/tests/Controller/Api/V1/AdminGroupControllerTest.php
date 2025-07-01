@@ -46,7 +46,6 @@ class AdminGroupControllerTest extends BaseControllerTest
                 $page = new Page();
                 $page->setKeyword('test_page_' . $i);
                 $page->setUrl('/test-page-' . $i);
-                $page->setIdType(1); // Assuming type 1 exists
                 $this->entityManager->persist($page);
                 $this->testPageIds[] = $page->getId();
             }

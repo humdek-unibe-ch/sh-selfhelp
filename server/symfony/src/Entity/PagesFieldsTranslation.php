@@ -40,19 +40,16 @@ class PagesFieldsTranslation
     {
         return $this->idPages;
     }
-    public function setIdPages(int $idPages): self { $this->idPages = $idPages; return $this; }
 
     public function getIdFields(): ?int
     {
         return $this->idFields;
     }
-    public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
 
     public function getIdLanguages(): ?int
     {
         return $this->idLanguages;
     }
-    public function setIdLanguages(int $idLanguages): self { $this->idLanguages = $idLanguages; return $this; }
 
     public function getContent(): ?string
     {

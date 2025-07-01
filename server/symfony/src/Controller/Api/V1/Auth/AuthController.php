@@ -383,7 +383,7 @@ class AuthController extends AbstractController
             }
 
             // Update user's language
-            $user->setIdLanguages($languageId);
+            $user->setLanguages($language);
             $this->entityManager->flush();
 
             // Generate new JWT token with updated language

@@ -41,8 +41,7 @@ class User2faCodeRepository extends ServiceEntityRepository
         }
 
         $user2faCode = new Users2faCode();
-        $user2faCode->setUser($user); // Set the User entity
-        // $user2faCode->setIdUsers($userId); // Not needed if setUser() correctly populates the foreign key
+        $user2faCode->setUser($user); // Set the User entity        
         $user2faCode->setCode($code);
         $user2faCode->setCreatedAt(new DateTime());
         $user2faCode->setExpiresAt($expiresAt);

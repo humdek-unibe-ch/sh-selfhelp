@@ -135,7 +135,8 @@ class AdminAssetService extends BaseService
                 $logMessage = 'Asset created: ' . $fileName;
             }
 
-            $asset->setIdAssetTypes($assetType);
+            $assetType = $this->entityManager->getRepository(AssetType::class)->find($assetType);
+            $asset->setAssetType($assetType);
             $asset->setFolder($folder);
             $asset->setFileName($fileName);
             $asset->setFilePath($filePath);

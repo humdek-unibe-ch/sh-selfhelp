@@ -69,37 +69,19 @@ class Transaction
         return $this->idTransactionTypes;
     }
 
-    public function setIdTransactionTypes(?int $idTransactionTypes): static
-    {
-        $this->idTransactionTypes = $idTransactionTypes;
 
-        return $this;
-    }
 
     public function getIdTransactionBy(): ?int
     {
         return $this->idTransactionBy;
     }
 
-    public function setIdTransactionBy(?int $idTransactionBy): static
-    {
-        $this->idTransactionBy = $idTransactionBy;
 
-        return $this;
-    }
 
     public function getIdUsers(): ?int
     {
         return $this->idUsers;
     }
-
-    public function setIdUsers(?int $idUsers): static
-    {
-        $this->idUsers = $idUsers;
-
-        return $this;
-    }
-    
 
 
     public function getTableName(): ?string

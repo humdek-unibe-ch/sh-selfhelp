@@ -2,9 +2,12 @@
 
 namespace App\Service\Auth;
 
+use App\Entity\Lookup;
+use App\Entity\ScheduledJob;
 use App\Entity\User;
 use App\Service\Core\BaseService;
 use App\Service\Core\JobSchedulerService;
+use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -28,12 +31,14 @@ class UserValidationService extends BaseService
         EntityManagerInterface $entityManager,
         JobSchedulerService $jobSchedulerService,
         TransactionService $transactionService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        LookupService $lookupService
     ) {
         $this->entityManager = $entityManager;
         $this->jobSchedulerService = $jobSchedulerService;
         $this->transactionService = $transactionService;
         $this->logger = $logger;
+        $this->lookupService = $lookupService;
     }
 
     /**
@@ -51,37 +56,39 @@ class UserValidationService extends BaseService
             $token = $this->generateValidationToken();
             $user->setToken($token);
             
-            // Set user as blocked until validation
-            $user->setBlocked(true);
+            // Set user status to invited
+            $status = $this->entityManager->getRepository(Lookup::class)->findOneBy(['typeCode' => LookupService::USER_STATUS, 'lookupValue' => LookupService::USER_STATUS_INVITED]);
+            $user->setStatus($status);
             
-            $this->entityManager->flush();
+            // Don't flush here - let the calling service handle transaction management
+            // $this->entityManager->flush();
 
             // Schedule validation email
-            $jobId = $this->scheduleValidationEmail($user->getId(), $token, $emailConfig);
+            $job = $this->scheduleValidationEmail($user->getId(), $token, $emailConfig);
 
-            if (!$jobId) {
+            if (!$job) {
                 throw new \Exception('Failed to schedule validation email');
             }
 
-            // Log the transaction
-            $this->transactionService->logTransaction(
-                'update',
-                JobSchedulerService::TRANSACTION_BY_SYSTEM,
-                null,
-                'users',
-                $user->getId(),
-                [
-                    'action' => 'validation_setup',
-                    'email' => $user->getEmail(),
-                    'validation_token' => $token,
-                    'job_id' => $jobId
-                ]
-            );
+            // Don't log transaction here - let the calling service handle it
+            // $this->transactionService->logTransaction(
+            //     'update',
+            //     JobSchedulerService::TRANSACTION_BY_SYSTEM,
+            //     null,
+            //     'users',
+            //     $user->getId(),
+            //     [
+            //         'action' => 'validation_setup',
+            //         'email' => $user->getEmail(),
+            //         'validation_token' => $token,
+            //         'job_id' => $jobId
+            //     ]
+            // );
 
             return [
                 'success' => true,
                 'token' => $token,
-                'job_id' => $jobId,
+                'job_id' => $job->getId(),
                 'validation_url' => "validate/{$user->getId()}/{$token}",
                 'message' => 'Validation email has been sent.'
             ];
@@ -267,7 +274,7 @@ class UserValidationService extends BaseService
      * @param array $emailConfig Email configuration overrides
      * @return int|false Job ID if successful, false on failure
      */
-    private function scheduleValidationEmail(int $userId, string $token, array $emailConfig = []): int|false
+    private function scheduleValidationEmail(int $userId, string $token, array $emailConfig = []): ScheduledJob|false
     {
         // Get user information for email personalization
         $user = $this->entityManager->getRepository(User::class)->find($userId);

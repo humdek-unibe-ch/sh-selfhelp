@@ -71,9 +71,6 @@ trait TranslationManagerTrait
     private function createPageFieldTranslation(int $pageId, int $fieldId, int $languageId, string $content, EntityManagerInterface $entityManager): void
     {
         $newTranslation = new PagesFieldsTranslation();
-        $newTranslation->setIdPages($pageId);
-        $newTranslation->setIdFields($fieldId);
-        $newTranslation->setIdLanguages($languageId);
         $newTranslation->setContent($content);
 
         // Set entity relationships
@@ -124,10 +121,6 @@ trait TranslationManagerTrait
     private function createSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, int $genderId, string $content, EntityManagerInterface $entityManager): void
     {
         $newTranslation = new SectionsFieldsTranslation();
-        $newTranslation->setIdSections($sectionId);
-        $newTranslation->setIdFields($fieldId);
-        $newTranslation->setIdLanguages($languageId);
-        $newTranslation->setIdGenders($genderId);
         $newTranslation->setContent($content);
 
         // Set entity relationships

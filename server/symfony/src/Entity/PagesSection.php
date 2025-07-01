@@ -31,13 +31,11 @@ class PagesSection
     {
         return $this->idPages;
     }
-    public function setIdPages(int $idPages): self { $this->idPages = $idPages; return $this; }
 
     public function getIdSections(): ?int
     {
         return $this->idSections;
     }
-    public function setIdSections(int $idSections): self { $this->idSections = $idSections; return $this; }
 
     public function getPosition(): ?int
     {

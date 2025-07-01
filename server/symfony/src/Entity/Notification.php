@@ -63,5 +63,6 @@ class Notification
 
         return $this;
     }
+    
 }
 // ENTITY RULE

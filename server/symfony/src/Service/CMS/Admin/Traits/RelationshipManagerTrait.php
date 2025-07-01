@@ -78,9 +78,7 @@ trait RelationshipManagerTrait
         // Create new relationship
         $pageSection = new PagesSection();
         $pageSection->setPage($page);
-        $pageSection->setIdPages($page->getId());
         $pageSection->setSection($section);
-        $pageSection->setIdSections($section->getId());
         $pageSection->setPosition($position);
         
         $entityManager->persist($pageSection);

@@ -51,25 +51,25 @@ class SectionsFieldsTranslation
     {
         return $this->idSections;
     }
-    public function setIdSections(int $idSections): self { $this->idSections = $idSections; return $this; }
+
 
     public function getIdFields(): ?int
     {
         return $this->idFields;
     }
-    public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
+
 
     public function getIdLanguages(): ?int
     {
         return $this->idLanguages;
     }
-    public function setIdLanguages(int $idLanguages): self { $this->idLanguages = $idLanguages; return $this; }
+
 
     public function getIdGenders(): ?int
     {
         return $this->idGenders;
     }
-    public function setIdGenders(int $idGenders): self { $this->idGenders = $idGenders; return $this; }
+
 
     public function getContent(): ?string
     {

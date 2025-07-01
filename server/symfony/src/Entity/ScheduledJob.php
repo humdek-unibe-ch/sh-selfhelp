@@ -13,12 +13,6 @@ class ScheduledJob
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_jobTypes', type: 'integer')]
-    private int $idJobTypes;
-
-    #[ORM\Column(name: 'id_jobStatus', type: 'integer')]
-    private int $idJobStatus;
-
     #[ORM\Column(name: 'description', type: 'string', length: 1000, nullable: true)]
     private ?string $description = null;
 
@@ -34,33 +28,12 @@ class ScheduledJob
     #[ORM\Column(name: 'config', type: 'string', length: 1000, nullable: true)]
     private ?string $config = null;
 
+    private ?Lookup $status = null;
+    private ?Lookup $jobType = null;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getIdJobTypes(): ?int
-    {
-        return $this->idJobTypes;
-    }
-
-    public function setIdJobTypes(int $idJobTypes): static
-    {
-        $this->idJobTypes = $idJobTypes;
-
-        return $this;
-    }
-
-    public function getIdJobStatus(): ?int
-    {
-        return $this->idJobStatus;
-    }
-
-    public function setIdJobStatus(int $idJobStatus): static
-    {
-        $this->idJobStatus = $idJobStatus;
-
-        return $this;
     }
 
     public function getDescription(): ?string
@@ -120,6 +93,28 @@ class ScheduledJob
     {
         $this->config = $config;
 
+        return $this;
+    }
+
+    public function getStatus(): ?Lookup
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?Lookup $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getJobType(): ?Lookup
+    {
+        return $this->jobType;
+    }
+
+    public function setJobType(?Lookup $jobType): self
+    {
+        $this->jobType = $jobType;
         return $this;
     }
 }

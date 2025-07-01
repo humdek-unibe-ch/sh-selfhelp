@@ -209,12 +209,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id_genders;
     }
 
-    public function setIdGenders(?int $id_genders): static
-    {
-        $this->id_genders = $id_genders;
 
-        return $this;
-    }
 
     public function isBlocked(): ?bool
     {
@@ -233,12 +228,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id_status;
     }
 
-    public function setIdStatus(?int $id_status): static
-    {
-        $this->id_status = $id_status;
 
-        return $this;
-    }
 
     public function isIntern(): ?bool
     {
@@ -269,12 +259,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id_languages;
     }
 
-    public function setIdLanguages(?int $id_languages): static
-    {
-        $this->id_languages = $id_languages;
 
-        return $this;
-    }
 
     public function isReminded(): ?bool
     {
@@ -566,6 +551,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->getPermissions()
             ->map(fn($p) => $p->getName())
             ->toArray();
+    }
+
+    public function getStatus(): ?Lookup
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?Lookup $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getGender(): ?Gender
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?Gender $gender): self
+    {
+        $this->gender = $gender;
+        return $this;
+    }
+
+    public function getLanguage(): ?Language
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?Language $language): self
+    {
+        $this->language = $language;
+        return $this;
     }
 }
 // ENTITY RULE

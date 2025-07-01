@@ -7,7 +7,8 @@ use App\Entity\Group;
 use App\Entity\Role;
 use App\Entity\ValidationCode;
 use App\Entity\UsersGroup;
-use App\Entity\Lookup;
+use App\Entity\Gender;
+use App\Entity\Language;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
@@ -163,8 +164,18 @@ class AdminUserService extends UserContextAwareService
 
             // Set other properties
             $user->setBlocked($userData['blocked'] ?? false);
-            $user->setIdGenders($userData['id_genders'] ?? null);
-            $user->setIdLanguages($userData['id_languages'] ?? null);
+            if (isset($userData['id_genders'])) {
+                $gender = $this->entityManager->getRepository(Gender::class)->findOneBy(['id' => $userData['id_genders']]);
+                if ($gender) {
+                    $user->setGender($gender);
+                }
+            }
+            if (isset($userData['id_languages'])) {
+                $language = $this->entityManager->getRepository(Language::class)->findOneBy(['id' => $userData['id_languages']]);
+                if ($language) {
+                    $user->setLanguage($language);
+                }
+            }
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -202,13 +213,20 @@ class AdminUserService extends UserContextAwareService
             }
 
             // Log transaction
+            $logMessage = 'User created: ' . $user->getEmail();
+            if ($enableValidation && $validationResult && $validationResult['success']) {
+                $logMessage .= ' (with validation - token: ' . $validationResult['token'] . ', job_id: ' . $validationResult['job_id'] . ')';
+            } elseif ($enableValidation) {
+                $logMessage .= ' (validation setup failed)';
+            }
+            
             $this->transactionService->logTransaction(
                 LookupService::TRANSACTION_TYPES_INSERT,
                 LookupService::TRANSACTION_BY_BY_USER,
                 'users',
                 $user->getId(),
                 $user,
-                'User created: ' . $user->getEmail() . ($enableValidation ? ' (with validation)' : '')
+                $logMessage
             );
 
             $this->entityManager->commit();
@@ -265,11 +283,10 @@ class AdminUserService extends UserContextAwareService
                 $user->setBlocked($userData['blocked']);
             }
             if (isset($userData['id_genders'])) {
-                $user->setIdGenders($userData['id_genders']);
+                $genders = $this->entityManager->getRepository(Gender::class)->findBy(['id' => $userData['id_genders']]);
+                $user->setGenders($genders);
             }
-            if (isset($userData['id_languages'])) {
-                $user->setIdLanguages($userData['id_languages']);
-            }
+
 
             // Update user type
             if (isset($userData['user_type_id'])) {
@@ -745,8 +762,6 @@ class AdminUserService extends UserContextAwareService
                     $userGroup = new UsersGroup();
                     $userGroup->setUser($user);
                     $userGroup->setGroup($group);
-                    $userGroup->setIdUsers($user->getId());
-                    $userGroup->setIdGroups($group->getId());
                     $this->entityManager->persist($userGroup);
                 }
             }
