@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "email_job.json",
+  "title": "Email Job Configuration",
+  "description": "Schema for email job configuration in the job scheduling system",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "email",
+      "description": "Job type identifier"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the job",
+      "maxLength": 1000
+    },
+    "date_to_be_executed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the job should be executed (ISO 8601 format)"
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "description": "Array of user IDs who should receive the email",
+      "minItems": 1
+    },
+    "email_config": {
+      "type": "object",
+      "properties": {
+        "from_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Sender email address"
+        },
+        "from_name": {
+          "type": "string",
+          "description": "Sender display name",
+          "maxLength": 100
+        },
+        "reply_to": {
+          "type": "string",
+          "format": "email",
+          "description": "Reply-to email address"
+        },
+        "recipient_emails": {
+          "type": "string",
+          "description": "Semicolon-separated list of recipient emails"
+        },
+        "cc_emails": {
+          "type": "string",
+          "description": "Semicolon-separated list of CC emails",
+          "maxLength": 1000
+        },
+        "bcc_emails": {
+          "type": "string",
+          "description": "Semicolon-separated list of BCC emails",
+          "maxLength": 1000
+        },
+        "subject": {
+          "type": "string",
+          "description": "Email subject line",
+          "maxLength": 1000
+        },
+        "body": {
+          "type": "string",
+          "description": "Email body content (HTML or plain text)"
+        },
+        "is_html": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the email body is HTML formatted"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "filename": {
+                "type": "string",
+                "description": "Name of the attachment file"
+              },
+              "path": {
+                "type": "string",
+                "description": "File system path to the attachment"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the attachment file"
+              }
+            },
+            "required": ["filename", "path"]
+          },
+          "description": "Array of email attachments"
+        }
+      },
+      "required": ["from_email", "from_name", "reply_to", "subject", "body"],
+      "additionalProperties": false
+    },
+    "condition": {
+      "type": "object",
+      "description": "Optional condition that must be met for the job to execute",
+      "properties": {
+        "jsonLogic": {
+          "type": "object",
+          "description": "JSON Logic condition object"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the condition"
+        }
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "description": "Advanced scheduling configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["immediately", "on_fixed_datetime", "after_period", "after_period_on_day_at_time"],
+          "description": "Type of scheduling"
+        },
+        "custom_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Custom execution time for fixed datetime scheduling"
+        },
+        "send_after": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of time units to wait before sending"
+        },
+        "send_after_type": {
+          "type": "string",
+          "enum": ["seconds", "minutes", "hours", "days", "weeks", "months"],
+          "description": "Time unit for send_after"
+        },
+        "send_on_day": {
+          "type": "string",
+          "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "description": "Day of the week for weekly scheduling"
+        },
+        "send_on_day_at": {
+          "type": "string",
+          "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+          "description": "Time of day in HH:MM format"
+        }
+      }
+    },
+    "repeater": {
+      "type": "object",
+      "description": "Configuration for repeating jobs",
+      "properties": {
+        "occurrences": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of times to repeat the job"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["day", "week", "month"],
+          "description": "Frequency of repetition"
+        },
+        "daysOfWeek": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+          },
+          "description": "Days of the week for weekly repetition"
+        },
+        "daysOfMonth": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
+          },
+          "description": "Days of the month for monthly repetition"
+        }
+      }
+    }
+  },
+  "required": ["type", "email_config"],
+  "additionalProperties": false
+} 

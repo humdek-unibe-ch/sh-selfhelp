@@ -14,6 +14,7 @@ use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
 use App\Service\Auth\UserContextService;
+use App\Service\Auth\UserValidationService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -30,7 +31,8 @@ class AdminUserService extends UserContextAwareService
         private readonly UserRepository $userRepository,
         private readonly LookupRepository $lookupRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly UserValidationService $userValidationService
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -126,6 +128,7 @@ class AdminUserService extends UserContextAwareService
 
     /**
      * Create new user
+     * Every user created will automatically require validation unless specified otherwise
      */
     public function createUser(array $userData): array
     {
@@ -170,7 +173,7 @@ class AdminUserService extends UserContextAwareService
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            // Handle validation code
+            // Handle validation code (legacy)
             if (isset($userData['validation_code'])) {
                 $this->handleValidationCode($user, $userData['validation_code']);
             }
@@ -187,6 +190,21 @@ class AdminUserService extends UserContextAwareService
 
             $this->entityManager->flush();
 
+            // Setup validation for every user (unless explicitly disabled)
+            $enableValidation = $userData['enable_validation'] ?? true;
+            $validationResult = null;
+            
+            if ($enableValidation) {
+                $validationResult = $this->userValidationService->setupUserValidation(
+                    $user, 
+                    $userData['email_config'] ?? []
+                );
+                
+                if (!$validationResult['success']) {
+                    throw new ServiceException('Failed to setup user validation: ' . $validationResult['error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }
+
             // Log transaction
             $this->transactionService->logTransaction(
                 LookupService::TRANSACTION_TYPES_INSERT,
@@ -194,12 +212,24 @@ class AdminUserService extends UserContextAwareService
                 'users',
                 $user->getId(),
                 $user,
-                'User created: ' . $user->getEmail()
+                'User created: ' . $user->getEmail() . ($enableValidation ? ' (with validation)' : '')
             );
 
             $this->entityManager->commit();
 
-            return $this->formatUserForDetail($user);
+            $result = $this->formatUserForDetail($user);
+            
+            // Add validation info to response
+            if ($enableValidation && $validationResult) {
+                $result['validation'] = [
+                    'token' => $validationResult['token'],
+                    'job_id' => $validationResult['job_id'],
+                    'validation_url' => $validationResult['validation_url'],
+                    'message' => $validationResult['message']
+                ];
+            }
+
+            return $result;
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;

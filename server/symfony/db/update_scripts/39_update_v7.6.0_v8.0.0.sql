@@ -2,7 +2,14 @@
 UPDATE version
 SET version = 'v8.0.0';
 
--- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API
+-- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System
+
+-- User Validation System Enhancement
+-- Added user validation functionality using the existing token field in users table
+-- UserValidationService handles account validation with email scheduling
+-- JobSchedulerService enhanced with direct email scheduling capabilities
+-- Welcome emails are automatically sent after successful account validation
+-- Validation tokens are stored in users.token field (32-character hex strings)
 
 -- Transaction Logging Enhancement
 -- All admin service create, edit, delete operations are now wrapped in database transactions

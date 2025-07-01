@@ -124,6 +124,11 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('auth_logout', 'v1', '/auth/logout', 'App\\Controller\\Api\\V1\\Auth\\AuthController::logout', 'POST', NULL, NULL),
 ('auth_set_language', 'v1', '/auth/set-language', 'App\\Controller\\Api\\V1\\Auth\\AuthController::setUserLanguage', 'POST', NULL, NULL),
 
+('user_validate_token', 'v1', '/validate/{user_id}/{token}', 'App\\Controller\\Api\\V1\\Auth\\UserValidationController::validateToken', 'GET', JSON_OBJECT(
+    'user_id', '[0-9]+',
+    'token', '[a-f0-9]{32}'
+), NULL),
+
 -- Admin routes
 ('admin_lookups', 'v1', '/admin/lookups', 'App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups', 'GET', NULL, NULL),
 ('admin_pages_get_all', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', NULL, NULL),
@@ -389,7 +394,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
     'blocked', JSON_OBJECT('in', 'body', 'required', false),
     'id_genders', JSON_OBJECT('in', 'body', 'required', false),
     'id_languages', JSON_OBJECT('in', 'body', 'required', false),
-    'validation_code', JSON_OBJECT('in', 'body', 'required', false),
+    'validation_code', JSON_OBJECT('in', 'body', 'required', true),
     'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false),
     'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false)
 ));

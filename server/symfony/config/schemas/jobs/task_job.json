@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "task_job.json",
+  "title": "Task Job Configuration",
+  "description": "Schema for task job configuration in the job scheduling system",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "task",
+      "description": "Job type identifier"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the job",
+      "maxLength": 1000
+    },
+    "date_to_be_executed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the job should be executed (ISO 8601 format)"
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "description": "Array of user IDs who should be affected by the task",
+      "minItems": 1
+    },
+    "task_config": {
+      "type": "object",
+      "properties": {
+        "task_type": {
+          "type": "string",
+          "enum": ["add_group", "remove_group"],
+          "description": "Type of task to perform"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Group name"
+              },
+              {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Group ID"
+              }
+            ]
+          },
+          "description": "Array of group names or IDs to add/remove",
+          "minItems": 1
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for the group change",
+          "maxLength": 500
+        },
+        "notify_user": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to notify the user about the group change"
+        },
+        "notification_config": {
+          "type": "object",
+          "description": "Configuration for user notification if notify_user is true",
+          "properties": {
+            "subject": {
+              "type": "string",
+              "description": "Notification subject"
+            },
+            "body": {
+              "type": "string",
+              "description": "Notification body"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["email", "push_notification"],
+              "default": "email",
+              "description": "Type of notification to send"
+            }
+          }
+        }
+      },
+      "required": ["task_type", "groups"],
+      "additionalProperties": false
+    },
+    "condition": {
+      "type": "object",
+      "description": "Optional condition that must be met for the job to execute",
+      "properties": {
+        "jsonLogic": {
+          "type": "object",
+          "description": "JSON Logic condition object"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the condition"
+        }
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "description": "Advanced scheduling configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["immediately", "on_fixed_datetime", "after_period", "after_period_on_day_at_time"],
+          "description": "Type of scheduling"
+        },
+        "custom_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Custom execution time for fixed datetime scheduling"
+        },
+        "send_after": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of time units to wait before executing"
+        },
+        "send_after_type": {
+          "type": "string",
+          "enum": ["seconds", "minutes", "hours", "days", "weeks", "months"],
+          "description": "Time unit for send_after"
+        },
+        "send_on_day": {
+          "type": "string",
+          "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "description": "Day of the week for weekly scheduling"
+        },
+        "send_on_day_at": {
+          "type": "string",
+          "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+          "description": "Time of day in HH:MM format"
+        }
+      }
+    },
+    "rollback_config": {
+      "type": "object",
+      "description": "Configuration for automatic rollback if task fails",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to enable automatic rollback"
+        },
+        "rollback_after": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minutes to wait before rollback if task fails"
+        },
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3,
+          "description": "Maximum number of execution attempts before giving up"
+        }
+      }
+    }
+  },
+  "required": ["type", "task_config"],
+  "additionalProperties": false
+} 
