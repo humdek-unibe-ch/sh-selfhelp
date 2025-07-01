@@ -28,7 +28,12 @@ class ScheduledJob
     #[ORM\Column(name: 'config', type: 'string', length: 1000, nullable: true)]
     private ?string $config = null;
 
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_jobStatus', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Lookup $status = null;
+
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_jobTypes', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Lookup $jobType = null;
 
     public function getId(): ?int
