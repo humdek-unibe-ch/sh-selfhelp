@@ -12,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Repository\LookupRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
+use App\Service\Core\TransactionService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +29,8 @@ class AdminUserService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
         private readonly LookupRepository $lookupRepository,
-        private readonly UserPasswordHasherInterface $passwordHasher
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly TransactionService $transactionService
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -127,61 +129,81 @@ class AdminUserService extends UserContextAwareService
      */
     public function createUser(array $userData): array
     {
-        $this->validateUserData($userData, true);
-
-        $user = new User();
-        $user->setEmail($userData['email']);
-        $user->setName($userData['name'] ?? null);
-        $user->setUserName($userData['user_name'] ?? null);
+        $this->entityManager->beginTransaction();
         
-        if (isset($userData['password'])) {
-            $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
-            $user->setPassword($hashedPassword);
-        }
+        try {
+            $this->validateUserData($userData, true);
 
-        // Set user type
-        if (isset($userData['user_type_id'])) {
-            $userType = $this->lookupRepository->find($userData['user_type_id']);
-            if (!$userType || $userType->getTypeCode() !== 'userTypes') {
-                throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
+            $user = new User();
+            $user->setEmail($userData['email']);
+            $user->setName($userData['name'] ?? null);
+            $user->setUserName($userData['user_name'] ?? null);
+            
+            if (isset($userData['password'])) {
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
+                $user->setPassword($hashedPassword);
             }
-            $user->setUserType($userType);
-        } else {
-            // Set default user type
-            $defaultUserType = $this->lookupRepository->findOneBy([
-                'typeCode' => 'userTypes',
-                'lookupCode' => 'user'
-            ]);
-            if ($defaultUserType) {
-                $user->setUserType($defaultUserType);
+
+            // Set user type
+            if (isset($userData['user_type_id'])) {
+                $userType = $this->lookupRepository->find($userData['user_type_id']);
+                if (!$userType || $userType->getTypeCode() !== 'userTypes') {
+                    throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
+                }
+                $user->setUserType($userType);
+            } else {
+                // Set default user type
+                $defaultUserType = $this->lookupRepository->findOneBy([
+                    'typeCode' => 'userTypes',
+                    'lookupCode' => 'user'
+                ]);
+                if ($defaultUserType) {
+                    $user->setUserType($defaultUserType);
+                }
             }
+
+            // Set other properties
+            $user->setBlocked($userData['blocked'] ?? false);
+            $user->setIdGenders($userData['id_genders'] ?? null);
+            $user->setIdLanguages($userData['id_languages'] ?? null);
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            // Handle validation code
+            if (isset($userData['validation_code'])) {
+                $this->handleValidationCode($user, $userData['validation_code']);
+            }
+
+            // Handle groups
+            if (isset($userData['group_ids']) && is_array($userData['group_ids'])) {
+                $this->assignGroupsToUser($user, $userData['group_ids']);
+            }
+
+            // Handle roles
+            if (isset($userData['role_ids']) && is_array($userData['role_ids'])) {
+                $this->assignRolesToUser($user, $userData['role_ids']);
+            }
+
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                $user,
+                'User created: ' . $user->getEmail()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatUserForDetail($user);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        // Set other properties
-        $user->setBlocked($userData['blocked'] ?? false);
-        $user->setIdGenders($userData['id_genders'] ?? null);
-        $user->setIdLanguages($userData['id_languages'] ?? null);
-
-        $this->entityManager->persist($user);
-
-        // Handle validation code
-        if (isset($userData['validation_code'])) {
-            $this->handleValidationCode($user, $userData['validation_code']);
-        }
-
-        // Handle groups
-        if (isset($userData['group_ids']) && is_array($userData['group_ids'])) {
-            $this->assignGroupsToUser($user, $userData['group_ids']);
-        }
-
-        // Handle roles
-        if (isset($userData['role_ids']) && is_array($userData['role_ids'])) {
-            $this->assignRolesToUser($user, $userData['role_ids']);
-        }
-
-        $this->entityManager->flush();
-
-        return $this->formatUserForDetail($user);
     }
 
     /**
@@ -189,49 +211,68 @@ class AdminUserService extends UserContextAwareService
      */
     public function updateUser(int $userId, array $userData): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-        }
-
-        $this->validateUserData($userData, false, $user);
-
-        // Update basic fields
-        if (isset($userData['email'])) {
-            $user->setEmail($userData['email']);
-        }
-        if (isset($userData['name'])) {
-            $user->setName($userData['name']);
-        }
-        if (isset($userData['user_name'])) {
-            $user->setUserName($userData['user_name']);
-        }
-        if (isset($userData['password']) && !empty($userData['password'])) {
-            $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
-            $user->setPassword($hashedPassword);
-        }
-        if (isset($userData['blocked'])) {
-            $user->setBlocked($userData['blocked']);
-        }
-        if (isset($userData['id_genders'])) {
-            $user->setIdGenders($userData['id_genders']);
-        }
-        if (isset($userData['id_languages'])) {
-            $user->setIdLanguages($userData['id_languages']);
-        }
-
-        // Update user type
-        if (isset($userData['user_type_id'])) {
-            $userType = $this->lookupRepository->find($userData['user_type_id']);
-            if (!$userType || $userType->getTypeCode() !== 'userTypes') {
-                throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
             }
-            $user->setUserType($userType);
+
+            $this->validateUserData($userData, false, $user);
+
+            // Update basic fields
+            if (isset($userData['email'])) {
+                $user->setEmail($userData['email']);
+            }
+            if (isset($userData['name'])) {
+                $user->setName($userData['name']);
+            }
+            if (isset($userData['user_name'])) {
+                $user->setUserName($userData['user_name']);
+            }
+            if (isset($userData['password']) && !empty($userData['password'])) {
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
+                $user->setPassword($hashedPassword);
+            }
+            if (isset($userData['blocked'])) {
+                $user->setBlocked($userData['blocked']);
+            }
+            if (isset($userData['id_genders'])) {
+                $user->setIdGenders($userData['id_genders']);
+            }
+            if (isset($userData['id_languages'])) {
+                $user->setIdLanguages($userData['id_languages']);
+            }
+
+            // Update user type
+            if (isset($userData['user_type_id'])) {
+                $userType = $this->lookupRepository->find($userData['user_type_id']);
+                if (!$userType || $userType->getTypeCode() !== 'userTypes') {
+                    throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
+                }
+                $user->setUserType($userType);
+            }
+
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                $user,
+                'User updated: ' . $user->getEmail()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatUserForDetail($user);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->formatUserForDetail($user);
     }
 
     /**
@@ -239,20 +280,39 @@ class AdminUserService extends UserContextAwareService
      */
     public function deleteUser(int $userId): bool
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
+
+            // Prevent deletion of admin users
+            if (in_array($user->getName(), ['admin', 'tpf'])) {
+                throw new ServiceException('Cannot delete system users', Response::HTTP_FORBIDDEN);
+            }
+
+            // Log transaction before deletion
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                $user,
+                'User deleted: ' . $user->getEmail()
+            );
+
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+
+            $this->entityManager->commit();
+
+            return true;
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        // Prevent deletion of admin users
-        if (in_array($user->getName(), ['admin', 'tpf'])) {
-            throw new ServiceException('Cannot delete system users', Response::HTTP_FORBIDDEN);
-        }
-
-        $this->entityManager->remove($user);
-        $this->entityManager->flush();
-
-        return true;
     }
 
     /**
@@ -260,15 +320,34 @@ class AdminUserService extends UserContextAwareService
      */
     public function toggleUserBlock(int $userId, bool $blocked): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
+
+            $user->setBlocked($blocked);
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                $user,
+                'User ' . ($blocked ? 'blocked' : 'unblocked') . ': ' . $user->getEmail()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatUserForDetail($user);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $user->setBlocked($blocked);
-        $this->entityManager->flush();
-
-        return $this->formatUserForDetail($user);
     }
 
     /**
@@ -314,15 +393,34 @@ class AdminUserService extends UserContextAwareService
      */
     public function addGroupsToUser(int $userId, array $groupIds): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
+
+            $this->assignGroupsToUser($user, $groupIds, false);
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users_groups',
+                $user->getId(),
+                false,
+                'Groups added to user: ' . $user->getEmail() . ' (Group IDs: ' . implode(', ', $groupIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getUserGroups($userId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->assignGroupsToUser($user, $groupIds, false);
-        $this->entityManager->flush();
-
-        return $this->getUserGroups($userId);
     }
 
     /**
@@ -330,25 +428,44 @@ class AdminUserService extends UserContextAwareService
      */
     public function removeGroupsFromUser(int $userId, array $groupIds): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-        }
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
 
-        foreach ($groupIds as $groupId) {
-            $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-            if ($group) {
-                $userGroup = $this->entityManager->getRepository(UsersGroup::class)
-                    ->findOneBy(['user' => $user, 'group' => $group]);
-                if ($userGroup) {
-                    $this->entityManager->remove($userGroup);
+            foreach ($groupIds as $groupId) {
+                $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+                if ($group) {
+                    $userGroup = $this->entityManager->getRepository(UsersGroup::class)
+                        ->findOneBy(['user' => $user, 'group' => $group]);
+                    if ($userGroup) {
+                        $this->entityManager->remove($userGroup);
+                    }
                 }
             }
+
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users_groups',
+                $user->getId(),
+                false,
+                'Groups removed from user: ' . $user->getEmail() . ' (Group IDs: ' . implode(', ', $groupIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getUserGroups($userId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getUserGroups($userId);
     }
 
     /**
@@ -356,15 +473,34 @@ class AdminUserService extends UserContextAwareService
      */
     public function addRolesToUser(int $userId, array $roleIds): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
+
+            $this->assignRolesToUser($user, $roleIds, false);
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                false,
+                'Roles added to user: ' . $user->getEmail() . ' (Role IDs: ' . implode(', ', $roleIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getUserRoles($userId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->assignRolesToUser($user, $roleIds, false);
-        $this->entityManager->flush();
-
-        return $this->getUserRoles($userId);
     }
 
     /**
@@ -372,21 +508,40 @@ class AdminUserService extends UserContextAwareService
      */
     public function removeRolesFromUser(int $userId, array $roleIds): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-        }
-
-        foreach ($roleIds as $roleId) {
-            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-            if ($role) {
-                $user->removeRole($role);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
             }
+
+            foreach ($roleIds as $roleId) {
+                $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+                if ($role) {
+                    $user->removeRole($role);
+                }
+            }
+
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                false,
+                'Roles removed from user: ' . $user->getEmail() . ' (Role IDs: ' . implode(', ', $roleIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getUserRoles($userId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getUserRoles($userId);
     }
 
     /**

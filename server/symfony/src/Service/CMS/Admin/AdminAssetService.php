@@ -5,6 +5,8 @@ namespace App\Service\CMS\Admin;
 use App\Entity\Asset;
 use App\Repository\AssetRepository;
 use App\Service\Core\BaseService;
+use App\Service\Core\LookupService;
+use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -25,6 +27,7 @@ class AdminAssetService extends BaseService
     public function __construct(
         private readonly AssetRepository $assetRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly TransactionService $transactionService,
         private readonly string $projectDir
     ) {
     }
@@ -84,56 +87,88 @@ class AdminAssetService extends BaseService
      */
     public function createAsset(UploadedFile $file, array $data, bool $overwrite = false): array
     {
-        // Validate file extension
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
-            throw new ServiceException(
-                'File type not allowed. Allowed types: ' . implode(', ', self::ALLOWED_EXTENSIONS),
-                Response::HTTP_BAD_REQUEST
+        $this->entityManager->beginTransaction();
+        
+        try {
+            // Validate file extension
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
+                throw new ServiceException(
+                    'File type not allowed. Allowed types: ' . implode(', ', self::ALLOWED_EXTENSIONS),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
+            // Determine asset type based on extension
+            $assetType = $this->getAssetTypeByExtension($extension);
+            
+            // Get folder from data or use default
+            $folder = $data['folder'] ?? 'general';
+            
+            // Create filename
+            $fileName = $data['file_name'] ?? $file->getClientOriginalName();
+            
+            // Check if file already exists
+            $existingAsset = $this->assetRepository->findByFileName($fileName);
+            if ($existingAsset && !$overwrite) {
+                throw new ServiceException('File already exists. Use overwrite option to replace it.', Response::HTTP_CONFLICT);
+            }
+
+            // Create upload directory if it doesn't exist
+            $uploadPath = $this->projectDir . '/public/' . self::UPLOAD_DIR . $folder;
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Move uploaded file
+            $filePath = self::UPLOAD_DIR . $folder . '/' . $fileName;
+            $file->move($uploadPath, $fileName);
+
+            // Create or update asset entity
+            if ($existingAsset && $overwrite) {
+                $asset = $existingAsset;
+                $transactionType = LookupService::TRANSACTION_TYPES_UPDATE;
+                $logMessage = 'Asset updated (overwrite): ' . $fileName;
+            } else {
+                $asset = new Asset();
+                $transactionType = LookupService::TRANSACTION_TYPES_INSERT;
+                $logMessage = 'Asset created: ' . $fileName;
+            }
+
+            $asset->setIdAssetTypes($assetType);
+            $asset->setFolder($folder);
+            $asset->setFileName($fileName);
+            $asset->setFilePath($filePath);
+
+            $this->entityManager->persist($asset);
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                $transactionType,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'assets',
+                $asset->getId(),
+                $asset,
+                $logMessage
             );
+
+            $this->entityManager->commit();
+
+            return $this->getAssetById($asset->getId());
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            
+            // Clean up uploaded file if it was moved
+            if (isset($uploadPath) && isset($fileName)) {
+                $fullPath = $uploadPath . '/' . $fileName;
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+            
+            throw $e;
         }
-
-        // Determine asset type based on extension
-        $assetType = $this->getAssetTypeByExtension($extension);
-        
-        // Get folder from data or use default
-        $folder = $data['folder'] ?? 'general';
-        
-        // Create filename
-        $fileName = $data['file_name'] ?? $file->getClientOriginalName();
-        
-        // Check if file already exists
-        $existingAsset = $this->assetRepository->findByFileName($fileName);
-        if ($existingAsset && !$overwrite) {
-            throw new ServiceException('File already exists. Use overwrite option to replace it.', Response::HTTP_CONFLICT);
-        }
-
-        // Create upload directory if it doesn't exist
-        $uploadPath = $this->projectDir . '/public/' . self::UPLOAD_DIR . $folder;
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
-
-        // Move uploaded file
-        $filePath = self::UPLOAD_DIR . $folder . '/' . $fileName;
-        $file->move($uploadPath, $fileName);
-
-        // Create or update asset entity
-        if ($existingAsset && $overwrite) {
-            $asset = $existingAsset;
-        } else {
-            $asset = new Asset();
-        }
-
-        $asset->setIdAssetTypes($assetType);
-        $asset->setFolder($folder);
-        $asset->setFileName($fileName);
-        $asset->setFilePath($filePath);
-
-        $this->entityManager->persist($asset);
-        $this->entityManager->flush();
-
-        return $this->getAssetById($asset->getId());
     }
 
     /**
@@ -144,23 +179,44 @@ class AdminAssetService extends BaseService
      */
     public function deleteAsset(int $id): bool
     {
-        $asset = $this->assetRepository->find($id);
+        $this->entityManager->beginTransaction();
         
-        if (!$asset) {
-            throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
+        try {
+            $asset = $this->assetRepository->find($id);
+            
+            if (!$asset) {
+                throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
+            }
+
+            // Store file path for cleanup
+            $fullPath = $this->projectDir . '/public/' . $asset->getFilePath();
+
+            // Log transaction before deletion
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'assets',
+                $asset->getId(),
+                $asset,
+                'Asset deleted: ' . $asset->getFileName()
+            );
+
+            // Delete from database first
+            $this->entityManager->remove($asset);
+            $this->entityManager->flush();
+
+            // Delete physical file after successful database deletion
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+
+            $this->entityManager->commit();
+
+            return true;
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        // Delete physical file
-        $fullPath = $this->projectDir . '/public/' . $asset->getFilePath();
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
-        }
-
-        // Delete from database
-        $this->entityManager->remove($asset);
-        $this->entityManager->flush();
-
-        return true;
     }
 
     /**

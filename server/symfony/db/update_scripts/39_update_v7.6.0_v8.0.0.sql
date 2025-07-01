@@ -4,6 +4,11 @@ SET version = 'v8.0.0';
 
 -- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API
 
+-- Transaction Logging Enhancement
+-- All admin service create, edit, delete operations are now wrapped in database transactions
+-- with proper rollback handling and transaction logging via TransactionService
+-- This ensures data integrity and provides comprehensive audit trails for all admin operations
+
 -- Ensure upload directory structure exists for assets
 -- Note: This is handled by the AdminAssetService when creating assets
 

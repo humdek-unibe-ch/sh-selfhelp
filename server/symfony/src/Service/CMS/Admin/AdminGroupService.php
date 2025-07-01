@@ -6,7 +6,9 @@ use App\Entity\Group;
 use App\Entity\AclGroup;
 use App\Entity\Page;
 use App\Repository\UserRepository;
+use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
+use App\Service\Core\TransactionService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +22,8 @@ class AdminGroupService extends UserContextAwareService
     public function __construct(
         UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManagerInterface,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly TransactionService $transactionService
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -97,26 +100,45 @@ class AdminGroupService extends UserContextAwareService
      */
     public function createGroup(array $groupData): array
     {
-        $this->validateGroupData($groupData, true);
-
-        $group = new Group();
-        $group->setName($groupData['name']);
-        $group->setDescription($groupData['description'] ?? '');
-        $group->setRequires2fa($groupData['requires_2fa'] ?? false);
+        $this->entityManager->beginTransaction();
         
-        if (isset($groupData['id_group_types'])) {
-            $group->setIdGroupTypes($groupData['id_group_types']);
+        try {
+            $this->validateGroupData($groupData, true);
+
+            $group = new Group();
+            $group->setName($groupData['name']);
+            $group->setDescription($groupData['description'] ?? '');
+            $group->setRequires2fa($groupData['requires_2fa'] ?? false);
+            
+            if (isset($groupData['id_group_types'])) {
+                $group->setIdGroupTypes($groupData['id_group_types']);
+            }
+
+            $this->entityManager->persist($group);
+            $this->entityManager->flush();
+
+            // Create initial ACLs if provided
+            if (isset($groupData['acls']) && is_array($groupData['acls'])) {
+                $this->updateGroupAclsInternal($group, $groupData['acls']);
+            }
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'groups',
+                $group->getId(),
+                $group,
+                'Group created: ' . $group->getName()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatGroupForDetail($group);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
-
-        // Create initial ACLs if provided
-        if (isset($groupData['acls']) && is_array($groupData['acls'])) {
-            $this->updateGroupAcls($group->getId(), $groupData['acls']);
-        }
-
-        return $this->formatGroupForDetail($group);
     }
 
     /**
@@ -124,34 +146,53 @@ class AdminGroupService extends UserContextAwareService
      */
     public function updateGroup(int $groupId, array $groupData): array
     {
-        $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-        if (!$group) {
-            throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
-        }
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+            if (!$group) {
+                throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
+            }
 
-        $this->validateGroupData($groupData, false);
+            $this->validateGroupData($groupData, false);
 
-        if (isset($groupData['name'])) {
-            $group->setName($groupData['name']);
-        }
-        if (isset($groupData['description'])) {
-            $group->setDescription($groupData['description']);
-        }
-        if (isset($groupData['requires_2fa'])) {
-            $group->setRequires2fa($groupData['requires_2fa']);
-        }
-        if (isset($groupData['id_group_types'])) {
-            $group->setIdGroupTypes($groupData['id_group_types']);
-        }
+            if (isset($groupData['name'])) {
+                $group->setName($groupData['name']);
+            }
+            if (isset($groupData['description'])) {
+                $group->setDescription($groupData['description']);
+            }
+            if (isset($groupData['requires_2fa'])) {
+                $group->setRequires2fa($groupData['requires_2fa']);
+            }
+            if (isset($groupData['id_group_types'])) {
+                $group->setIdGroupTypes($groupData['id_group_types']);
+            }
 
-        $this->entityManager->flush();
+            $this->entityManager->flush();
 
-        // Update ACLs if provided
-        if (isset($groupData['acls']) && is_array($groupData['acls'])) {
-            $this->updateGroupAcls($groupId, $groupData['acls']);
+            // Update ACLs if provided
+            if (isset($groupData['acls']) && is_array($groupData['acls'])) {
+                $this->updateGroupAclsInternal($group, $groupData['acls']);
+            }
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'groups',
+                $group->getId(),
+                $group,
+                'Group updated: ' . $group->getName()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatGroupForDetail($group);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        return $this->formatGroupForDetail($group);
     }
 
     /**
@@ -159,18 +200,37 @@ class AdminGroupService extends UserContextAwareService
      */
     public function deleteGroup(int $groupId): void
     {
-        $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-        if (!$group) {
-            throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
-        }
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+            if (!$group) {
+                throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
+            }
 
-        // Check if group has users
-        if (!$group->getUsersGroups()->isEmpty()) {
-            throw new ServiceException('Cannot delete group with assigned users', Response::HTTP_CONFLICT);
-        }
+            // Check if group has users
+            if (!$group->getUsersGroups()->isEmpty()) {
+                throw new ServiceException('Cannot delete group with assigned users', Response::HTTP_CONFLICT);
+            }
 
-        $this->entityManager->remove($group);
-        $this->entityManager->flush();
+            // Log transaction before deletion
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'groups',
+                $group->getId(),
+                $group,
+                'Group deleted: ' . $group->getName()
+            );
+
+            $this->entityManager->remove($group);
+            $this->entityManager->flush();
+
+            $this->entityManager->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
     }
 
     /**
@@ -201,39 +261,33 @@ class AdminGroupService extends UserContextAwareService
      */
     public function updateGroupAcls(int $groupId, array $aclsData): array
     {
-        $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-        if (!$group) {
-            throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
-        }
-
-        foreach ($aclsData as $aclData) {
-            $this->validateAclData($aclData);
-            
-            $page = $this->entityManager->getRepository(Page::class)->find($aclData['page_id']);
-            if (!$page) {
-                throw new ServiceException('Page not found: ' . $aclData['page_id'], Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+            if (!$group) {
+                throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
             }
 
-            // Find existing ACL or create new one
-            $acl = $this->entityManager->getRepository(AclGroup::class)
-                ->findOneBy(['group' => $group, 'page' => $page]);
+            $this->updateGroupAclsInternal($group, $aclsData);
 
-            if (!$acl) {
-                $acl = new AclGroup();
-                $acl->setGroup($group);
-                $acl->setPage($page);
-                $this->entityManager->persist($acl);
-            }
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'acl_groups',
+                $group->getId(),
+                false,
+                'Group ACLs updated: ' . $group->getName() . ' (' . count($aclsData) . ' ACLs)'
+            );
 
-            $acl->setAclSelect($aclData['acl_select'] ?? true);
-            $acl->setAclInsert($aclData['acl_insert'] ?? false);
-            $acl->setAclUpdate($aclData['acl_update'] ?? false);
-            $acl->setAclDelete($aclData['acl_delete'] ?? false);
+            $this->entityManager->commit();
+
+            return $this->getGroupAcls($groupId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getGroupAcls($groupId);
     }
 
     /**
@@ -329,5 +383,38 @@ class AdminGroupService extends UserContextAwareService
         if (!isset($data['page_id']) || !is_numeric($data['page_id'])) {
             throw new ServiceException('Valid page_id is required for ACL', Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Internal method to update group ACLs (without transaction handling)
+     */
+    private function updateGroupAclsInternal(Group $group, array $aclsData): void
+    {
+        foreach ($aclsData as $aclData) {
+            $this->validateAclData($aclData);
+            
+            $page = $this->entityManager->getRepository(Page::class)->find($aclData['page_id']);
+            if (!$page) {
+                throw new ServiceException('Page not found: ' . $aclData['page_id'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Find existing ACL or create new one
+            $acl = $this->entityManager->getRepository(AclGroup::class)
+                ->findOneBy(['group' => $group, 'page' => $page]);
+
+            if (!$acl) {
+                $acl = new AclGroup();
+                $acl->setGroup($group);
+                $acl->setPage($page);
+                $this->entityManager->persist($acl);
+            }
+
+            $acl->setAclSelect($aclData['acl_select'] ?? true);
+            $acl->setAclInsert($aclData['acl_insert'] ?? false);
+            $acl->setAclUpdate($aclData['acl_update'] ?? false);
+            $acl->setAclDelete($aclData['acl_delete'] ?? false);
+        }
+
+        $this->entityManager->flush();
     }
 } 

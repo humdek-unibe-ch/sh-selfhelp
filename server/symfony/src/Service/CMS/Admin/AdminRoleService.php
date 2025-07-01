@@ -5,7 +5,9 @@ namespace App\Service\CMS\Admin;
 use App\Entity\Role;
 use App\Entity\Permission;
 use App\Repository\UserRepository;
+use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
+use App\Service\Core\TransactionService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +21,8 @@ class AdminRoleService extends UserContextAwareService
     public function __construct(
         UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManagerInterface,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly TransactionService $transactionService
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -96,21 +99,40 @@ class AdminRoleService extends UserContextAwareService
      */
     public function createRole(array $roleData): array
     {
-        $this->validateRoleData($roleData, true);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $this->validateRoleData($roleData, true);
 
-        $role = new Role();
-        $role->setName($roleData['name']);
-        $role->setDescription($roleData['description'] ?? null);
+            $role = new Role();
+            $role->setName($roleData['name']);
+            $role->setDescription($roleData['description'] ?? null);
 
-        $this->entityManager->persist($role);
-        $this->entityManager->flush();
+            $this->entityManager->persist($role);
+            $this->entityManager->flush();
 
-        // Add initial permissions if provided
-        if (isset($roleData['permission_ids']) && is_array($roleData['permission_ids'])) {
-            $this->addPermissionsToRole($role->getId(), $roleData['permission_ids']);
+            // Add initial permissions if provided
+            if (isset($roleData['permission_ids']) && is_array($roleData['permission_ids'])) {
+                $this->addPermissionsToRoleInternal($role, $roleData['permission_ids']);
+            }
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                $role,
+                'Role created: ' . $role->getName()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatRoleForDetail($role);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        return $this->formatRoleForDetail($role);
     }
 
     /**
@@ -118,28 +140,47 @@ class AdminRoleService extends UserContextAwareService
      */
     public function updateRole(int $roleId, array $roleData): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+            if (!$role) {
+                throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
+            }
+
+            $this->validateRoleData($roleData, false);
+
+            if (isset($roleData['name'])) {
+                $role->setName($roleData['name']);
+            }
+            if (isset($roleData['description'])) {
+                $role->setDescription($roleData['description']);
+            }
+
+            $this->entityManager->flush();
+
+            // Update permissions if provided
+            if (isset($roleData['permission_ids']) && is_array($roleData['permission_ids'])) {
+                $this->updateRolePermissionsInternal($role, $roleData['permission_ids']);
+            }
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                $role,
+                'Role updated: ' . $role->getName()
+            );
+
+            $this->entityManager->commit();
+
+            return $this->formatRoleForDetail($role);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->validateRoleData($roleData, false);
-
-        if (isset($roleData['name'])) {
-            $role->setName($roleData['name']);
-        }
-        if (isset($roleData['description'])) {
-            $role->setDescription($roleData['description']);
-        }
-
-        $this->entityManager->flush();
-
-        // Update permissions if provided
-        if (isset($roleData['permission_ids']) && is_array($roleData['permission_ids'])) {
-            $this->updateRolePermissions($roleId, $roleData['permission_ids']);
-        }
-
-        return $this->formatRoleForDetail($role);
     }
 
     /**
@@ -147,18 +188,37 @@ class AdminRoleService extends UserContextAwareService
      */
     public function deleteRole(int $roleId): void
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+            if (!$role) {
+                throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
+            }
 
-        // Check if role has users
-        if (!$role->getUsers()->isEmpty()) {
-            throw new ServiceException('Cannot delete role with assigned users', Response::HTTP_CONFLICT);
-        }
+            // Check if role has users
+            if (!$role->getUsers()->isEmpty()) {
+                throw new ServiceException('Cannot delete role with assigned users', Response::HTTP_CONFLICT);
+            }
 
-        $this->entityManager->remove($role);
-        $this->entityManager->flush();
+            // Log transaction before deletion
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                $role,
+                'Role deleted: ' . $role->getName()
+            );
+
+            $this->entityManager->remove($role);
+            $this->entityManager->flush();
+
+            $this->entityManager->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
     }
 
     /**
@@ -179,25 +239,33 @@ class AdminRoleService extends UserContextAwareService
      */
     public function addPermissionsToRole(int $roleId, array $permissionIds): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
-
-        foreach ($permissionIds as $permissionId) {
-            $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
-            if (!$permission) {
-                throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+            if (!$role) {
+                throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
             }
 
-            if (!$role->getPermissions()->contains($permission)) {
-                $role->addPermission($permission);
-            }
+            $this->addPermissionsToRoleInternal($role, $permissionIds);
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                false,
+                'Permissions added to role: ' . $role->getName() . ' (Permission IDs: ' . implode(', ', $permissionIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getRolePermissions($roleId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getRolePermissions($roleId);
     }
 
     /**
@@ -205,25 +273,44 @@ class AdminRoleService extends UserContextAwareService
      */
     public function removePermissionsFromRole(int $roleId, array $permissionIds): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
-
-        foreach ($permissionIds as $permissionId) {
-            $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
-            if (!$permission) {
-                throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+            if (!$role) {
+                throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
             }
 
-            if ($role->getPermissions()->contains($permission)) {
-                $role->removePermission($permission);
+            foreach ($permissionIds as $permissionId) {
+                $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
+                if (!$permission) {
+                    throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+                }
+
+                if ($role->getPermissions()->contains($permission)) {
+                    $role->removePermission($permission);
+                }
             }
+
+            $this->entityManager->flush();
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                false,
+                'Permissions removed from role: ' . $role->getName() . ' (Permission IDs: ' . implode(', ', $permissionIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getRolePermissions($roleId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getRolePermissions($roleId);
     }
 
     /**
@@ -231,29 +318,33 @@ class AdminRoleService extends UserContextAwareService
      */
     public function updateRolePermissions(int $roleId, array $permissionIds): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
-
-        // Remove all existing permissions
-        foreach ($role->getPermissions() as $permission) {
-            $role->removePermission($permission);
-        }
-
-        // Add new permissions
-        foreach ($permissionIds as $permissionId) {
-            $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
-            if (!$permission) {
-                throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+            if (!$role) {
+                throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
             }
 
-            $role->addPermission($permission);
+            $this->updateRolePermissionsInternal($role, $permissionIds);
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'roles',
+                $role->getId(),
+                false,
+                'Role permissions updated: ' . $role->getName() . ' (Permission IDs: ' . implode(', ', $permissionIds) . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return $this->getRolePermissions($roleId);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
         }
-
-        $this->entityManager->flush();
-
-        return $this->getRolePermissions($roleId);
     }
 
     /**
@@ -344,5 +435,47 @@ class AdminRoleService extends UserContextAwareService
                 throw new ServiceException('Role name already exists', Response::HTTP_CONFLICT);
             }
         }
+    }
+
+    /**
+     * Internal method to add permissions to role (without transaction handling)
+     */
+    private function addPermissionsToRoleInternal(Role $role, array $permissionIds): void
+    {
+        foreach ($permissionIds as $permissionId) {
+            $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
+            if (!$permission) {
+                throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+            }
+
+            if (!$role->getPermissions()->contains($permission)) {
+                $role->addPermission($permission);
+            }
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Internal method to update role permissions (without transaction handling)
+     */
+    private function updateRolePermissionsInternal(Role $role, array $permissionIds): void
+    {
+        // Remove all existing permissions
+        foreach ($role->getPermissions() as $permission) {
+            $role->removePermission($permission);
+        }
+
+        // Add new permissions
+        foreach ($permissionIds as $permissionId) {
+            $permission = $this->entityManager->getRepository(Permission::class)->find($permissionId);
+            if (!$permission) {
+                throw new ServiceException('Permission not found: ' . $permissionId, Response::HTTP_NOT_FOUND);
+            }
+
+            $role->addPermission($permission);
+        }
+
+        $this->entityManager->flush();
     }
 } 
