@@ -9,12 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledJobsMailQueue
 {
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: ScheduledJob::class, inversedBy: 'scheduledJobsMailQueue')]
+    #[ORM\ManyToOne(targetEntity: ScheduledJob::class, inversedBy: 'scheduledJobs')]
     #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?ScheduledJob $scheduledJob = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: MailQueue::class, inversedBy: 'scheduledJobsMailQueue')]
+    #[ORM\ManyToOne(targetEntity: MailQueue::class, inversedBy: 'mailQueue')]
     #[ORM\JoinColumn(name: 'id_mailQueue', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?MailQueue $mailQueue = null;    
 

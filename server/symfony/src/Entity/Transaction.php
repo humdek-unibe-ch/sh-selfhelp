@@ -17,15 +17,6 @@ class Transaction
     #[ORM\Column(name: 'transaction_time', type: 'datetime')]
     private \DateTimeInterface $transactionTime;
 
-    #[ORM\Column(name: 'id_transactionTypes', type: 'integer', nullable: true)]
-    private ?int $idTransactionTypes = null;
-
-    #[ORM\Column(name: 'id_transactionBy', type: 'integer', nullable: true)]
-    private ?int $idTransactionBy = null;
-
-    #[ORM\Column(name: 'id_users', type: 'integer', nullable: true)]
-    private ?int $idUsers = null;
-
     #[ORM\Column(name: 'table_name', type: 'string', length: 100, nullable: true)]
     private ?string $tableName = null;
 
@@ -63,26 +54,6 @@ class Transaction
 
         return $this;
     }
-
-    public function getIdTransactionTypes(): ?int
-    {
-        return $this->idTransactionTypes;
-    }
-
-
-
-    public function getIdTransactionBy(): ?int
-    {
-        return $this->idTransactionBy;
-    }
-
-
-
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-
 
     public function getTableName(): ?string
     {

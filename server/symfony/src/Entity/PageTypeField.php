@@ -9,13 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'pageType_fields')]
 class PageTypeField
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_pageType', type: 'integer')]
-    private int $idPageType;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_fields', type: 'integer')]
-    private int $idFields;
 
     #[ORM\Column(name: 'default_value', type: 'string', length: 100, nullable: true)]
     private ?string $defaultValue = null;
@@ -23,25 +16,15 @@ class PageTypeField
     #[ORM\Column(name: 'help', type: 'text', nullable: true)]
     private ?string $help = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: PageType::class)]
     #[ORM\JoinColumn(name: 'id_pageType', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?PageType $pageType = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Field::class)]
     #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Field $field = null;
-
-    public function getIdPageType(): ?int
-    {
-        return $this->idPageType;
-    }
-    public function setIdPageType(int $idPageType): self { $this->idPageType = $idPageType; return $this; }
-
-    public function getIdFields(): ?int
-    {
-        return $this->idFields;
-    }
-    public function setIdFields(int $idFields): self { $this->idFields = $idFields; return $this; }
 
     public function getDefaultValue(): ?string
     {

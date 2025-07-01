@@ -8,36 +8,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'sections_hierarchy')]
 class SectionsHierarchy
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'parent', type: 'integer')]
-    private int $parent;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'child', type: 'integer')]
-    private int $child;
 
     #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
     private ?int $position = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
     #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Section $parentSection = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
     #[ORM\JoinColumn(name: 'child', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Section $childSection = null;
-
-    public function getParent(): ?int
-    {
-        return $this->parent;
-    }
-    public function setParent(int $parent): self { $this->parent = $parent; return $this; }
-
-    public function getChild(): ?int
-    {
-        return $this->child;
-    }
-    public function setChild(int $child): self { $this->child = $child; return $this; }
 
     public function getPosition(): ?int
     {

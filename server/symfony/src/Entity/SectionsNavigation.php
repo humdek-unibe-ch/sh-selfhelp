@@ -8,55 +8,23 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'sections_navigation')]
 class SectionsNavigation
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'parent', type: 'integer')]
-    private int $parent;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'child', type: 'integer')]
-    private int $child;
-
-    #[ORM\Column(name: 'id_pages', type: 'integer')]
-    private int $idPages;
 
     #[ORM\Column(name: 'position', type: 'integer')]
     private int $position;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
-    #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Section $parentSection = null;
+    #[ORM\JoinColumn(name: 'parent', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Section $parent = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
-    #[ORM\JoinColumn(name: 'child', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Section $childSection = null;
+    #[ORM\JoinColumn(name: 'child', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Section $child = null;
 
     #[ORM\ManyToOne(targetEntity: Page::class)]
-    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Page $page = null;
-
-    public function getParent(): ?int
-    {
-        return $this->parent;
-    }
-    public function setParent(int $parent): self { $this->parent = $parent; return $this; }
-
-    public function getChild(): ?int
-    {
-        return $this->child;
-    }
-    public function setChild(int $child): self { $this->child = $child; return $this; }
-
-    public function getIdPages(): ?int
-    {
-        return $this->idPages;
-    }
-
-    public function setIdPages(int $idPages): static
-    {
-        $this->idPages = $idPages;
-
-        return $this;
-    }
 
     public function getPosition(): ?int
     {
@@ -70,26 +38,26 @@ class SectionsNavigation
         return $this;
     }
 
-    public function getParentSection(): ?Section
+    public function getParent(): ?Section
     {
-        return $this->parentSection;
+        return $this->parent;
     }
 
-    public function setParentSection(?Section $parentSection): static
+    public function setParent(?Section $parent): static
     {
-        $this->parentSection = $parentSection;
+        $this->parent = $parent;
 
         return $this;
     }
 
-    public function getChildSection(): ?Section
+    public function getChild(): ?Section
     {
-        return $this->childSection;
+        return $this->child;
     }
 
-    public function setChildSection(?Section $childSection): static
+    public function setChild(?Section $child): static
     {
-        $this->childSection = $childSection;
+        $this->child = $child;
 
         return $this;
     }

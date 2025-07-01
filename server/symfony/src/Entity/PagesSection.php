@@ -8,34 +8,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'pages_sections')]
 class PagesSection
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_pages', type: 'integer')]
-    private int $idPages;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_sections', type: 'integer')]
-    private int $idSections;
 
     #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
     private ?int $position = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Page::class)]
     #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Page $page = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
     #[ORM\JoinColumn(name: 'id_sections', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Section $section = null;
-
-    public function getIdPages(): ?int
-    {
-        return $this->idPages;
-    }
-
-    public function getIdSections(): ?int
-    {
-        return $this->idSections;
-    }
 
     public function getPosition(): ?int
     {

@@ -13,9 +13,6 @@ class ValidationCode
     #[ORM\Column(name: 'code', type: 'string', length: 16)]
     private string $code;
 
-    #[ORM\Column(name: 'id_users', type: 'integer', nullable: true)]
-    private ?int $idUsers = null;
-
     #[ORM\Column(name: 'created', type: 'datetime')]
     private \DateTimeInterface $created;
 
@@ -35,13 +32,6 @@ class ValidationCode
         return $this->code;
     }
     public function setCode(string $code): self { $this->code = $code; return $this; }
-
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-
-
 
     public function getCreated(): ?\DateTime
     {

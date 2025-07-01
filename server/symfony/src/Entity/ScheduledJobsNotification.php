@@ -9,23 +9,27 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledJobsNotification
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_scheduledJobs', type: 'integer')]
-    private int $idScheduledJobs;
+    #[ORM\ManyToOne(targetEntity: ScheduledJob::class)]
+    #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?ScheduledJob $scheduledJob = null;
 
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_notifications', type: 'integer')]
-    private int $idNotifications;
+    #[ORM\Id]   
+    #[ORM\ManyToOne(targetEntity: Notification::class)]
+    #[ORM\JoinColumn(name: 'id_notifications', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Notification $notification = null;
 
-    public function getIdScheduledJobs(): ?int
+    public function getScheduledJob(): ?ScheduledJob
     {
-        return $this->idScheduledJobs;
+        return $this->scheduledJob;
     }
-    public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
 
-    public function getIdNotifications(): ?int
+    public function setScheduledJob(?ScheduledJob $scheduledJob): self { $this->scheduledJob = $scheduledJob; return $this; }
+
+    public function getNotification(): ?Notification
     {
-        return $this->idNotifications;
+        return $this->notification;
     }
-    public function setIdNotifications(int $idNotifications): self { $this->idNotifications = $idNotifications; return $this; }
+
+    public function setNotification(?Notification $notification): self { $this->notification = $notification; return $this; }
 }
 // ENTITY RULE

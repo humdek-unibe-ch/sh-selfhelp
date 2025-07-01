@@ -9,67 +9,26 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'sections_fields_translation')]
 class SectionsFieldsTranslation
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_sections', type: 'integer')]
-    private int $idSections;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_fields', type: 'integer')]
-    private int $idFields;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_languages', type: 'integer')]
-    private int $idLanguages;
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id_genders', type: 'integer')]
-    private int $idGenders;
-
     #[ORM\Column(name: 'content', type: 'text')]
     private string $content;
 
     #[ORM\Column(name: 'meta', type: 'string', length: 10000, nullable: true)]
     private ?string $meta = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Section::class)]
     #[ORM\JoinColumn(name: 'id_sections', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Section $section = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Field::class)]
     #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Field $field = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Language::class)]
     #[ORM\JoinColumn(name: 'id_languages', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Language $language = null;
-
-    #[ORM\ManyToOne(targetEntity: Gender::class)]
-    #[ORM\JoinColumn(name: 'id_genders', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Gender $gender = null;
-
-    public function getIdSections(): ?int
-    {
-        return $this->idSections;
-    }
-
-
-    public function getIdFields(): ?int
-    {
-        return $this->idFields;
-    }
-
-
-    public function getIdLanguages(): ?int
-    {
-        return $this->idLanguages;
-    }
-
-
-    public function getIdGenders(): ?int
-    {
-        return $this->idGenders;
-    }
-
 
     public function getContent(): ?string
     {
@@ -127,18 +86,6 @@ class SectionsFieldsTranslation
     public function setLanguage(?Language $language): static
     {
         $this->language = $language;
-
-        return $this;
-    }
-
-    public function getGender(): ?Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(?Gender $gender): static
-    {
-        $this->gender = $gender;
 
         return $this;
     }

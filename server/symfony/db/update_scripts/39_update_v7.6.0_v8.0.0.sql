@@ -1313,6 +1313,41 @@ CALL add_foreign_key('pages', 'FK_2074E57534643D90', 'id_pageAccessTypes', 'look
 CALL add_foreign_key('sections', 'FK_2B964398906D4F18', 'id_styles', 'styles (id)');
 CALL add_foreign_key('validation_codes', 'FK_DBEC45ED65A8C9D', 'id_groups', '`groups` (id)');
 
+
+
+
+
+CALL add_foreign_key('codes_groups', 'FK_9F20ED7677153098', 'code', 'validation_codes(code)');
+CALL add_foreign_key('codes_groups', 'FK_9F20ED76D65A8C9D', 'id_groups', '`groups`(id)');
+CALL add_index('codes_groups', 'IDX_9F20ED7677153098', 'code', FALSE);
+CALL add_index('codes_groups', 'IDX_9F20ED76D65A8C9D', 'id_groups', FALSE);
+
+CALL add_foreign_key('mailAttachments', 'FK_76D06F85CE570F32', 'id_mailQueue', 'mailQueue(id)');
+CALL add_index('mailAttachments', 'IDX_76D06F85CE570F32', 'id_mailQueue', FALSE);
+
+CALL add_foreign_key('scheduledJobs', 'FK_3E186B3777FD8DE1', 'id_jobStatus', 'lookups(id)');
+CALL add_foreign_key('scheduledJobs', 'FK_3E186B3712C34CFB', 'id_jobTypes', 'lookups(id)');
+CALL add_index('scheduledJobs', 'IDX_3E186B3777FD8DE1', 'id_jobStatus', FALSE);
+CALL add_index('scheduledJobs', 'IDX_3E186B3712C34CFB', 'id_jobTypes', FALSE);
+
+CALL add_foreign_key('scheduledJobs_formActions', 'FK_AE5B5D0B8030BA52', 'id_scheduledJobs', 'scheduledJobs(id)');
+CALL add_foreign_key('scheduledJobs_formActions', 'FK_AE5B5D0B293A36A9', 'id_formActions', 'formActions(id)');
+CALL add_foreign_key('scheduledJobs_formActions', 'FK_AE5B5D0BF3854F45', 'id_dataRows', 'dataRows(id)');
+CALL add_index('scheduledJobs_formActions', 'IDX_AE5B5D0B8030BA52', 'id_scheduledJobs', FALSE);
+CALL add_index('scheduledJobs_formActions', 'IDX_AE5B5D0B293A36A9', 'id_formActions', FALSE);
+CALL add_index('scheduledJobs_formActions', 'IDX_AE5B5D0BF3854F45', 'id_dataRows', FALSE);
+
+CALL add_foreign_key('scheduledJobs_mailQueue', 'FK_E560A18030BA52', 'id_scheduledJobs', 'scheduledJobs(id)');
+CALL add_foreign_key('scheduledJobs_mailQueue', 'FK_E560A1CE570F32', 'id_mailQueue', 'mailQueue(id)');
+CALL add_index('scheduledJobs_mailQueue', 'IDX_E560A18030BA52', 'id_scheduledJobs', FALSE);
+CALL add_index('scheduledJobs_mailQueue', 'IDX_E560A1CE570F32', 'id_mailQueue', FALSE);
+
+CALL add_foreign_key('scheduledJobs_notifications', 'FK_9879806C8030BA52', 'id_scheduledJobs', 'scheduledJobs(id)');
+CALL add_foreign_key('scheduledJobs_notifications', 'FK_9879806CDE2861B6', 'id_notifications', 'notifications(id)');
+CALL add_index('scheduledJobs_notifications', 'IDX_9879806C8030BA52', 'id_scheduledJobs', FALSE);
+CALL add_index('scheduledJobs_notifications', 'IDX_9879806CDE2861B6', 'id_notifications', FALSE);
+
+
 SET @user_type_user_id = (
   SELECT id
     FROM lookups
@@ -1489,6 +1524,10 @@ INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_lang
 
 
 -- -------------------------- add configuration pages ----------------------------------------------------------
+
+-- drop column gender from translations
+CALL drop_foreign_key('sections_fields_translation', 'FK_EC5054155D8601CD');
+CALL drop_table_column('sections_fields_translation', 'id_genders');
 
 
 

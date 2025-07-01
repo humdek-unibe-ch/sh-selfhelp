@@ -13,8 +13,9 @@ class MailAttachment
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_mailQueue', type: 'integer')]
-    private int $idMailQueue;
+    #[ORM\ManyToOne(targetEntity: MailQueue::class)]
+    #[ORM\JoinColumn(name: 'id_mailQueue', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?MailQueue $mailQueue = null;
 
     #[ORM\Column(name: 'attachment_name', type: 'string', length: 1000, nullable: true)]
     private ?string $attachmentName = null;
@@ -33,14 +34,14 @@ class MailAttachment
         return $this->id;
     }
 
-    public function getIdMailQueue(): ?int
+    public function getMailQueue(): ?MailQueue
     {
-        return $this->idMailQueue;
+        return $this->mailQueue;
     }
 
-    public function setIdMailQueue(int $idMailQueue): static
+    public function setMailQueue(MailQueue $mailQueue): static
     {
-        $this->idMailQueue = $idMailQueue;
+        $this->mailQueue = $mailQueue;
 
         return $this;
     }

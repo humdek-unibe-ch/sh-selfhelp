@@ -14,9 +14,6 @@ class UserActivity
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_users', type: 'integer')]
-    private int $idUsers;
-
     #[ORM\Column(name: 'url', type: 'string', length: 200)]
     private string $url;
 
@@ -39,11 +36,11 @@ class UserActivity
     private ?bool $mobile = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userActivities')]
-    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Lookup $activityType = null;
 
     #[ORM\OneToOne(mappedBy: 'userActivity', targetEntity: LogPerformance::class)]
@@ -53,13 +50,6 @@ class UserActivity
     {
         return $this->id;
     }
-
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-
-
 
     public function getUrl(): ?string
     {
@@ -89,8 +79,6 @@ class UserActivity
     {
         return $this->idType;
     }
-
-
 
     public function getExecTime(): ?string
     {

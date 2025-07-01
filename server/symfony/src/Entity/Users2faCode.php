@@ -14,9 +14,6 @@ class Users2faCode
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_users', type: 'integer')]
-    private int $idUsers;
-
     #[ORM\Column(name: 'code', type: 'string', length: 6)]
     private string $code;
 
@@ -30,24 +27,12 @@ class Users2faCode
     private bool $isUsed = false;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getIdUsers(): ?int
-    {
-        return $this->idUsers;
-    }
-
-    public function setIdUsers(int $idUsers): static
-    {
-        $this->idUsers = $idUsers;
-
-        return $this;
     }
 
     public function getCode(): ?string

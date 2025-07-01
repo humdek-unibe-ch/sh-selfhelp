@@ -9,36 +9,41 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledJobsFormAction
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_scheduledJobs', type: 'integer')]
-    private int $idScheduledJobs;
+    #[ORM\ManyToOne(targetEntity: ScheduledJob::class)]
+    #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?ScheduledJob $scheduledJob = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_formActions', type: 'integer')]
-    private int $idFormActions;
+    #[ORM\ManyToOne(targetEntity: FormAction::class)]
+    #[ORM\JoinColumn(name: 'id_formActions', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?FormAction $formAction = null;
 
-    #[ORM\Column(name: 'id_dataRows', type: 'integer', nullable: true)]
-    private ?int $idDataRows = null;
+    #[ORM\ManyToOne(targetEntity: DataRow::class)]
+    #[ORM\JoinColumn(name: 'id_dataRows', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?DataRow $dataRow = null;
 
-    public function getIdScheduledJobs(): ?int
+    public function getScheduledJob(): ?ScheduledJob
     {
-        return $this->idScheduledJobs;
-    }
-    public function setIdScheduledJobs(int $idScheduledJobs): self { $this->idScheduledJobs = $idScheduledJobs; return $this; }
-
-    public function getIdFormActions(): ?int
-    {
-        return $this->idFormActions;
-    }
-    public function setIdFormActions(int $idFormActions): self { $this->idFormActions = $idFormActions; return $this; }
-
-    public function getIdDataRows(): ?int
-    {
-        return $this->idDataRows;
+        return $this->scheduledJob;
     }
 
-    public function setIdDataRows(?int $idDataRows): static
+    public function setScheduledJob(?ScheduledJob $scheduledJob): self { $this->scheduledJob = $scheduledJob; return $this; }
+
+    public function getFormAction(): ?FormAction
     {
-        $this->idDataRows = $idDataRows;
+        return $this->formAction;
+    }
+
+    public function setFormAction(?FormAction $formAction): self { $this->formAction = $formAction; return $this; }
+
+    public function getDataRow(): ?DataRow
+    {
+        return $this->dataRow;
+    }
+
+    public function setDataRow(?DataRow $dataRow): static
+    {
+        $this->dataRow = $dataRow;
 
         return $this;
     }

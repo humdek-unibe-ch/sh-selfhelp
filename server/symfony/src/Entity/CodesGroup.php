@@ -14,25 +14,26 @@ class CodesGroup
     }
 
     #[ORM\Id]
-    #[ORM\Column(name: 'code', type: 'string', length: 16)]
-    private string $code;
+    #[ORM\ManyToOne(targetEntity: ValidationCode::class)]
+    #[ORM\JoinColumn(name: 'code', referencedColumnName: 'code', onDelete: 'CASCADE')]
+    private ?ValidationCode $code = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_groups', type: 'integer')]
-    private int $idGroups;
+    #[ORM\ManyToOne(targetEntity: Group::class)]
+    #[ORM\JoinColumn(name: 'id_groups', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Group $group = null;
 
-    public function getCode(): ?string
+    public function getCode(): ?ValidationCode
     {
         return $this->code;
     }
-    public function setCode(string $code): self { $this->code = $code; return $this; }
+    public function setCode(ValidationCode $code): self { $this->code = $code; return $this; }
 
-    public function getIdGroups(): ?int
+    public function getGroup(): ?Group
     {
-        return $this->idGroups;
+        return $this->group;
     }
 
-    // ValidationCode relationship removed as it now uses Group entity directly
-    public function setIdGroups(int $idGroups): self { $this->idGroups = $idGroups; return $this; }
+    public function setGroup(Group $group): self { $this->group = $group; return $this; }
 }
 // ENTITY RULE

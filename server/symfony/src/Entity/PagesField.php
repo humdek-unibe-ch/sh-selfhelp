@@ -10,12 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
 class PagesField
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_pages', type: 'integer')]
-    private int $idPages;
+    #[ORM\ManyToOne(targetEntity: Page::class)]
+    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Page $page = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id_fields', type: 'integer')]
-    private int $idFields;
+    #[ORM\ManyToOne(targetEntity: Field::class)]
+    #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Field $field = null;
 
     #[ORM\Column(name: 'default_value', type: 'string', length: 100, nullable: true)]
     private ?string $defaultValue = null;
@@ -23,22 +25,17 @@ class PagesField
     #[ORM\Column(name: 'help', type: 'text', nullable: true)]
     private ?string $help = null;
 
-    #[ORM\ManyToOne(targetEntity: Page::class)]
-    #[ORM\JoinColumn(name: 'id_pages', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Page $page = null;
 
-    #[ORM\ManyToOne(targetEntity: Field::class)]
-    #[ORM\JoinColumn(name: 'id_fields', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Field $field = null;
-
-    public function getIdPages(): ?int
+    public function getPage(): ?Page
     {
-        return $this->idPages;
+        return $this->page;
     }
 
-    public function getIdFields(): ?int
+    public function setPage(?Page $page): static
     {
-        return $this->idFields;
+        $this->page = $page;
+
+        return $this;
     }
 
     public function getDefaultValue(): ?string
@@ -61,18 +58,6 @@ class PagesField
     public function setHelp(?string $help): static
     {
         $this->help = $help;
-
-        return $this;
-    }
-
-    public function getPage(): ?Page
-    {
-        return $this->page;
-    }
-
-    public function setPage(?Page $page): static
-    {
-        $this->page = $page;
 
         return $this;
     }
