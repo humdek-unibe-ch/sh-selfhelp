@@ -8,6 +8,7 @@ use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\RelationshipManagerTrait;
 use App\Service\Core\UserContextAwareService;
+use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Repository\PageRepository;
@@ -25,6 +26,7 @@ class SectionRelationshipService extends UserContextAwareService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PositionManagementService $positionManagementService,
+        private readonly TransactionService $transactionService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -71,10 +73,11 @@ class SectionRelationshipService extends UserContextAwareService
             $this->entityManager->flush();
             $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
             $this->entityManager->commit();
-            
+        
             return $pageSection;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
+            
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to page: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
@@ -121,6 +124,9 @@ class SectionRelationshipService extends UserContextAwareService
 
             // Remove old parent relationships
             $this->removeOldParentRelationships($oldParentPageId, $oldParentSectionId, $childSection, $this->entityManager);
+            
+            // Flush the removal of old relationships to avoid identity map conflicts
+            $this->entityManager->flush();
 
             // Create section hierarchy relationship
             $sectionHierarchy = $this->createSectionHierarchyRelationship($parentSection, $childSection, $position, $this->entityManager);
@@ -132,6 +138,7 @@ class SectionRelationshipService extends UserContextAwareService
             return $sectionHierarchy;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
+            
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to add section to section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }

@@ -86,7 +86,7 @@ trait RelationshipManagerTrait
     }
 
     /**
-     * Create section hierarchy relationship
+     * Create or update section hierarchy relationship
      * 
      * @param Section $parentSection
      * @param Section $childSection
@@ -96,6 +96,17 @@ trait RelationshipManagerTrait
      */
     protected function createSectionHierarchyRelationship(Section $parentSection, Section $childSection, ?int $position, EntityManagerInterface $entityManager): SectionsHierarchy
     {
+        // Check for existing relationship
+        $existing = $entityManager->getRepository(SectionsHierarchy::class)
+            ->findOneBy(['parentSection' => $parentSection, 'childSection' => $childSection]);
+        
+        if ($existing) {
+            // Update existing relationship
+            $existing->setPosition($position);
+            return $existing;
+        }
+
+        // Create new relationship
         $sectionHierarchy = new SectionsHierarchy();
         $sectionHierarchy->setParentSection($parentSection);
         $sectionHierarchy->setChildSection($childSection);
