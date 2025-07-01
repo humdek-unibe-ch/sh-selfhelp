@@ -1313,10 +1313,6 @@ CALL add_foreign_key('pages', 'FK_2074E57534643D90', 'id_pageAccessTypes', 'look
 CALL add_foreign_key('sections', 'FK_2B964398906D4F18', 'id_styles', 'styles (id)');
 CALL add_foreign_key('validation_codes', 'FK_DBEC45ED65A8C9D', 'id_groups', '`groups` (id)');
 
-
-
-
-
 CALL add_foreign_key('codes_groups', 'FK_9F20ED7677153098', 'code', 'validation_codes(code)');
 CALL add_foreign_key('codes_groups', 'FK_9F20ED76D65A8C9D', 'id_groups', '`groups`(id)');
 CALL add_index('codes_groups', 'IDX_9F20ED7677153098', 'code', FALSE);
@@ -1346,6 +1342,18 @@ CALL add_foreign_key('scheduledJobs_notifications', 'FK_9879806C8030BA52', 'id_s
 CALL add_foreign_key('scheduledJobs_notifications', 'FK_9879806CDE2861B6', 'id_notifications', 'notifications(id)');
 CALL add_index('scheduledJobs_notifications', 'IDX_9879806C8030BA52', 'id_scheduledJobs', FALSE);
 CALL add_index('scheduledJobs_notifications', 'IDX_9879806CDE2861B6', 'id_notifications', FALSE);
+
+
+
+CALL add_foreign_key('assets', 'FK_79D17D8E843A9330', 'id_assetTypes', 'lookups(id)');
+CALL add_index('assets', 'IDX_79D17D8E843A9330', 'id_assetTypes', FALSE);
+
+CALL add_foreign_key('users', 'FK_1483A5E95D8601CD', 'id_genders', 'genders(id)');
+CALL add_index('users', 'IDX_1483A5E95D8601CD', 'id_genders', FALSE);
+CALL add_foreign_key('users', 'FK_1483A5E95D37D0F1', 'id_status', 'lookups(id)');
+CALL add_index('users', 'IDX_1483A5E95D37D0F1', 'id_status', FALSE);
+CALL add_foreign_key('users', 'FK_1483A5E920E4EF5E', 'id_languages', 'languages(id)');
+CALL add_index('users', 'IDX_1483A5E920E4EF5E', 'id_languages', FALSE);
 
 
 SET @user_type_user_id = (
