@@ -10,7 +10,6 @@ use App\Entity\ScheduledJobsTask;
 use App\Entity\MailQueue;
 use App\Entity\Notification;
 use App\Entity\Task;
-use App\Entity\Lookup;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,22 +26,6 @@ use Psr\Log\LoggerInterface;
  */
 class JobSchedulerService extends BaseService
 {
-    public const JOB_TYPE_EMAIL = 'email';
-    public const JOB_TYPE_NOTIFICATION = 'notification';
-    public const JOB_TYPE_TASK = 'task';
-    
-    public const JOB_STATUS_QUEUED = 'queued';
-    public const JOB_STATUS_DONE = 'done';
-    public const JOB_STATUS_FAILED = 'failed';
-    public const JOB_STATUS_DELETED = 'deleted';
-    
-    public const TASK_TYPE_ADD_GROUP = 'add_group';
-    public const TASK_TYPE_REMOVE_GROUP = 'remove_group';
-    
-    public const TRANSACTION_BY_SYSTEM = 'by_system';
-    public const TRANSACTION_BY_USER = 'by_user';
-    public const TRANSACTION_BY_CRON = 'by_cron_job';
-
     private TransactionService $transactionService;
     private LookupService $lookupService;
     private LoggerInterface $logger;
@@ -53,7 +36,7 @@ class JobSchedulerService extends BaseService
         LookupService $lookupService,
         LoggerInterface $logger
     ) {
-        parent::__construct($entityManager);
+        $this->entityManager = $entityManager;
         $this->transactionService = $transactionService;
         $this->lookupService = $lookupService;
         $this->logger = $logger;
@@ -66,7 +49,7 @@ class JobSchedulerService extends BaseService
      * @param string $transactionBy Who initiated the transaction
      * @return int|false Job ID if successful, false on failure
      */
-    public function scheduleJob(array $jobData, string $transactionBy = self::TRANSACTION_BY_SYSTEM): int|false
+    public function scheduleJob(array $jobData, string $transactionBy): int|false
     {
         try {
             $this->entityManager->beginTransaction();
@@ -78,9 +61,9 @@ class JobSchedulerService extends BaseService
 
             // Schedule specific job type
             $success = match ($jobData['type']) {
-                self::JOB_TYPE_EMAIL => $this->scheduleEmailJob($jobId, $jobData),
-                self::JOB_TYPE_NOTIFICATION => $this->scheduleNotificationJob($jobId, $jobData),
-                self::JOB_TYPE_TASK => $this->scheduleTaskJob($jobId, $jobData),
+                $this->lookupService::JOB_TYPES_EMAIL => $this->scheduleEmailJob($jobId, $jobData),
+                $this->lookupService::JOB_TYPES_NOTIFICATION => $this->scheduleNotificationJob($jobId, $jobData),
+                $this->lookupService::JOB_TYPES_TASK => $this->scheduleTaskJob($jobId, $jobData),
                 default => throw new \Exception('Unknown job type: ' . $jobData['type'])
             };
 
@@ -136,14 +119,14 @@ class JobSchedulerService extends BaseService
         ];
 
         $jobData = [
-            'type' => self::JOB_TYPE_EMAIL,
+            'type' => $this->lookupService::JOB_TYPES_EMAIL,
             'description' => 'User account validation email',
             'date_to_be_executed' => new \DateTime(), // Send immediately
             'users' => [$userId],
             'email_config' => $defaultConfig
         ];
 
-        return $this->scheduleJob($jobData);
+        return $this->scheduleJob($jobData, $this->lookupService::TRANSACTION_BY_BY_SYSTEM);
     }
 
     /**
@@ -153,7 +136,7 @@ class JobSchedulerService extends BaseService
      * @param string $transactionBy Who initiated the execution
      * @return bool True if successful, false on failure
      */
-    public function executeJob(int $jobId, string $transactionBy = self::TRANSACTION_BY_SYSTEM): bool
+    public function executeJob(int $jobId, string $transactionBy): bool
     {
         try {
             $this->entityManager->beginTransaction();
@@ -168,16 +151,16 @@ class JobSchedulerService extends BaseService
             $jobTypeName = $this->lookupService->getLookupValueById($jobTypeId);
 
             $success = match ($jobTypeName) {
-                self::JOB_TYPE_EMAIL => $this->executeEmailJob($job, $transactionBy),
-                self::JOB_TYPE_NOTIFICATION => $this->executeNotificationJob($job, $transactionBy),
-                self::JOB_TYPE_TASK => $this->executeTaskJob($job, $transactionBy),
+                $this->lookupService::JOB_TYPES_EMAIL => $this->executeEmailJob($job, $transactionBy),
+                $this->lookupService::JOB_TYPES_NOTIFICATION => $this->executeNotificationJob($job, $transactionBy),
+                $this->lookupService::JOB_TYPES_TASK => $this->executeTaskJob($job, $transactionBy),
                 default => throw new \Exception('Unknown job type: ' . $jobTypeName)
             };
 
             // Update job status
             $statusId = $this->lookupService->getLookupIdByValue(
-                'scheduledJobsStatus',
-                $success ? self::JOB_STATUS_DONE : self::JOB_STATUS_FAILED
+                $this->lookupService::SCHEDULED_JOBS_STATUS,
+                $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED
             );
             
             $job->setIdJobStatus($statusId);
@@ -214,7 +197,7 @@ class JobSchedulerService extends BaseService
      * @param string $transactionBy Who initiated the deletion
      * @return bool True if successful, false on failure
      */
-    public function deleteJob(int $jobId, string $transactionBy = self::TRANSACTION_BY_SYSTEM): bool
+    public function deleteJob(int $jobId, string $transactionBy): bool
     {
         try {
             $this->entityManager->beginTransaction();
@@ -224,7 +207,7 @@ class JobSchedulerService extends BaseService
                 throw new \Exception('Job not found: ' . $jobId);
             }
 
-            $deletedStatusId = $this->lookupService->getLookupIdByValue('scheduledJobsStatus', self::JOB_STATUS_DELETED);
+            $deletedStatusId = $this->lookupService->getLookupIdByValue($this->lookupService::SCHEDULED_JOBS_STATUS, $this->lookupService::SCHEDULED_JOBS_STATUS_DELETED);
             $job->setIdJobStatus($deletedStatusId);
             $this->entityManager->flush();
 
@@ -264,7 +247,7 @@ class JobSchedulerService extends BaseService
         ?int $userId = null
     ): int|false {
         $jobData = [
-            'type' => self::JOB_TYPE_EMAIL,
+            'type' => $this->lookupService::JOB_TYPES_EMAIL,
             'description' => $emailConfig['subject'] ?? 'Email job',
             'date_to_be_executed' => $dateToExecute ?? new \DateTime(),
             'email_config' => $emailConfig
@@ -274,7 +257,7 @@ class JobSchedulerService extends BaseService
             $jobData['users'] = [$userId];
         }
 
-        return $this->scheduleJob($jobData);
+        return $this->scheduleJob($jobData, $this->lookupService::TRANSACTION_BY_BY_SYSTEM);
     }
 
     /**
@@ -283,8 +266,8 @@ class JobSchedulerService extends BaseService
     private function createScheduledJob(array $jobData): int|false
     {
         try {
-            $jobTypeId = $this->lookupService->getLookupIdByValue('jobTypes', $jobData['type']);
-            $statusId = $this->lookupService->getLookupIdByValue('scheduledJobsStatus', self::JOB_STATUS_QUEUED);
+            $jobTypeId = $this->lookupService->getLookupIdByValue($this->lookupService::JOB_TYPES, $jobData['type']);
+            $statusId = $this->lookupService->getLookupIdByValue($this->lookupService::SCHEDULED_JOBS_STATUS, $this->lookupService::SCHEDULED_JOBS_STATUS_QUEUED);
 
             $scheduledJob = new ScheduledJob();
             $scheduledJob->setIdJobTypes($jobTypeId);

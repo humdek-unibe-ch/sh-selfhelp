@@ -6,7 +6,6 @@ use App\Entity\Page;
 use App\Entity\PageType;
 use App\Entity\PagesSection;
 use App\Exception\ServiceException;
-use App\Repository\LookupRepository;
 use App\Repository\PageRepository;
 use App\Repository\PageTypeRepository;
 use App\Repository\SectionRepository;
@@ -42,7 +41,7 @@ class AdminPageService extends UserContextAwareService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly LookupRepository $lookupRepository,
+        private readonly LookupService $lookupService,
         private readonly PageTypeRepository $pageTypeRepository,
         private readonly ManagerRegistry $doctrine,
         private readonly TransactionService $transactionService,
@@ -131,10 +130,10 @@ class AdminPageService extends UserContextAwareService
         }
 
         // Get page access type by code
-        $pageAccessType = $this->lookupRepository->findOneBy([
-            'typeCode' => 'pageAccessTypes',
-            'lookupCode' => $pageAccessTypeCode
-        ]);
+        $pageAccessType = $this->lookupService->findByTypeAndCode(
+            LookupService::PAGE_ACCESS_TYPES,
+            $pageAccessTypeCode
+        );
         if (!$pageAccessType) {
             $this->throwNotFound("Page access type with code '{$pageAccessTypeCode}' not found");
         }
@@ -315,10 +314,10 @@ class AdminPageService extends UserContextAwareService
                     $page->setPageAccessType(null);
                 } else {
                     // Find the page access type lookup
-                    $pageAccessType = $this->lookupRepository->findOneBy([
-                        'typeCode' => LookupService::PAGE_ACCESS_TYPES,
-                        'lookupCode' => $pageData['pageAccessTypeCode']
-                    ]);
+                    $pageAccessType = $this->lookupService->findByTypeAndCode(
+                        LookupService::PAGE_ACCESS_TYPES,
+                        $pageData['pageAccessTypeCode']
+                    );
 
                     if (!$pageAccessType) {
                         throw new ServiceException(

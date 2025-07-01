@@ -19,6 +19,7 @@ use Psr\Log\LoggerInterface;
  */
 class UserValidationService extends BaseService
 {
+    private EntityManagerInterface $entityManager;
     private JobSchedulerService $jobSchedulerService;
     private TransactionService $transactionService;
     private LoggerInterface $logger;
@@ -29,7 +30,7 @@ class UserValidationService extends BaseService
         TransactionService $transactionService,
         LoggerInterface $logger
     ) {
-        parent::__construct($entityManager);
+        $this->entityManager = $entityManager;
         $this->jobSchedulerService = $jobSchedulerService;
         $this->transactionService = $transactionService;
         $this->logger = $logger;

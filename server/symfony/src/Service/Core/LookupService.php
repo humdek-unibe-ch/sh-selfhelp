@@ -2,11 +2,13 @@
 
 namespace App\Service\Core;
 
+use App\Entity\Lookup;
 use App\Repository\LookupRepository;
 
 /**
- * Lookup type and code constants for use throughout the application.
- * (Auto-generate or update as needed when DB lookups change.)
+ * Lookup service providing access to lookup data and constants.
+ * This service encapsulates all lookup operations and should be used
+ * instead of accessing the repository directly.
  */
 final class LookupService
 {
@@ -128,7 +130,6 @@ final class LookupService
     public const USER_STATUS_ACTIVE = 'active';
     public const USER_STATUS_LOCKED = 'locked';
 
-
     // styleType
     public const STYLE_TYPE_VIEW = 'view';
     public const STYLE_TYPE_COMPONENT = 'component';
@@ -141,10 +142,146 @@ final class LookupService
     ) {}
 
     /**
+     * Find a lookup by type and value
+     * 
+     * @param string $typeCode The type code to search for
+     * @param string $lookupValue The lookup value to search for
+     * @return Lookup|null The lookup if found, null otherwise
+     */
+    public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
+    {
+        return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
+    }
+
+    /**
+     * Get the default user type (used for new users)
+     * 
+     * @return Lookup|null The default user type lookup
+     */
+    public function getDefaultUserType(): ?Lookup
+    {
+        return $this->lookupRepository->getDefaultUserType();
+    }
+
+    /**
+     * Get all lookups for a given type.
+     *
+     * @param string $typeCode
+     * @return Lookup[]
+     */
+    public function getLookups(string $typeCode): array
+    {
+        return $this->lookupRepository->getLookups($typeCode);
+    }
+
+    /**
+     * Get the ID of a lookup by value.
+     *
+     * @param string $typeCode
+     * @param string $lookupValue
+     * @return int|null
+     */
+    public function getLookupIdByValue(string $typeCode, string $lookupValue): ?int
+    {
+        return $this->lookupRepository->getLookupIdByValue($typeCode, $lookupValue);
+    }
+
+    /**
+     * Get the ID of a lookup by code.
+     *
+     * @param string $typeCode
+     * @param string $lookupCode
+     * @return int|null
+     */
+    public function getLookupIdByCode(string $typeCode, string $lookupCode): ?int
+    {
+        return $this->lookupRepository->getLookupIdByCode($typeCode, $lookupCode);
+    }
+
+    /**
      * Get all lookups
+     *
+     * @return Lookup[]
      */
     public function getAllLookups(): array
     {
         return $this->lookupRepository->getAllLookups();
+    }
+
+    /**
+     * Check if a lookup exists by type and value
+     *
+     * @param string $typeCode
+     * @param string $lookupValue
+     * @return bool
+     */
+    public function existsByTypeAndValue(string $typeCode, string $lookupValue): bool
+    {
+        return $this->findByTypeAndValue($typeCode, $lookupValue) !== null;
+    }
+
+    /**
+     * Check if a lookup exists by type and code
+     *
+     * @param string $typeCode
+     * @param string $lookupCode
+     * @return bool
+     */
+    public function existsByTypeAndCode(string $typeCode, string $lookupCode): bool
+    {
+        return $this->getLookupIdByCode($typeCode, $lookupCode) !== null;
+    }
+
+    /**
+     * Find a lookup by type and code
+     *
+     * @param string $typeCode
+     * @param string $lookupCode
+     * @return Lookup|null
+     */
+    public function findByTypeAndCode(string $typeCode, string $lookupCode): ?Lookup
+    {
+        return $this->lookupRepository->createQueryBuilder('l')
+            ->where('l.typeCode = :typeCode')
+            ->andWhere('l.lookupCode = :lookupCode')
+            ->setParameter('typeCode', $typeCode)
+            ->setParameter('lookupCode', $lookupCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Get lookup value by type and code
+     *
+     * @param string $typeCode
+     * @param string $lookupCode
+     * @return string|null
+     */
+    public function getLookupValueByCode(string $typeCode, string $lookupCode): ?string
+    {
+        $lookup = $this->findByTypeAndCode($typeCode, $lookupCode);
+        return $lookup ? $lookup->getLookupValue() : null;
+    }
+
+    /**
+     * Find a lookup by ID
+     *
+     * @param int $id
+     * @return Lookup|null
+     */
+    public function findById(int $id): ?Lookup
+    {
+        return $this->lookupRepository->find($id);
+    }
+
+    /**
+     * Find a lookup by type and code (alias for findByTypeAndCode)
+     *
+     * @param array $criteria
+     * @return Lookup|null
+     */
+    public function findOneBy(array $criteria): ?Lookup
+    {
+        return $this->lookupRepository->findOneBy($criteria);
     }
 }

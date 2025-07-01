@@ -48,6 +48,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUsersGroups(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->usersGroups;
+    }
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserActivity::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private \Doctrine\Common\Collections\Collection $userActivities;
 

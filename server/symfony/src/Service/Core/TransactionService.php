@@ -3,7 +3,6 @@
 namespace App\Service\Core;
 
 use App\Entity\Transaction;
-use App\Repository\LookupRepository;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
 use App\Util\EntityUtil;
@@ -22,7 +21,7 @@ class TransactionService
         private readonly EntityManagerInterface $entityManager,
         private readonly UserContextService $userContextService,
         private readonly RequestStack $requestStack,
-        private readonly LookupRepository $lookupRepository
+        private readonly LookupService $lookupService
     ) {}
 
     /**
@@ -77,15 +76,15 @@ class TransactionService
         }
         
         // Get lookup entities for transaction type and by
-        $transactionType = $this->lookupRepository->findOneBy([
-            'typeCode' => LookupService::TRANSACTION_TYPES,
-            'lookupCode' => $tranType
-        ]);
+        $transactionType = $this->lookupService->findByTypeAndCode(
+            LookupService::TRANSACTION_TYPES,
+            $tranType
+        );
         
-        $transactionBy = $this->lookupRepository->findOneBy([
-            'typeCode' => LookupService::TRANSACTION_BY,
-            'lookupCode' => $tranBy
-        ]);
+        $transactionBy = $this->lookupService->findByTypeAndCode(
+            LookupService::TRANSACTION_BY,
+            $tranBy
+        );
         
         // Create transaction entity
         $transaction = new Transaction();

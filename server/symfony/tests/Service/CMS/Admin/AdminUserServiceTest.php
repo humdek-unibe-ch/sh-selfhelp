@@ -9,7 +9,7 @@ use App\Entity\Lookup;
 use App\Service\CMS\Admin\AdminUserService;
 use App\Service\Auth\UserContextService;
 use App\Repository\UserRepository;
-use App\Repository\LookupRepository;
+use App\Service\Core\LookupService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -21,7 +21,7 @@ class AdminUserServiceTest extends KernelTestCase
     private AdminUserService $adminUserService;
     private EntityManagerInterface $entityManager;
     private UserRepository $userRepository;
-    private LookupRepository $lookupRepository;
+    private LookupService $lookupService;
     private UserPasswordHasherInterface $passwordHasher;
     private UserContextService $userContextService;
 
@@ -32,17 +32,11 @@ class AdminUserServiceTest extends KernelTestCase
 
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->userRepository = $container->get(UserRepository::class);
-        $this->lookupRepository = $container->get(LookupRepository::class);
+        $this->lookupService = $container->get(LookupService::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $this->userContextService = $container->get(UserContextService::class);
 
-        $this->adminUserService = new AdminUserService(
-            $this->userContextService,
-            $this->entityManager,
-            $this->userRepository,
-            $this->lookupRepository,
-            $this->passwordHasher
-        );
+        $this->adminUserService = $container->get(AdminUserService::class);
     }
 
     /**

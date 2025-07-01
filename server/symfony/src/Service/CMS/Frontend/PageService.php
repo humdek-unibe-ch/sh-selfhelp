@@ -12,7 +12,6 @@ use App\Service\ACLService;
 use App\Service\Core\ServiceException;
 use App\Service\Core\UserContextAwareService;
 use App\Service\UserContextService;
-use App\Repository\LookupRepository;
 use App\Service\ACL\ACLService as ACLACLService;
 use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
@@ -28,7 +27,7 @@ class PageService extends UserContextAwareService
 
     public function __construct(
         SectionRepository $sectionRepository,
-        private readonly LookupRepository $lookupRepository,
+        private readonly LookupService $lookupService,
         AuthUserContextService $userContextService,
         ACLACLService $aclService,
         PageRepository $pageRepository,
@@ -95,7 +94,7 @@ class PageService extends UserContextAwareService
 
         // Determine which type to remove based on mode
         $removeType = $mode === LookupService::PAGE_ACCESS_TYPES_MOBILE ? LookupService::PAGE_ACCESS_TYPES_WEB : LookupService::PAGE_ACCESS_TYPES_MOBILE;
-        $removeTypeId = $this->lookupRepository->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
+        $removeTypeId = $this->lookupService->getLookupIdByCode(LookupService::PAGE_ACCESS_TYPES, $removeType);
 
         // If mode is both, do not remove any type
         $filteredPages = array_values(array_filter($allPages, function ($item) use ($removeTypeId, $mode, $admin) {

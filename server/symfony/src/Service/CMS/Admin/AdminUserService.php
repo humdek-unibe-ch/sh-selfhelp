@@ -9,7 +9,6 @@ use App\Entity\ValidationCode;
 use App\Entity\UsersGroup;
 use App\Entity\Lookup;
 use App\Repository\UserRepository;
-use App\Repository\LookupRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
@@ -29,7 +28,7 @@ class AdminUserService extends UserContextAwareService
         UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
-        private readonly LookupRepository $lookupRepository,
+        private readonly LookupService $lookupService,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly TransactionService $transactionService,
         private readonly UserValidationService $userValidationService
@@ -149,17 +148,14 @@ class AdminUserService extends UserContextAwareService
 
             // Set user type
             if (isset($userData['user_type_id'])) {
-                $userType = $this->lookupRepository->find($userData['user_type_id']);
-                if (!$userType || $userType->getTypeCode() !== 'userTypes') {
+                $userType = $this->lookupService->findById($userData['user_type_id']);
+                if (!$userType || $userType->getTypeCode() !== LookupService::USER_TYPES) {
                     throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
                 }
                 $user->setUserType($userType);
             } else {
                 // Set default user type
-                $defaultUserType = $this->lookupRepository->findOneBy([
-                    'typeCode' => 'userTypes',
-                    'lookupCode' => 'user'
-                ]);
+                $defaultUserType = $this->lookupService->getDefaultUserType();
                 if ($defaultUserType) {
                     $user->setUserType($defaultUserType);
                 }
@@ -277,8 +273,8 @@ class AdminUserService extends UserContextAwareService
 
             // Update user type
             if (isset($userData['user_type_id'])) {
-                $userType = $this->lookupRepository->find($userData['user_type_id']);
-                if (!$userType || $userType->getTypeCode() !== 'userTypes') {
+                $userType = $this->lookupService->findById($userData['user_type_id']);
+                if (!$userType || $userType->getTypeCode() !== LookupService::USER_TYPES) {
                     throw new ServiceException('Invalid user type', Response::HTTP_BAD_REQUEST);
                 }
                 $user->setUserType($userType);
