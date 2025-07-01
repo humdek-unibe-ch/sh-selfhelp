@@ -3,7 +3,6 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Section;
-use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
@@ -64,9 +63,9 @@ class SectionFieldService extends UserContextAwareService
         // Group translations by field and language
         $translationsByFieldLang = [];
         foreach ($translations as $tr) {
-            $fieldId = $tr->getField() ? $tr->getField()->getId() : $tr->getIdFields();
-            $langId = $tr->getLanguage() ? $tr->getLanguage()->getId() : $tr->getIdLanguages();
-            $genderId = $tr->getGender() ? $tr->getGender()->getId() : $tr->getIdGenders();
+            $fieldId = $tr->getField()->getId();
+            $langId = $tr->getLanguage()->getId();
+            $genderId = $tr->getGender()->getId();
             if (!isset($translationsByFieldLang[$fieldId])) {
                 $translationsByFieldLang[$fieldId] = [];
             }
@@ -153,7 +152,7 @@ class SectionFieldService extends UserContextAwareService
         );
         
         if (!empty($allFieldIds)) {
-            $this->validateStyleFields($allFieldIds, $section->getIdStyles(), $this->entityManager);
+            $this->validateStyleFields($allFieldIds, $section->getStyle()->getId(), $this->entityManager);
         }
 
         // Update field translations using trait method

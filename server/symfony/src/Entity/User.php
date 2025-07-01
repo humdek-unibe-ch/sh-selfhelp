@@ -145,6 +145,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(name: 'id_userTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE', options: ['default' => 72])] //TODO: set default value to user type dynamically
     private ?Lookup $userType = null;
 
+    #[ORM\ManyToOne(targetEntity: Gender::class)]
+    #[ORM\JoinColumn(name: 'id_genders', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Gender $gender = null;
+
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_status', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Lookup $status = null;
+
+    #[ORM\ManyToOne(targetEntity: Language::class)]
+    #[ORM\JoinColumn(name: 'id_languages', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Language $language = null;
+
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
     private ?string $user_name = null;
 

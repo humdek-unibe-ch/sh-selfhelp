@@ -13,8 +13,9 @@ class Asset
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'id_assetTypes', type: 'integer')]
-    private int $idAssetTypes;
+    #[ORM\ManyToOne(targetEntity: Lookup::class)]
+    #[ORM\JoinColumn(name: 'id_assetTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private Lookup $assetType;
 
     #[ORM\Column(name: 'folder', type: 'string', length: 100, nullable: true)]
     private ?string $folder = null;
@@ -28,18 +29,6 @@ class Asset
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getIdAssetTypes(): ?int
-    {
-        return $this->idAssetTypes;
-    }
-
-    public function setIdAssetTypes(int $idAssetTypes): static
-    {
-        $this->idAssetTypes = $idAssetTypes;
-
-        return $this;
     }
 
     public function getFolder(): ?string
@@ -75,6 +64,17 @@ class Asset
     {
         $this->filePath = $filePath;
 
+        return $this;
+    }
+
+    public function getAssetType(): Lookup
+    {
+        return $this->assetType;
+    }
+
+    public function setAssetType(Lookup $assetType): static
+    {
+        $this->assetType = $assetType;
         return $this;
     }
 }

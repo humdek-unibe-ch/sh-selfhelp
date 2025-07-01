@@ -2,7 +2,6 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\Page;
 use App\Entity\Section;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;

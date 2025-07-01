@@ -63,10 +63,6 @@
             "type": "string",
             "description": "Page keyword"
           },
-          "page_title": {
-            "type": "string",
-            "description": "Page title"
-          },
           "acl_select": {
             "type": "boolean",
             "description": "Select permission"
@@ -84,7 +80,7 @@
             "description": "Delete permission"
           }
         },
-        "required": ["page_id", "page_keyword", "page_title", "acl_select", "acl_insert", "acl_update", "acl_delete"],
+        "required": ["page_id", "page_keyword", "acl_select", "acl_insert", "acl_update", "acl_delete"],
         "additionalProperties": false
       }
     }

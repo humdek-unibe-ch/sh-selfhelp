@@ -28,6 +28,7 @@ class AdminAssetService extends BaseService
         private readonly AssetRepository $assetRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
+        private readonly LookupService $lookupService,
         private readonly string $projectDir
     ) {
     }
@@ -44,7 +45,7 @@ class AdminAssetService extends BaseService
         return array_map(function (Asset $asset) {
             return [
                 'id' => $asset->getId(),
-                'id_asset_types' => $asset->getIdAssetTypes(),
+                'id_asset_type' => $asset->getAssetType()->getId(),
                 'folder' => $asset->getFolder(),
                 'file_name' => $asset->getFileName(),
                 'file_path' => $asset->getFilePath(),
@@ -100,7 +101,10 @@ class AdminAssetService extends BaseService
             }
 
             // Determine asset type based on extension
-            $assetType = $this->getAssetTypeByExtension($extension);
+            $assetType = $this->lookupService->findByTypeAndCode(
+                LookupService::ASSET_TYPES,
+                LookupService::ASSET_TYPES_ASSET
+            );
             
             // Get folder from data or use default
             $folder = $data['folder'] ?? 'general';
@@ -135,7 +139,6 @@ class AdminAssetService extends BaseService
                 $logMessage = 'Asset created: ' . $fileName;
             }
 
-            $assetType = $this->entityManager->getRepository(AssetType::class)->find($assetType);
             $asset->setAssetType($assetType);
             $asset->setFolder($folder);
             $asset->setFileName($fileName);
@@ -218,23 +221,5 @@ class AdminAssetService extends BaseService
             $this->entityManager->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * Get asset type ID based on file extension
-     * 
-     * @param string $extension
-     * @return int
-     */
-    private function getAssetTypeByExtension(string $extension): int
-    {
-        return match($extension) {
-            'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg' => 1, // Images
-            'pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx' => 2, // Documents
-            'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm' => 3, // Videos
-            'css', 'js' => 4, // Web files
-            'zip', 'rar', '7z' => 5, // Archives
-            default => 6 // Other
-        };
     }
 } 

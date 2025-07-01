@@ -98,9 +98,7 @@ trait RelationshipManagerTrait
     {
         $sectionHierarchy = new SectionsHierarchy();
         $sectionHierarchy->setParentSection($parentSection);
-        $sectionHierarchy->setParent($parentSection->getId());
         $sectionHierarchy->setChildSection($childSection);
-        $sectionHierarchy->setChild($childSection->getId());
         $sectionHierarchy->setPosition($position);
         
         $entityManager->persist($sectionHierarchy);

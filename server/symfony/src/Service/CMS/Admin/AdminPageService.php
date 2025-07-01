@@ -3,7 +3,6 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Page;
-use App\Entity\PageType;
 use App\Entity\PagesSection;
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
@@ -349,15 +348,17 @@ class AdminPageService extends UserContextAwareService
                 // Get all valid field IDs for this page type from pageType_fields
                 $validFieldIds = $this->entityManager->getRepository(\App\Entity\PageTypeField::class)
                     ->createQueryBuilder('ptf')
-                    ->select('ptf.idFields')
-                    ->where('ptf.idPageType = :pageTypeId')
-                    ->andWhere('ptf.idFields IN (:fieldIds)')
+                    ->select('f.id')
+                    ->leftJoin('ptf.field', 'f')
+                    ->leftJoin('ptf.pageType', 'pt')
+                    ->where('pt.id = :pageTypeId')
+                    ->andWhere('f.id IN (:fieldIds)')
                     ->setParameter('pageTypeId', $pageTypeId)
                     ->setParameter('fieldIds', $fieldIds)
                     ->getQuery()
                     ->getScalarResult();
 
-                $validFieldIds = array_column($validFieldIds, 'idFields');
+                $validFieldIds = array_column($validFieldIds, 'id');
                 $invalidFieldIds = array_diff($fieldIds, $validFieldIds);
 
                 if (!empty($invalidFieldIds)) {
@@ -436,9 +437,9 @@ class AdminPageService extends UserContextAwareService
 
             // Delete page fields translations
             $this->entityManager->createQuery(
-                'DELETE FROM App\\Entity\\PagesFieldsTranslation pft WHERE pft.idPages = :pageId'
+                'DELETE FROM App\\Entity\\PagesFieldsTranslation pft WHERE pft.page = :page'
             )
-                ->setParameter('pageId', $page->getId())
+                ->setParameter('page', $page)
                 ->execute();
 
             // Store page keyword for logging before deletion

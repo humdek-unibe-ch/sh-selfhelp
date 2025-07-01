@@ -2,28 +2,23 @@
 
 namespace App\Service\CMS\Frontend;
 
-use App\Entity\Page;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
 use App\Repository\PagesFieldsTranslationRepository;
-use App\Service\ACLService;
 use App\Service\Core\ServiceException;
 use App\Service\Core\UserContextAwareService;
-use App\Service\UserContextService;
 use App\Service\ACL\ACLService as ACLACLService;
 use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 class PageService extends UserContextAwareService
 {
     // Default values for language and gender
     private const PROPERTY_LANGUAGE_ID = 1; // Language ID 1 is for properties, not a real language
-    private const DEFAULT_GENDER_ID = 1;   // Assuming 1 is the default gender ID
 
     public function __construct(
         SectionRepository $sectionRepository,
@@ -192,11 +187,11 @@ class PageService extends UserContextAwareService
      * @param string $page_keyword The page keyword
      * @param int|null $language_id Optional language ID for translations
      * @return array The page object with translated sections
-     * @throws ServiceException If page not found or access denied
+     * @throws \App\Exception\ServiceException If page not found or access denied
      */
     public function getPage(string $page_keyword, ?int $language_id = null): array
     {
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+            $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -253,8 +248,7 @@ class PageService extends UserContextAwareService
         // Fetch all translations for these sections in one query
         $translations = $this->translationRepository->fetchTranslationsForSections(
             $sectionIds,
-            $languageId,
-            self::DEFAULT_GENDER_ID
+            $languageId
         );
         
         // If requested language is not the default language, fetch default language translations for fallback
@@ -262,16 +256,14 @@ class PageService extends UserContextAwareService
         if ($defaultLanguageId !== null && $languageId !== $defaultLanguageId) {
             $defaultTranslations = $this->translationRepository->fetchTranslationsForSections(
                 $sectionIds,
-                $defaultLanguageId,
-                self::DEFAULT_GENDER_ID
+                $defaultLanguageId
             );
         }
         
         // Fetch property translations (language ID 1) for fields of type 1
         $propertyTranslations = $this->translationRepository->fetchTranslationsForSections(
             $sectionIds,
-            self::PROPERTY_LANGUAGE_ID,
-            self::DEFAULT_GENDER_ID
+            self::PROPERTY_LANGUAGE_ID
         );
         
         // Apply translations to the sections recursively with fallback
@@ -295,8 +287,8 @@ class PageService extends UserContextAwareService
         
         // If user is logged in, use their preferred language
         $user = $this->getCurrentUser();
-        if ($user && $user->getIdLanguages()) {
-            return $user->getIdLanguages();
+        if ($user && $user->getLanguage()) {
+            return $user->getLanguage()->getId();
         }
         
         // Otherwise use default language from CMS preferences

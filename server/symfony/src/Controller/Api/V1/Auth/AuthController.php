@@ -3,6 +3,7 @@
 namespace App\Controller\Api\V1\Auth;
 
 use App\Controller\Trait\RequestValidatorTrait;
+use App\Entity\User;
 use App\Exception\RequestValidationException;
 use App\Repository\AuthRepository;
 use App\Service\Auth\JWTService;
@@ -47,14 +48,12 @@ class AuthController extends AbstractController
      */
     private function getUserLanguageInfo(\App\Entity\User $user): array
     {
-        $userLanguageId = $user->getIdLanguages();
+        $userLanguageId = null;
         $userLanguageLocale = null;
         
-        if ($userLanguageId) {
-            $userLanguage = $this->entityManager->getRepository('App\Entity\Language')->find($userLanguageId);
-            if ($userLanguage) {
-                $userLanguageLocale = $userLanguage->getLocale();
-            }
+        if ($user->getLanguage()) {
+            $userLanguageId = $user->getLanguage()->getId();
+            $userLanguageLocale = $user->getLanguage()->getLocale();
         } else {
             // User doesn't have language set, use CMS default
             try {
@@ -179,7 +178,7 @@ class AuthController extends AbstractController
                 );
             }
 
-            $user = $this->entityManager->getRepository(\App\Entity\User::class)->find($userId);
+            $user = $this->entityManager->getRepository(User::class)->find($userId);
 
             if (!$user) {
                 return $this->responseFormatter->formatError(
@@ -383,7 +382,7 @@ class AuthController extends AbstractController
             }
 
             // Update user's language
-            $user->setLanguages($language);
+            $user->setLanguage($language);
             $this->entityManager->flush();
 
             // Generate new JWT token with updated language

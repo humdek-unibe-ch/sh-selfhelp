@@ -28,15 +28,17 @@ trait FieldValidatorTrait
         // Get all valid field IDs for this page type
         $validFieldIds = $entityManager->getRepository(\App\Entity\PageTypeField::class)
             ->createQueryBuilder('ptf')
-            ->select('ptf.idFields')
-            ->where('ptf.idPageType = :pageTypeId')
-            ->andWhere('ptf.idFields IN (:fieldIds)')
+            ->select('f.id')
+            ->leftJoin('ptf.field', 'f')
+            ->leftJoin('ptf.pageType', 'pt')
+            ->where('pt.id = :pageTypeId')
+            ->andWhere('f.id IN (:fieldIds)')
             ->setParameter('pageTypeId', $pageTypeId)
             ->setParameter('fieldIds', $fieldIds)
             ->getQuery()
             ->getScalarResult();
 
-        $validFieldIds = array_column($validFieldIds, 'idFields');
+        $validFieldIds = array_column($validFieldIds, 'id');
         $invalidFieldIds = array_diff($fieldIds, $validFieldIds);
 
         if (!empty($invalidFieldIds)) {

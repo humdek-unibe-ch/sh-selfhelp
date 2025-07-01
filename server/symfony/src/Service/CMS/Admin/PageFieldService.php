@@ -73,11 +73,11 @@ class PageFieldService extends UserContextAwareService
         // Get all translations for this page's fields
         $translationsMap = [];
         $translations = $this->entityManager->getRepository(PagesFieldsTranslation::class)
-            ->findBy(['idPages' => $page->getId()]);
+            ->findBy(['page' => $page]);
 
         foreach ($translations as $translation) {
-            $fieldId = $translation->getIdFields();
-            $langId = $translation->getIdLanguages();
+            $fieldId = $translation->getField()->getId();
+            $langId = $translation->getLanguage()->getId();
             if (!isset($translationsMap[$fieldId])) {
                 $translationsMap[$fieldId] = [];
             }

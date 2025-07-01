@@ -28,9 +28,10 @@ class PositionManagementService
     public function normalizePageSectionPositions(int $pageId, bool $flush = false): void
     {
         // Get all page sections ordered by position
+        $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
         $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(
-            ['page' => $pageId],
-            ['position' => 'ASC', 'idSections' => 'ASC']
+            ['page' => $page],
+            ['position' => 'ASC']
         );
 
         // Sort by position to ensure correct ordering

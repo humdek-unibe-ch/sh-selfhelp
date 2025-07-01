@@ -45,15 +45,13 @@ class JWTService
         $permissionNames = $user->getPermissionNames();
         
         // Determine user language with fallback to CMS preferences
-        $userLanguageId = $user->getIdLanguages();
+        $userLanguageId = null;
         $userLanguageLocale = null;
         
-        if ($userLanguageId) {
+        if ($user->getLanguage()) {
             // User has a language set, get the locale
-            $userLanguage = $this->entityManager->getRepository('App\Entity\Language')->find($userLanguageId);
-            if ($userLanguage) {
-                $userLanguageLocale = $userLanguage->getLocale();
-            }
+            $userLanguageId = $user->getLanguage()->getId();
+            $userLanguageLocale = $user->getLanguage()->getLocale();
         } else {
             // User doesn't have language set, use CMS default
             try {

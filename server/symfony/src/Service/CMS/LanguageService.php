@@ -2,6 +2,7 @@
 
 namespace App\Service\CMS;
 
+use App\Entity\CmsPreference;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
@@ -50,6 +51,9 @@ class LanguageService extends BaseService
      */
     public function getAllNonInternalLanguages(): array
     {
+        // Clear any cached entities to avoid proxy objects
+        $this->entityManager->clear(Language::class);
+        
         // Get all non-internal languages
         $languages = $this->languageRepository->findAllExceptInternal();
         
@@ -58,7 +62,7 @@ class LanguageService extends BaseService
         $defaultLanguageId = null;
         
         try {
-            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+            $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
             if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                 $defaultLanguage = $cmsPreference->getDefaultLanguage();
                 $defaultLanguageId = $defaultLanguage->getId();

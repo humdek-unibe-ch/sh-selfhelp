@@ -37,7 +37,7 @@ class PositionManagementServiceTest extends BaseControllerTest
         
         // Verify the result by checking the database state
         $pageSections = $this->entityManager->getRepository('App\Entity\PagesSection')
-            ->findBy(['idPages' => $pageId], ['position' => 'ASC']);
+            ->findBy(['page' => $page], ['position' => 'ASC']);
             
         // Assert that positions are normalized to increments of 10
         $expectedPosition = 0;
@@ -63,7 +63,7 @@ class PositionManagementServiceTest extends BaseControllerTest
         
         // Get initial positions
         $initialSections = $this->entityManager->getRepository('App\Entity\PagesSection')
-            ->findBy(['idPages' => $pageId], ['position' => 'ASC']);
+            ->findBy(['page' => $page], ['position' => 'ASC']);
         $initialPositions = array_map(fn($ps) => $ps->getPosition(), $initialSections);
         
         // Call the method without flush

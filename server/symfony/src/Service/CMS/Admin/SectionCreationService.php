@@ -141,9 +141,7 @@ class SectionCreationService extends UserContextAwareService
             // Add the child section to the parent section
             $sectionHierarchy = new SectionsHierarchy();
             $sectionHierarchy->setParentSection($parentSection);
-            $sectionHierarchy->setParent($parentSection->getId());
             $sectionHierarchy->setChildSection($childSection);
-            $sectionHierarchy->setChild($childSection->getId());
             $sectionHierarchy->setPosition($position);
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();

@@ -20,17 +20,21 @@ trait TranslationManagerTrait
      */
     protected function updatePageFieldTranslations(int $pageId, array $fields, EntityManagerInterface $entityManager): void
     {
-        foreach ($fields as $field) {
-            $fieldId = $field['fieldId'];
-            $languageId = $field['languageId'];
-            $content = $field['content'];
+        foreach ($fields as $fieldData) {
+            $fieldId = $fieldData['fieldId'];
+            $languageId = $fieldData['languageId'];
+            $content = $fieldData['content'];
 
             // Check if translation exists
+            $page = $entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
+            $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+            $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+            
             $existingTranslation = $entityManager->getRepository(PagesFieldsTranslation::class)
                 ->findOneBy([
-                    'idPages' => $pageId,
-                    'idFields' => $fieldId,
-                    'idLanguages' => $languageId
+                    'page' => $page,
+                    'field' => $field,
+                    'language' => $language
                 ]);
 
             if ($existingTranslation) {
@@ -54,14 +58,14 @@ trait TranslationManagerTrait
     protected function updateSectionFieldTranslations(int $sectionId, array $contentFields, array $propertyFields, EntityManagerInterface $entityManager): void
     {
         // Update content field translations (display=1 fields)
-        foreach ($contentFields as $field) {
-            $this->updateSectionFieldTranslation($sectionId, $field['fieldId'], $field['languageId'], 1, $field['value'], $entityManager);
+        foreach ($contentFields as $fieldData) {
+            $this->updateSectionFieldTranslation($sectionId, $fieldData['fieldId'], $fieldData['languageId'], $fieldData['value'], $entityManager);
         }
 
         // Update property field translations (display=0 fields)
-        foreach ($propertyFields as $field) {
-            $content = is_bool($field['value']) ? ($field['value'] ? '1' : '0') : (string) $field['value'];
-            $this->updateSectionFieldTranslation($sectionId, $field['fieldId'], 1, 1, $content, $entityManager);
+        foreach ($propertyFields as $fieldData) {
+            $content = is_bool($fieldData['value']) ? ($fieldData['value'] ? '1' : '0') : (string) $fieldData['value'];
+            $this->updateSectionFieldTranslation($sectionId, $fieldData['fieldId'], 1, $content, $entityManager);
         }
     }
 
@@ -95,15 +99,18 @@ trait TranslationManagerTrait
     /**
      * Update or create section field translation
      */
-    private function updateSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, int $genderId, string $content, EntityManagerInterface $entityManager): void
+    private function updateSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, string $content, EntityManagerInterface $entityManager): void
     {
         // Check if translation exists
+        $section = $entityManager->getRepository(\App\Entity\Section::class)->find($sectionId);
+        $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+        $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+        
         $existingTranslation = $entityManager->getRepository(SectionsFieldsTranslation::class)
             ->findOneBy([
-                'idSections' => $sectionId,
-                'idFields' => $fieldId,
-                'idLanguages' => $languageId,
-                'idGenders' => $genderId
+                'section' => $section,
+                'field' => $field,
+                'language' => $language
             ]);
 
         if ($existingTranslation) {
@@ -111,14 +118,14 @@ trait TranslationManagerTrait
             $existingTranslation->setContent($content);
         } else {
             // Create new translation
-            $this->createSectionFieldTranslation($sectionId, $fieldId, $languageId, $genderId, $content, $entityManager);
+            $this->createSectionFieldTranslation($sectionId, $fieldId, $languageId, $content, $entityManager);
         }
     }
 
     /**
      * Create a new section field translation
      */
-    private function createSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, int $genderId, string $content, EntityManagerInterface $entityManager): void
+    private function createSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, string $content, EntityManagerInterface $entityManager): void
     {
         $newTranslation = new SectionsFieldsTranslation();
         $newTranslation->setContent($content);
@@ -137,11 +144,6 @@ trait TranslationManagerTrait
         $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
         if ($language) {
             $newTranslation->setLanguage($language);
-        }
-
-        $gender = $entityManager->getRepository(\App\Entity\Gender::class)->find($genderId);
-        if ($gender) {
-            $newTranslation->setGender($gender);
         }
 
         $entityManager->persist($newTranslation);

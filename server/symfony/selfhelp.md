@@ -1954,7 +1954,6 @@ public function getUserAcl(int $userId, ?int $pageId = -1): array
 - `id_sections`: int (PK, FK to Section)
 - `id_fields`: int (PK, FK to Field)
 - `id_languages`: int (PK, FK to Language)
-- `id_genders`: int (PK, FK to Gender)
 - `content`: text
 - `meta`: string (nullable)
 

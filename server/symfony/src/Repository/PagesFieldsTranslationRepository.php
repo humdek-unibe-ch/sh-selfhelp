@@ -31,10 +31,12 @@ class PagesFieldsTranslationRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('pft')
-            ->select('pft.idPages AS page_id, pft.idFields AS field_id, f.name AS field_name, pft.content')
+            ->select('p.id AS page_id, f.id AS field_id, f.name AS field_name, pft.content')
+            ->leftJoin('pft.page', 'p')
             ->leftJoin('pft.field', 'f')
-            ->where('pft.idPages IN (:pageIds)')
-            ->andWhere('pft.idLanguages = :languageId')
+            ->leftJoin('pft.language', 'l')
+            ->where('p.id IN (:pageIds)')
+            ->andWhere('l.id = :languageId')
             ->andWhere('f.display = true') // Only display fields (title fields)
             ->setParameter('pageIds', $pageIds)
             ->setParameter('languageId', $languageId);

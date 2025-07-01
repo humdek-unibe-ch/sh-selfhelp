@@ -52,9 +52,30 @@ class EntityUtil
                             return method_exists($item, 'getId') ? $item->getId() : null;
                         }, $value->toArray());
                     }
-                    // For other objects, try to get ID or convert to string
+                    // For other objects, try to get ID or handle lazy loading
                     else {
-                        $result[$name] = method_exists($value, 'getId') ? $value->getId() : (string)$value;
+                        if (method_exists($value, 'getId')) {
+                            try {
+                                $result[$name] = $value->getId();
+                            } catch (\Throwable $e) {
+                                // Skip if lazy loading fails
+                                $result[$name] = null;
+                            }
+                        } else {
+                            // Check if it's a lazy loading proxy
+                            if ($value instanceof \Symfony\Component\VarExporter\Internal\LazyObjectState || 
+                                (is_object($value) && str_contains(get_class($value), 'Proxy'))) {
+                                // Skip lazy-loaded objects that can't be converted
+                                $result[$name] = null;
+                            } else {
+                                try {
+                                    $result[$name] = (string)$value;
+                                } catch (\Throwable $e) {
+                                    // If string conversion fails, set to null
+                                    $result[$name] = null;
+                                }
+                            }
+                        }
                     }
                 } 
                 // For arrays, keep as is

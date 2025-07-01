@@ -348,7 +348,7 @@ class AdminGroupService extends UserContextAwareService
         return [
             'page_id' => $acl->getPage()->getId(),
             'page_keyword' => $acl->getPage()->getKeyword(),
-            'page_title' => $acl->getPage()->getTitle(),
+            'page_url' => $acl->getPage()->getUrl(),
             'acl_select' => $acl->getAclSelect(),
             'acl_insert' => $acl->getAclInsert(),
             'acl_update' => $acl->getAclUpdate(),

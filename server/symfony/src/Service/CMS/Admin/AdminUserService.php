@@ -689,8 +689,8 @@ class AdminUserService extends UserContextAwareService
         
         return array_merge($basic, [
             'user_name' => $user->getUserName(),
-            'id_genders' => $user->getIdGenders(),
-            'id_languages' => $user->getIdLanguages(),
+            'id_genders' => $user->getGender()?->getId(),
+            'id_languages' => $user->getLanguage()?->getId(),
             'id_userTypes' => $user->getUserType()?->getId(),
             'groups' => $this->getUserGroups($user->getId()),
             'roles' => $this->getUserRoles($user->getId())
