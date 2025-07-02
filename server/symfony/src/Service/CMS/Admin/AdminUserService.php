@@ -652,9 +652,10 @@ class AdminUserService extends UserContextAwareService
             ->leftJoin('ug.group', 'g')
             ->leftJoin('u.userActivities', 'ua')
             ->leftJoin('u.validationCodes', 'vc')
+            ->leftJoin('u.status', 'us')
             ->where('u.intern = :intern AND u.id_status > 0')
             ->setParameter('intern', false)
-            ->addSelect('ut', 'ug', 'g', 'ua', 'vc', 'ur');
+            ->addSelect('ut', 'ug', 'g', 'ua', 'vc', 'ur', 'us');
     }
 
     private function formatUserForList(User $user): array
@@ -684,7 +685,7 @@ class AdminUserService extends UserContextAwareService
             'email' => $user->getEmail(),
             'name' => $user->getName(),
             'last_login' => $lastLoginFormatted,
-            'status' => $user->getIdStatus() ? 'Active' : 'Inactive', // TODO: Get from lookup
+            'status' => $user->getStatus()?->getLookupValue(),
             'blocked' => $user->isBlocked(),
             'code' => $validationCode,
             'groups' => implode('; ', $groups),
