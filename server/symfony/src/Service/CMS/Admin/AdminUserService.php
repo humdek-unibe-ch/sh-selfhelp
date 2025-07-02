@@ -56,7 +56,7 @@ class AdminUserService extends UserContextAwareService
         
         // Apply search filter
         if ($search) {
-            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search)')
+            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search OR ur.role LIKE :search)')
                ->setParameter('search', '%' . $search . '%');
         }
 
@@ -88,7 +88,7 @@ class AdminUserService extends UserContextAwareService
         
         // Apply the same search filter to count query
         if ($search) {
-            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search)')
+            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search OR ur.role LIKE :search)')
                    ->setParameter('search', '%' . $search . '%');
         }
         
@@ -283,8 +283,18 @@ class AdminUserService extends UserContextAwareService
                 $user->setBlocked($userData['blocked']);
             }
             if (isset($userData['id_genders'])) {
-                $genders = $this->entityManager->getRepository(Gender::class)->findBy(['id' => $userData['id_genders']]);
-                $user->setGenders($genders);
+                $gender = $this->entityManager->getRepository(Gender::class)->findOneBy(['id' => $userData['id_genders']]);
+                $user->setGender($gender);
+            }
+
+            // Handle groups
+            if (isset($userData['group_ids']) && is_array($userData['group_ids'])) {
+                $this->assignGroupsToUser($user, $userData['group_ids']);
+            }
+
+            // Handle roles
+            if (isset($userData['role_ids']) && is_array($userData['role_ids'])) {
+                $this->assignRolesToUser($user, $userData['role_ids']);
             }
 
 
@@ -637,13 +647,14 @@ class AdminUserService extends UserContextAwareService
             ->select('u')
             ->from(User::class, 'u')
             ->leftJoin('u.usersGroups', 'ug')
+            ->leftJoin('u.roles', 'ur')
             ->leftJoin('u.userType', 'ut')
             ->leftJoin('ug.group', 'g')
             ->leftJoin('u.userActivities', 'ua')
             ->leftJoin('u.validationCodes', 'vc')
             ->where('u.intern = :intern AND u.id_status > 0')
             ->setParameter('intern', false)
-            ->addSelect('ut', 'ug', 'g', 'ua', 'vc');
+            ->addSelect('ut', 'ug', 'g', 'ua', 'vc', 'ur');
     }
 
     private function formatUserForList(User $user): array
@@ -656,7 +667,7 @@ class AdminUserService extends UserContextAwareService
         }
 
         $groups = array_map(fn(Group $g) => $g->getName(), $user->getGroups()->toArray());
-        
+        $roles = array_map(fn(Role $r) => $r->getName(), $user->getUserRoles()->toArray());
         // Get validation code
         $validationCode = '-';
         if (in_array($user->getName(), ['admin', 'tpf'])) {
@@ -679,7 +690,8 @@ class AdminUserService extends UserContextAwareService
             'groups' => implode('; ', $groups),
             'user_activity' => $user->getUserActivities()->count(),
             'user_type_code' => $user->getUserType()?->getLookupCode(),
-            'user_type' => $user->getUserType()?->getLookupValue()
+            'user_type' => $user->getUserType()?->getLookupValue(),
+            'roles' => implode('; ', $roles)
         ];
     }
 

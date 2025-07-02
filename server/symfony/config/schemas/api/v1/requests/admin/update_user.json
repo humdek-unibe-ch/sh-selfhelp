@@ -41,6 +41,20 @@
     "id_languages": {
       "type": "integer",
       "description": "Language ID"
+    },
+    "group_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Array of group IDs to assign to the user"
+    },
+    "role_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Array of role IDs to assign to the user"
     }
   },
   "additionalProperties": false
