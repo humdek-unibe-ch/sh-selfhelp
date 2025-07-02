@@ -61,7 +61,7 @@ class AdminUserService extends UserContextAwareService
         }
 
         // Apply sorting
-        $validSortFields = ['email', 'name', 'last_login', 'blocked', 'user_type', 'code'];
+        $validSortFields = ['email', 'name', 'last_login', 'blocked', 'user_type', 'code','id'];
         if ($sort && in_array($sort, $validSortFields)) {
             switch ($sort) {
                 case 'user_type':
