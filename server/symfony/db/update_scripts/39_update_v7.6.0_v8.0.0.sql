@@ -19,6 +19,13 @@ SET version = 'v8.0.0';
 -- Ensure upload directory structure exists for assets
 -- Note: This is handled by the AdminAssetService when creating assets
 
+-- Asset Management API Enhancement
+-- Added pagination and search functionality to assets endpoint
+-- Enhanced asset upload to support multiple file uploads
+-- Fixed file size error by avoiding stat calls on temporary files
+-- Added proper file validation and transaction handling for asset operations
+-- Added JSON schema validation for asset creation requests (both single and multiple files)
+
 -- Section update functionality added
 -- Updated API routes for section management to include page_keyword parameter
 -- Added section update endpoint with proper field handling for content and property fields

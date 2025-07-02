@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Multiple Assets Upload Response",
+  "description": "Response schema for multiple asset upload",
+  "properties": {
+    "uploaded": {
+      "type": "array",
+      "description": "Successfully uploaded assets",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Asset ID"
+          },
+          "asset_type": {
+            "type": "string",
+            "description": "Asset type"
+          },
+          "folder": {
+            "type": ["string", "null"],
+            "description": "Asset folder"
+          },
+          "file_name": {
+            "type": ["string", "null"],
+            "description": "File name"
+          },
+          "file_path": {
+            "type": "string",
+            "description": "File path"
+          },
+          "url": {
+            "type": "string",
+            "description": "Asset URL"
+          }
+        },
+        "required": ["id", "asset_type", "folder", "file_name", "file_path", "url"],
+        "additionalProperties": false
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Upload errors",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "File name that failed to upload"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": ["file", "error"],
+        "additionalProperties": false
+      }
+    },
+    "total_files": {
+      "type": "integer",
+      "description": "Total number of files attempted",
+      "minimum": 0
+    },
+    "successful_uploads": {
+      "type": "integer",
+      "description": "Number of successful uploads",
+      "minimum": 0
+    },
+    "failed_uploads": {
+      "type": "integer",
+      "description": "Number of failed uploads",
+      "minimum": 0
+    }
+  },
+  "required": ["uploaded", "errors", "total_files", "successful_uploads", "failed_uploads"],
+  "additionalProperties": false
+} 

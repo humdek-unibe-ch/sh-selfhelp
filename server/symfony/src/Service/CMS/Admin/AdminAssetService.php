@@ -35,15 +35,19 @@ class AdminAssetService extends BaseService
     }
 
     /**
-     * Get all assets
+     * Get all assets with pagination and search
      * 
+     * @param int $page
+     * @param int $pageSize
+     * @param string|null $search
+     * @param string|null $folder
      * @return array
      */
-    public function getAllAssets(): array
+    public function getAllAssets(int $page = 1, int $pageSize = 100, ?string $search = null, ?string $folder = null): array
     {
-        $assets = $this->assetRepository->findAllAssets();
+        $result = $this->assetRepository->findAssetsWithPagination($page, $pageSize, $search, $folder);
         
-        return array_map(function (Asset $asset) {
+        $assets = array_map(function (Asset $asset) {
             return [
                 'id' => $asset->getId(),
                 'asset_type' => $asset->getAssetType()->getLookupValue(),
@@ -52,7 +56,17 @@ class AdminAssetService extends BaseService
                 'file_path' => $asset->getFilePath(),
                 'url' => '/' . $asset->getFilePath()
             ];
-        }, $assets);
+        }, $result['assets']);
+
+        return [
+            'assets' => $assets,
+            'pagination' => [
+                'page' => $page,
+                'pageSize' => $pageSize,
+                'total' => $result['total'],
+                'totalPages' => ceil($result['total'] / $pageSize)
+            ]
+        ];
     }
 
     /**
@@ -92,6 +106,11 @@ class AdminAssetService extends BaseService
         $this->entityManager->beginTransaction();
         
         try {
+            // Validate file is properly uploaded
+            if (!$file->isValid()) {
+                throw new ServiceException('File upload failed: ' . $file->getErrorMessage(), Response::HTTP_BAD_REQUEST);
+            }
+
             // Validate file extension
             $extension = strtolower($file->getClientOriginalExtension());
             if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
@@ -110,8 +129,8 @@ class AdminAssetService extends BaseService
             // Get folder from data or use default
             $folder = $data['folder'] ?? 'general';
             
-            // Create filename
-            $fileName = $data['file_name'] ?? $file->getClientOriginalName();
+            // Create filename - preserve original name if no custom name provided
+            $fileName = !empty($data['file_name']) ? $data['file_name'] : $file->getClientOriginalName();
             
             // Check if file already exists
             $existingAsset = $this->assetRepository->findByFileName($fileName);
@@ -125,8 +144,11 @@ class AdminAssetService extends BaseService
                 mkdir($uploadPath, 0755, true);
             }
 
-            // Move uploaded file
+            // Move uploaded file FIRST to avoid file size errors on temp files
             $filePath = self::UPLOAD_DIR . $folder . '/' . $fileName;
+            $fullUploadPath = $uploadPath . '/' . $fileName;
+            
+            // Move the file immediately
             $file->move($uploadPath, $fileName);
 
             // Create or update asset entity
@@ -165,15 +187,52 @@ class AdminAssetService extends BaseService
             $this->entityManager->rollback();
             
             // Clean up uploaded file if it was moved
-            if (isset($uploadPath) && isset($fileName)) {
-                $fullPath = $uploadPath . '/' . $fileName;
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
-                }
+            if (isset($fullUploadPath) && file_exists($fullUploadPath)) {
+                unlink($fullUploadPath);
             }
             
             throw $e;
         }
+    }
+
+    /**
+     * Create/Upload multiple assets
+     * 
+     * @param array $files UploadedFile[]
+     * @param array $data
+     * @param bool $overwrite
+     * @return array
+     */
+    public function createMultipleAssets(array $files, array $data, bool $overwrite = false): array
+    {
+        $results = [];
+        $errors = [];
+        
+        foreach ($files as $index => $file) {
+            try {
+                $fileData = $data;
+                // Allow individual file names if provided
+                if (isset($data['file_names'][$index])) {
+                    $fileData['file_name'] = $data['file_names'][$index];
+                }
+                
+                $result = $this->createAsset($file, $fileData, $overwrite);
+                $results[] = $result;
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+
+        return [
+            'uploaded' => $results,
+            'errors' => $errors,
+            'total_files' => count($files),
+            'successful_uploads' => count($results),
+            'failed_uploads' => count($errors)
+        ];
     }
 
     /**

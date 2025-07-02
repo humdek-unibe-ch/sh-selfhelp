@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Create Assets Request",
+  "description": "Schema for creating single or multiple assets",
+  "properties": {
+    "file": {
+      "type": "string",
+      "format": "binary",
+      "description": "Single uploaded file (multipart/form-data) - for single file upload"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "binary"
+      },
+      "minItems": 1,
+      "maxItems": 50,
+      "description": "Array of uploaded files (multipart/form-data) - for multiple file upload"
+    },
+    "folder": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 100,
+      "description": "Folder name to store the asset(s) in (alphanumeric, underscore, dash only)"
+    },
+    "file_name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9._-]+\\.[a-zA-Z0-9]+$",
+      "maxLength": 255,
+      "description": "Custom filename with extension for single file upload"
+    },
+    "file_names": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9._-]+\\.[a-zA-Z0-9]+$",
+        "maxLength": 255
+      },
+      "description": "Array of custom filenames with extensions for multiple file upload"
+    },
+    "overwrite": {
+      "type": "boolean",
+      "description": "Whether to overwrite existing files with same names"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "file": "binary_file_data",
+      "folder": "uploads", 
+      "file_name": "my-image.jpg",
+      "overwrite": false
+    },
+    {
+      "files": ["binary_file_data_1", "binary_file_data_2"],
+      "folder": "gallery",
+      "file_names": ["image1.jpg", "image2.png"],
+      "overwrite": false
+    }
+  ]
+} 

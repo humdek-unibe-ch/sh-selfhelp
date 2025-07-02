@@ -195,8 +195,6 @@ class ApiRequestLoggerService
                 } else {
                     $params['files'][$key] = [
                         'name' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'mime' => $file->getMimeType()
                     ];
                 }
             }

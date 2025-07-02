@@ -30,10 +30,21 @@ class AdminAssetControllerTest extends BaseControllerTest
 
         $data = json_decode($response->getContent(), true);
         
-        // Validate response structure
+        // Validate response structure with pagination
         $this->assertArrayHasKey('status', $data);
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('assets', $data['data']);
+        $this->assertArrayHasKey('pagination', $data['data']);
+        
+        // Validate pagination structure
+        $pagination = $data['data']['pagination'];
+        $this->assertArrayHasKey('page', $pagination);
+        $this->assertArrayHasKey('pageSize', $pagination);
+        $this->assertArrayHasKey('total', $pagination);
+        $this->assertArrayHasKey('totalPages', $pagination);
+        $this->assertIsInt($pagination['page']);
+        $this->assertIsInt($pagination['pageSize']);
+        $this->assertIsInt($pagination['total']);
         
         // Validate assets array
         $this->assertIsArray($data['data']['assets']);
@@ -49,6 +60,37 @@ class AdminAssetControllerTest extends BaseControllerTest
             $this->assertIsInt($asset['id']);
             $this->assertIsString($asset['asset_type']);
         }
+    }
+
+    /**
+     * @group asset-management
+     */
+    public function testGetAllAssetsWithPaginationAndSearch(): void
+    {
+        // Test with pagination parameters
+        $this->client->request(
+            'GET',
+            '/cms-api/v1/admin/assets?page=1&pageSize=5&search=test&folder=test',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $this->getAdminAccessToken(),
+                'CONTENT_TYPE' => 'application/json'
+            ]
+        );
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        
+        // Validate pagination reflects requested parameters
+        $pagination = $data['data']['pagination'];
+        $this->assertSame(1, $pagination['page']);
+        $this->assertSame(5, $pagination['pageSize']);
+        
+        // Validate assets array size doesn't exceed pageSize
+        $this->assertLessThanOrEqual(5, count($data['data']['assets']));
     }
 
     /**
@@ -438,6 +480,74 @@ class AdminAssetControllerTest extends BaseControllerTest
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+    }
+
+    /**
+     * @group asset-management
+     */
+    public function testCreateMultipleAssetsSuccess(): void
+    {
+        // Create multiple temporary test files
+        $testFiles = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $testFilePath = tempnam(sys_get_temp_dir(), "test_image_$i");
+            file_put_contents($testFilePath, "test image content $i");
+            
+            $testFiles[] = new UploadedFile(
+                $testFilePath,
+                "test-multi-$i.jpg",
+                'image/jpeg',
+                null,
+                true
+            );
+        }
+
+        $this->client->request(
+            'POST',
+            '/cms-api/v1/admin/assets',
+            [
+                'folder' => 'test-multi',
+                'file_names' => ['custom-1.jpg', 'custom-2.jpg', 'custom-3.jpg']
+            ],
+            ['files' => $testFiles],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $this->getAdminAccessToken()
+            ]
+        );
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        
+        // Validate multiple upload response structure
+        $this->assertArrayHasKey('status', $data);
+        $this->assertArrayHasKey('data', $data);
+        $this->assertArrayHasKey('uploaded', $data['data']);
+        $this->assertArrayHasKey('errors', $data['data']);
+        $this->assertArrayHasKey('total_files', $data['data']);
+        $this->assertArrayHasKey('successful_uploads', $data['data']);
+        $this->assertArrayHasKey('failed_uploads', $data['data']);
+        
+        // Validate upload statistics
+        $this->assertSame(3, $data['data']['total_files']);
+        $this->assertSame(3, $data['data']['successful_uploads']);
+        $this->assertSame(0, $data['data']['failed_uploads']);
+        $this->assertEmpty($data['data']['errors']);
+        
+        // Validate uploaded assets
+        $this->assertCount(3, $data['data']['uploaded']);
+        
+        foreach ($data['data']['uploaded'] as $index => $asset) {
+            $this->assertArrayHasKey('id', $asset);
+            $this->assertArrayHasKey('file_name', $asset);
+            $this->assertArrayHasKey('folder', $asset);
+            $this->assertSame('test-multi', $asset['folder']);
+            $this->assertSame("custom-" . ($index + 1) . ".jpg", $asset['file_name']);
+            
+            // Store for cleanup
+            $this->createdAssetIds[] = $asset['id'];
+        }
     }
 
     protected function tearDown(): void

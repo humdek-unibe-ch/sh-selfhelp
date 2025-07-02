@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Create Asset Request",
+  "description": "Schema for creating a single asset",
+  "properties": {
+    "file": {
+      "type": "string",
+      "format": "binary",
+      "description": "The uploaded file (multipart/form-data)"
+    },
+    "folder": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 100,
+      "default": "general",
+      "description": "Folder name to store the asset in (alphanumeric, underscore, dash only)"
+    },
+    "file_name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9._-]+\\.[a-zA-Z0-9]+$",
+      "maxLength": 255,
+      "description": "Custom filename with extension (if not provided, original name is used)"
+    },
+    "overwrite": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to overwrite existing file with same name"
+    }
+  },
+  "required": ["file"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "file": "binary_file_data",
+      "folder": "uploads",
+      "file_name": "my-image.jpg",
+      "overwrite": false
+    }
+  ]
+} 

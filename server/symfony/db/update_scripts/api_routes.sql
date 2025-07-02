@@ -370,7 +370,7 @@ WHERE ar.`route_name` IN (
 -- User Management API Routes
 
 -- Get users with pagination
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_get_all_v1', 'v1', '/admin/users', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUsers', 'GET', NULL, JSON_OBJECT(
     'page', JSON_OBJECT('in', 'query', 'required', false),
     'pageSize', JSON_OBJECT('in', 'query', 'required', false),
@@ -380,11 +380,11 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Get single user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_get_one_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserById', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Create user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_create_v1', 'v1', '/admin/users', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::createUser', 'POST', NULL, JSON_OBJECT(
     'email', JSON_OBJECT('in', 'body', 'required', true),
     'name', JSON_OBJECT('in', 'body', 'required', false),
@@ -400,7 +400,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Update user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_update_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::updateUser', 'PUT', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'email', JSON_OBJECT('in', 'body', 'required', false),
     'name', JSON_OBJECT('in', 'body', 'required', false),
@@ -413,57 +413,57 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Delete user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_delete_v1', 'v1', '/admin/users/{userId}', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::deleteUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Block/Unblock user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_block_v1', 'v1', '/admin/users/{userId}/block', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::toggleUserBlock', 'PATCH', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'blocked', JSON_OBJECT('in', 'body', 'required', true)
 ));
 
 -- Get user groups
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_groups_get_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserGroups', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Add groups to user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_groups_add_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::addGroupsToUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Remove groups from user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_groups_remove_v1', 'v1', '/admin/users/{userId}/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::removeGroupsFromUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Get user roles
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_roles_get_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::getUserRoles', 'GET', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Add roles to user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_roles_add_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::addRolesToUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Remove roles from user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_roles_remove_v1', 'v1', '/admin/users/{userId}/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::removeRolesFromUser', 'DELETE', JSON_OBJECT('userId', '[0-9]+'), JSON_OBJECT(
     'role_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Send activation mail
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_send_activation_v1', 'v1', '/admin/users/{userId}/send-activation-mail', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::sendActivationMail', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Clean user data
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_clean_data_v1', 'v1', '/admin/users/{userId}/clean-data', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::cleanUserData', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 -- Impersonate user
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_users_impersonate_v1', 'v1', '/admin/users/{userId}/impersonate', 'App\\Controller\\Api\\V1\\Admin\\AdminUserController::impersonateUser', 'POST', JSON_OBJECT('userId', '[0-9]+'), NULL);
 
 
@@ -549,7 +549,7 @@ WHERE ar.`route_name` IN (
 -- Group Management API Routes
 
 -- Get groups with pagination
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_get_all_v1', 'v1', '/admin/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroups', 'GET', NULL, JSON_OBJECT(
     'page', JSON_OBJECT('in', 'query', 'required', false),
     'pageSize', JSON_OBJECT('in', 'query', 'required', false),
@@ -559,11 +559,11 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Get single group
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_get_one_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroupById', 'GET', JSON_OBJECT('groupId', '[0-9]+'), NULL);
 
 -- Create group
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_create_v1', 'v1', '/admin/groups', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::createGroup', 'POST', NULL, JSON_OBJECT(
     'name', JSON_OBJECT('in', 'body', 'required', true),
     'description', JSON_OBJECT('in', 'body', 'required', false),
@@ -573,7 +573,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Update group
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_update_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::updateGroup', 'PUT', JSON_OBJECT('groupId', '[0-9]+'), JSON_OBJECT(
     'name', JSON_OBJECT('in', 'body', 'required', false),
     'description', JSON_OBJECT('in', 'body', 'required', false),
@@ -583,15 +583,15 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Delete group
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_delete_v1', 'v1', '/admin/groups/{groupId}', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::deleteGroup', 'DELETE', JSON_OBJECT('groupId', '[0-9]+'), NULL);
 
 -- Get group ACLs
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_acls_get_v1', 'v1', '/admin/groups/{groupId}/acls', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::getGroupAcls', 'GET', JSON_OBJECT('groupId', '[0-9]+'), NULL);
 
 -- Update group ACLs
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_groups_acls_update_v1', 'v1', '/admin/groups/{groupId}/acls', 'App\\Controller\\Api\\V1\\Admin\\AdminGroupController::updateGroupAcls', 'PUT', JSON_OBJECT('groupId', '[0-9]+'), JSON_OBJECT(
     'acls', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
@@ -599,7 +599,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 -- Role Management API Routes
 
 -- Get roles with pagination
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_get_all_v1', 'v1', '/admin/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRoles', 'GET', NULL, JSON_OBJECT(
     'page', JSON_OBJECT('in', 'query', 'required', false),
     'pageSize', JSON_OBJECT('in', 'query', 'required', false),
@@ -609,11 +609,11 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Get single role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_get_one_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRoleById', 'GET', JSON_OBJECT('roleId', '[0-9]+'), NULL);
 
 -- Create role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_create_v1', 'v1', '/admin/roles', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::createRole', 'POST', NULL, JSON_OBJECT(
     'name', JSON_OBJECT('in', 'body', 'required', true),
     'description', JSON_OBJECT('in', 'body', 'required', false),
@@ -621,7 +621,7 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Update role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_update_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::updateRole', 'PUT', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
     'name', JSON_OBJECT('in', 'body', 'required', false),
     'description', JSON_OBJECT('in', 'body', 'required', false),
@@ -629,33 +629,33 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Delete role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_delete_v1', 'v1', '/admin/roles/{roleId}', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::deleteRole', 'DELETE', JSON_OBJECT('roleId', '[0-9]+'), NULL);
 
 -- Get role permissions
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_permissions_get_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getRolePermissions', 'GET', JSON_OBJECT('roleId', '[0-9]+'), NULL);
 
 -- Add permissions to role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_permissions_add_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::addPermissionsToRole', 'POST', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
     'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Remove permissions from role
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_permissions_remove_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::removePermissionsFromRole', 'DELETE', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
     'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Update role permissions (bulk replace)
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_roles_permissions_update_v1', 'v1', '/admin/roles/{roleId}/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::updateRolePermissions', 'PUT', JSON_OBJECT('roleId', '[0-9]+'), JSON_OBJECT(
     'permission_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
 ));
 
 -- Get all permissions
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_permissions_get_all_v1', 'v1', '/admin/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getAllPermissions', 'GET', NULL, NULL);
 
 -- Create permissions for groups and roles management
@@ -819,14 +819,14 @@ WHERE ar.`route_name` IN (
 
 
 -- Admin Gender routes
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_genders_get_all_v1', 'v1', '/admin/genders', 'App\\Controller\\Api\\V1\\Admin\\AdminGenderController::getAllGenders', 'GET', NULL, NULL);
 
 -- Admin CMS Preferences routes
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_cms_preferences_get_v1', 'v1', '/admin/cms-preferences', 'App\\Controller\\Api\\V1\\Admin\\AdminCmsPreferenceController::getCmsPreferences', 'GET', NULL, NULL);
 
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_cms_preferences_update_v1', 'v1', '/admin/cms-preferences', 'App\\Controller\\Api\\V1\\Admin\\AdminCmsPreferenceController::updateCmsPreferences', 'PUT', NULL, JSON_OBJECT(
     'callback_api_key', JSON_OBJECT('in', 'body', 'required', false),
     'default_language_id', JSON_OBJECT('in', 'body', 'required', false),
@@ -835,26 +835,55 @@ INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `method
 ));
 
 -- Admin Asset routes
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
-('admin_assets_get_all_v1', 'v1', '/admin/assets', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::getAllAssets', 'GET', NULL, NULL);
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_assets_get_all_v1', 'v1', '/admin/assets', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::getAllAssets', 'GET', NULL, JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'folder', JSON_OBJECT('in', 'query', 'required', false)
+));
 
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_assets_get_one_v1', 'v1', '/admin/assets/{assetId}', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::getAssetById', 'GET', JSON_OBJECT(
     'assetId', '[0-9]+'
 ), NULL);
 
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_assets_create_v1', 'v1', '/admin/assets', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::createAsset', 'POST', NULL, JSON_OBJECT(
-    'file', JSON_OBJECT('in', 'form', 'required', true),
+    'file', JSON_OBJECT('in', 'form', 'required', false),
+    'files', JSON_OBJECT('in', 'form', 'required', false),
     'folder', JSON_OBJECT('in', 'form', 'required', false),
     'file_name', JSON_OBJECT('in', 'form', 'required', false),
+    'file_names', JSON_OBJECT('in', 'form', 'required', false),
     'overwrite', JSON_OBJECT('in', 'form', 'required', false)
 ));
 
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_assets_delete_v1', 'v1', '/admin/assets/{assetId}', 'App\\Controller\\Api\\V1\\Admin\\AdminAssetController::deleteAsset', 'DELETE', JSON_OBJECT(
     'assetId', '[0-9]+'
 ), NULL);
+
+-- Update API routes for assets to support pagination and search
+UPDATE `api_routes` 
+SET `params` = JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'folder', JSON_OBJECT('in', 'query', 'required', false)
+)
+WHERE `route_name` = 'admin_assets_get_all_v1';
+
+-- Update asset creation route to support multiple files
+UPDATE `api_routes` 
+SET `params` = JSON_OBJECT(
+    'file', JSON_OBJECT('in', 'form', 'required', false),
+    'files', JSON_OBJECT('in', 'form', 'required', false),
+    'folder', JSON_OBJECT('in', 'form', 'required', false),
+    'file_name', JSON_OBJECT('in', 'form', 'required', false),
+    'file_names', JSON_OBJECT('in', 'form', 'required', false),
+    'overwrite', JSON_OBJECT('in', 'form', 'required', false)
+)
+WHERE `route_name` = 'admin_assets_create_v1';
 
 -- Create permissions for new features
 INSERT IGNORE INTO `permissions` (`name`, `description`)
@@ -943,7 +972,7 @@ WHERE ar.`route_name` IN (
 );
 
 -- Add permissions API route
-INSERT INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_permissions_get_all_v1', 'v1', '/admin/permissions', 'App\\Controller\\Api\\V1\\Admin\\AdminRoleController::getAllPermissions', 'GET', NULL, NULL);
 
 -- Add permission for reading all permissions
