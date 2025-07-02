@@ -29,12 +29,12 @@
             "type": "boolean",
             "description": "Whether the group requires 2FA"
           },
-          "user_count": {
+          "users_count": {
             "type": "integer",
             "description": "Number of users in the group"
           }
         },
-        "required": ["id", "name", "description", "requires_2fa", "user_count"],
+        "required": ["id", "name", "description", "requires_2fa", "users_count"],
         "additionalProperties": false
       }
     },

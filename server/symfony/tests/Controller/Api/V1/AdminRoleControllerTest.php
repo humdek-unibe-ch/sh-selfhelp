@@ -102,8 +102,8 @@ class AdminRoleControllerTest extends BaseControllerTest
             $this->assertArrayHasKey('id', $role);
             $this->assertArrayHasKey('name', $role);
             $this->assertArrayHasKey('description', $role);
-            $this->assertArrayHasKey('permission_count', $role);
-            $this->assertArrayHasKey('user_count', $role);
+            $this->assertArrayHasKey('permissions_count', $role);
+            $this->assertArrayHasKey('users_count', $role);
         }
     }
 
@@ -187,8 +187,8 @@ class AdminRoleControllerTest extends BaseControllerTest
         $this->assertArrayHasKey('id', $role);
         $this->assertArrayHasKey('name', $role);
         $this->assertArrayHasKey('description', $role);
-        $this->assertArrayHasKey('permission_count', $role);
-        $this->assertArrayHasKey('user_count', $role);
+        $this->assertArrayHasKey('permissions_count', $role);
+        $this->assertArrayHasKey('users_count', $role);
         $this->assertArrayHasKey('permissions', $role);
         $this->assertArrayHasKey('users', $role);
         

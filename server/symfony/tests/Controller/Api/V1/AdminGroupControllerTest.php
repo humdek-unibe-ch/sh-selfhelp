@@ -115,7 +115,7 @@ class AdminGroupControllerTest extends BaseControllerTest
             $this->assertArrayHasKey('id', $group);
             $this->assertArrayHasKey('name', $group);
             $this->assertArrayHasKey('description', $group);
-            $this->assertArrayHasKey('user_count', $group);
+            $this->assertArrayHasKey('users_count', $group);
             $this->assertArrayHasKey('requires_2fa', $group);
         }
     }
@@ -201,7 +201,7 @@ class AdminGroupControllerTest extends BaseControllerTest
         $this->assertArrayHasKey('id', $group);
         $this->assertArrayHasKey('name', $group);
         $this->assertArrayHasKey('description', $group);
-        $this->assertArrayHasKey('user_count', $group);
+        $this->assertArrayHasKey('users_count', $group);
         $this->assertArrayHasKey('requires_2fa', $group);
         $this->assertArrayHasKey('users', $group);
         $this->assertArrayHasKey('acls', $group);

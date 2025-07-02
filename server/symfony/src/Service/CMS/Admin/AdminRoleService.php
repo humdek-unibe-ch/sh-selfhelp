@@ -374,8 +374,8 @@ class AdminRoleService extends UserContextAwareService
             'id' => $role->getId(),
             'name' => $role->getName(),
             'description' => $role->getDescription(),
-            'permission_count' => $role->getPermissions()->count(),
-            'user_count' => $role->getUsers()->count()
+            'permissions_count' => $role->getPermissions()->count(),
+            'users_count' => $role->getUsers()->count()
         ];
     }
 
@@ -388,8 +388,8 @@ class AdminRoleService extends UserContextAwareService
             'id' => $role->getId(),
             'name' => $role->getName(),
             'description' => $role->getDescription(),
-            'permission_count' => $role->getPermissions()->count(),
-            'user_count' => $role->getUsers()->count(),
+            'permissions_count' => $role->getPermissions()->count(),
+            'users_count' => $role->getUsers()->count(),
             'permissions' => array_map([$this, 'formatPermissionForResponse'], $role->getPermissions()->toArray()),
             'users' => array_map(function($user) {
                 return [

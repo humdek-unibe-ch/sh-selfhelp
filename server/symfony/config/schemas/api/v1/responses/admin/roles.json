@@ -21,16 +21,16 @@
             "type": ["string", "null"],
             "description": "Role description"
           },
-          "permission_count": {
+          "permissions_count": {
             "type": "integer",
             "description": "Number of permissions in the role"
           },
-          "user_count": {
+          "users_count": {
             "type": "integer",
             "description": "Number of users with this role"
           }
         },
-        "required": ["id", "name", "permission_count", "user_count"],
+        "required": ["id", "name", "permissions_count", "users_count"],
         "additionalProperties": false
       }
     },

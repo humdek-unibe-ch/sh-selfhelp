@@ -305,7 +305,7 @@ class AdminGroupService extends UserContextAwareService
             'description' => $group->getDescription(),
             'id_group_types' => $group->getIdGroupTypes(),
             'requires_2fa' => $group->isRequires2fa(),
-            'user_count' => $group->getUsersGroups()->count()
+            'users_count' => $group->getUsersGroups()->count()
         ];
     }
 
@@ -322,7 +322,7 @@ class AdminGroupService extends UserContextAwareService
             'description' => $group->getDescription(),
             'id_group_types' => $group->getIdGroupTypes(),
             'requires_2fa' => $group->isRequires2fa(),
-            'user_count' => $group->getUsersGroups()->count(),
+            'users_count' => $group->getUsersGroups()->count(),
             'users' => array_map(function($ug) {
                 $user = $ug->getUser();
                 return [
