@@ -102,7 +102,7 @@ class AdminRoleService extends UserContextAwareService
         $this->entityManager->beginTransaction();
         
         try {
-            $this->validateRoleData($roleData, true);
+            $this->validateRoleData($roleData);
 
             $role = new Role();
             $role->setName($roleData['name']);
@@ -146,13 +146,8 @@ class AdminRoleService extends UserContextAwareService
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
                 throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-            }
 
-            $this->validateRoleData($roleData, false);
 
-            if (isset($roleData['name'])) {
-                $role->setName($roleData['name']);
-            }
             if (isset($roleData['description'])) {
                 $role->setDescription($roleData['description']);
             }
@@ -421,9 +416,9 @@ class AdminRoleService extends UserContextAwareService
     /**
      * Validate role data
      */
-    private function validateRoleData(array $data, bool $isCreate): void
+    private function validateRoleData(array $data): void
     {
-        if ($isCreate && empty($data['name'])) {
+        if (empty($data['name'])) {
             throw new ServiceException('Role name is required', Response::HTTP_BAD_REQUEST);
         }
 
