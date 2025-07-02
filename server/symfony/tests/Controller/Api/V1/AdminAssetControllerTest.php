@@ -41,13 +41,13 @@ class AdminAssetControllerTest extends BaseControllerTest
         if (!empty($data['data']['assets'])) {
             $asset = $data['data']['assets'][0];
             $this->assertArrayHasKey('id', $asset);
-            $this->assertArrayHasKey('id_asset_types', $asset);
+            $this->assertArrayHasKey('asset_type', $asset);
             $this->assertArrayHasKey('folder', $asset);
             $this->assertArrayHasKey('file_name', $asset);
             $this->assertArrayHasKey('file_path', $asset);
             $this->assertArrayHasKey('url', $asset);
             $this->assertIsInt($asset['id']);
-            $this->assertIsInt($asset['id_asset_types']);
+            $this->assertIsString($asset['asset_type']);
         }
     }
 

@@ -21,6 +21,7 @@ class AdminAssetService extends BaseService
         'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', // Videos
         'css', 'js', // Web files
         'zip', 'rar', '7z', // Archives
+        'json', // JSON files
         'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx' // Office files
     ];
 
@@ -45,7 +46,7 @@ class AdminAssetService extends BaseService
         return array_map(function (Asset $asset) {
             return [
                 'id' => $asset->getId(),
-                'id_asset_type' => $asset->getAssetType()->getId(),
+                'asset_type' => $asset->getAssetType()->getLookupValue(),
                 'folder' => $asset->getFolder(),
                 'file_name' => $asset->getFileName(),
                 'file_path' => $asset->getFilePath(),
@@ -62,7 +63,7 @@ class AdminAssetService extends BaseService
      */
     public function getAssetById(int $id): array
     {
-        $asset = $this->assetRepository->find($id);
+        $asset = $this->assetRepository->findOneBy(['id' => $id]);
         
         if (!$asset) {
             throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
@@ -70,7 +71,7 @@ class AdminAssetService extends BaseService
 
         return [
             'id' => $asset->getId(),
-            'id_asset_types' => $asset->getIdAssetTypes(),
+            'asset_type' => $asset->getAssetType()->getLookupValue(),
             'folder' => $asset->getFolder(),
             'file_name' => $asset->getFileName(),
             'file_path' => $asset->getFilePath(),
@@ -103,7 +104,7 @@ class AdminAssetService extends BaseService
             // Determine asset type based on extension
             $assetType = $this->lookupService->findByTypeAndCode(
                 LookupService::ASSET_TYPES,
-                LookupService::ASSET_TYPES_ASSET
+                in_array($extension, ['css']) ? LookupService::ASSET_TYPES_CSS : LookupService::ASSET_TYPES_ASSET
             );
             
             // Get folder from data or use default

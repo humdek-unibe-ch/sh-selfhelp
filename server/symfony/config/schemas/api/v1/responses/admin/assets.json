@@ -14,9 +14,9 @@
             "type": "integer",
             "description": "Asset ID"
           },
-          "id_asset_types": {
-            "type": "integer",
-            "description": "Asset type ID"
+          "asset_type": {
+            "type": "string",
+            "description": "Asset type"
           },
           "folder": {
             "type": ["string", "null"],
@@ -35,7 +35,7 @@
             "description": "Asset URL"
           }
         },
-        "required": ["id", "id_asset_types", "folder", "file_name", "file_path", "url"],
+        "required": ["id", "asset_type", "folder", "file_name", "file_path", "url"],
         "additionalProperties": false
       }
     }
