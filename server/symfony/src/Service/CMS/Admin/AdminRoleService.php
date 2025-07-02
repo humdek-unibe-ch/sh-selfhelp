@@ -146,7 +146,7 @@ class AdminRoleService extends UserContextAwareService
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
                 throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-
+            }
 
             if (isset($roleData['description'])) {
                 $role->setDescription($roleData['description']);

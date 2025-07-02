@@ -103,7 +103,7 @@ class AdminGroupService extends UserContextAwareService
         $this->entityManager->beginTransaction();
         
         try {
-            $this->validateGroupData($groupData, true);
+            $this->validateGroupData($groupData);
 
             $group = new Group();
             $group->setName($groupData['name']);
@@ -154,11 +154,6 @@ class AdminGroupService extends UserContextAwareService
                 throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
             }
 
-            $this->validateGroupData($groupData, false);
-
-            if (isset($groupData['name'])) {
-                $group->setName($groupData['name']);
-            }
             if (isset($groupData['description'])) {
                 $group->setDescription($groupData['description']);
             }
@@ -359,9 +354,9 @@ class AdminGroupService extends UserContextAwareService
     /**
      * Validate group data
      */
-    private function validateGroupData(array $data, bool $isCreate): void
+    private function validateGroupData(array $data): void
     {
-        if ($isCreate && empty($data['name'])) {
+        if (empty($data['name'])) {
             throw new ServiceException('Group name is required', Response::HTTP_BAD_REQUEST);
         }
 
