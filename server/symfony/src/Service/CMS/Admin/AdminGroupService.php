@@ -385,6 +385,15 @@ class AdminGroupService extends UserContextAwareService
      */
     private function updateGroupAclsInternal(Group $group, array $aclsData): void
     {
+        // First, remove all existing ACL permissions for this group
+        $existingAcls = $this->entityManager->getRepository(AclGroup::class)
+            ->findBy(['group' => $group]);
+        
+        foreach ($existingAcls as $existingAcl) {
+            $this->entityManager->remove($existingAcl);
+        }
+
+        // Then, add only the ACL permissions that are passed in the request
         foreach ($aclsData as $aclData) {
             $this->validateAclData($aclData);
             
@@ -393,21 +402,16 @@ class AdminGroupService extends UserContextAwareService
                 throw new ServiceException('Page not found: ' . $aclData['page_id'], Response::HTTP_NOT_FOUND);
             }
 
-            // Find existing ACL or create new one
-            $acl = $this->entityManager->getRepository(AclGroup::class)
-                ->findOneBy(['group' => $group, 'page' => $page]);
-
-            if (!$acl) {
-                $acl = new AclGroup();
-                $acl->setGroup($group);
-                $acl->setPage($page);
-                $this->entityManager->persist($acl);
-            }
-
+            // Create new ACL
+            $acl = new AclGroup();
+            $acl->setGroup($group);
+            $acl->setPage($page);
             $acl->setAclSelect($aclData['acl_select'] ?? true);
             $acl->setAclInsert($aclData['acl_insert'] ?? false);
             $acl->setAclUpdate($aclData['acl_update'] ?? false);
             $acl->setAclDelete($aclData['acl_delete'] ?? false);
+            
+            $this->entityManager->persist($acl);
         }
 
         $this->entityManager->flush();
