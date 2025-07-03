@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "title": "ACL Array",
+  "description": "Reusable ACL array schema for group permissions",
+  "items": {
+    "type": "object",
+    "properties": {
+      "page_id": {
+        "type": "integer",
+        "description": "Page ID for ACL"
+      },
+      "acl_select": {
+        "type": "boolean",
+        "default": true,
+        "description": "Select permission"
+      },
+      "acl_insert": {
+        "type": "boolean",
+        "default": false,
+        "description": "Insert permission"
+      },
+      "acl_update": {
+        "type": "boolean",
+        "default": false,
+        "description": "Update permission"
+      },
+      "acl_delete": {
+        "type": "boolean",
+        "default": false,
+        "description": "Delete permission"
+      }
+    },
+    "required": ["page_id"],
+    "additionalProperties": false
+  }
+} 
