@@ -392,6 +392,9 @@ class AdminGroupService extends UserContextAwareService
         foreach ($existingAcls as $existingAcl) {
             $this->entityManager->remove($existingAcl);
         }
+        
+        // Flush the deletions first to avoid constraint violations
+        $this->entityManager->flush();
 
         // Then, add only the ACL permissions that are passed in the request
         foreach ($aclsData as $aclData) {
@@ -414,6 +417,7 @@ class AdminGroupService extends UserContextAwareService
             $this->entityManager->persist($acl);
         }
 
+        // Flush the insertions
         $this->entityManager->flush();
     }
 } 
