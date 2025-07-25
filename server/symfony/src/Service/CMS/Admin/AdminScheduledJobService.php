@@ -19,6 +19,7 @@ use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use App\Service\Core\JobSchedulerService;
 
 class AdminScheduledJobService extends UserContextAwareService
 {
@@ -30,7 +31,8 @@ class AdminScheduledJobService extends UserContextAwareService
         private readonly UserRepository $userRepository,
         private readonly TransactionRepository $transactionRepository,
         private readonly LookupService $lookupService,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly JobSchedulerService $jobSchedulerService
     ) {
         parent::__construct($userContextService);
     }
@@ -142,25 +144,7 @@ class AdminScheduledJobService extends UserContextAwareService
      */
     public function deleteScheduledJob(int $jobId): bool
     {
-        return $this->transactionService->executeInTransaction(function () use ($jobId) {
-            $job = $this->scheduledJobRepository->find($jobId);
-            
-            if (!$job) {
-                throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
-            }
-
-            // Change status to deleted instead of actually deleting
-            $deletedStatus = $this->lookupService->getLookupByValue('Deleted');
-            $job->setStatus($deletedStatus);
-
-            $this->entityManager->persist($job);
-            $this->entityManager->flush();
-
-            // Log transaction
-            $this->logTransaction($job, 'Delete Job', 'Job marked as deleted');
-
-            return true;
-        }, 'Delete scheduled job: ' . $jobId);
+        return $this->jobSchedulerService->deleteJob($jobId, LookupService::TRANSACTION_BY_BY_USER);        
     }
 
     /**

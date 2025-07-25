@@ -138,8 +138,8 @@ class AdminScheduledJobController extends AbstractController
     public function deleteScheduledJob(int $jobId): JsonResponse
     {
         try {
-            $this->adminScheduledJobService->deleteScheduledJob($jobId);
-            return $this->responseFormatter->formatSuccess(null, 'Job deleted successfully');
+            $res = $this->adminScheduledJobService->deleteScheduledJob($jobId);
+            return $this->responseFormatter->formatSuccess($res, null, $res ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),

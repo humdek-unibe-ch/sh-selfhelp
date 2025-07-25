@@ -202,17 +202,17 @@ class JobSchedulerService extends BaseService
                 throw new \Exception('Job not found: ' . $jobId);
             }
 
-            $deletedStatus = $this->em->getRepository(Lookup::class)->findOneBy(['lookup_type' => $this->lookupService::SCHEDULED_JOBS_STATUS, 'lookup_value' => $this->lookupService::SCHEDULED_JOBS_STATUS_DELETED]);
+            $deletedStatus = $this->lookupService->findByTypeAndCode($this->lookupService::SCHEDULED_JOBS_STATUS, $this->lookupService::SCHEDULED_JOBS_STATUS_DELETED);
             $job->setStatus($deletedStatus);
             $this->em->flush();
 
             $this->transactionService->logTransaction(
                 'delete',
                 $transactionBy,
-                null,
                 'scheduledJobs',
                 $jobId,
-                ['action' => 'marked_as_deleted']
+                false,
+                'Job marked as deleted'
             );
 
             $this->em->commit();
