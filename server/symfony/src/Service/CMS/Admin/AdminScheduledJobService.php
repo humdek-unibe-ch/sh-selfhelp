@@ -80,7 +80,7 @@ class AdminScheduledJobService extends UserContextAwareService
             'totalCount' => $result['totalCount'],
             'page' => $result['page'],
             'pageSize' => $result['pageSize'],
-            'totalPages' => $result['totalPages']
+            'totalPages' => (int)$result['totalPages']
         ];
     }
 

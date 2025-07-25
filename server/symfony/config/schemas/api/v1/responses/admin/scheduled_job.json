@@ -50,21 +50,18 @@
     },
     "date_create": {
       "type": "string",
-      "format": "date-time",
       "description": "Date when job was created"
     },
     "date_to_be_executed": {
       "type": "string",
-      "format": "date-time",
       "description": "Date when job should be executed"
     },
     "date_executed": {
-      "type": "string",
-      "format": "date-time",
+      "type": ["string", "null"],
       "description": "Date when job was actually executed"
     },
     "config": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "Job configuration"
     },
     "users": {

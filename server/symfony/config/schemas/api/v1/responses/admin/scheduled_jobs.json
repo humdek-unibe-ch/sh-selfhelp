@@ -18,7 +18,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
+            "type": "integer",
             "description": "Job ID"
           },
           "status": {
@@ -31,17 +31,14 @@
           },
           "entry_date": {
             "type": "string",
-            "format": "date-time",
             "description": "Date when job was created"
           },
           "date_to_be_executed": {
             "type": "string",
-            "format": "date-time",
             "description": "Date when job should be executed"
           },
           "execution_date": {
-            "type": "string",
-            "format": "date-time",
+            "type": ["string", "null"],
             "description": "Date when job was actually executed"
           },
           "description": {
@@ -57,7 +54,7 @@
             "description": "Comma-separated list of task names"
           },
           "message": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Job configuration/message"
           },
           "transactions": {
@@ -107,7 +104,7 @@
       "description": "Number of jobs per page"
     },
             "totalPages": {
-              "type": "integer",
+              "type": "number",
               "description": "Total number of pages"
             }
           },
