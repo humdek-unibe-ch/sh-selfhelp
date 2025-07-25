@@ -1,6 +1,17 @@
 {
-  "type": "object",
-  "properties": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Scheduled Jobs List Response",
+  "description": "Response envelope for scheduled jobs list with pagination",
+  "allOf": [
+    {
+      "$ref": "../common/_response_envelope.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
     "scheduledJobs": {
       "type": "array",
       "items": {
@@ -48,9 +59,39 @@
           "message": {
             "type": "string",
             "description": "Job configuration/message"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "transaction_id": {
+                  "type": "integer",
+                  "description": "Transaction ID"
+                },
+                "transaction_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Transaction timestamp"
+                },
+                "transaction_type": {
+                  "type": "string",
+                  "description": "Type of transaction"
+                },
+                "transaction_verbal_log": {
+                  "type": "string",
+                  "description": "Detailed transaction log"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "User who performed the transaction"
+                }
+              },
+              "required": ["transaction_id", "transaction_time", "transaction_type", "transaction_verbal_log"]
+            }
           }
         },
-        "required": ["id", "status", "type", "entry_date", "description"]
+        "required": ["id", "status", "type", "entry_date", "description", "transactions"]
       }
     },
     "totalCount": {
@@ -65,10 +106,15 @@
       "type": "integer",
       "description": "Number of jobs per page"
     },
-    "totalPages": {
-      "type": "integer",
-      "description": "Total number of pages"
+            "totalPages": {
+              "type": "integer",
+              "description": "Total number of pages"
+            }
+          },
+          "required": ["scheduledJobs", "totalCount", "page", "pageSize", "totalPages"]
+        }
+      },
+      "required": ["data"]
     }
-  },
-  "required": ["scheduledJobs", "totalCount", "page", "pageSize", "totalPages"]
+  ]
 } 

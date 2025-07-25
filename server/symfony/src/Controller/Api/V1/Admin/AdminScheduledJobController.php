@@ -74,6 +74,9 @@ class AdminScheduledJobController extends AbstractController
                 $sortDirection
             );
 
+            // Validate response against JSON schema
+            $this->jsonSchemaValidationService->validateResponse($result, 'responses/admin/scheduled_jobs');
+
             return $this->responseFormatter->formatSuccess($result);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -93,6 +96,13 @@ class AdminScheduledJobController extends AbstractController
     {
         try {
             $job = $this->adminScheduledJobService->getScheduledJobById($jobId);
+            
+            // Add transactions to the job detail
+            $job['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
+            
+            // Validate response against JSON schema
+            $this->jsonSchemaValidationService->validateResponse($job, 'responses/admin/scheduled_job');
+            
             return $this->responseFormatter->formatSuccess($job);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -112,6 +122,13 @@ class AdminScheduledJobController extends AbstractController
     {
         try {
             $result = $this->adminScheduledJobService->executeScheduledJob($jobId);
+            
+            // Add transactions to the result
+            $result['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
+            
+            // Validate response against JSON schema
+            $this->jsonSchemaValidationService->validateResponse($result, 'responses/admin/scheduled_job');
+            
             return $this->responseFormatter->formatSuccess($result, 'Job executed successfully');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -150,6 +167,10 @@ class AdminScheduledJobController extends AbstractController
     {
         try {
             $transactions = $this->adminScheduledJobService->getJobTransactions($jobId);
+            
+            // Validate response against JSON schema
+            $this->jsonSchemaValidationService->validateResponse($transactions, 'responses/admin/job_transactions');
+            
             return $this->responseFormatter->formatSuccess($transactions);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(

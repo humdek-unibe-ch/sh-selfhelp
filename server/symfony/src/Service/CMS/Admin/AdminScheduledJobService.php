@@ -69,7 +69,10 @@ class AdminScheduledJobService extends UserContextAwareService
 
         $formattedJobs = [];
         foreach ($result['scheduledJobs'] as $job) {
-            $formattedJobs[] = $this->formatScheduledJobForList($job);
+            $formattedJob = $this->formatScheduledJobForList($job);
+            // Add transactions for each job
+            $formattedJob['transactions'] = $this->getJobTransactions($job->getId());
+            $formattedJobs[] = $formattedJob;
         }
 
         return [
