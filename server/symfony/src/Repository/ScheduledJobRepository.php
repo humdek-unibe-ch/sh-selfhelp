@@ -50,7 +50,7 @@ class ScheduledJobRepository extends ServiceEntityRepository
 
         // Apply search filter
         if ($search) {
-            $qb->andWhere('(sj.description LIKE :search OR sj.id LIKE :search OR user.name LIKE :search OR task.name LIKE :search)')
+            $qb->andWhere('(sj.description LIKE :search OR sj.id LIKE :search OR user.name LIKE :search OR task.config LIKE :search OR sj.config LIKE :search)')
                 ->setParameter('search', '%' . $search . '%');
         }
 
