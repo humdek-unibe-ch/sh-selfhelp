@@ -103,40 +103,10 @@ class AdminScheduledJobService extends UserContextAwareService
     /**
      * Execute a scheduled job
      */
-    public function executeScheduledJob(int $jobId): array
+    public function executeScheduledJob(int $jobId): array|false
     {
-        return $this->transactionService->executeInTransaction(function () use ($jobId) {
-            $job = $this->scheduledJobRepository->find($jobId);
-            
-            if (!$job) {
-                throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
-            }
-
-            if ($job->getStatus()->getLookupValue() !== 'Queued') {
-                throw new ServiceException('Job is not in queued status', Response::HTTP_BAD_REQUEST);
-            }
-
-            // Update job status to executing
-            $executingStatus = $this->lookupService->getLookupByValue('Executing');
-            $job->setStatus($executingStatus);
-            $job->setDateExecuted(new \DateTime());
-
-            $this->entityManager->persist($job);
-            $this->entityManager->flush();
-
-            // Log transaction
-            $this->logTransaction($job, 'Execute Job', 'Job executed manually');
-
-            // Here you would implement the actual job execution logic
-            // For now, we'll just mark it as done
-            $doneStatus = $this->lookupService->getLookupByValue('Done');
-            $job->setStatus($doneStatus);
-
-            $this->entityManager->persist($job);
-            $this->entityManager->flush();
-
-            return $this->formatScheduledJobForDetail($job);
-        }, 'Execute scheduled job: ' . $jobId);
+        $job = $this->jobSchedulerService->executeJob($jobId, LookupService::TRANSACTION_BY_BY_USER);   
+        return $job ? $this->formatScheduledJobForDetail($job) : false;
     }
 
     /**

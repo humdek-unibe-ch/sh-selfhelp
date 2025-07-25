@@ -116,10 +116,11 @@ class AdminScheduledJobController extends AbstractController
     {
         try {
             $result = $this->adminScheduledJobService->executeScheduledJob($jobId);
-            
-            // Add transactions to the result
-            $result['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
-            
+
+            if ($result) {
+                $result['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
+            }
+
             return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_job');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(

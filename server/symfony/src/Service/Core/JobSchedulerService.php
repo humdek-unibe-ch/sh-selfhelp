@@ -134,7 +134,7 @@ class JobSchedulerService extends BaseService
      * @param string $transactionBy Who initiated the execution
      * @return bool True if successful, false on failure
      */
-    public function executeJob(int $jobId, string $transactionBy): bool
+    public function executeJob(int $jobId, string $transactionBy): ScheduledJob|false
     {
         try {
             $this->em->beginTransaction();
@@ -145,8 +145,8 @@ class JobSchedulerService extends BaseService
             }
 
             // Determine job type and execute accordingly
-            $jobTypeId = $job->getIdJobTypes();
-            $jobTypeName = $this->lookupService->getLookupValueById($jobTypeId);
+            $jobTypeId = $job->getJobType()->getId();
+            $jobTypeName = $this->lookupService->getLookupCodeById($jobTypeId);
 
             $success = match ($jobTypeName) {
                 $this->lookupService::JOB_TYPES_EMAIL => $this->executeEmailJob($job, $transactionBy),
@@ -156,7 +156,7 @@ class JobSchedulerService extends BaseService
             };
 
             // Update job status
-            $status = $this->em->getRepository(Lookup::class)->findOneBy(['lookup_type' => $this->lookupService::SCHEDULED_JOBS_STATUS, 'lookup_value' => $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED]);
+            $status = $this->lookupService->findByTypeAndCode($this->lookupService::SCHEDULED_JOBS_STATUS, $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED);
             
             $job->setStatus($status);
             $job->setDateExecuted(new \DateTime());
@@ -164,16 +164,16 @@ class JobSchedulerService extends BaseService
 
             // Log the execution
             $this->transactionService->logTransaction(
-                'status_change',
+                LookupService::TRANSACTION_TYPES_UPDATE,
                 $transactionBy,
-                null,
                 'scheduledJobs',
                 $jobId,
-                ['status' => $success ? 'executed' : 'failed']
+                false,
+                'Job executed: ' . ($success ? 'executed' : 'failed')
             );
 
             $this->em->commit();
-            return $success;
+            return $job;
 
         } catch (\Exception $e) {
             $this->em->rollback();

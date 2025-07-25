@@ -284,4 +284,28 @@ final class LookupService
     {
         return $this->lookupRepository->findOneBy($criteria);
     }
+
+    /**
+     * Get the lookup value by ID
+     *
+     * @param int $id
+     * @return string|null
+     */
+    public function getLookupValueById(int $id): ?string
+    {
+        $lookup = $this->findById($id);
+        return $lookup ? $lookup->getLookupValue() : null;
+    }
+
+    /**
+     * Get the lookup code by ID
+     *
+     * @param int $id
+     * @return string|null
+     */
+    public function getLookupCodeById(int $id): ?string
+    {
+        $lookup = $this->findById($id);
+        return $lookup ? $lookup->getLookupCode() : null;
+    }
 }
