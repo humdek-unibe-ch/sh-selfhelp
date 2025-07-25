@@ -74,10 +74,7 @@ class AdminScheduledJobController extends AbstractController
                 $sortDirection
             );
 
-            // Validate response against JSON schema
-            $this->jsonSchemaValidationService->validateResponse($result, 'responses/admin/scheduled_jobs');
-
-            return $this->responseFormatter->formatSuccess($result);
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_jobs');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
