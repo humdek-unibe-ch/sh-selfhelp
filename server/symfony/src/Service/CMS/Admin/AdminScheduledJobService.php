@@ -152,30 +152,6 @@ class AdminScheduledJobService extends UserContextAwareService
     }
 
     /**
-     * Get available job statuses
-     */
-    public function getJobStatuses(): array
-    {
-        return $this->lookupService->getLookups(LookupService::SCHEDULED_JOBS_STATUS);
-    }
-
-    /**
-     * Get available job types
-     */
-    public function getJobTypes(): array
-    {
-        return $this->lookupService->getLookups(LookupService::JOB_TYPES);
-    }
-
-    /**
-     * Get available search date types
-     */
-    public function getSearchDateTypes(): array
-    {
-        return $this->lookupService->getLookups(LookupService::SCHEDULED_JOBS_SEARCH_DATE_TYPES);
-    }
-
-    /**
      * Format scheduled job for list view
      */
     private function formatScheduledJobForList(ScheduledJob $job): array

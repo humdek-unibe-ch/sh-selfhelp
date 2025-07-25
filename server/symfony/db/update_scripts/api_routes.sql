@@ -1002,10 +1002,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('admin_scheduled_jobs_get_one_v1', 'v1', '/admin/scheduled-jobs/{jobId}', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getScheduledJobById', 'GET', '{"jobId": "[0-9]+"}', NULL),
 ('admin_scheduled_jobs_execute_v1', 'v1', '/admin/scheduled-jobs/{jobId}/execute', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::executeScheduledJob', 'POST', '{"jobId": "[0-9]+"}', NULL),
 ('admin_scheduled_jobs_delete_v1', 'v1', '/admin/scheduled-jobs/{jobId}', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::deleteScheduledJob', 'DELETE', '{"jobId": "[0-9]+"}', NULL),
-('admin_scheduled_jobs_transactions_v1', 'v1', '/admin/scheduled-jobs/{jobId}/transactions', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobTransactions', 'GET', '{"jobId": "[0-9]+"}', NULL),
-('admin_scheduled_jobs_statuses_v1', 'v1', '/admin/scheduled-jobs/statuses', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobStatuses', 'GET', NULL, NULL),
-('admin_scheduled_jobs_types_v1', 'v1', '/admin/scheduled-jobs/types', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobTypes', 'GET', NULL, NULL),
-('admin_scheduled_jobs_search_date_types_v1', 'v1', '/admin/scheduled-jobs/search-date-types', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getSearchDateTypes', 'GET', NULL, NULL);
+('admin_scheduled_jobs_transactions_v1', 'v1', '/admin/scheduled-jobs/{jobId}/transactions', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobTransactions', 'GET', '{"jobId": "[0-9]+"}', NULL);
 
 -- Link permissions endpoint to permission
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
@@ -1030,10 +1027,7 @@ JOIN `permissions`   AS p
 WHERE ar.`route_name` IN (
   'admin_scheduled_jobs_get_all_v1',
   'admin_scheduled_jobs_get_one_v1',
-  'admin_scheduled_jobs_transactions_v1',
-  'admin_scheduled_jobs_statuses_v1',
-  'admin_scheduled_jobs_types_v1',
-  'admin_scheduled_jobs_search_date_types_v1'
+  'admin_scheduled_jobs_transactions_v1'
 );
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
