@@ -214,4 +214,23 @@ class AdminScheduledJobController extends AbstractController
             );
         }
     }
+
+    /**
+     * Get available search date types
+     * 
+     * @route /admin/scheduled-jobs/search-date-types
+     * @method GET
+     */
+    public function getSearchDateTypes(): JsonResponse
+    {
+        try {
+            $types = $this->adminScheduledJobService->getSearchDateTypes();
+            return $this->responseFormatter->formatSuccess($types);
+        } catch (\Exception $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                $e->getCode() ?: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 } 

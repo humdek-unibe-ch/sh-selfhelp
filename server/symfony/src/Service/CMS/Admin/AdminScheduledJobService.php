@@ -210,6 +210,14 @@ class AdminScheduledJobService extends UserContextAwareService
      */
     public function getJobTypes(): array
     {
+        return $this->lookupService->getLookups(LookupService::JOB_TYPES);
+    }
+
+    /**
+     * Get available search date types
+     */
+    public function getSearchDateTypes(): array
+    {
         return $this->lookupService->getLookups(LookupService::SCHEDULED_JOBS_SEARCH_DATE_TYPES);
     }
 
