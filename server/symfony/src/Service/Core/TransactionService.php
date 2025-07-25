@@ -108,6 +108,7 @@ class TransactionService
         }
         
         $transaction->setTableName($tableName);
+        $transaction->setIdTableName($entryId);
         $transaction->setTransactionLog(json_encode($log));
         $transaction->setTransactionTime(new \DateTime());
         

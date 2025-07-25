@@ -87,12 +87,14 @@ class AdminUserServiceTest extends KernelTestCase
 
         $this->assertIsArray($result['users']);
         
-        // If there are results, verify they contain the search term
+        // If there are results, verify they contain the search term in any searchable field
         foreach ($result['users'] as $user) {
             $containsSearch = stripos($user['email'], 'admin') !== false ||
                             stripos($user['name'], 'admin') !== false ||
-                            stripos($user['user_name'] ?? '', 'admin') !== false;
-            $this->assertTrue($containsSearch, 'Search result should contain search term');
+                            stripos($user['user_name'] ?? '', 'admin') !== false ||
+                            stripos($user['code'] ?? '', 'admin') !== false ||
+                            stripos($user['roles'] ?? '', 'admin') !== false;
+            $this->assertTrue($containsSearch, 'Search result should contain search term in email, name, username, code, or roles');
         }
     }
 
@@ -118,10 +120,12 @@ class AdminUserServiceTest extends KernelTestCase
      */
     public function testCreateUserSuccess(): void
     {
+        $uniqueEmail = 'test.service.' . uniqid() . '@example.com';
+        $uniqueUsername = 'testserviceuser' . uniqid();
         $userData = [
-            'email' => 'test.service@example.com',
+            'email' => $uniqueEmail,
             'name' => 'Test Service User',
-            'user_name' => 'testserviceuser',
+            'user_name' => $uniqueUsername,
             'password' => 'testpassword123',
             'blocked' => false
         ];
@@ -131,9 +135,9 @@ class AdminUserServiceTest extends KernelTestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('email', $result);
-        $this->assertSame($userData['email'], $result['email']);
+        $this->assertSame($uniqueEmail, $result['email']);
         $this->assertSame($userData['name'], $result['name']);
-        $this->assertSame($userData['user_name'], $result['user_name']);
+        $this->assertSame($uniqueUsername, $result['user_name']);
         $this->assertSame($userData['blocked'], $result['blocked']);
 
         // Cleanup
@@ -444,20 +448,35 @@ class AdminUserServiceTest extends KernelTestCase
     /**
      * @group user-service
      */
-    public function testSendActivationMailReturnsTrue(): void
+    public function testSendActivationMailReturnsSuccess(): void
     {
-        // Create a test user first
+        // Create a test user first with unique email and disable validation to avoid conflicts
+        $uniqueEmail = 'activation.test.' . uniqid() . '@example.com';
         $userData = [
-            'email' => 'activation.test@example.com',
+            'email' => $uniqueEmail,
             'name' => 'Activation Test User',
-            'password' => 'testpassword123'
+            'password' => 'testpassword123',
+            'enable_validation' => false // Disable automatic validation
         ];
 
         $createdUser = $this->adminUserService->createUser($userData);
         $userId = $createdUser['id'];
 
+        // Manually set user as blocked to simulate needing validation
+        $user = $this->adminUserService->getUserById($userId);
+        $this->entityManager->getRepository(\App\Entity\User::class)->find($userId)->setBlocked(true);
+        $this->entityManager->flush();
+
         $result = $this->adminUserService->sendActivationMail($userId);
-        $this->assertTrue($result);
+        
+        $this->assertIsArray($result);
+        $this->assertTrue($result['success']);
+        $this->assertEquals('Activation email sent successfully', $result['message']);
+        $this->assertEquals($userId, $result['user_id']);
+        $this->assertEquals($uniqueEmail, $result['email']);
+        $this->assertArrayHasKey('token', $result);
+        $this->assertArrayHasKey('job_id', $result);
+        $this->assertArrayHasKey('validation_url', $result);
 
         // Cleanup
         $this->adminUserService->deleteUser($userId);

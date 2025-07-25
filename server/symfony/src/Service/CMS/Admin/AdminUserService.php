@@ -56,7 +56,7 @@ class AdminUserService extends UserContextAwareService
         
         // Apply search filter
         if ($search) {
-            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search OR ur.role LIKE :search)')
+            $qb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search OR ur.name LIKE :search)')
                ->setParameter('search', '%' . $search . '%');
         }
 
@@ -86,9 +86,9 @@ class AdminUserService extends UserContextAwareService
             ->where('u.intern = :intern AND u.id_status > 0')
             ->setParameter('intern', false);
         
-        // Apply the same search filter to count query
+        // Apply the same search filter to count query (without roles since not joined)
         if ($search) {
-            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search OR ur.role LIKE :search)')
+            $countQb->andWhere('(u.email LIKE :search OR u.name LIKE :search OR u.user_name LIKE :search OR u.id LIKE :search OR vc.code LIKE :search)')
                    ->setParameter('search', '%' . $search . '%');
         }
         
@@ -162,8 +162,10 @@ class AdminUserService extends UserContextAwareService
                 }
             }
 
-            // Set other properties
-            $user->setBlocked($userData['blocked'] ?? false);
+            // Set other properties (blocked status will be set by validation service if needed)
+            if (isset($userData['blocked'])) {
+                $user->setBlocked($userData['blocked']);
+            }
             if (isset($userData['id_genders'])) {
                 $gender = $this->entityManager->getRepository(Gender::class)->findOneBy(['id' => $userData['id_genders']]);
                 if ($gender) {
@@ -598,17 +600,50 @@ class AdminUserService extends UserContextAwareService
     }
 
     /**
-     * Send activation mail (placeholder)
+     * Send activation mail with new validation URL
      */
-    public function sendActivationMail(int $userId): bool
+    public function sendActivationMail(int $userId): array
     {
-        $user = $this->userRepository->find($userId);
-        if (!$user) {
-            throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-        }
+        $this->entityManager->beginTransaction();
+        
+        try {
+            $user = $this->userRepository->find($userId);
+            if (!$user) {
+                throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+            }
 
-        // TODO: Implement mail sending logic
-        return true;
+            // Use UserValidationService to resend validation email
+            $validationResult = $this->userValidationService->resendValidationEmail($userId);
+            
+            if (!$validationResult['success']) {
+                throw new ServiceException('Failed to send activation email: ' . $validationResult['error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            // Log transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'users',
+                $user->getId(),
+                $user,
+                'Activation email sent: ' . $user->getEmail() . ' (token: ' . $validationResult['token'] . ', job_id: ' . $validationResult['job_id'] . ')'
+            );
+
+            $this->entityManager->commit();
+
+            return [
+                'success' => true,
+                'message' => 'Activation email sent successfully',
+                'user_id' => $userId,
+                'email' => $user->getEmail(),
+                'token' => $validationResult['token'],
+                'job_id' => $validationResult['job_id'],
+                'validation_url' => $validationResult['validation_url']
+            ];
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
     }
 
     /**

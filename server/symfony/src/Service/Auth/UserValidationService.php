@@ -56,9 +56,13 @@ class UserValidationService extends BaseService
             $token = $this->generateValidationToken();
             $user->setToken($token);
             
-            // Set user status to invited
+            // Set user status to invited and block the user until validation (unless already set)
             $status = $this->entityManager->getRepository(Lookup::class)->findOneBy(['typeCode' => LookupService::USER_STATUS, 'lookupValue' => LookupService::USER_STATUS_INVITED]);
             $user->setStatus($status);
+            // Only set blocked if not already explicitly set
+            if ($user->isBlocked() === null) {
+                $user->setBlocked(true); // User needs to be blocked until validated
+            }
             
             // Don't flush here - let the calling service handle transaction management
             // $this->entityManager->flush();
@@ -69,21 +73,6 @@ class UserValidationService extends BaseService
             if (!$job) {
                 throw new \Exception('Failed to schedule validation email');
             }
-
-            // Don't log transaction here - let the calling service handle it
-            // $this->transactionService->logTransaction(
-            //     'update',
-            //     JobSchedulerService::TRANSACTION_BY_SYSTEM,
-            //     null,
-            //     'users',
-            //     $user->getId(),
-            //     [
-            //         'action' => 'validation_setup',
-            //         'email' => $user->getEmail(),
-            //         'validation_token' => $token,
-            //         'job_id' => $jobId
-            //     ]
-            // );
 
             return [
                 'success' => true,
@@ -212,22 +201,15 @@ class UserValidationService extends BaseService
                 ];
             }
 
-            if (!$user->isBlocked()) {
-                return [
-                    'success' => false,
-                    'error' => 'User account is already validated'
-                ];
-            }
-
             // Generate new token
             $token = $this->generateValidationToken();
             $user->setToken($token);
             $this->entityManager->flush();
 
             // Schedule new validation email
-            $jobId = $this->scheduleValidationEmail($userId, $token, $emailConfig);
+            $job = $this->scheduleValidationEmail($userId, $token, $emailConfig);
 
-            if (!$jobId) {
+            if (!$job) {
                 return [
                     'success' => false,
                     'error' => 'Failed to schedule validation email'
@@ -238,7 +220,7 @@ class UserValidationService extends BaseService
                 'success' => true,
                 'message' => 'Validation email resent successfully',
                 'token' => $token,
-                'job_id' => $jobId,
+                'job_id' => $job->getId(),
                 'validation_url' => "validate/{$userId}/{$token}"
             ];
 

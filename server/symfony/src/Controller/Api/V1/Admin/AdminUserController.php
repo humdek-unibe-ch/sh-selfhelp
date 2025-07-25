@@ -332,7 +332,7 @@ class AdminUserController extends AbstractController
     {
         try {
             $result = $this->adminUserService->sendActivationMail($userId);
-            return $this->responseFormatter->formatSuccess(['sent' => $result]);
+            return $this->responseFormatter->formatSuccess($result);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
