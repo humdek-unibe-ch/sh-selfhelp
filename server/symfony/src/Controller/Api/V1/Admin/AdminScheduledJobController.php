@@ -97,10 +97,7 @@ class AdminScheduledJobController extends AbstractController
             // Add transactions to the job detail
             $job['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
             
-            // Validate response against JSON schema
-            $this->jsonSchemaValidationService->validateResponse($job, 'responses/admin/scheduled_job');
-            
-            return $this->responseFormatter->formatSuccess($job);
+            return $this->responseFormatter->formatSuccess($job, 'responses/admin/scheduled_job');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -123,10 +120,7 @@ class AdminScheduledJobController extends AbstractController
             // Add transactions to the result
             $result['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
             
-            // Validate response against JSON schema
-            $this->jsonSchemaValidationService->validateResponse($result, 'responses/admin/scheduled_job');
-            
-            return $this->responseFormatter->formatSuccess($result, 'Job executed successfully');
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_job');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -165,10 +159,7 @@ class AdminScheduledJobController extends AbstractController
         try {
             $transactions = $this->adminScheduledJobService->getJobTransactions($jobId);
             
-            // Validate response against JSON schema
-            $this->jsonSchemaValidationService->validateResponse($transactions, 'responses/admin/job_transactions');
-            
-            return $this->responseFormatter->formatSuccess($transactions);
+            return $this->responseFormatter->formatSuccess($transactions,  'responses/admin/job_transactions');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),

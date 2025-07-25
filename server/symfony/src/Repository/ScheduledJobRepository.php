@@ -51,23 +51,27 @@ class ScheduledJobRepository extends ServiceEntityRepository
         // Apply search filter
         if ($search) {
             $qb->andWhere('(sj.description LIKE :search OR sj.id LIKE :search OR user.name LIKE :search OR task.name LIKE :search)')
-               ->setParameter('search', '%' . $search . '%');
+                ->setParameter('search', '%' . $search . '%');
         }
 
         // Apply status filter
         if ($status) {
             $qb->andWhere('status.lookupValue = :status')
-               ->setParameter('status', $status);
+                ->setParameter('status', $status);
         }
 
         // Apply job type filter
         if ($jobType) {
             $qb->andWhere('jobType.lookupValue = :jobType')
-               ->setParameter('jobType', $jobType);
+                ->setParameter('jobType', $jobType);
         }
 
         // Apply date range filter
         if ($dateFrom && $dateTo) {
+            // Set $dateFrom as start of day, $dateTo as end of day
+            $dateFrom->setTime(0, 0, 0);
+            $dateTo->setTime(23, 59, 59);
+
             switch ($dateType) {
                 case 'date_create':
                     $qb->andWhere('sj.dateCreate BETWEEN :dateFrom AND :dateTo');
@@ -79,8 +83,10 @@ class ScheduledJobRepository extends ServiceEntityRepository
                     $qb->andWhere('sj.dateExecuted BETWEEN :dateFrom AND :dateTo');
                     break;
             }
-            $qb->setParameter('dateFrom', $dateFrom)
-               ->setParameter('dateTo', $dateTo);
+            $qb->setParameter('dateFrom', $dateFrom->format('Y-m-d H:i:s'))
+                ->setParameter('dateTo', $dateTo->format('Y-m-d H:i:s'));
+
+
         }
 
         // Apply sorting
@@ -116,7 +122,7 @@ class ScheduledJobRepository extends ServiceEntityRepository
 
         return [
             'scheduledJobs' => $scheduledJobs,
-            'totalCount' => (int)$totalCount,
+            'totalCount' => (int) $totalCount,
             'page' => $page,
             'pageSize' => $pageSize,
             'totalPages' => ceil($totalCount / $pageSize)
@@ -184,4 +190,4 @@ class ScheduledJobRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-} 
+}
