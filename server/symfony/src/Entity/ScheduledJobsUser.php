@@ -10,24 +10,22 @@ class ScheduledJobsUser
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'scheduledJobsUsers')]
-    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: ScheduledJob::class, inversedBy: 'scheduledJobsUsers')]
-    #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_scheduledJobs', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?ScheduledJob $scheduledJob = null;
-
 
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(?User $user): self
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -36,10 +34,9 @@ class ScheduledJobsUser
         return $this->scheduledJob;
     }
 
-    public function setScheduledJob(?ScheduledJob $scheduledJob): static
+    public function setScheduledJob(?ScheduledJob $scheduledJob): self
     {
         $this->scheduledJob = $scheduledJob;
-
         return $this;
     }
 }

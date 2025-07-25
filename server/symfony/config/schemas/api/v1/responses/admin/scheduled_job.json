@@ -1,0 +1,103 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Job ID"
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Status lookup ID"
+        },
+        "value": {
+          "type": "string",
+          "description": "Status value"
+        }
+      },
+      "required": ["id", "value"]
+    },
+    "job_type": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Job type lookup ID"
+        },
+        "value": {
+          "type": "string",
+          "description": "Job type value"
+        }
+      },
+      "required": ["id", "value"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Job description"
+    },
+    "date_create": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when job was created"
+    },
+    "date_to_be_executed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when job should be executed"
+    },
+    "date_executed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when job was actually executed"
+    },
+    "config": {
+      "type": "string",
+      "description": "Job configuration"
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "User ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "User name"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email"
+          }
+        },
+        "required": ["id", "name", "email"]
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Task ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Task name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description"
+          }
+        },
+        "required": ["id", "name"]
+      }
+    }
+  },
+  "required": ["id", "status", "job_type", "description", "date_create", "users", "tasks"]
+} 

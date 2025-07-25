@@ -979,10 +979,32 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 INSERT IGNORE INTO `permissions` (`name`, `description`)
 VALUES ('admin.permission.read', 'Can read all available permissions');
 
+-- Add permissions for scheduled jobs
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES 
+  ('admin.scheduled_job.read', 'Can read scheduled jobs'),
+  ('admin.scheduled_job.execute', 'Can execute scheduled jobs'),
+  ('admin.scheduled_job.delete', 'Can delete scheduled jobs');
+
 -- Grant permission to admin role
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
 SELECT r.id, p.id FROM roles r, permissions p 
-WHERE r.name = 'admin' AND p.name = 'admin.permission.read';
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.permission.read',
+  'admin.scheduled_job.read',
+  'admin.scheduled_job.execute',
+  'admin.scheduled_job.delete'
+);
+
+-- Add scheduled jobs API routes
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_scheduled_jobs_get_all_v1', 'v1', '/admin/scheduled-jobs', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getScheduledJobs', 'GET', NULL, NULL),
+('admin_scheduled_jobs_get_one_v1', 'v1', '/admin/scheduled-jobs/{jobId}', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getScheduledJobById', 'GET', '{"jobId": "[0-9]+"}', NULL),
+('admin_scheduled_jobs_execute_v1', 'v1', '/admin/scheduled-jobs/{jobId}/execute', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::executeScheduledJob', 'POST', '{"jobId": "[0-9]+"}', NULL),
+('admin_scheduled_jobs_delete_v1', 'v1', '/admin/scheduled-jobs/{jobId}', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::deleteScheduledJob', 'DELETE', '{"jobId": "[0-9]+"}', NULL),
+('admin_scheduled_jobs_transactions_v1', 'v1', '/admin/scheduled-jobs/{jobId}/transactions', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobTransactions', 'GET', '{"jobId": "[0-9]+"}', NULL),
+('admin_scheduled_jobs_statuses_v1', 'v1', '/admin/scheduled-jobs/statuses', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobStatuses', 'GET', NULL, NULL),
+('admin_scheduled_jobs_types_v1', 'v1', '/admin/scheduled-jobs/types', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getJobTypes', 'GET', NULL, NULL);
 
 -- Link permissions endpoint to permission
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
@@ -996,6 +1018,43 @@ WHERE ar.`route_name` IN (
   'admin_permissions_get_all_v1'
 );
 
+-- Link scheduled jobs routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.scheduled_job.read'
+WHERE ar.`route_name` IN (
+  'admin_scheduled_jobs_get_all_v1',
+  'admin_scheduled_jobs_get_one_v1',
+  'admin_scheduled_jobs_transactions_v1',
+  'admin_scheduled_jobs_statuses_v1',
+  'admin_scheduled_jobs_types_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.scheduled_job.execute'
+WHERE ar.`route_name` IN (
+  'admin_scheduled_jobs_execute_v1'
+);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT
+  ar.`id`      AS id_api_routes,
+  p.`id`       AS id_permissions
+FROM `api_routes`     AS ar
+JOIN `permissions`   AS p
+  ON p.`name` = 'admin.scheduled_job.delete'
+WHERE ar.`route_name` IN (
+  'admin_scheduled_jobs_delete_v1'
+);
 
 -- allways last
 -- give role admin to all users who had group admins

@@ -36,6 +36,22 @@ class ScheduledJob
     #[ORM\JoinColumn(name: 'id_jobTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Lookup $jobType = null;
 
+    #[ORM\OneToMany(targetEntity: ScheduledJobsTask::class, mappedBy: 'scheduledJob', cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $scheduledJobsTasks;
+
+    #[ORM\OneToMany(targetEntity: ScheduledJobsUser::class, mappedBy: 'scheduledJob', cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $scheduledJobsUsers;
+
+    #[ORM\OneToMany(targetEntity: ScheduledJobsMailQueue::class, mappedBy: 'scheduledJob', cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $scheduledJobsMailQueues;
+
+    public function __construct()
+    {
+        $this->scheduledJobsTasks = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->scheduledJobsMailQueues = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +136,78 @@ class ScheduledJob
     public function setJobType(?Lookup $jobType): self
     {
         $this->jobType = $jobType;
+        return $this;
+    }
+
+    public function getScheduledJobsTasks(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->scheduledJobsTasks;
+    }
+
+    public function addScheduledJobsTask(ScheduledJobsTask $scheduledJobsTask): self
+    {
+        if (!$this->scheduledJobsTasks->contains($scheduledJobsTask)) {
+            $this->scheduledJobsTasks->add($scheduledJobsTask);
+            $scheduledJobsTask->setScheduledJob($this);
+        }
+        return $this;
+    }
+
+    public function removeScheduledJobsTask(ScheduledJobsTask $scheduledJobsTask): self
+    {
+        if ($this->scheduledJobsTasks->removeElement($scheduledJobsTask)) {
+            if ($scheduledJobsTask->getScheduledJob() === $this) {
+                $scheduledJobsTask->setScheduledJob(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getScheduledJobsUsers(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->scheduledJobsUsers;
+    }
+
+    public function addScheduledJobsUser(ScheduledJobsUser $scheduledJobsUser): self
+    {
+        if (!$this->scheduledJobsUsers->contains($scheduledJobsUser)) {
+            $this->scheduledJobsUsers->add($scheduledJobsUser);
+            $scheduledJobsUser->setScheduledJob($this);
+        }
+        return $this;
+    }
+
+    public function removeScheduledJobsUser(ScheduledJobsUser $scheduledJobsUser): self
+    {
+        if ($this->scheduledJobsUsers->removeElement($scheduledJobsUser)) {
+            if ($scheduledJobsUser->getScheduledJob() === $this) {
+                $scheduledJobsUser->setScheduledJob(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getScheduledJobsMailQueues(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->scheduledJobsMailQueues;
+    }
+
+    public function addScheduledJobsMailQueue(ScheduledJobsMailQueue $scheduledJobsMailQueue): self
+    {
+        if (!$this->scheduledJobsMailQueues->contains($scheduledJobsMailQueue)) {
+            $this->scheduledJobsMailQueues->add($scheduledJobsMailQueue);
+            $scheduledJobsMailQueue->setScheduledJob($this);
+        }
+        return $this;
+    }
+
+    public function removeScheduledJobsMailQueue(ScheduledJobsMailQueue $scheduledJobsMailQueue): self
+    {
+        if ($this->scheduledJobsMailQueues->removeElement($scheduledJobsMailQueue)) {
+            if ($scheduledJobsMailQueue->getScheduledJob() === $this) {
+                $scheduledJobsMailQueue->setScheduledJob(null);
+            }
+        }
         return $this;
     }
 }

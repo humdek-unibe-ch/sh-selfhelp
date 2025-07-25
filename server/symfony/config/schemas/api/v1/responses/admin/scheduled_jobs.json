@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "properties": {
+    "scheduledJobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Job ID"
+          },
+          "status": {
+            "type": "string",
+            "description": "Job status (Queued, Done, Failed, etc.)"
+          },
+          "type": {
+            "type": "string",
+            "description": "Job type (Task, Email, Notification, etc.)"
+          },
+          "entry_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when job was created"
+          },
+          "date_to_be_executed": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when job should be executed"
+          },
+          "execution_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when job was actually executed"
+          },
+          "description": {
+            "type": "string",
+            "description": "Job description"
+          },
+          "recipient": {
+            "type": "string",
+            "description": "Comma-separated list of user names"
+          },
+          "title": {
+            "type": "string",
+            "description": "Comma-separated list of task names"
+          },
+          "message": {
+            "type": "string",
+            "description": "Job configuration/message"
+          }
+        },
+        "required": ["id", "status", "type", "entry_date", "description"]
+      }
+    },
+    "totalCount": {
+      "type": "integer",
+      "description": "Total number of jobs"
+    },
+    "page": {
+      "type": "integer",
+      "description": "Current page number"
+    },
+    "pageSize": {
+      "type": "integer",
+      "description": "Number of jobs per page"
+    },
+    "totalPages": {
+      "type": "integer",
+      "description": "Total number of pages"
+    }
+  },
+  "required": ["scheduledJobs", "totalCount", "page", "pageSize", "totalPages"]
+} 

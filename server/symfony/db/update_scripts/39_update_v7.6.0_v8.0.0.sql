@@ -2,6 +2,33 @@
 UPDATE version
 SET version = 'v8.0.0';
 
+-- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System, Scheduled Jobs API
+
+-- Scheduled Jobs API Enhancement
+-- Added comprehensive scheduled jobs management API with:
+-- - Full CRUD operations for scheduled jobs
+-- - Advanced filtering and search capabilities
+-- - Pagination support with customizable page sizes
+-- - Date range filtering for different date types (create, execute, executed)
+-- - Status and job type filtering
+-- - Transaction logging for all job operations
+-- - Job execution functionality with proper status management
+-- - Soft delete functionality (status change to deleted)
+-- - Related transactions viewing for audit trails
+-- - Job statuses and types lookup endpoints
+-- - Proper entity relationships with users and tasks
+-- - Transaction service integration for data integrity
+-- - JSON schema validation for all responses
+-- - Admin permission system integration
+-- New API routes:
+-- - /admin/scheduled-jobs - List and filter scheduled jobs
+-- - /admin/scheduled-jobs/{jobId} - Get job details
+-- - /admin/scheduled-jobs/{jobId}/execute - Execute a job
+-- - /admin/scheduled-jobs/{jobId} - Delete a job (soft delete)
+-- - /admin/scheduled-jobs/{jobId}/transactions - Get job transactions
+-- - /admin/scheduled-jobs/statuses - Get available job statuses
+-- - /admin/scheduled-jobs/types - Get available job types
+
 -- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System
 
 -- User Validation System Enhancement
