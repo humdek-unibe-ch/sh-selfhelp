@@ -34,6 +34,10 @@
  - update to `jQuery-QueryBuilder` 3.0.0
  - #489 - add dropdown in the footer to select `dark`, `light` or `auto` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
 
+# v7.6.2
+### Bugfix
+ - wrap all useage of `groups` and make them compatible with MySQL 8
+
 # v7.6.1
 ### Bugfix
  - wrap all useage of `groups` and make them compatible with MySQL 8
