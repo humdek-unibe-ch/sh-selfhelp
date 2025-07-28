@@ -165,7 +165,7 @@ WHERE id_pages = (SELECT id FROM pages WHERE keyword = 'contact');
 ALTER TABLE chat
 ADD COLUMN id_rcv_group int(10) UNSIGNED ZEROFILL NOT NULL;
 
-INSERT INTO groups (name, description)
+INSERT INTO `groups` (name, description)
 SELECT DISTINCT chr.name, chr.description
 FROM chat ch
 INNER JOIN chatRoom chr ON (ch.id_rcv_grp = chr.id)
@@ -173,28 +173,28 @@ WHERE name <> 'root';
 
 UPDATE chat ch
 LEFT JOIN chatRoom chr ON (ch.id_rcv_grp = chr.id)
-LEFT join groups g ON (chr.name = g.name)
+LEFT join `groups` g ON (chr.name = g.name)
 SET id_rcv_group = CASE
 						WHEN g.id IS NULL THEN 3
 						ELSE g.id 
 					END;
 
 ALTER TABLE chat
-ADD CONSTRAINT fk_chat_id_rcv_group FOREIGN KEY (id_rcv_group) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT fk_chat_id_rcv_group FOREIGN KEY (id_rcv_group) REFERENCES `groups`(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 INSERT INTO users_groups (id_users, id_groups)
 SELECT u.id, g.id
 FROM chatRoom cr
 INNER JOIN chatRoom_users cru ON (cr.id = cru.id_chatRoom)
 INNER JOIN users u ON (cru.id_users = u.id)
-INNER JOIN groups g ON (cr.name = g.name);
+INNER JOIN `groups` g ON (cr.name = g.name);
 
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
 SELECT DISTINCT g.id, (SELECT id FROM pages WHERE pages.keyword = 'chatSubject'), '1', '0', '0', '0'
 FROM chatRoom cr
 INNER JOIN chatRoom_users cru ON (cr.id = cru.id_chatRoom)
 INNER JOIN users u ON (cru.id_users = u.id)
-INNER JOIN groups g ON (cr.name = g.name);
+INNER JOIN `groups` g ON (cr.name = g.name);
 
 ALTER TABLE chat
 DROP FOREIGN KEY fk_chat_id_rcv_grp;
@@ -212,14 +212,14 @@ SELECT u.id, u.email, u.name,
 IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
 us.name AS status,
 us.description, u.blocked, ifnull(vc.code, '-') AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
 u.intern
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
