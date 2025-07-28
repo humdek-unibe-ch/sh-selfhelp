@@ -114,7 +114,7 @@ SET @id_page_data = LAST_INSERT_ID();
 
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
 SELECT g.id, (SELECT id FROM pages WHERE keyword = 'chatSubject'), acl_select, acl_insert, acl_update, acl_delete
-FROM groups g
+FROM `groups` g
 INNER JOIN acl_groups acl ON (acl.id_groups = g.id)
 INNER JOIN pages p ON (acl.id_pages = p.id)
 WHERE keyword = 'contact';
