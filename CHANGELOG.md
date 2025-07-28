@@ -1,3 +1,7 @@
+# v7.6.1
+### Bugfix
+ - wrap all useage of `groups` and make them compatible with MySQL 8
+
 # v7.6.0
 ### Bugfix
  - properly export and import `meta` field for sections
