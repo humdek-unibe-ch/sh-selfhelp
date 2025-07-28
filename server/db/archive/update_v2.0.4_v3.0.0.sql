@@ -410,7 +410,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR '; ') AS functions_code,
@@ -428,7 +428,7 @@ INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
 LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN `groups` g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
@@ -590,7 +590,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-group', '7');
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'group', get_field_type_id('select-group'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
-VALUES (get_style_id('register'), get_field_id('group'), (SELECT id FROM groups WHERE name = 'subject' LIMIT 1), 'Select the default group in which evey new user is assigned.');
+VALUES (get_style_id('register'), get_field_id('group'), (SELECT id FROM `groups` WHERE name = 'subject' LIMIT 1), 'Select the default group in which evey new user is assigned.');
 
 -- Add new style QualtricsSurvey
 INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurvey', '2', (select id from styleGroup where `name` = 'Form' limit 1), 'Visualize a qualtrics survey. It is shown in iFrame.');
@@ -617,12 +617,12 @@ AS
 SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
 us.description, u.blocked, vc.code,
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
 LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
 LEFT JOIN validation_codes vc ON u.id = vc.id_users

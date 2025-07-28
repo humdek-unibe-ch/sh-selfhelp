@@ -322,7 +322,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
@@ -362,7 +362,7 @@ AS
 SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
 us.description, u.blocked, vc.code,
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
@@ -571,7 +571,7 @@ CASE
     WHEN u.name = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
 u.intern
@@ -743,7 +743,7 @@ CREATE VIEW view_formActions
 AS
 SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
 CASE 
