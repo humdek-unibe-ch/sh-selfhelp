@@ -1675,3 +1675,7 @@ GROUP BY
     u.intern, u.id_userTypes, ut.lookup_code, ut.lookup_value,
     u.id_genders, u.id_languages, u.id_status
 ORDER BY u.email;
+
+-- remove field `children`
+DELETE FROM `fields`
+WHERE `name` = 'children';
