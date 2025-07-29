@@ -87,6 +87,7 @@ class SectionFieldService extends UserContextAwareService
             $fieldData = [
                 'id' => $fieldId,
                 'name' => $field->getName(),
+                'title' => $stylesField->getTitle(),
                 'type' => $field->getType() ? $field->getType()->getName() : null,
                 'default_value' => $stylesField->getDefaultValue(),
                 'help' => $stylesField->getHelp(),

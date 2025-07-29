@@ -41,6 +41,9 @@ class StylesField
     #[ORM\Column(name: 'hidden', type: 'integer', nullable: true)]
     private ?int $hidden = 0;
 
+    #[ORM\Column(name: 'title', type: 'string', length: 100, nullable: false)]
+    private string $title;
+
     public function getDefaultValue(): ?string
     {
         return $this->defaultValue;
@@ -98,6 +101,17 @@ class StylesField
     {
         $this->field = $field;
 
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
         return $this;
     }
 }

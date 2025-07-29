@@ -1679,3 +1679,2262 @@ ORDER BY u.email;
 -- remove field `children`
 DELETE FROM `fields`
 WHERE `name` = 'children';
+
+-- add column `title` for fileds in the style
+CALL add_table_column('styles_fields', 'title', 'VARCHAR(100) NOT NULL');
+
+UPDATE styles_fields
+SET title = 'CSS'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Email'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('label_user');
+
+UPDATE styles_fields
+SET title = 'Password'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('label_pw');
+
+UPDATE styles_fields
+SET title = 'Login Button'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('label_login');
+
+UPDATE styles_fields
+SET title = 'Reset Link'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('label_pw_reset');
+
+UPDATE styles_fields
+SET title = 'Error Message'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Login Title'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('login_title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('login') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Alert Fail'
+WHERE id_styles = get_style_id('profile') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Alert Del Fail'
+WHERE id_styles = get_style_id('profile') AND id_fields = get_field_id('alert_del_fail');
+
+UPDATE styles_fields
+SET title = 'Alert Del Success'
+WHERE id_styles = get_style_id('profile') AND id_fields = get_field_id('alert_del_success');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('profile') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Fluid'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('is_fluid');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Export PDF'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('export_pdf');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('container') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('jumbotron') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('jumbotron') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('jumbotron') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('jumbotron') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('jumbotron') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Heading Level'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('level');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('heading') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Markdown Text'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('text_md');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('markdown') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Inline Markdown'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('text_md_inline');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('markdownInline') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('url');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Cancel Label'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('label_cancel');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Confirmation Title'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('confirmation_title');
+
+UPDATE styles_fields
+SET title = 'Confirmation Continue'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('confirmation_continue');
+
+UPDATE styles_fields
+SET title = 'Confirmation Message'
+WHERE id_styles = get_style_id('button') AND id_fields = get_field_id('confirmation_message');
+
+UPDATE styles_fields
+SET title = 'Password Label'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_pw');
+
+UPDATE styles_fields
+SET title = 'Login Label'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_login');
+
+UPDATE styles_fields
+SET title = 'Error Message'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Password'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_pw_confirm');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'Subtitle'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('subtitle');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Username'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_name');
+
+UPDATE styles_fields
+SET title = 'Username'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('name_placeholder');
+
+UPDATE styles_fields
+SET title = 'Username'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('name_description');
+
+UPDATE styles_fields
+SET title = 'Label Gender'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_gender');
+
+UPDATE styles_fields
+SET title = 'Gender Male'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('gender_male');
+
+UPDATE styles_fields
+SET title = 'Gender Female'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('gender_female');
+
+UPDATE styles_fields
+SET title = 'Label Activate'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('label_activate');
+
+UPDATE styles_fields
+SET title = 'Password'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('pw_placeholder');
+
+UPDATE styles_fields
+SET title = 'Success'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('success');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Gender Divers'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('gender_divers');
+
+UPDATE styles_fields
+SET title = 'Page Keyword'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('page_keyword');
+
+UPDATE styles_fields
+SET title = 'Value Gender'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('value_gender');
+
+UPDATE styles_fields
+SET title = 'Username'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('value_name');
+
+UPDATE styles_fields
+SET title = 'Anonymous User Name Description'
+WHERE id_styles = get_style_id('validate') AND id_fields = get_field_id('anonymous_user_name_description');
+
+UPDATE styles_fields
+SET title = 'Error Message'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Alt'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('alt');
+
+UPDATE styles_fields
+SET title = 'Title Prefix'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('title_prefix');
+
+UPDATE styles_fields
+SET title = 'Experimenter'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('experimenter');
+
+UPDATE styles_fields
+SET title = 'Subjects'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('subjects');
+
+UPDATE styles_fields
+SET title = 'Label Submit'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('label_submit');
+
+UPDATE styles_fields
+SET title = 'Label Lobby'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('label_lobby');
+
+UPDATE styles_fields
+SET title = 'Label New'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('label_new');
+
+UPDATE styles_fields
+SET title = 'Email User'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('email_user');
+
+UPDATE styles_fields
+SET title = 'Subject User'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('subject_user');
+
+UPDATE styles_fields
+SET title = 'Is Html'
+WHERE id_styles = get_style_id('chat') AND id_fields = get_field_id('is_html');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Is Dismissable'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('is_dismissable');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('alert') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Is Expanded'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('is_expanded');
+
+UPDATE styles_fields
+SET title = 'Is Collapsible'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('is_collapsible');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('url_edit');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('card') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Caption Title'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('caption_title');
+
+UPDATE styles_fields
+SET title = 'Caption'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('caption');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('figure') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('url');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Cancel Label'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('label_cancel');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('url_cancel');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('form') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Fluid'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('is_fluid');
+
+UPDATE styles_fields
+SET title = 'Alt'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('alt');
+
+UPDATE styles_fields
+SET title = 'Img Src'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('img_src');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Height'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('height');
+
+UPDATE styles_fields
+SET title = 'Width'
+WHERE id_styles = get_style_id('image') AND id_fields = get_field_id('width');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('type_input');
+
+UPDATE styles_fields
+SET title = 'Placeholder'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('placeholder');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Min'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('min');
+
+UPDATE styles_fields
+SET title = 'Max'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('max');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Format'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('format');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('input') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Text'
+WHERE id_styles = get_style_id('plaintext') AND id_fields = get_field_id('text');
+
+UPDATE styles_fields
+SET title = 'Is Paragraph'
+WHERE id_styles = get_style_id('plaintext') AND id_fields = get_field_id('is_paragraph');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('url');
+
+UPDATE styles_fields
+SET title = 'Open In New Tab'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('open_in_new_tab');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('link') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Count'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('count');
+
+UPDATE styles_fields
+SET title = 'Count Max'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('count_max');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Is Striped'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('is_striped');
+
+UPDATE styles_fields
+SET title = 'Has Label'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('has_label');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('progressBar') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Caption'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('caption');
+
+UPDATE styles_fields
+SET title = 'Label Right'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('label_right');
+
+UPDATE styles_fields
+SET title = 'Label Wrong'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('label_wrong');
+
+UPDATE styles_fields
+SET title = 'Right Content'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('right_content');
+
+UPDATE styles_fields
+SET title = 'Wrong Content'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('wrong_content');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('quiz') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Text'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('text');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('rawText') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Alt'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('alt');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'Is Multiple'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('is_multiple');
+
+UPDATE styles_fields
+SET title = 'Max'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('max');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Live Search'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('live_search');
+
+UPDATE styles_fields
+SET title = 'Disabled'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('disabled');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Image Selector'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('image_selector');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Allow Clear'
+WHERE id_styles = get_style_id('select') AND id_fields = get_field_id('allow_clear');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Labels'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('labels');
+
+UPDATE styles_fields
+SET title = 'Min'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('min');
+
+UPDATE styles_fields
+SET title = 'Max'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('max');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('slider') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Is Expanded'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('is_expanded');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Icon'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('icon');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tab') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tabs') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('tabs') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('tabs') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('tabs') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tabs') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Placeholder'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('placeholder');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Min'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('min');
+
+UPDATE styles_fields
+SET title = 'Max'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('max');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Markdown Editor'
+WHERE id_styles = get_style_id('textarea') AND id_fields = get_field_id('markdown_editor');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Fluid'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('is_fluid');
+
+UPDATE styles_fields
+SET title = 'Alt'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('alt');
+
+UPDATE styles_fields
+SET title = 'Sources'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('sources');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('video') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Title Prefix'
+WHERE id_styles = get_style_id('accordionList') AND id_fields = get_field_id('title_prefix');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('accordionList') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'Label Root'
+WHERE id_styles = get_style_id('accordionList') AND id_fields = get_field_id('label_root');
+
+UPDATE styles_fields
+SET title = 'Id Prefix'
+WHERE id_styles = get_style_id('accordionList') AND id_fields = get_field_id('id_prefix');
+
+UPDATE styles_fields
+SET title = 'Id Active'
+WHERE id_styles = get_style_id('accordionList') AND id_fields = get_field_id('id_active');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Markdown Text'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('text_md');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('navigationContainer') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Is Fluid'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('is_fluid');
+
+UPDATE styles_fields
+SET title = 'Title Prefix'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('title_prefix');
+
+UPDATE styles_fields
+SET title = 'Label Root'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('label_root');
+
+UPDATE styles_fields
+SET title = 'Label Back'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('label_back');
+
+UPDATE styles_fields
+SET title = 'Label Next'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('label_next');
+
+UPDATE styles_fields
+SET title = 'Has Navigation Buttons'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('has_navigation_buttons');
+
+UPDATE styles_fields
+SET title = 'Has Navigation Menu'
+WHERE id_styles = get_style_id('navigationAccordion') AND id_fields = get_field_id('has_navigation_menu');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Title Prefix'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('title_prefix');
+
+UPDATE styles_fields
+SET title = 'Is Expanded'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('is_expanded');
+
+UPDATE styles_fields
+SET title = 'Is Collapsible'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('is_collapsible');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'Search Text'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('search_text');
+
+UPDATE styles_fields
+SET title = 'Id Prefix'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('id_prefix');
+
+UPDATE styles_fields
+SET title = 'Id Active'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('id_active');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('nestedList') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Fluid'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('is_fluid');
+
+UPDATE styles_fields
+SET title = 'Title Prefix'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('title_prefix');
+
+UPDATE styles_fields
+SET title = 'Is Expanded'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('is_expanded');
+
+UPDATE styles_fields
+SET title = 'Is Collapsible'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('is_collapsible');
+
+UPDATE styles_fields
+SET title = 'Label Back'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('label_back');
+
+UPDATE styles_fields
+SET title = 'Label Next'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('label_next');
+
+UPDATE styles_fields
+SET title = 'Has Navigation Buttons'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('has_navigation_buttons');
+
+UPDATE styles_fields
+SET title = 'Search Text'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('search_text');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('css_nav');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Has Navigation Menu'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('has_navigation_menu');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('navigationNested') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'Is Sortable'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('is_sortable');
+
+UPDATE styles_fields
+SET title = 'Is Editable'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('is_editable');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('url_delete');
+
+UPDATE styles_fields
+SET title = 'Label Add'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('label_add');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('url_add');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('sortableList') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Password Label'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('label_pw_reset');
+
+UPDATE styles_fields
+SET title = 'Reset Link'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('text_md');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Email'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('placeholder');
+
+UPDATE styles_fields
+SET title = 'Email User'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('email_user');
+
+UPDATE styles_fields
+SET title = 'Subject User'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('subject_user');
+
+UPDATE styles_fields
+SET title = 'Is Html'
+WHERE id_styles = get_style_id('resetPassword') AND id_fields = get_field_id('is_html');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Is Log'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('is_log');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Anchor'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('anchor');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Ajax'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('ajax');
+
+UPDATE styles_fields
+SET title = 'Redirect At End'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('redirect_at_end');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Internal'
+WHERE id_styles = get_style_id('formUserInput') AND id_fields = get_field_id('internal');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'Is Inline'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('is_inline');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('radio') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Delete Title'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('delete_title');
+
+UPDATE styles_fields
+SET title = 'Label Delete'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('label_delete');
+
+UPDATE styles_fields
+SET title = 'Delete Content'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('delete_content');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Log'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('is_log');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Anchor'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('anchor');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Data Table'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('data_table');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Fields Map'
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('fields_map');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Color Background'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('color_background');
+
+UPDATE styles_fields
+SET title = 'Color Border'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('color_border');
+
+UPDATE styles_fields
+SET title = 'Color Text'
+WHERE id_styles = get_style_id('div') AND id_fields = get_field_id('color_text');
+
+UPDATE styles_fields
+SET title = 'Email'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('label_user');
+
+UPDATE styles_fields
+SET title = 'Password Label'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('label_pw');
+
+UPDATE styles_fields
+SET title = 'Error Message'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Title'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('title');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Success'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('success');
+
+UPDATE styles_fields
+SET title = 'Label Submit'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('label_submit');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Open Registration'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('open_registration');
+
+UPDATE styles_fields
+SET title = 'Group'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('group');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label Security Question 1'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('label_security_question_1');
+
+UPDATE styles_fields
+SET title = 'Label Security Question 2'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('label_security_question_2');
+
+UPDATE styles_fields
+SET title = 'Anonymous Users Registration'
+WHERE id_styles = get_style_id('register') AND id_fields = get_field_id('anonymous_users_registration');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('conditionalContainer') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('conditionalContainer') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('conditionalContainer') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('conditionalContainer') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('conditionalContainer') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Alt'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('alt');
+
+UPDATE styles_fields
+SET title = 'Sources'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('sources');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('audio') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Sources'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('sources');
+
+UPDATE styles_fields
+SET title = 'Id Prefix'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('id_prefix');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Has Controls'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('has_controls');
+
+UPDATE styles_fields
+SET title = 'Has Indicators'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('has_indicators');
+
+UPDATE styles_fields
+SET title = 'Has Crossfade'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('has_crossfade');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('carousel') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Json'
+WHERE id_styles = get_style_id('json') AND id_fields = get_field_id('json');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Is Striped'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('is_striped');
+
+UPDATE styles_fields
+SET title = 'Has Label'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('has_label');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('userProgress') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Placeholder'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('placeholder');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Name Value Field'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('name_value_field');
+
+UPDATE styles_fields
+SET title = 'Callback Class'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('callback_class');
+
+UPDATE styles_fields
+SET title = 'Callback Method'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('callback_method');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('autocomplete') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Items'
+WHERE id_styles = get_style_id('navigationBar') AND id_fields = get_field_id('items');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('version') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('version') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('version') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('version') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('version') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Plugin'
+WHERE id_styles = get_style_id('trigger') AND id_fields = get_field_id('plugin');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Data Table'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('data_table');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'Filter'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('filter');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Load As Table'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('load_as_table');
+
+UPDATE styles_fields
+SET title = 'Scope'
+WHERE id_styles = get_style_id('entryList') AND id_fields = get_field_id('scope');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Data Table'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('data_table');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'Filter'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('filter');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Scope'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('scope');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('entryRecord') AND id_fields = get_field_id('url_param');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Cancel Label'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('label_cancel');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('url_cancel');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Is Log'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('is_log');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Anchor'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('anchor');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Ajax'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('ajax');
+
+UPDATE styles_fields
+SET title = 'Redirect At End'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('redirect_at_end');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Confirmation Title'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('confirmation_title');
+
+UPDATE styles_fields
+SET title = 'Confirmation Continue'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('confirmation_continue');
+
+UPDATE styles_fields
+SET title = 'Confirmation Message'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('confirmation_message');
+
+UPDATE styles_fields
+SET title = 'Internal'
+WHERE id_styles = get_style_id('formUserInputLog') AND id_fields = get_field_id('internal');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Alert Success'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('alert_success');
+
+UPDATE styles_fields
+SET title = 'Cancel Label'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('label_cancel');
+
+UPDATE styles_fields
+SET title = 'Link URL'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('url_cancel');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Is Log'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('is_log');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Anchor'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('anchor');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Ajax'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('ajax');
+
+UPDATE styles_fields
+SET title = 'Redirect At End'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('redirect_at_end');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Confirmation Title'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('confirmation_title');
+
+UPDATE styles_fields
+SET title = 'Confirmation Continue'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('confirmation_continue');
+
+UPDATE styles_fields
+SET title = 'Confirmation Message'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('confirmation_message');
+
+UPDATE styles_fields
+SET title = 'Internal'
+WHERE id_styles = get_style_id('formUserInputRecord') AND id_fields = get_field_id('internal');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('conditionFailed') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('conditionFailed') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('conditionFailed') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('conditionFailed') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('conditionFailed') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('table') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('table') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('table') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('table') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Column Names'
+WHERE id_styles = get_style_id('table') AND id_fields = get_field_id('column_names');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Loop'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('loop');
+
+UPDATE styles_fields
+SET title = 'Scope'
+WHERE id_styles = get_style_id('loop') AND id_fields = get_field_id('scope');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tableRow') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('tableRow') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('tableRow') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tableRow') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tableCell') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Markdown Text'
+WHERE id_styles = get_style_id('tableCell') AND id_fields = get_field_id('text_md');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('tableCell') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('tableCell') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('tableCell') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Is Required'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('is_required');
+
+UPDATE styles_fields
+SET title = 'Name'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('name');
+
+UPDATE styles_fields
+SET title = 'Value'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('value');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Locked After Submit'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('locked_after_submit');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Toggle Switch'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('toggle_switch');
+
+UPDATE styles_fields
+SET title = 'Checkbox Value'
+WHERE id_styles = get_style_id('checkbox') AND id_fields = get_field_id('checkbox_value');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Scope'
+WHERE id_styles = get_style_id('dataContainer') AND id_fields = get_field_id('scope');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('htmlTag') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('htmlTag') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('htmlTag') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('htmlTag') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Html Tag'
+WHERE id_styles = get_style_id('htmlTag') AND id_fields = get_field_id('html_tag');
+
+UPDATE styles_fields
+SET title = 'Label Delete'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('label_delete');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Style Type'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('type');
+
+UPDATE styles_fields
+SET title = 'Condition'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('condition');
+
+UPDATE styles_fields
+SET title = 'Debug Info'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('debug');
+
+UPDATE styles_fields
+SET title = 'Data Config'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('data_config');
+
+UPDATE styles_fields
+SET title = 'Redirect At End'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('redirect_at_end');
+
+UPDATE styles_fields
+SET title = 'Own Entries Only'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('own_entries_only');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Confirmation Title'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('confirmation_title');
+
+UPDATE styles_fields
+SET title = 'Confirmation Continue'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('confirmation_continue');
+
+UPDATE styles_fields
+SET title = 'Confirmation Message'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('confirmation_message');
+
+UPDATE styles_fields
+SET title = 'Confirmation Cancel'
+WHERE id_styles = get_style_id('entryRecordDelete') AND id_fields = get_field_id('confirmation_cancel');
+
+UPDATE styles_fields
+SET title = 'Error Message'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('alert_fail');
+
+UPDATE styles_fields
+SET title = 'Label'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('label');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('css');
+
+UPDATE styles_fields
+SET title = 'Markdown Text'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('text_md');
+
+UPDATE styles_fields
+SET title = 'CSS Classes'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('css_mobile');
+
+UPDATE styles_fields
+SET title = 'Label Expiration 2Fa'
+WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('label_expiration_2fa');

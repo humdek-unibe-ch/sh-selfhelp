@@ -12,6 +12,10 @@
             "type": "string",
             "description": "Name of the field"
         },
+        "title": {
+            "type": "string",
+            "description": "Title of the field"
+        },
         "type": {
             "type": ["string", "null"],
             "description": "Type of the field"
@@ -51,5 +55,5 @@
             }
         }
     },
-    "required": ["id", "name", "display", "translations"]
+    "required": ["id", "name", "title", "display", "translations"]
 }
