@@ -96,6 +96,7 @@ class PageFieldService extends UserContextAwareService
             $fieldData = [
                 'id' => $fieldId,
                 'name' => $field->getName(),
+                'title' => $pageField ? $pageField->getTitle() : null,
                 'type' => $field->getType() ? $field->getType()->getName() : null,
                 'default_value' => $pageField ? $pageField->getDefaultValue() : null,
                 'help' => $pageField ? $pageField->getHelp() : null,

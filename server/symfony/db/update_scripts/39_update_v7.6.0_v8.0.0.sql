@@ -3938,3 +3938,237 @@ WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('cs
 UPDATE styles_fields
 SET title = 'Label Expiration 2Fa'
 WHERE id_styles = get_style_id('twoFactorAuth') AND id_fields = get_field_id('label_expiration_2fa');
+
+-- add column `title` for fileds in the pageType
+CALL add_table_column('pageType_fields', 'title', 'VARCHAR(100) NOT NULL');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'core' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'experiment' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'maintenance' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page title'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('title');
+
+UPDATE pageType_fields
+SET title = 'Page description'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'core' LIMIT 1)
+  AND id_fields = get_field_id('description');
+
+UPDATE pageType_fields
+SET title = 'Page icon'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'core' LIMIT 1)
+  AND id_fields = get_field_id('icon');
+
+UPDATE pageType_fields
+SET title = 'Activation email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_activate');
+
+UPDATE pageType_fields
+SET title = 'Reminder email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_reminder');
+
+UPDATE pageType_fields
+SET title = 'Email subject'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_subject');
+
+UPDATE pageType_fields
+SET title = 'Activate subject'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_activate_subject');
+
+UPDATE pageType_fields
+SET title = 'Reminder subject'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_reminder_subject');
+
+UPDATE pageType_fields
+SET title = 'Activate email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_activate_email_address');
+
+UPDATE pageType_fields
+SET title = 'Delete confirm email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_delete_profile_email_address');
+
+UPDATE pageType_fields
+SET title = 'Delete subject'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_delete_profile_subject');
+
+UPDATE pageType_fields
+SET title = 'Delete email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_delete_profile');
+
+UPDATE pageType_fields
+SET title = 'Delete notify email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_delete_profile_email_address_notification_copy');
+
+UPDATE pageType_fields
+SET title = '2FA subject'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_2fa_subject');
+
+UPDATE pageType_fields
+SET title = '2FA email'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 1)
+  AND id_fields = get_field_id('email_2fa');
+
+UPDATE pageType_fields
+SET title = 'Page description'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'experiment' LIMIT 1)
+  AND id_fields = get_field_id('description');
+
+UPDATE pageType_fields
+SET title = 'Page icon'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'experiment' LIMIT 1)
+  AND id_fields = get_field_id('icon');
+
+UPDATE pageType_fields
+SET title = 'Page description'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1)
+  AND id_fields = get_field_id('description');
+
+UPDATE pageType_fields
+SET title = 'Custom CSS'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_css' LIMIT 1)
+  AND id_fields = get_field_id('custom_css');
+
+UPDATE pageType_fields
+SET title = 'Page description'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1)
+  AND id_fields = get_field_id('description');
+
+UPDATE pageType_fields
+SET title = 'Translation keys'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'global_values' LIMIT 1)
+  AND id_fields = get_field_id('global_values');
+
+UPDATE pageType_fields
+SET title = 'Page description'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 1)
+  AND id_fields = get_field_id('description');
+
+UPDATE pageType_fields
+SET title = 'Page icon'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 1)
+  AND id_fields = get_field_id('icon');
+
+UPDATE pageType_fields
+SET title = 'Maintenance text'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'maintenance' LIMIT 1)
+  AND id_fields = get_field_id('maintenance');
+
+UPDATE pageType_fields
+SET title = 'Maintenance date'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'maintenance' LIMIT 1)
+  AND id_fields = get_field_id('maintenance_date');
+
+UPDATE pageType_fields
+SET title = 'Maintenance time'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'maintenance' LIMIT 1)
+  AND id_fields = get_field_id('maintenance_time');
+
+UPDATE pageType_fields
+SET title = 'Custom CSS'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_global_css' LIMIT 1)
+  AND id_fields = get_field_id('custom_css');
+
+UPDATE pageType_fields
+SET title = 'Enable reset'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('enable_reset_password');
+
+UPDATE pageType_fields
+SET title = 'Question 1'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_01');
+
+UPDATE pageType_fields
+SET title = 'Question 2'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_02');
+
+UPDATE pageType_fields
+SET title = 'Question 3'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_03');
+
+UPDATE pageType_fields
+SET title = 'Question 4'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_04');
+
+UPDATE pageType_fields
+SET title = 'Question 5'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_05');
+
+UPDATE pageType_fields
+SET title = 'Question 6'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_06');
+
+UPDATE pageType_fields
+SET title = 'Question 7'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_07');
+
+UPDATE pageType_fields
+SET title = 'Question 8'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_08');
+
+UPDATE pageType_fields
+SET title = 'Question 9'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_09');
+
+UPDATE pageType_fields
+SET title = 'Question 10'
+WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
+  AND id_fields = get_field_id('security_question_10');
+
