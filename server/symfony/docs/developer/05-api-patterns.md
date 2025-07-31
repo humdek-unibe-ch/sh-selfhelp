@@ -56,7 +56,9 @@ class ApiResponseFormatter
             'data' => $data
         ];
 
-        // Validate response in debug mode
+        // CRITICAL: Response validation in debug mode only
+        // This validates every response against its JSON schema
+        // Resource-heavy operation - only enabled in development
         if ($this->kernel->getEnvironment() !== 'prod' && $schemaName) {
             $this->validateResponse($responseData, $schemaName);
         }

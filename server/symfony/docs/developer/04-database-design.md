@@ -8,13 +8,17 @@ The SelfHelp Symfony Backend uses a sophisticated MySQL database design that sup
 
 ```mermaid
 erDiagram
-    %% Core Authentication & Authorization
+    %% Core Authentication & Authorization - Admin Users
+    User ||--o{ UsersRole : has_roles
+    UsersRole }o--|| Role : belongs_to
+    Role ||--o{ RolePermission : grants
+    RolePermission }o--|| Permission : permission_type
+    
+    %% Frontend User Groups (for page access)
     User ||--o{ UsersGroup : belongs_to
     UsersGroup }o--|| Group : represents
-    Group ||--o{ UserGroupsPermission : has
-    UserGroupsPermission }o--|| Permission : grants
     
-    %% API Routes & Permissions
+    %% API Routes & Permissions (Admin Access)
     ApiRoute ||--o{ ApiRoutePermission : requires
     ApiRoutePermission }o--|| Permission : grants
     
@@ -23,9 +27,9 @@ erDiagram
     PagesSection }o--|| Section : has
     Section ||--o{ SectionsField : contains
     SectionsField }o--|| Field : has
-    Section }o--|| Style : styled_by
+    Section }o--|| StyleEntity : styled_by
     
-    %% Fine-grained Access Control
+    %% Fine-grained Access Control (Frontend Users)
     Page ||--o{ AclUser : user_acl
     Page ||--o{ AclGroup : group_acl
     AclUser }o--|| User : for_user
@@ -37,8 +41,12 @@ erDiagram
     Page ||--o{ PagesFieldsTranslation : page_translations
     PagesFieldsTranslation }o--|| Language : in_language
     
+    %% Field Types (Separate Table)
+    Field }o--|| FieldType : field_type
+    
     %% System Components
     User ||--o{ Transaction : performed_by
+    User ||--o{ ApiRequestLog : made_requests
     ScheduledJob ||--o{ ScheduledJobsUser : assigned_to
     ScheduledJobsUser }o--|| User : for_user
     Asset }o--|| Lookup : asset_type
@@ -87,9 +95,49 @@ CREATE TABLE `permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
+#### `roles` - Admin Roles
+```sql
+CREATE TABLE `roles` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQ_B63E2EC75E237E06` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Admin roles for CMS backend access
+INSERT INTO `roles` (`name`, `description`) VALUES
+('super_admin', 'Super Administrator - Full system access'),
+('admin', 'Administrator - Standard admin access'),
+('editor', 'Editor - Content management access'),
+('viewer', 'Viewer - Read-only access');
+```
+
+#### `permissions` - System Permissions
+```sql
+-- Permissions for API routes and system operations
+INSERT INTO `permissions` (`name`, `description`) VALUES
+('admin.dashboard.view', 'View admin dashboard'),
+('admin.user.view', 'View users'),
+('admin.user.create', 'Create users'),
+('admin.user.edit', 'Edit users'),
+('admin.user.delete', 'Delete users'),
+('admin.page.view', 'View pages'),
+('admin.page.create', 'Create pages'),
+('admin.page.edit', 'Edit pages'),
+('admin.page.delete', 'Delete pages'),
+('admin.section.manage', 'Manage sections'),
+('admin.asset.manage', 'Manage assets'),
+('admin.job.manage', 'Manage scheduled jobs'),
+('admin.acl.manage', 'Manage ACL permissions'),
+('admin.system.manage', 'System administration');
+```
+
 #### Junction Tables
-- **`users_groups`**: Links users to groups (many-to-many)
-- **`user_groups_permissions`**: Links groups to permissions (many-to-many)
+- **`users_groups`**: Links users to groups (many-to-many) - **Frontend users only**
+- **`users_roles`**: Links users to roles (many-to-many) - **Admin users only**
+- **`roles_permissions`**: Links roles to permissions (many-to-many) - **Admin system**
 
 ### 2. Dynamic Routing Tables
 
@@ -300,6 +348,58 @@ CREATE TABLE `version` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 ```
 
+#### `apiRequestLogs` - API Request Tracking
+```sql
+CREATE TABLE `apiRequestLogs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_users` int DEFAULT NULL,
+  `method` varchar(10) NOT NULL,
+  `url` varchar(1000) NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text,
+  `request_headers` json DEFAULT NULL,
+  `request_body` longtext,
+  `response_status` int DEFAULT NULL,
+  `response_body` longtext,
+  `execution_time` decimal(10,4) DEFAULT NULL,
+  `memory_usage` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user` (`id_users`),
+  KEY `idx_method_url` (`method`, `url`(255)),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_response_status` (`response_status`),
+  FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+#### `fieldTypes` - Content Field Types
+```sql
+CREATE TABLE `fieldTypes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `input_type` varchar(50) NOT NULL,
+  `validation_rules` json DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQ_FIELD_TYPE_NAME` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Field types for CMS content management
+INSERT INTO `fieldTypes` (`name`, `description`, `input_type`) VALUES
+('TEXT', 'Single line text input', 'text'),
+('TEXTAREA', 'Multi-line text area', 'textarea'),
+('HTML', 'Rich text HTML editor', 'html'),
+('SELECT', 'Dropdown selection', 'select'),
+('CHECKBOX', 'Checkbox input', 'checkbox'),
+('RADIO', 'Radio button group', 'radio'),
+('IMAGE', 'Image upload field', 'file'),
+('FILE', 'File upload field', 'file'),
+('DATE', 'Date picker', 'date'),
+('NUMBER', 'Numeric input', 'number');
+```
+
 ### 7. Lookup Tables System
 
 #### `lookups` - Dynamic Lookup Values
@@ -316,13 +416,68 @@ CREATE TABLE `lookups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 ```
 
+### 🔍 The Lookup System - Critical Performance Component
+
+The lookup system is a **centralized configuration management** approach that reduces database table proliferation while maintaining referential integrity. Instead of creating separate tables for every enumeration, the system uses a single `lookups` table with type codes.
+
+#### Why Use Lookups?
+1. **Reduced Table Count**: Instead of 20+ separate tables, one unified lookup table
+2. **Dynamic Configuration**: Add new lookup values without schema changes
+3. **Consistent Structure**: All lookup-type data follows the same pattern
+4. **Performance Optimization**: Single table to maintain, index, and query
+5. **Memory Efficiency**: Reduced database schema complexity
+
+#### Lookup Structure
+```sql
+-- Single table handles all enumeration data
+CREATE TABLE `lookups` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type_code` varchar(100) NOT NULL,  -- Groups related lookups
+  `code` varchar(100) NOT NULL,       -- Unique identifier within type
+  `description` varchar(255) DEFAULT NULL,  -- Human-readable description
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int DEFAULT NULL,      -- Display ordering
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_type_code` (`type_code`,`code`)  -- Prevents duplicates
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+```
+
+#### LookupService Integration
+The `LookupService` provides constants and methods to interact with lookup data efficiently:
+
+```php
+// Type constants - prevent typos and enable IDE autocomplete
+public const TRANSACTION_TYPES = 'transactionTypes';
+public const JOB_TYPES = 'jobTypes';
+public const ASSET_TYPES = 'assetTypes';
+
+// Code constants - specific values within types
+public const TRANSACTION_TYPES_INSERT = 'insert';
+public const JOB_TYPES_EMAIL = 'email';
+public const ASSET_TYPES_IMAGE = 'image';
+
+// Usage in services
+$transactionType = $this->lookupService->findByTypeAndCode(
+    LookupService::TRANSACTION_TYPES,
+    LookupService::TRANSACTION_TYPES_INSERT
+);
+```
+
+#### Performance Considerations
+- **Caching**: Lookup data is cached in memory for frequent access
+- **Indexing**: Composite index on `(type_code, code)` for fast lookups
+- **Size Management**: Regular cleanup of inactive lookup values
+- **Query Optimization**: Use constants instead of string literals
+
 **Common Lookup Types:**
-- `TRANSACTION_TYPES`: insert, update, delete
-- `TRANSACTION_BY`: user, system, admin
+- `TRANSACTION_TYPES`: insert, update, delete, select, status_change
+- `TRANSACTION_BY`: by_user, by_system, by_cron_job, by_anonymous_user
 - `JOB_TYPES`: email, notification, task
-- `JOB_STATUS`: pending, running, completed, failed
-- `FIELD_TYPES`: text, textarea, select, checkbox
-- `ASSET_TYPES`: image, document, css, js
+- `JOB_STATUS`: queued, done, failed, deleted
+- `ASSET_TYPES`: css, asset, static, image, document
+- `PAGE_ACCESS_TYPES`: mobile, web, mobile_and_web
+- `USER_STATUS`: invited, active, locked
+- `NOTIFICATION_TYPES`: email, push_notification
 
 ## 🔄 Stored Procedures
 

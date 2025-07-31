@@ -46,13 +46,13 @@ erDiagram
     PagesSection }o--|| Section : has
     Section ||--o{ SectionsField : contains
     SectionsField }o--|| Field : has
-    Section }o--|| Style : styled_by
+    Section }o--|| StyleEntity : styled_by
     
     Page }o--|| PageType : of_type
     Page }o--|| Page : parent_child
     Section }o--|| Section : parent_child
     
-    Field }o--|| Lookup : field_type
+    Field }o--|| FieldType : field_type
     Field ||--o{ FieldsTranslation : translations
     FieldsTranslation }o--|| Language : in_language
     
@@ -133,8 +133,15 @@ INSERT INTO `pageTypes` (`name`, `description`) VALUES
 - **URL Management**: Custom URLs with protocol specification
 - **Access Control**: Open access vs. authenticated access
 - **Navigation Integration**: Position in navigation and footer menus
-- **Headless Support**: API-only pages without frontend rendering
+- **Headless Support**: API-only pages without header and footer rendering (content only)
 - **System Pages**: Special pages managed by the system
+
+#### Page Types and Rendering
+- **Standard Pages**: Full page with header, footer, and navigation
+- **Headless Pages**: Content-only rendering without header/footer (for modals, embedded content)
+- **Landing Pages**: Special layout pages with custom styling
+- **System Pages**: Auto-generated pages (login, error pages)
+- **Redirect Pages**: Pages that redirect to other URLs
 
 ## 📋 Section Management
 
@@ -198,7 +205,14 @@ class PagesSection
 - **Hierarchical Sections**: Sections can contain child sections
 - **Style Integration**: Each section has an associated style
 - **Position Management**: Ordered positioning within pages and parent sections
-- **Reusability**: Sections can be used across multiple pages
+- **Limited Reusability**: Only sections with style `refContainer` can be reused across multiple pages
+- **Content Flexibility**: Within a `refContainer` section, any content can be added and styled
+
+#### Section Reusability Rules
+- **`refContainer` Style**: These sections can be added to multiple pages
+- **Other Styles**: Regular sections are typically page-specific
+- **Content Management**: Reusable sections maintain their content across all pages where used
+- **Style Consistency**: The `refContainer` style ensures consistent appearance across pages
 
 ## 🎨 Style System
 
@@ -279,21 +293,32 @@ class Field
 ```
 
 ### Field Types
-Field types are managed through the lookup system:
+Field types are managed through the dedicated `fieldTypes` table:
 
 ```sql
--- Field types in lookups table
-INSERT INTO `lookups` (`type_code`, `code`, `description`) VALUES
-('FIELD_TYPES', 'TEXT', 'Single line text input'),
-('FIELD_TYPES', 'TEXTAREA', 'Multi-line text area'),
-('FIELD_TYPES', 'HTML', 'Rich text HTML editor'),
-('FIELD_TYPES', 'SELECT', 'Dropdown selection'),
-('FIELD_TYPES', 'CHECKBOX', 'Checkbox input'),
-('FIELD_TYPES', 'RADIO', 'Radio button group'),
-('FIELD_TYPES', 'IMAGE', 'Image upload field'),
-('FIELD_TYPES', 'FILE', 'File upload field'),
-('FIELD_TYPES', 'DATE', 'Date picker'),
-('FIELD_TYPES', 'NUMBER', 'Numeric input');
+CREATE TABLE `fieldTypes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `input_type` varchar(50) NOT NULL,
+  `validation_rules` json DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQ_FIELD_TYPE_NAME` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Field types for CMS content management
+INSERT INTO `fieldTypes` (`name`, `description`, `input_type`) VALUES
+('TEXT', 'Single line text input', 'text'),
+('TEXTAREA', 'Multi-line text area', 'textarea'),
+('HTML', 'Rich text HTML editor', 'html'),
+('SELECT', 'Dropdown selection', 'select'),
+('CHECKBOX', 'Checkbox input', 'checkbox'),
+('RADIO', 'Radio button group', 'radio'),
+('IMAGE', 'Image upload field', 'file'),
+('FILE', 'File upload field', 'file'),
+('DATE', 'Date picker', 'date'),
+('NUMBER', 'Numeric input', 'number');
 ```
 
 ### Sections-Fields Relationship
@@ -546,7 +571,49 @@ sequenceDiagram
     Controller-->>Client: JSON response
 ```
 
-### Content Structure Example
+### Content Response Formats
+
+#### Frontend Response (User-facing)
+Returns content with translated values in the selected language only:
+
+```json
+{
+  "page": {
+    "id": 1,
+    "keyword": "welcome",
+    "url": "/welcome",
+    "title": "Welcome to SelfHelp",
+    "sections": [
+      {
+        "id": 10,
+        "name": "header-section",
+        "style": {
+          "name": "hero",
+          "cssClass": "hero-section",
+          "template": "hero.html.twig"
+        },
+        "position": 1,
+        "fields": [
+          {
+            "name": "title",
+            "type": "TEXT",
+            "content": "Welcome to Our Platform"
+          },
+          {
+            "name": "subtitle", 
+            "type": "TEXTAREA",
+            "content": "Discover amazing features..."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### CMS Response (Admin editing)
+Returns all field IDs, values, and translations for editing:
+
 ```json
 {
   "page": {
@@ -562,6 +629,7 @@ sequenceDiagram
         "id": 10,
         "name": "header-section",
         "style": {
+          "id": 5,
           "name": "hero",
           "cssClass": "hero-section",
           "template": "hero.html.twig"
@@ -571,34 +639,26 @@ sequenceDiagram
           {
             "id": 100,
             "name": "title",
-            "type": "TEXT",
-            "position": 1,
-            "content": {
-              "en": "Welcome to Our Platform",
-              "de-CH": "Willkommen auf unserer Plattform"
-            }
-          },
-          {
-            "id": 101,
-            "name": "subtitle",
-            "type": "TEXTAREA",
-            "position": 2,
-            "content": {
-              "en": "Discover amazing features...",
-              "de-CH": "Entdecken Sie erstaunliche Funktionen..."
-            }
-          }
-        ],
-        "children": [
-          {
-            "id": 11,
-            "name": "hero-buttons",
-            "style": {
-              "name": "button-group",
-              "cssClass": "btn-group"
+            "fieldType": {
+              "id": 1,
+              "name": "TEXT",
+              "inputType": "text"
             },
             "position": 1,
-            "fields": [...]
+            "disabled": false,
+            "hidden": false,
+            "translations": [
+              {
+                "id": 200,
+                "language": {"id": 1, "locale": "en"},
+                "content": "Welcome to Our Platform"
+              },
+              {
+                "id": 201,
+                "language": {"id": 2, "locale": "de-CH"},
+                "content": "Willkommen auf unserer Plattform"
+              }
+            ]
           }
         ]
       }

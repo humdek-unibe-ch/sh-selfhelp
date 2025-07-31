@@ -2,7 +2,26 @@
 
 ## 🔍 Overview
 
-The SelfHelp Symfony Backend implements a sophisticated Access Control List (ACL) system that provides fine-grained, page-level permissions. This system works alongside the route-level permissions to offer comprehensive access control with CRUD operations (Create, Read, Update, Delete) at the page level.
+The SelfHelp Symfony Backend implements **two separate but complementary** access control systems:
+
+1. **Admin Role-Based Permissions**: For CMS backend users (admins, editors) accessing API routes
+2. **Frontend User ACL System**: For fine-grained page-level permissions for website users
+
+These systems are **completely separate** and serve different purposes:
+
+### 🔧 Admin Role-Based System (CMS Backend)
+- **Purpose**: Controls access to admin API routes and CMS functionality
+- **Users**: Admin users, editors, content managers
+- **Tables**: `roles`, `permissions`, `users_roles`, `roles_permissions`, `api_routes_permissions`
+- **Scope**: API endpoint access, CRUD operations on system entities
+- **Examples**: Can create pages, can edit users, can manage assets
+
+### 👥 Frontend User ACL System (Website Access)
+- **Purpose**: Fine-grained page-level permissions for website content
+- **Users**: Frontend website users, regular users
+- **Tables**: `groups`, `users_groups`, `acl_users`, `acl_groups` 
+- **Scope**: Page visibility and interaction permissions
+- **Examples**: Can view specific pages, can comment on pages, can edit page content
 
 ## 🏗️ ACL Architecture
 
@@ -46,7 +65,88 @@ graph TD
     H --> O
 ```
 
-## 🗄️ Database Schema
+## 🔧 Admin Role-Based Permission System
+
+### Admin Roles and Permissions
+The admin system uses a traditional role-based access control (RBAC) model:
+
+#### Admin Roles
+```sql
+INSERT INTO `roles` (`name`, `description`) VALUES
+('admin', 'Administrator role with full access'),
+('editor', 'Content editor with limited access'),
+('viewer', 'Read-only access to admin panel');
+```
+
+#### Admin Permissions
+```sql
+INSERT INTO `permissions` (`name`, `description`) VALUES
+('admin.access', 'Can view and enter the admin/backend area'),
+('admin.page.read', 'Can read existing pages'),
+('admin.page.create', 'Can create new pages'),
+('admin.page.update', 'Can edit existing pages'),
+('admin.page.delete', 'Can delete pages'),
+('admin.page.insert', 'Can insert content into pages'),
+('admin.page.export', 'Can export sections from pages'),
+('admin.settings', 'Full access to CMS settings'),
+('admin.user.read', 'Can read existing users'),
+('admin.user.create', 'Can create new users'),
+('admin.user.update', 'Can edit existing users'),
+('admin.user.delete', 'Can delete users'),
+('admin.user.block', 'Can block users'),
+('admin.user.unblock', 'Can unblock users'),
+('admin.user.impersonate', 'Can impersonate users');
+```
+
+#### API Route Permission Mapping
+Each API route requires specific permissions:
+
+```sql
+-- Page reading routes require 'admin.page.read'
+INSERT INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id 
+FROM `api_routes` ar, `permissions` p
+WHERE p.name = 'admin.page.read'
+AND ar.route_name IN (
+  'admin_pages_get_all',
+  'admin_pages_get_all_with_language', 
+  'admin_pages_get_one',
+  'admin_pages_sections_get'
+);
+
+-- Page creation routes require 'admin.page.create'
+INSERT INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id 
+FROM `api_routes` ar, `permissions` p
+WHERE p.name = 'admin.page.create'
+AND ar.route_name IN ('admin_pages_create');
+
+-- Page modification routes require 'admin.page.update'
+INSERT INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id 
+FROM `api_routes` ar, `permissions` p
+WHERE p.name = 'admin.page.update'
+AND ar.route_name IN (
+  'admin_pages_update',
+  'admin_pages_add_section',
+  'admin_pages_create_section'
+);
+
+-- Page deletion routes require 'admin.page.delete'
+INSERT INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id 
+FROM `api_routes` ar, `permissions` p
+WHERE p.name = 'admin.page.delete'
+AND ar.route_name IN ('admin_pages_delete');
+```
+
+### Permission Check Flow for Admin Routes
+1. **JWT Authentication**: User must have valid JWT token
+2. **Route Permission Check**: `ApiSecurityListener` checks if user's roles have required permissions
+3. **Controller Execution**: If authorized, controller method executes
+4. **ACL Check** (if applicable): Additional page-level ACL check for specific pages
+
+## 🗄️ Frontend User ACL Database Schema
 
 ### ACL Tables Structure
 
