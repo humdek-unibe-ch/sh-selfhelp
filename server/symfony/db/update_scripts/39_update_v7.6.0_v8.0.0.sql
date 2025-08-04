@@ -4178,4 +4178,8 @@ INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('select-css', '8');
 -- change the `css` type to `select-css`
 UPDATE `fields`
 SET id_type = get_field_type_id('select-css')
-WHERE `name` = 'css';
+WHERE `name` IN ('css', 'css_mobile');
+
+UPDATE styles_fields
+SET title = 'Mobile CSS Classes'
+WHERE id_fields = get_field_id('css_mobile');
