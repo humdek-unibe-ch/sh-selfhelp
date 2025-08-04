@@ -1,0 +1,26 @@
+CSS Classes Export Summary
+Generated: 2025-08-04T14:06:24.257Z
+Total Classes: 11105
+
+Sample Classes:
+  - 2xl:col-auto
+  - 2xl:col-end-1
+  - 2xl:col-end-10
+  - 2xl:col-end-11
+  - 2xl:col-end-12
+  - 2xl:col-end-13
+  - 2xl:col-end-2
+  - 2xl:col-end-3
+  - 2xl:col-end-4
+  - 2xl:col-end-5
+  - 2xl:col-end-6
+  - 2xl:col-end-7
+  - 2xl:col-end-8
+  - 2xl:col-end-9
+  - 2xl:col-end-auto
+  - 2xl:col-span-1
+  - 2xl:col-span-10
+  - 2xl:col-span-11
+  - 2xl:col-span-12
+  - 2xl:col-span-2
+  ... and 11085 more
