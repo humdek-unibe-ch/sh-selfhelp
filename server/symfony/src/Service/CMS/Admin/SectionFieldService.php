@@ -94,7 +94,8 @@ class SectionFieldService extends UserContextAwareService
                 'disabled' => $stylesField->isDisabled(),
                 'hidden' => $stylesField->getHidden(),
                 'display' => $field->isDisplay(),
-                'translations' => []
+                'translations' => [],
+                'fieldConfig' => $this->getFieldConfig($field->getType() ? $field->getType()->getName() : []),
             ];
             
             // Handle translations based on display flag
@@ -128,6 +129,20 @@ class SectionFieldService extends UserContextAwareService
         }
 
         return $formattedFields;
+    }
+
+    /**
+     * Get field configuration based on field type
+     * 
+     * @param string $fieldType The field type
+     * @return array The field configuration
+     */
+    private function getFieldConfig($fieldType): array
+    {
+        return in_array($fieldType, ['select-group', 'select-data_table', 'select-css', 'select-page-keyword']) ? [
+            'multiSelect' => in_array($fieldType, ['select-group', 'select-css']),
+            'creatable' => in_array($fieldType, ['select-css']),
+        ] : [];
     }
 
     /**

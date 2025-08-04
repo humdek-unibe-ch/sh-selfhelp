@@ -4172,3 +4172,10 @@ SET title = 'Question 10'
 WHERE id_pageType = (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 1)
   AND id_fields = get_field_id('security_question_10');
 
+-- add new fieldType select-css
+INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('select-css', '8');
+
+-- change the `css` type to `select-css`
+UPDATE `fields`
+SET id_type = get_field_type_id('select-css')
+WHERE `name` = 'css';
