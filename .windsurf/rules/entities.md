@@ -7,7 +7,8 @@ In this example, each category can be associated with many products. But, each p
 
 From the perspective of the Product entity, this is a many-to-one relationship. From the perspective of the Category entity, this is a one-to-many relationship.
 
-When you define entities you can check the DB structure in this file: @server\db\sh_structure.sql
-Define the enitites with orm attribute. Generate the required getter and setters
-Print in chat: "ENTITY RULE" when you desing an entity
-NEVER run doctrine migration in terminal. This command will be allwasy run manually
+When you define entities you can check the DB structure in this file: @db\structure_db.sql
+Define the entities with orm attribute. Generate the required getter and setters
+Print in chat: "ENTITY RULE" when you design an entity
+
+NEVER run doctrine migration in terminal. This command will be always run manually
