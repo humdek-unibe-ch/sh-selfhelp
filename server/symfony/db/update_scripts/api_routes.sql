@@ -996,6 +996,10 @@ WHERE r.name = 'admin' AND p.name IN (
   'admin.scheduled_job.delete'
 );
 
+-- Add CSS classes API route (open access - no authentication required)
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('frontend_css_classes_get_all', 'v1', '/frontend/css-classes', 'App\\Controller\\CssController::getCssClasses', 'GET', NULL, NULL);
+
 -- Add scheduled jobs API routes
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_scheduled_jobs_get_all_v1', 'v1', '/admin/scheduled-jobs', 'App\\Controller\\Api\\V1\\Admin\\AdminScheduledJobController::getScheduledJobs', 'GET', NULL, NULL),

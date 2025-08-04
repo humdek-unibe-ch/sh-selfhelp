@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CSS Classes Response",
+    "description": "Response schema for the CSS classes API endpoint (frontend)",
+    "allOf": [
+        {
+            "$ref": "../common/_response_envelope.json"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "classes": {
+                            "type": "array",
+                            "description": "Array of available CSS class names",
+                            "items": {
+                                "type": "string",
+                                "description": "CSS class name"
+                            },
+                            "minItems": 0
+                        }
+                    },
+                    "required": ["classes"]
+                }
+            },
+            "required": ["data"]
+        }
+    ]
+} 
