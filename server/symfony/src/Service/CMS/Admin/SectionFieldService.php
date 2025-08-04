@@ -45,9 +45,17 @@ class SectionFieldService extends UserContextAwareService
             return [];
         }
 
-        // Get all StylesField for this style
-        $stylesFields = $style->getStylesFields();
-        
+        // Get all StylesField for this style ordered by priority asc and field name asc
+        $stylesFields = $style->getStylesFields()->toArray();
+        usort($stylesFields, function ($a, $b) {
+            $priorityA = $a->getField()->getType()->getPosition() ?? PHP_INT_MAX;
+            $priorityB = $b->getField()->getType()->getPosition() ?? PHP_INT_MAX;
+            if ($priorityA !== $priorityB) {
+                return $priorityA - $priorityB;
+            }
+            return strcasecmp($a->getField()->getName(), $b->getField()->getName());
+        });
+
         // Fetch all field translations for this section
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t, l, f, ft')
@@ -81,9 +89,9 @@ class SectionFieldService extends UserContextAwareService
         foreach ($stylesFields as $stylesField) {
             $field = $stylesField->getField();
             if (!$field) continue;
-            
+
             $fieldId = $field->getId();
-            
+
             $fieldData = [
                 'id' => $fieldId,
                 'name' => $field->getName(),
@@ -97,17 +105,17 @@ class SectionFieldService extends UserContextAwareService
                 'translations' => [],
                 'fieldConfig' => $this->getFieldConfig($field->getType() ? $field->getType()->getName() : []),
             ];
-            
+
             // Handle translations based on display flag
             if ($field->isDisplay()) {
                 // Content field (display=1) - can have translations for each language
                 if (isset($translationsByFieldLang[$fieldId])) {
                     foreach ($translationsByFieldLang[$fieldId] as $langId => $translation) {
-                            $fieldData['translations'][] = [
-                                'language_id' => $langId,
-                                'content' => $translation['content'],
-                                'meta' => $translation['meta']
-                            ];
+                        $fieldData['translations'][] = [
+                            'language_id' => $langId,
+                            'content' => $translation['content'],
+                            'meta' => $translation['meta']
+                        ];
                     }
                 }
             } else {
@@ -124,7 +132,7 @@ class SectionFieldService extends UserContextAwareService
                     }
                 }
             }
-            
+
             $formattedFields[] = $fieldData;
         }
 
@@ -160,7 +168,7 @@ class SectionFieldService extends UserContextAwareService
             array_column($contentFields, 'fieldId'),
             array_column($propertyFields, 'fieldId')
         );
-        
+
         if (!empty($allFieldIds)) {
             $this->validateStyleFields($allFieldIds, $section->getStyle()->getId(), $this->entityManager);
         }
@@ -168,4 +176,4 @@ class SectionFieldService extends UserContextAwareService
         // Update field translations using trait method
         $this->updateSectionFieldTranslations($section->getId(), $contentFields, $propertyFields, $this->entityManager);
     }
-} 
+}
