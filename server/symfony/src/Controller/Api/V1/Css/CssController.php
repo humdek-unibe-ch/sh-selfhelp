@@ -29,9 +29,15 @@ class CssController extends AbstractController
     {
         try {
             $cssClasses = $this->loadCssClasses();
+
+            // fomrat the classes in ["value" => "class_name", "text" => "class_name"]
+            $cssClasses = array_map(fn($class) => [
+                'value' => $class,
+                'text' => $class
+            ], $cssClasses);
             
             return $this->responseFormatter->formatSuccess(
-                ['classes' => $cssClasses],
+                ['classes' => $cssClasses], 
                 'responses/frontend/css_classes',
                 Response::HTTP_OK
             );

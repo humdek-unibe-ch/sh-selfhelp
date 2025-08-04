@@ -16,8 +16,18 @@
                             "type": "array",
                             "description": "Array of available CSS class names",
                             "items": {
-                                "type": "string",
-                                "description": "CSS class name"
+                                "type": "object",
+                                "properties": {
+                                    "value": {
+                                        "type": "string",
+                                        "description": "CSS class name"
+                                    },
+                                    "text": {
+                                        "type": "string",
+                                        "description": "CSS class name"
+                                    }
+                                },
+                                "required": ["value", "text"]
                             },
                             "minItems": 0
                         }

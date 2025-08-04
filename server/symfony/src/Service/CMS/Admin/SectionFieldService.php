@@ -88,7 +88,8 @@ class SectionFieldService extends UserContextAwareService
         $formattedFields = [];
         foreach ($stylesFields as $stylesField) {
             $field = $stylesField->getField();
-            if (!$field) continue;
+            if (!$field)
+                continue;
 
             $fieldId = $field->getId();
 
@@ -161,20 +162,21 @@ class SectionFieldService extends UserContextAwareService
             $options = $this->getPageKeywords();
         }
         $config = [];
-        
+
         if (in_array($fieldType, ['select-group', 'select-data_table', 'select-css', 'select-page-keyword'])) {
             $config = [
                 'multiSelect' => in_array($fieldType, ['select-group', 'select-css']),
                 'creatable' => in_array($fieldType, ['select-css']),
+                'separator' => in_array($fieldType, ['select-css']) ? ' ' : ',',
                 'options' => $options
             ];
-            
+
             // Add API URL for CSS classes to allow frontend to fetch on demand
             if ($fieldType === 'select-css') {
                 $config['apiUrl'] = '/cms-api/v1/frontend/css-classes';
             }
         }
-        
+
         return $config;
     }
 
@@ -189,11 +191,11 @@ class SectionFieldService extends UserContextAwareService
         $qb->select('g.id, g.name')
             ->from('App\Entity\Group', 'g')
             ->orderBy('g.name', 'ASC');
-        
+
         $groups = $qb->getQuery()->getResult();
-        
+
         return array_map(fn($group) => [
-            'value' => (string)$group['id'],
+            'value' => (string) $group['id'],
             'text' => $group['name']
         ], $groups);
     }
@@ -209,11 +211,11 @@ class SectionFieldService extends UserContextAwareService
         $qb->select('dt.id, dt.name')
             ->from('App\Entity\DataTable', 'dt')
             ->orderBy('dt.name', 'ASC');
-        
+
         $dataTables = $qb->getQuery()->getResult();
-        
+
         return array_map(fn($table) => [
-            'value' => (string)$table['id'],
+            'value' => (string) $table['id'],
             'text' => $table['name']
         ], $dataTables);
     }
@@ -230,11 +232,11 @@ class SectionFieldService extends UserContextAwareService
             ->from('App\Entity\Page', 'p')
             ->where('p.keyword IS NOT NULL')
             ->orderBy('p.keyword', 'ASC');
-        
+
         $pages = $qb->getQuery()->getResult();
-        
+
         return array_map(fn($page) => [
-            'value' => (string)$page['id'],
+            'value' => (string) $page['id'],
             'text' => $page['keyword']
         ], $pages);
     }
