@@ -1,26 +1,44 @@
-CSS Classes Export Summary
-Generated: 2025-08-05T08:08:30.138Z
-Total Classes: 11105
+Essential Tailwind CSS Classes (Bootstrap 5 Equivalents)
+Generated: 2025-08-05T08:37:20.951Z
+Total Classes: 318
+
+This curated list includes the most essential Tailwind classes that
+provide Bootstrap 5 functionality without overwhelming users.
+
+Categories included:
+- Layout & Grid (container, flexbox, grid)
+- Spacing (margins, padding)
+- Sizing (width, height)
+- Colors (backgrounds, text)
+- Typography (sizes, weights, alignment)
+- Borders & Effects (radius, shadows)
+- Position & Display utilities
+- Responsive & Interactive states
 
 Sample Classes:
-  - 2xl:col-auto - Grid column: auto sizing (2xl breakpoint)
-  - 2xl:col-end-1 - Grid column end: 1 (2xl breakpoint)
-  - 2xl:col-end-10 - Grid column end: 10 (2xl breakpoint)
-  - 2xl:col-end-11 - Grid column end: 11 (2xl breakpoint)
-  - 2xl:col-end-12 - Grid column end: 12 (2xl breakpoint)
-  - 2xl:col-end-13 - Grid column end: 13 (2xl breakpoint)
-  - 2xl:col-end-2 - Grid column end: 2 (2xl breakpoint)
-  - 2xl:col-end-3 - Grid column end: 3 (2xl breakpoint)
-  - 2xl:col-end-4 - Grid column end: 4 (2xl breakpoint)
-  - 2xl:col-end-5 - Grid column end: 5 (2xl breakpoint)
-  - 2xl:col-end-6 - Grid column end: 6 (2xl breakpoint)
-  - 2xl:col-end-7 - Grid column end: 7 (2xl breakpoint)
-  - 2xl:col-end-8 - Grid column end: 8 (2xl breakpoint)
-  - 2xl:col-end-9 - Grid column end: 9 (2xl breakpoint)
-  - 2xl:col-end-auto - Grid column end: auto (2xl breakpoint)
-  - 2xl:col-span-1 - Grid column span: 1 (2xl breakpoint)
-  - 2xl:col-span-10 - Grid column span: 10 (2xl breakpoint)
-  - 2xl:col-span-11 - Grid column span: 11 (2xl breakpoint)
-  - 2xl:col-span-12 - Grid column span: 12 (2xl breakpoint)
-  - 2xl:col-span-2 - Grid column span: 2 (2xl breakpoint)
-  ... and 11085 more
+  - absolute - Position: absolute (Bootstrap: .position-absolute)
+  - appearance-none - Appearance none
+  - bg-blue-500 - Background: blue 500 (Bootstrap: .bg-primary)
+  - bg-blue-600 - Background: blue 600 (Bootstrap: .bg-primary)
+  - bg-blue-700 - Background: blue 700 (Bootstrap: .bg-primary)
+  - bg-gray-100 - Background: gray 100 (Bootstrap: .bg-*)
+  - bg-gray-200 - Background: gray 200 (Bootstrap: .bg-*)
+  - bg-gray-300 - Background: gray 300 (Bootstrap: .bg-*)
+  - bg-gray-800 - Background: gray 800 (Bootstrap: .bg-*)
+  - bg-gray-900 - Background: gray 900 (Bootstrap: .bg-*)
+  - bg-green-500 - Background: green 500 (Bootstrap: .bg-success)
+  - bg-green-600 - Background: green 600 (Bootstrap: .bg-success)
+  - bg-green-700 - Background: green 700 (Bootstrap: .bg-success)
+  - bg-indigo-500 - Background: indigo 500 (Bootstrap: .bg-*)
+  - bg-indigo-600 - Background: indigo 600 (Bootstrap: .bg-*)
+  - bg-indigo-700 - Background: indigo 700 (Bootstrap: .bg-*)
+  - bg-red-500 - Background: red 500 (Bootstrap: .bg-danger)
+  - bg-red-600 - Background: red 600 (Bootstrap: .bg-danger)
+  - bg-red-700 - Background: red 700 (Bootstrap: .bg-danger)
+  - bg-white - Background: white (Bootstrap: .bg-*)
+  - bg-yellow-400 - Background: yellow 400 (Bootstrap: .bg-warning)
+  - bg-yellow-500 - Background: yellow 500 (Bootstrap: .bg-warning)
+  - bg-yellow-600 - Background: yellow 600 (Bootstrap: .bg-warning)
+  - block - Display as block element (Bootstrap: .d-block)
+  - border - Add border (Bootstrap: .border)
+  ... and 293 more
