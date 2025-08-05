@@ -15,9 +15,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import your CSS safelist (adjust path as needed)
-// const { ALL_CSS_CLASSES } = require('../src/utils/css-safelist');
-
 // Pattern/variant-based Tailwind CSS class generator
 // Edit this list to match your frontend safelist logic
 const PATTERN_SAFELIST = [
@@ -140,6 +137,135 @@ function expandPatterns(patternSafelist) {
 
 const ALL_CSS_CLASSES = expandPatterns(PATTERN_SAFELIST);
 
+// Enhanced class description generator
+function describeClass(cls) {
+  const breakpoints = ['sm', 'md', 'lg', 'xl', '2xl'];
+  const states = ['hover', 'focus', 'active', 'group-hover', 'dark', 'dark:hover', 'dark:focus'];
+
+  const [maybeVariant, ...rest] = cls.split(':');
+  const variant = breakpoints.includes(maybeVariant) || states.includes(maybeVariant) ? maybeVariant : '';
+  const base = variant ? rest.join(':') : cls;
+
+  let description = '';
+
+  // Color utilities
+  if (base.startsWith('bg-')) {
+    const color = base.replace('bg-', '').replace(/-/g, ' ');
+    description = `Background color: ${color}`;
+  } else if (base.startsWith('text-')) {
+    const color = base.replace('text-', '').replace(/-/g, ' ');
+    description = `Text color: ${color}`;
+  } else if (base.startsWith('border-')) {
+    const color = base.replace('border-', '').replace(/-/g, ' ');
+    description = `Border color: ${color}`;
+  }
+  // Spacing utilities
+  else if (base.match(/^p[trblxy]?-/)) {
+    const spacing = base.replace(/^p/, '').replace(/-/g, ' ');
+    description = `Padding: ${spacing}`;
+  } else if (base.match(/^m[trblxy]?-/)) {
+    const spacing = base.replace(/^m/, '').replace(/-/g, ' ');
+    description = `Margin: ${spacing}`;
+  }
+  // Sizing utilities
+  else if (base.startsWith('w-')) {
+    const width = base.replace('w-', '').replace(/-/g, ' ');
+    description = `Width: ${width}`;
+  } else if (base.startsWith('h-')) {
+    const height = base.replace('h-', '').replace(/-/g, ' ');
+    description = `Height: ${height}`;
+  } else if (base.startsWith('min-w-')) {
+    const minWidth = base.replace('min-w-', '').replace(/-/g, ' ');
+    description = `Minimum width: ${minWidth}`;
+  } else if (base.startsWith('min-h-')) {
+    const minHeight = base.replace('min-h-', '').replace(/-/g, ' ');
+    description = `Minimum height: ${minHeight}`;
+  } else if (base.startsWith('max-w-')) {
+    const maxWidth = base.replace('max-w-', '').replace(/-/g, ' ');
+    description = `Maximum width: ${maxWidth}`;
+  } else if (base.startsWith('max-h-')) {
+    const maxHeight = base.replace('max-h-', '').replace(/-/g, ' ');
+    description = `Maximum height: ${maxHeight}`;
+  }
+  // Grid utilities
+  else if (base.startsWith('grid-cols-')) {
+    const cols = base.replace('grid-cols-', '');
+    description = `Grid columns: ${cols}`;
+  } else if (base.startsWith('col-span-')) {
+    const span = base.replace('col-span-', '');
+    description = `Grid column span: ${span}`;
+  } else if (base.startsWith('col-start-')) {
+    const start = base.replace('col-start-', '');
+    description = `Grid column start: ${start}`;
+  } else if (base.startsWith('col-end-')) {
+    const end = base.replace('col-end-', '');
+    description = `Grid column end: ${end}`;
+  } else if (base === 'col-auto') {
+    description = 'Grid column: auto sizing';
+  }
+  // Typography utilities
+  else if (base.startsWith('text-')) {
+    const size = base.replace('text-', '').replace(/-/g, ' ');
+    description = `Text size: ${size}`;
+  } else if (base.startsWith('font-')) {
+    const weight = base.replace('font-', '').replace(/-/g, ' ');
+    description = `Font weight: ${weight}`;
+  }
+  // Border utilities
+  else if (base.startsWith('rounded')) {
+    const radius = base.replace('rounded', '').replace(/-/g, ' ') || 'default';
+    description = `Border radius: ${radius}`;
+  }
+  // Gap utilities
+  else if (base.startsWith('gap-')) {
+    const gap = base.replace('gap-', '').replace(/-/g, ' ');
+    description = `Grid gap: ${gap}`;
+  }
+  // Shadow utilities
+  else if (base.startsWith('shadow-')) {
+    const shadow = base.replace('shadow-', '').replace(/-/g, ' ');
+    description = `Box shadow: ${shadow}`;
+  }
+  // Opacity utilities
+  else if (base.startsWith('opacity-')) {
+    const opacity = base.replace('opacity-', '');
+    description = `Opacity: ${opacity}%`;
+  }
+  // Scale utilities
+  else if (base.startsWith('scale-')) {
+    const scale = base.replace('scale-', '');
+    description = `Transform scale: ${scale}%`;
+  }
+  // Position utilities
+  else if (base.match(/^(top|bottom|left|right|inset)-/)) {
+    const [dir, val] = base.split('-');
+    const direction = dir.charAt(0).toUpperCase() + dir.slice(1);
+    description = `${direction} position: ${val}`;
+  }
+  // Z-index utilities
+  else if (base.startsWith('z-')) {
+    const zIndex = base.replace('z-', '');
+    description = `Z-index: ${zIndex}`;
+  }
+  // Default fallback
+  else {
+    description = `Tailwind utility: ${base}`;
+  }
+
+  // Add variant information
+  if (variant) {
+    if (breakpoints.includes(variant)) {
+      description += ` (${variant} breakpoint)`;
+    } else if (states.includes(variant)) {
+      description += ` (${variant} state)`;
+    } else {
+      description += ` (${variant} variant)`;
+    }
+  }
+
+  return `${cls} - ${description}`;
+}
+
 function generateCssClassesJson() {
     try {
         // Define output paths
@@ -154,23 +280,29 @@ function generateCssClassesJson() {
         // Sort classes alphabetically for better searchability
         const sortedClasses = [...ALL_CSS_CLASSES].sort();
         
+        // Create objects with value and descriptive text
+        const describedClasses = sortedClasses.map(cls => ({
+            value: cls,
+            text: describeClass(cls)
+        }));
+        
         // Write JSON file
-        fs.writeFileSync(outputPath, JSON.stringify(sortedClasses, null, 2));
+        fs.writeFileSync(outputPath, JSON.stringify(describedClasses, null, 2));
         
         console.log(`✅ Generated CSS classes JSON file:`);
         console.log(`   📁 ${outputPath}`);
-        console.log(`   📊 ${sortedClasses.length} CSS classes exported`);
+        console.log(`   📊 ${describedClasses.length} CSS classes with descriptions exported`);
         
         // Also generate a summary file for debugging
         const summaryPath = path.join(outputDir, 'tailwind-classes-summary.txt');
         const summary = [
             `CSS Classes Export Summary`,
             `Generated: ${new Date().toISOString()}`,
-            `Total Classes: ${sortedClasses.length}`,
+            `Total Classes: ${describedClasses.length}`,
             ``,
             `Sample Classes:`,
-            ...sortedClasses.slice(0, 20).map(cls => `  - ${cls}`),
-            sortedClasses.length > 20 ? `  ... and ${sortedClasses.length - 20} more` : ''
+            ...describedClasses.slice(0, 20).map(cls => `  - ${cls.text}`),
+            describedClasses.length > 20 ? `  ... and ${describedClasses.length - 20} more` : ''
         ].join('\n');
         
         fs.writeFileSync(summaryPath, summary);

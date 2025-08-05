@@ -30,12 +30,6 @@ class CssController extends AbstractController
         try {
             $cssClasses = $this->loadCssClasses();
 
-            // fomrat the classes in ["value" => "class_name", "text" => "class_name"]
-            $cssClasses = array_map(fn($class) => [
-                'value' => $class,
-                'text' => $class
-            ], $cssClasses);
-            
             return $this->responseFormatter->formatSuccess(
                 ['classes' => $cssClasses], 
                 'responses/frontend/css_classes',
@@ -84,42 +78,88 @@ class CssController extends AbstractController
     {
         return [
             // Layout
-            'container', 'mx-auto', 'flex', 'grid', 'block', 'inline-block', 'hidden',
+            ['value' => 'container', 'text' => 'Container'],
+            ['value' => 'mx-auto', 'text' => 'Margin auto'],
+            ['value' => 'flex', 'text' => 'Flex'],
+            ['value' => 'grid', 'text' => 'Grid'],
+            ['value' => 'block', 'text' => 'Block'],
+            ['value' => 'inline-block', 'text' => 'Inline block'],
+            ['value' => 'hidden', 'text' => 'Hidden'],
             
             // Spacing
-            'p-0', 'p-1', 'p-2', 'p-3', 'p-4', 'p-6', 'p-8',
-            'px-2', 'px-4', 'px-6', 'py-2', 'py-4', 'py-6',
-            'm-0', 'm-1', 'm-2', 'm-3', 'm-4', 'm-6', 'm-8',
-            'mx-auto', 'mx-2', 'mx-4', 'my-2', 'my-4',
+            ['value' => 'p-0', 'text' => 'Padding 0'],
+            ['value' => 'p-1', 'text' => 'Padding 1'],
+            ['value' => 'p-2', 'text' => 'Padding 2'],
+            ['value' => 'p-3', 'text' => 'Padding 3'],
+            ['value' => 'p-4', 'text' => 'Padding 4'],
+            ['value' => 'p-6', 'text' => 'Padding 6'],
+            ['value' => 'p-8', 'text' => 'Padding 8'],
+            ['value' => 'px-2', 'text' => 'Padding x 2'],
+            ['value' => 'px-4', 'text' => 'Padding x 4'],
+            ['value' => 'px-6', 'text' => 'Padding x 6'],
             
             // Typography
-            'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl',
-            'font-normal', 'font-medium', 'font-semibold', 'font-bold',
-            'text-left', 'text-center', 'text-right',
+            ['value' => 'text-xs', 'text' => 'Text xs'],
+            ['value' => 'text-sm', 'text' => 'Text sm'],
+            ['value' => 'text-base', 'text' => 'Text base'],
+            ['value' => 'text-lg', 'text' => 'Text lg'],
+            ['value' => 'text-xl', 'text' => 'Text xl'],
+            ['value' => 'text-2xl', 'text' => 'Text 2xl'],
+            ['value' => 'font-normal', 'text' => 'Font normal'],
+            ['value' => 'font-medium', 'text' => 'Font medium'],
+            ['value' => 'font-semibold', 'text' => 'Font semibold'],
             
             // Colors
-            'text-white', 'text-black', 'text-gray-500', 'text-gray-700', 'text-gray-900',
-            'bg-white', 'bg-black', 'bg-gray-50', 'bg-gray-100', 'bg-gray-500',
-            'bg-blue-500', 'bg-green-500', 'bg-red-500',
+            ['value' => 'text-white', 'text' => 'Text white'],
+            ['value' => 'text-black', 'text' => 'Text black'],
+            ['value' => 'text-gray-500', 'text' => 'Text gray 500'],
+            ['value' => 'text-gray-700', 'text' => 'Text gray 700'],
+            ['value' => 'text-gray-900', 'text' => 'Text gray 900'],
+            ['value' => 'bg-white', 'text' => 'Background white'],
+            ['value' => 'bg-black', 'text' => 'Background black'],
+            ['value' => 'bg-gray-50', 'text' => 'Background gray 50'],
+            ['value' => 'bg-gray-100', 'text' => 'Background gray 100'],
             
             // Borders & Radius
-            'border', 'border-2', 'border-gray-300', 'rounded', 'rounded-lg',
+            ['value' => 'border', 'text' => 'Border'],
+            ['value' => 'border-2', 'text' => 'Border 2'],
+            ['value' => 'border-gray-300', 'text' => 'Border gray 300'],
+            ['value' => 'rounded', 'text' => 'Rounded'],
+            ['value' => 'rounded-lg', 'text' => 'Rounded lg'],
             
             // Sizing
-            'w-full', 'w-1/2', 'w-1/3', 'w-2/3', 'h-auto', 'h-full',
+            ['value' => 'w-full', 'text' => 'Width full'],
+            ['value' => 'w-1/2', 'text' => 'Width 1/2'],
+            ['value' => 'w-1/3', 'text' => 'Width 1/3'],
+            ['value' => 'w-2/3', 'text' => 'Width 2/3'],
+            ['value' => 'h-auto', 'text' => 'Height auto'],
+            ['value' => 'h-full', 'text' => 'Height full'],
             
             // Flexbox
-            'justify-center', 'justify-between', 'items-center', 'items-start',
+            ['value' => 'justify-center', 'text' => 'Justify center'],
+            ['value' => 'justify-between', 'text' => 'Justify between'],
+            ['value' => 'items-center', 'text' => 'Items center'],
+            ['value' => 'items-start', 'text' => 'Items start'],
             
             // Grid
-            'grid-cols-1', 'grid-cols-2', 'grid-cols-3', 'grid-cols-4',
-            'gap-2', 'gap-4', 'gap-6',
+            ['value' => 'grid-cols-1', 'text' => 'Grid columns 1'],
+            ['value' => 'grid-cols-2', 'text' => 'Grid columns 2'],
+            ['value' => 'grid-cols-3', 'text' => 'Grid columns 3'],
+            ['value' => 'grid-cols-4', 'text' => 'Grid columns 4'],
+            ['value' => 'gap-2', 'text' => 'Gap 2'],
+            ['value' => 'gap-4', 'text' => 'Gap 4'],
+            ['value' => 'gap-6', 'text' => 'Gap 6'],
             
             // Responsive
-            'sm:block', 'md:flex', 'lg:grid-cols-3', 'xl:text-xl',
+            ['value' => 'sm:block', 'text' => 'Responsive block'],
+            ['value' => 'md:flex', 'text' => 'Responsive flex'],
+            ['value' => 'lg:grid-cols-3', 'text' => 'Responsive grid columns 3'],
+            ['value' => 'xl:text-xl', 'text' => 'Responsive text xl'],
             
             // States
-            'hover:bg-gray-100', 'focus:outline-none', 'active:bg-gray-200'
+            ['value' => 'hover:bg-gray-100', 'text' => 'Hover background gray 100'],
+            ['value' => 'focus:outline-none', 'text' => 'Focus outline none'],
+            ['value' => 'active:bg-gray-200', 'text' => 'Active background gray 200']
         ];
     }
 

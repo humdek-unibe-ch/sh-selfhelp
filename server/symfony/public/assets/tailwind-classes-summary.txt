@@ -1,26 +1,26 @@
 CSS Classes Export Summary
-Generated: 2025-08-04T14:06:24.257Z
+Generated: 2025-08-05T08:08:30.138Z
 Total Classes: 11105
 
 Sample Classes:
-  - 2xl:col-auto
-  - 2xl:col-end-1
-  - 2xl:col-end-10
-  - 2xl:col-end-11
-  - 2xl:col-end-12
-  - 2xl:col-end-13
-  - 2xl:col-end-2
-  - 2xl:col-end-3
-  - 2xl:col-end-4
-  - 2xl:col-end-5
-  - 2xl:col-end-6
-  - 2xl:col-end-7
-  - 2xl:col-end-8
-  - 2xl:col-end-9
-  - 2xl:col-end-auto
-  - 2xl:col-span-1
-  - 2xl:col-span-10
-  - 2xl:col-span-11
-  - 2xl:col-span-12
-  - 2xl:col-span-2
+  - 2xl:col-auto - Grid column: auto sizing (2xl breakpoint)
+  - 2xl:col-end-1 - Grid column end: 1 (2xl breakpoint)
+  - 2xl:col-end-10 - Grid column end: 10 (2xl breakpoint)
+  - 2xl:col-end-11 - Grid column end: 11 (2xl breakpoint)
+  - 2xl:col-end-12 - Grid column end: 12 (2xl breakpoint)
+  - 2xl:col-end-13 - Grid column end: 13 (2xl breakpoint)
+  - 2xl:col-end-2 - Grid column end: 2 (2xl breakpoint)
+  - 2xl:col-end-3 - Grid column end: 3 (2xl breakpoint)
+  - 2xl:col-end-4 - Grid column end: 4 (2xl breakpoint)
+  - 2xl:col-end-5 - Grid column end: 5 (2xl breakpoint)
+  - 2xl:col-end-6 - Grid column end: 6 (2xl breakpoint)
+  - 2xl:col-end-7 - Grid column end: 7 (2xl breakpoint)
+  - 2xl:col-end-8 - Grid column end: 8 (2xl breakpoint)
+  - 2xl:col-end-9 - Grid column end: 9 (2xl breakpoint)
+  - 2xl:col-end-auto - Grid column end: auto (2xl breakpoint)
+  - 2xl:col-span-1 - Grid column span: 1 (2xl breakpoint)
+  - 2xl:col-span-10 - Grid column span: 10 (2xl breakpoint)
+  - 2xl:col-span-11 - Grid column span: 11 (2xl breakpoint)
+  - 2xl:col-span-12 - Grid column span: 12 (2xl breakpoint)
+  - 2xl:col-span-2 - Grid column span: 2 (2xl breakpoint)
   ... and 11085 more
