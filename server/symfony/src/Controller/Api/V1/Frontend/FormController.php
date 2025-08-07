@@ -44,7 +44,7 @@ class FormController extends AbstractController
             $requestData = $this->validateRequest($request, 'requests/frontend/submit_form', $this->jsonSchemaValidationService);
             
             $pageId = $requestData['page_id'];
-            $formId = $requestData['form_id'];
+            $sectionId = $requestData['section_id'];
             $formData = $requestData['form_data'];
 
             // Determine if user is authenticated
@@ -54,28 +54,15 @@ class FormController extends AbstractController
             // Validate form submission
             if ($isAuthenticated) {
                 // Authenticated user - full validation
-                $validationResult = $this->formValidationService->validateFormSubmission($pageId, $formId, $formData);
+                $validationResult = $this->formValidationService->validateFormSubmission($pageId, $sectionId, $formData);
             } else {
                 // Anonymous user - public validation
-                $page = $this->formValidationService->validatePublicPageAccess($pageId);
-                $dataTable = $this->dataService->getDataTableByName($formId);
-                if (!$dataTable) {
-                    return $this->apiResponseFormatter->formatError(
-                        'Form not found',
-                        Response::HTTP_NOT_FOUND
-                    );
-                }
-                
-                $validationResult = [
-                    'page' => $page,
-                    'dataTable' => $dataTable,
-                    'validated' => true
-                ];
+                $validationResult = $this->formValidationService->validatePublicPageAccess($pageId, $sectionId);
             }
 
-            // Save form data
+            // Save form data using section ID as table name
             $recordId = $this->dataService->saveData(
-                $formId,
+                (string) $sectionId,
                 $formData,
                 'transactionBy_by_user'
             );
@@ -90,7 +77,7 @@ class FormController extends AbstractController
             // Prepare response data
             $responseData = [
                 'record_id' => $recordId,
-                'form_id' => $formId,
+                'section_id' => $sectionId,
                 'page_id' => $pageId,
                 'submitted_at' => (new \DateTime())->format('Y-m-d H:i:s'),
                 'user_authenticated' => $isAuthenticated
@@ -133,16 +120,16 @@ class FormController extends AbstractController
             $requestData = $this->validateRequest($request, 'requests/frontend/update_form', $this->jsonSchemaValidationService);
             
             $pageId = $requestData['page_id'];
-            $formId = $requestData['form_id'];
+            $sectionId = $requestData['section_id'];
             $formData = $requestData['form_data'];
             $updateBasedOn = $requestData['update_based_on'] ?? null;
 
             // Validate form submission
-            $validationResult = $this->formValidationService->validateFormSubmission($pageId, $formId, $formData);
+            $validationResult = $this->formValidationService->validateFormSubmission($pageId, $sectionId, $formData);
 
             // Update form data
             $recordId = $this->dataService->saveData(
-                $formId,
+                (string) $sectionId,
                 $formData,
                 'transactionBy_by_user',
                 $updateBasedOn,
@@ -159,7 +146,7 @@ class FormController extends AbstractController
             // Prepare response data
             $responseData = [
                 'record_id' => $recordId,
-                'form_id' => $formId,
+                'section_id' => $sectionId,
                 'page_id' => $pageId,
                 'updated_at' => (new \DateTime())->format('Y-m-d H:i:s')
             ];

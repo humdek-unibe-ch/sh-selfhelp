@@ -3,19 +3,17 @@
   "type": "object",
   "title": "Submit Form Request",
   "description": "Schema for form submission request",
-  "required": ["page_id", "form_id", "form_data"],
+  "required": ["page_id", "section_id", "form_data"],
   "properties": {
     "page_id": {
       "type": "integer",
       "description": "The ID of the page containing the form",
       "minimum": 1
     },
-    "form_id": {
-      "type": "string",
-      "description": "The form identifier (dataTable name)",
-      "minLength": 1,
-      "maxLength": 100,
-      "pattern": "^[a-zA-Z0-9_-]+$"
+    "section_id": {
+      "type": "integer",
+      "description": "The section ID of the form",
+      "minimum": 1
     },
     "form_data": {
       "type": "object",

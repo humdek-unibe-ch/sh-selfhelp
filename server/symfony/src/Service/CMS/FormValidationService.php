@@ -43,12 +43,12 @@ class FormValidationService extends UserContextAwareService
      * Validate form submission request
      * 
      * @param int $pageId The page ID where form is submitted from
-     * @param string $formId The form ID (dataTable name)
+     * @param int $sectionId The section ID (form ID)
      * @param array $formData The form data being submitted
-     * @return array Validation result with page and dataTable info
+     * @return array Validation result with page and section info
      * @throws ServiceException If validation fails
      */
-    public function validateFormSubmission(int $pageId, string $formId, array $formData): array
+    public function validateFormSubmission(int $pageId, int $sectionId, array $formData): array
     {
         // Find the page
         $page = $this->pageRepository->find($pageId);
@@ -59,163 +59,56 @@ class FormValidationService extends UserContextAwareService
         // Check if user has access to the page (use 'insert' permission for form submission)
         $this->checkAccess($page->getKeyword(), 'insert');
 
-        // Find the dataTable by name (form_id)
-        $dataTable = $this->dataTableRepository->findOneBy(['name' => $formId]);
-        if (!$dataTable) {
-            $this->throwNotFound('Form not found');
+        // Find the section
+        $section = $this->sectionRepository->find($sectionId);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
         }
 
-        // Validate that the form belongs to the page
-        $this->validateFormBelongsToPage($page, $dataTable);
+        // Validate that the section belongs to the page using stored procedure
+        $this->validateSectionBelongsToPage($pageId, $sectionId);
 
         // Validate form data structure
         $this->validateFormData($formData);
 
         return [
             'page' => $page,
-            'dataTable' => $dataTable,
+            'section' => $section,
             'validated' => true
         ];
     }
 
     /**
-     * Validate that a form (dataTable) belongs to the specified page
+     * Validate that a section belongs to the specified page using stored procedure
      * 
-     * @param Page $page The page to check
-     * @param DataTable $dataTable The form's dataTable
-     * @throws ServiceException If form doesn't belong to page
+     * @param int $pageId The page ID to check
+     * @param int $sectionId The section ID to validate
+     * @throws ServiceException If section doesn't belong to page
      */
-    private function validateFormBelongsToPage(Page $page, DataTable $dataTable): void
+    private function validateSectionBelongsToPage(int $pageId, int $sectionId): void
     {
-        // Find form sections on the page that match the dataTable name
-        $formSection = $this->findFormSectionOnPage($page, $dataTable->getName());
+        // Use stored procedure to get all sections for the page
+        $conn = $this->entityManager->getConnection();
+        $stmt = $conn->prepare('CALL get_page_sections_hierarchical(:page_id)');
+        $stmt->bindValue('page_id', $pageId, \PDO::PARAM_INT);
+        $result = $stmt->executeQuery();
+        $sections = $result->fetchAllAssociative();
         
-        if (!$formSection) {
-            $this->throwForbidden('Form does not belong to this page');
-        }
-    }
-
-    /**
-     * Find form section on page that matches the dataTable name
-     * 
-     * @param Page $page The page to search
-     * @param string $formName The form name to match
-     * @return Section|null The matching form section
-     */
-    private function findFormSectionOnPage(Page $page, string $formName): ?Section
-    {
-        // Get all sections on the page (direct and hierarchical)
-        $allSections = $this->getAllPageSections($page);
-        
-        foreach ($allSections as $section) {
-            if ($this->isFormSection($section) && $this->sectionMatchesFormName($section, $formName)) {
-                return $section;
+        // Check if our section ID is in the results
+        $sectionFound = false;
+        foreach ($sections as $section) {
+            if ((int) $section['id'] === $sectionId) {
+                $sectionFound = true;
+                break;
             }
         }
         
-        return null;
+        if (!$sectionFound) {
+            $this->throwForbidden('Section does not belong to this page');
+        }
     }
 
-    /**
-     * Get all sections on a page (direct and hierarchical)
-     * 
-     * @param Page $page The page
-     * @return Section[] Array of sections
-     */
-    private function getAllPageSections(Page $page): array
-    {
-        $sections = [];
-        
-        // Get direct page sections
-        $pageSections = $this->entityManager->getRepository(PagesSection::class)
-            ->findBy(['page' => $page]);
-        
-        foreach ($pageSections as $pageSection) {
-            $section = $pageSection->getSection();
-            if ($section) {
-                $sections[] = $section;
-                // Get child sections recursively
-                $childSections = $this->getChildSections($section);
-                $sections = array_merge($sections, $childSections);
-            }
-        }
-        
-        return $sections;
-    }
 
-    /**
-     * Get child sections recursively
-     * 
-     * @param Section $parentSection The parent section
-     * @return Section[] Array of child sections
-     */
-    private function getChildSections(Section $parentSection): array
-    {
-        $childSections = [];
-        
-        $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
-            ->findBy(['parentSection' => $parentSection]);
-        
-        foreach ($hierarchies as $hierarchy) {
-            $childSection = $hierarchy->getChildSection();
-            if ($childSection) {
-                $childSections[] = $childSection;
-                // Recursively get grandchildren
-                $grandChildren = $this->getChildSections($childSection);
-                $childSections = array_merge($childSections, $grandChildren);
-            }
-        }
-        
-        return $childSections;
-    }
-
-    /**
-     * Check if a section is a form section
-     * 
-     * @param Section $section The section to check
-     * @return bool True if it's a form section
-     */
-    private function isFormSection(Section $section): bool
-    {
-        $style = $section->getStyle();
-        if (!$style) {
-            return false;
-        }
-        
-        return in_array($style->getName(), self::FORM_STYLE_NAMES);
-    }
-
-    /**
-     * Check if section matches form name
-     * This will check the section's "name" field value against the form name
-     * 
-     * @param Section $section The section to check
-     * @param string $formName The form name to match
-     * @return bool True if matches
-     */
-    private function sectionMatchesFormName(Section $section, string $formName): bool
-    {
-        // Get the section's field translations to find the "name" field
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sft')
-           ->from(SectionsFieldsTranslation::class, 'sft')
-           ->join('sft.field', 'f')
-           ->where('sft.section = :section')
-           ->andWhere('f.name = :fieldName')
-           ->setParameter('section', $section)
-           ->setParameter('fieldName', 'name');
-        
-        $translations = $qb->getQuery()->getResult();
-        
-        foreach ($translations as $translation) {
-            // Compare the content (form name) with the dataTable name
-            if ($translation->getContent() === $formName) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
 
     /**
      * Validate form data structure
@@ -282,64 +175,30 @@ class FormValidationService extends UserContextAwareService
      * This is a special validation for public form submissions
      * 
      * @param int $pageId The page ID
-     * @return Page The page if accessible
+     * @param int $sectionId The section ID to validate
+     * @return array Validation result with page and section info
      * @throws ServiceException If page is not accessible
      */
-    public function validatePublicPageAccess(int $pageId): Page
+    public function validatePublicPageAccess(int $pageId, int $sectionId): array
     {
         $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
 
-        // For public access, we still need to check if the page allows anonymous submissions
-        // This could be extended with a page-level setting for public forms
-        // For now, we'll allow all pages with form sections to accept public submissions
-        
-        $hasFormSections = $this->pageHasFormSections($page);
-        if (!$hasFormSections) {
-            $this->throwForbidden('This page does not accept form submissions');
+        // Find the section
+        $section = $this->sectionRepository->find($sectionId);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
         }
 
-        return $page;
-    }
+        // Validate that the section belongs to the page using stored procedure
+        $this->validateSectionBelongsToPage($pageId, $sectionId);
 
-    /**
-     * Check if page has form sections
-     * 
-     * @param Page $page The page to check
-     * @return bool True if page has form sections
-     */
-    private function pageHasFormSections(Page $page): bool
-    {
-        $allSections = $this->getAllPageSections($page);
-        
-        foreach ($allSections as $section) {
-            if ($this->isFormSection($section)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    /**
-     * Get form sections on a page
-     * 
-     * @param Page $page The page
-     * @return Section[] Array of form sections
-     */
-    public function getFormSectionsOnPage(Page $page): array
-    {
-        $allSections = $this->getAllPageSections($page);
-        $formSections = [];
-        
-        foreach ($allSections as $section) {
-            if ($this->isFormSection($section)) {
-                $formSections[] = $section;
-            }
-        }
-        
-        return $formSections;
+        return [
+            'page' => $page,
+            'section' => $section,
+            'validated' => true
+        ];
     }
 }

@@ -3,18 +3,17 @@
   "type": "object",
   "title": "Form Updated Response",
   "description": "Schema for successful form update response",
-  "required": ["record_id", "form_id", "page_id", "updated_at"],
+  "required": ["record_id", "section_id", "page_id", "updated_at"],
   "properties": {
     "record_id": {
       "type": "integer",
       "description": "The ID of the updated record",
       "minimum": 1
     },
-    "form_id": {
-      "type": "string",
-      "description": "The form identifier that was updated",
-      "minLength": 1,
-      "maxLength": 100
+    "section_id": {
+      "type": "integer",
+      "description": "The section ID that was updated",
+      "minimum": 1
     },
     "page_id": {
       "type": "integer",
