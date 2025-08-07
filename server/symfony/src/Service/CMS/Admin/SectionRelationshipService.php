@@ -68,7 +68,7 @@ class SectionRelationshipService extends UserContextAwareService
             $this->removeOldParentRelationships(null, $oldParentSectionId, $childSection, $this->entityManager);
             
             // Create or update page-section relationship
-            $pageSection = $this->createOrUpdatePageSectionRelationship($parentPage, $childSection, $position, $this->entityManager);
+            $pageSection = $this->createOrUpdatePageSectionRelationship($parentPage, $childSection, $position, $this->entityManager);            
             
             $this->entityManager->flush();
             $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
@@ -129,7 +129,7 @@ class SectionRelationshipService extends UserContextAwareService
             $this->entityManager->flush();
 
             // Create section hierarchy relationship
-            $sectionHierarchy = $this->createSectionHierarchyRelationship($parentSection, $childSection, $position, $this->entityManager);
+            $sectionHierarchy = $this->createSectionHierarchyRelationship($parentSection, $childSection, $position, $this->entityManager);                       
             
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);

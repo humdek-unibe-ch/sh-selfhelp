@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Page Forms Response",
+  "description": "Schema for page forms listing response",
+  "required": ["page_id", "page_keyword", "forms"],
+  "properties": {
+    "page_id": {
+      "type": "integer",
+      "description": "The ID of the page",
+      "minimum": 1
+    },
+    "page_keyword": {
+      "type": "string",
+      "description": "The keyword of the page",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "forms": {
+      "type": "array",
+      "description": "List of forms available on the page",
+      "items": {
+        "type": "object",
+        "required": ["form_id", "section_id", "section_name"],
+        "properties": {
+          "form_id": {
+            "type": "string",
+            "description": "The form identifier",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "section_id": {
+            "type": "integer",
+            "description": "The section ID containing the form",
+            "minimum": 1
+          },
+          "section_name": {
+            "type": "string",
+            "description": "The name of the section",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "style_name": {
+            "type": ["string", "null"],
+            "description": "The style name of the form section",
+            "maxLength": 100
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

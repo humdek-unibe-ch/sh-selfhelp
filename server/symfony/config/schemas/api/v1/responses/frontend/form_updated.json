@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Form Updated Response",
+  "description": "Schema for successful form update response",
+  "required": ["record_id", "form_id", "page_id", "updated_at"],
+  "properties": {
+    "record_id": {
+      "type": "integer",
+      "description": "The ID of the updated record",
+      "minimum": 1
+    },
+    "form_id": {
+      "type": "string",
+      "description": "The form identifier that was updated",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "page_id": {
+      "type": "integer",
+      "description": "The ID of the page containing the form",
+      "minimum": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the form was updated"
+    }
+  },
+  "additionalProperties": false
+}

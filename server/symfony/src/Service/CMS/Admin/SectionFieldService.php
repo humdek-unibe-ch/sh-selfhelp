@@ -6,6 +6,7 @@ use App\Entity\Section;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
+use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -23,6 +24,7 @@ class SectionFieldService extends UserContextAwareService
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DataTableService $dataTableService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -261,7 +263,44 @@ class SectionFieldService extends UserContextAwareService
             $this->validateStyleFields($allFieldIds, $section->getStyle()->getId(), $this->entityManager);
         }
 
+        // Check if displayName field is being updated for form sections
+        $isFormSection = $this->dataTableService->isFormSection($section);
+        if ($isFormSection) {
+            $displayNameUpdate = $this->extractDisplayNameUpdate($propertyFields);
+        }
+
         // Update field translations using trait method
         $this->updateSectionFieldTranslations($section->getId(), $contentFields, $propertyFields, $this->entityManager);
+
+        // Sync displayName to dataTable if this is a form section and displayName was updated
+        if ($isFormSection && $displayNameUpdate !== null) {
+            $this->dataTableService->updateDataTableDisplayName($section, $displayNameUpdate);
+        }
+    }
+
+    /**
+     * Extract displayName update from field updates
+     * 
+     * @param array $propertyFields Property fields
+     * @return string|null The new displayName value if found
+     */
+    private function extractDisplayNameUpdate(array $propertyFields): ?string
+    {
+        // Check both content and property fields for displayName field
+        foreach ($propertyFields as $fieldUpdate) {
+            // Find the field entity to check its name
+            $fieldId = $fieldUpdate['fieldId'];
+            $field = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+            
+            if ($field && $field->getName() === 'name') {
+                // Get the first translation content (assuming language_id = 1 for displayName)
+                $content = $fieldUpdate['value'] ?? null;
+                if ($content) {
+                    return $content;
+                }
+            }
+        }
+        
+        return null;
     }
 }

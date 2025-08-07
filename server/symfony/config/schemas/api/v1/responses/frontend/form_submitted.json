@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Form Submitted Response",
+  "description": "Schema for successful form submission response",
+  "required": ["record_id", "form_id", "page_id", "submitted_at", "user_authenticated"],
+  "properties": {
+    "record_id": {
+      "type": "integer",
+      "description": "The ID of the created record",
+      "minimum": 1
+    },
+    "form_id": {
+      "type": "string",
+      "description": "The form identifier that was submitted",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "page_id": {
+      "type": "integer",
+      "description": "The ID of the page containing the form",
+      "minimum": 1
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the form was submitted"
+    },
+    "user_authenticated": {
+      "type": "boolean",
+      "description": "Whether the user was authenticated during submission"
+    }
+  },
+  "additionalProperties": false
+}

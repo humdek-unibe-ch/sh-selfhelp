@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Update Form Request",
+  "description": "Schema for form update request",
+  "required": ["page_id", "form_id", "form_data"],
+  "properties": {
+    "page_id": {
+      "type": "integer",
+      "description": "The ID of the page containing the form",
+      "minimum": 1
+    },
+    "form_id": {
+      "type": "string",
+      "description": "The form identifier (dataTable name)",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    },
+    "form_data": {
+      "type": "object",
+      "description": "The form data to be updated",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "string", "maxLength": 65535},
+          {"type": "number"},
+          {"type": "boolean"},
+          {"type": "null"}
+        ]
+      },
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]{0,254}$": true
+      }
+    },
+    "update_based_on": {
+      "type": "object",
+      "description": "Fields to use for identifying the record to update",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "string", "maxLength": 65535},
+          {"type": "number"},
+          {"type": "boolean"}
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

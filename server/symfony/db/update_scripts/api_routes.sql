@@ -276,7 +276,23 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'language_id', '[0-9]+'
 ), NULL),
 ('pages_get_one', 'v1', '/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', NULL, NULL),
-('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL);
+('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL),
+
+-- Form submission routes (public access)
+('form_submit', 'v1', '/forms/submit', 'App\\Controller\\Api\\V1\\Frontend\\FormController::submitForm', 'POST', NULL, JSON_OBJECT(
+    'page_id', JSON_OBJECT('in', 'body', 'required', true),
+    'form_id', JSON_OBJECT('in', 'body', 'required', true),
+    'form_data', JSON_OBJECT('in', 'body', 'required', true)
+)),
+('form_update', 'v1', '/forms/update', 'App\\Controller\\Api\\V1\\Frontend\\FormController::updateForm', 'PUT', NULL, JSON_OBJECT(
+    'page_id', JSON_OBJECT('in', 'body', 'required', true),
+    'form_id', JSON_OBJECT('in', 'body', 'required', true),
+    'form_data', JSON_OBJECT('in', 'body', 'required', true),
+    'update_based_on', JSON_OBJECT('in', 'body', 'required', false)
+)),
+('form_delete', 'v1', '/forms/delete', 'App\\Controller\\Api\\V1\\Frontend\\FormController::deleteForm', 'DELETE', NULL, JSON_OBJECT(
+    'record_id', JSON_OBJECT('in', 'query', 'required', true)
+));
 
 -- add `admin.page.read` requirements to routes
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)

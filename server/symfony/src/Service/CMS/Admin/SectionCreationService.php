@@ -6,6 +6,7 @@ use App\Entity\Section;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
+use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -24,6 +25,7 @@ class SectionCreationService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly StyleRepository $styleRepository,
         private readonly PositionManagementService $positionManagementService,
+        private readonly DataTableService $dataTableService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -71,6 +73,11 @@ class SectionCreationService extends UserContextAwareService
             $pagesSection->setPosition($position);
             $this->entityManager->persist($pagesSection);
             $this->entityManager->flush();
+
+            // Auto-create dataTable if this is a form section
+            if ($this->dataTableService->isFormSection($section)) {
+                $this->dataTableService->createDataTableForFormSection($section);
+            }
 
             $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
 
@@ -143,6 +150,12 @@ class SectionCreationService extends UserContextAwareService
             $sectionHierarchy->setParentSection($parentSection);
             $sectionHierarchy->setChildSection($childSection);
             $sectionHierarchy->setPosition($position);
+
+             // Auto-create dataTable if this is a form section
+             if ($this->dataTableService->isFormSection($childSection)) {
+                $this->dataTableService->createDataTableForFormSection($childSection);
+             }
+
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
