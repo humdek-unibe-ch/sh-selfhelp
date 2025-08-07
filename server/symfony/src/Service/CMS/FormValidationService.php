@@ -87,12 +87,8 @@ class FormValidationService extends UserContextAwareService
      */
     private function validateSectionBelongsToPage(int $pageId, int $sectionId): void
     {
-        // Use stored procedure to get all sections for the page
-        $conn = $this->entityManager->getConnection();
-        $stmt = $conn->prepare('CALL get_page_sections_hierarchical(:page_id)');
-        $stmt->bindValue('page_id', $pageId, \PDO::PARAM_INT);
-        $result = $stmt->executeQuery();
-        $sections = $result->fetchAllAssociative();
+        // Use repository method to get all sections for the page
+        $sections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($pageId);
         
         // Check if our section ID is in the results
         $sectionFound = false;
