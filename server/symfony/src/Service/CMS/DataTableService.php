@@ -5,6 +5,7 @@ namespace App\Service\CMS;
 use App\Entity\DataTable;
 use App\Entity\Section;
 use App\Exception\ServiceException;
+use App\Service\CMS\Common\FormStyleNames;
 use App\Repository\DataTableRepository;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
@@ -20,10 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DataTableService extends UserContextAwareService
 {
-    private const FORM_STYLE_NAMES = [
-        'formUserInput',
-        'formUserInputLog'
-    ];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -177,7 +174,7 @@ class DataTableService extends UserContextAwareService
             return false;
         }
         
-        return in_array($style->getName(), self::FORM_STYLE_NAMES);
+        return in_array($style->getName(), FormStyleNames::FORM_STYLE_NAMES);
     }    
 
     /**

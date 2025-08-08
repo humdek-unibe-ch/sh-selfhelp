@@ -23,10 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class FormValidationService extends UserContextAwareService
 {
-    private const FORM_STYLE_NAMES = [
-        'formUserInput',
-        'formUserInputLog'
-    ];
+    
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
