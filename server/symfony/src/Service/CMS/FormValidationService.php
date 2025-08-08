@@ -182,6 +182,10 @@ class FormValidationService extends UserContextAwareService
             $this->throwNotFound('Page not found');
         }
 
+        if (!$page->isOpenAccess()) {
+            $this->throwForbidden('Page is not open access');
+        }
+
         // Find the section
         $section = $this->sectionRepository->find($sectionId);
         if (!$section) {

@@ -4183,3 +4183,7 @@ WHERE `name` IN ('css', 'css_mobile');
 UPDATE styles_fields
 SET title = 'Mobile CSS Classes'
 WHERE id_fields = get_field_id('css_mobile');
+
+UPDATE users
+SET `name` = 'Guest'
+WHERE id = 1
