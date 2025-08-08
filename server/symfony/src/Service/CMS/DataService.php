@@ -59,7 +59,7 @@ class DataService extends UserContextAwareService
         bool $ownEntriesOnly = true
     ): int|false {
         $this->entityManager->beginTransaction();
-        
+
         try {
             // Ensure user ID is set
             if (!isset($data['id_users'])) {
@@ -69,12 +69,16 @@ class DataService extends UserContextAwareService
 
             // Get or create data table
             $dataTable = $this->getOrCreateDataTable($tableName);
-            
+
             // Check for existing record to update
             if ($updateBasedOn !== null) {
-                $existingRecord = $this->findExistingRecord($dataTable, $updateBasedOn, $ownEntriesOnly, $data['id_users']);
+                $filter = '';
+                foreach ($updateBasedOn as $key => $value) {
+                    $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
+                }
+                $existingRecord = $this->getData($dataTable->getId(), $filter, $ownEntriesOnly, $currentUser->getId(), true);
                 if ($existingRecord) {
-                    $recordId = $this->updateExistingRecord($existingRecord, $data, $transactionBy);
+                    $recordId = $this->updateExistingRecord($existingRecord['record_id'], $data, $transactionBy);
                     $this->entityManager->commit();
                     return $recordId;
                 } elseif (count($updateBasedOn) > 0) {
@@ -86,10 +90,10 @@ class DataService extends UserContextAwareService
 
             // Create new record
             $recordId = $this->createNewRecord($dataTable, $data, $transactionBy);
-            
+
             $this->entityManager->commit();
             return $recordId;
-            
+
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw new ServiceException(
@@ -111,7 +115,7 @@ class DataService extends UserContextAwareService
     public function deleteData(int $recordId, bool $ownEntriesOnly = true): bool
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $dataRow = $this->entityManager->getRepository(DataRow::class)->find($recordId);
             if (!$dataRow) {
@@ -140,9 +144,9 @@ class DataService extends UserContextAwareService
 
             $this->entityManager->flush();
             $this->entityManager->commit();
-            
+
             return true;
-            
+
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw new ServiceException(
@@ -162,69 +166,39 @@ class DataService extends UserContextAwareService
     private function getOrCreateDataTable(string $tableName): DataTable
     {
         $dataTable = $this->dataTableRepository->findOneBy(['name' => $tableName]);
-        
+
         if (!$dataTable) {
             $dataTable = new DataTable();
             $dataTable->setName($tableName);
             $dataTable->setTimestamp(new \DateTime());
-            
+
             $this->entityManager->persist($dataTable);
             $this->entityManager->flush(); // Flush to get the ID
         }
-        
+
         return $dataTable;
-    }
-
-    /**
-     * Find existing record based on criteria
-     * 
-     * @param DataTable $dataTable The data table
-     * @param array $updateBasedOn Fields to match for update
-     * @param bool $ownEntriesOnly Restrict to user's entries
-     * @param int $userId User ID for ownership check
-     * @return DataRow|null
-     */
-    private function findExistingRecord(DataTable $dataTable, array $updateBasedOn, bool $ownEntriesOnly, int $userId): ?DataRow
-    {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('dr')
-           ->from(DataRow::class, 'dr')
-           ->join('dr.dataCells', 'dc')
-           ->join('dc.dataCol', 'dcol')
-           ->where('dr.dataTable = :dataTable')
-           ->setParameter('dataTable', $dataTable);
-
-        if ($ownEntriesOnly) {
-            $qb->andWhere('dr.idUsers = :userId')
-               ->setParameter('userId', $userId);
-        }
-
-        // Add conditions for updateBasedOn fields
-        $conditionIndex = 0;
-        foreach ($updateBasedOn as $fieldName => $fieldValue) {
-            $qb->andWhere("dcol.name = :fieldName{$conditionIndex} AND dc.value = :fieldValue{$conditionIndex}")
-               ->setParameter("fieldName{$conditionIndex}", $fieldName)
-               ->setParameter("fieldValue{$conditionIndex}", $fieldValue);
-            $conditionIndex++;
-        }
-
-        return $qb->getQuery()->getOneOrNullResult();
     }
 
     /**
      * Update existing record
      * 
-     * @param DataRow $dataRow The existing record
+     * @param int $recordId The ID of the record to update
      * @param array $data New data
      * @param string $transactionBy Transaction initiator
      * @return int Record ID
      */
-    private function updateExistingRecord(DataRow $dataRow, array $data, string $transactionBy): int
+    private function updateExistingRecord(int $recordId, array $data, string $transactionBy): int
     {
+
+        $dataRow = $this->entityManager->getRepository(DataRow::class)->find($recordId);
+        if (!$dataRow) {
+            $this->throwNotFound('Record not found');
+        }
+
         // Update timestamp and trigger type
         $dataRow->setTimestamp(new \DateTime());
         $dataRow->setIdUsers($data['id_users']);
-        
+
         $triggerTypeId = $this->getTriggerTypeId($data);
         $dataRow->setIdActionTriggerTypes($triggerTypeId);
 
@@ -233,21 +207,21 @@ class DataService extends UserContextAwareService
 
         // Get or create columns and update cells
         $columns = $this->getOrCreateColumns($dataRow->getDataTable(), $data);
-        
+
         foreach ($data as $fieldName => $fieldValue) {
             $column = $columns[$fieldName];
-            
+
             // Find existing cell or create new one
             $dataCell = $this->entityManager->getRepository(DataCell::class)
                 ->findOneBy(['dataRow' => $dataRow, 'dataCol' => $column]);
-            
+
             if (!$dataCell) {
                 $dataCell = new DataCell();
                 $dataCell->setDataRow($dataRow);
                 $dataCell->setDataCol($column);
                 $this->entityManager->persist($dataCell);
             }
-            
+
             $dataCell->setValue($fieldValue ?? '');
         }
 
@@ -260,7 +234,7 @@ class DataService extends UserContextAwareService
         );
 
         $this->entityManager->flush();
-        
+
         return $dataRow->getId();
     }
 
@@ -279,10 +253,10 @@ class DataService extends UserContextAwareService
         $dataRow->setDataTable($dataTable);
         $dataRow->setTimestamp(new \DateTime());
         $dataRow->setIdUsers($data['id_users']);
-        
+
         $triggerTypeId = $this->getTriggerTypeId($data);
         $dataRow->setIdActionTriggerTypes($triggerTypeId);
-        
+
         $this->entityManager->persist($dataRow);
         $this->entityManager->flush(); // Flush to get the ID
 
@@ -295,12 +269,12 @@ class DataService extends UserContextAwareService
         // Create data cells
         foreach ($data as $fieldName => $fieldValue) {
             $column = $columns[$fieldName];
-            
+
             $dataCell = new DataCell();
             $dataCell->setDataRow($dataRow);
             $dataCell->setDataCol($column);
             $dataCell->setValue($fieldValue ?? '');
-            
+
             $this->entityManager->persist($dataCell);
         }
 
@@ -313,7 +287,7 @@ class DataService extends UserContextAwareService
         );
 
         $this->entityManager->flush();
-        
+
         return $dataRow->getId();
     }
 
@@ -327,11 +301,11 @@ class DataService extends UserContextAwareService
     private function getOrCreateColumns(DataTable $dataTable, array $data): array
     {
         $columns = [];
-        
+
         foreach (array_keys($data) as $fieldName) {
             $column = $this->entityManager->getRepository(DataCol::class)
                 ->findOneBy(['dataTable' => $dataTable, 'name' => $fieldName]);
-            
+
             if (!$column) {
                 $column = new DataCol();
                 $column->setDataTable($dataTable);
@@ -339,10 +313,10 @@ class DataService extends UserContextAwareService
                 $this->entityManager->persist($column);
                 $this->entityManager->flush(); // Flush to get the ID
             }
-            
+
             $columns[$fieldName] = $column;
         }
-        
+
         return $columns;
     }
 
@@ -355,18 +329,18 @@ class DataService extends UserContextAwareService
     private function getTriggerTypeId(array $data): int
     {
         $triggerType = $data['trigger_type'] ?? LookupService::ACTION_TRIGGER_TYPES_FINISHED;
-        
+
         $validTriggerTypes = [
             LookupService::ACTION_TRIGGER_TYPES_STARTED,
             LookupService::ACTION_TRIGGER_TYPES_UPDATED,
             LookupService::ACTION_TRIGGER_TYPES_DELETED,
             LookupService::ACTION_TRIGGER_TYPES_FINISHED
         ];
-        
+
         if (!in_array($triggerType, $validTriggerTypes)) {
             $triggerType = LookupService::ACTION_TRIGGER_TYPES_FINISHED;
         }
-        
+
         return $this->lookupService->getLookupIdByValue('actionTriggerTypes', $triggerType);
     }
 
