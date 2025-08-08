@@ -229,7 +229,7 @@ class PageService extends UserContextAwareService
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
         
         // Build nested hierarchical structure
-        $sections = $this->sectionUtilityService->buildNestedSections($flatSections);
+        $sections = $this->sectionUtilityService->buildNestedSections($flatSections, true);
         
         // Extract all section IDs from the hierarchical structure
         $sectionIds = $this->sectionUtilityService->extractSectionIds($sections);

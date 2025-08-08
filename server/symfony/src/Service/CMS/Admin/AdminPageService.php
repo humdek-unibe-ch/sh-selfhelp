@@ -88,7 +88,7 @@ class AdminPageService extends UserContextAwareService
 
         // Call stored procedure for hierarchical sections
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-        return $this->sectionUtilityService->buildNestedSections($flatSections);
+        return $this->sectionUtilityService->buildNestedSections($flatSections, false);
     }
 
     /** Private methods */

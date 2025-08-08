@@ -1082,3 +1082,63 @@ FROM users_groups ug
 INNER JOIN `groups` g ON ug.id_groups = g.id
 INNER JOIN roles  r ON r.name = 'admin'
 WHERE g.name = 'admin';
+
+-- Data management routes
+-- Create permissions for data management
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.data.read', 'Can read data and data tables'),
+  ('admin.data.delete', 'Can delete data records and data tables'),
+  ('admin.data.delete_columns', 'Can delete columns from data tables');
+
+-- Grant data permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.data.read', 'admin.data.delete', 'admin.data.delete_columns'
+);
+
+-- Insert Data API routes
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_data_tables_get_v1', 'v1', '/admin/data/tables', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::getDataTables', 'GET', NULL, NULL),
+('admin_data_get_v1', 'v1', '/admin/data', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::getData', 'GET', NULL, JSON_OBJECT(
+    'table_name', JSON_OBJECT('in', 'query', 'required', true),
+    'user_id', JSON_OBJECT('in', 'query', 'required', false),
+    'exclude_deleted', JSON_OBJECT('in', 'query', 'required', false)
+)),
+('admin_data_record_delete_v1', 'v1', '/admin/data/records/{recordId}', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::deleteRecord', 'DELETE', JSON_OBJECT(
+    'recordId', '[0-9]+'
+), JSON_OBJECT(
+    'own_entries_only', JSON_OBJECT('in', 'query', 'required', false)
+)),
+('admin_data_table_delete_v1', 'v1', '/admin/data/tables/{tableName}', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::deleteDataTable', 'DELETE', JSON_OBJECT(
+    'tableName', '[A-Za-z0-9_-]+'
+), NULL),
+('admin_data_table_columns_delete_v1', 'v1', '/admin/data/tables/{tableName}/columns', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::deleteColumns', 'DELETE', JSON_OBJECT(
+    'tableName', '[A-Za-z0-9_-]+'
+), JSON_OBJECT(
+    'columns', JSON_OBJECT('in', 'body', 'type', 'array', 'required', true)
+));
+
+-- Get columns for a table
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_data_table_columns_get_v1', 'v1', '/admin/data/tables/{tableName}/columns', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::getColumns', 'GET', JSON_OBJECT(
+    'tableName', '[A-Za-z0-9_-]+'
+), NULL);
+
+-- Link routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.read'
+WHERE ar.route_name IN ('admin_data_tables_get_v1', 'admin_data_get_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.delete'
+WHERE ar.route_name IN ('admin_data_record_delete_v1', 'admin_data_table_delete_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.delete_columns'
+WHERE ar.route_name IN ('admin_data_table_columns_delete_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.read'
+WHERE ar.route_name IN ('admin_data_table_columns_get_v1');

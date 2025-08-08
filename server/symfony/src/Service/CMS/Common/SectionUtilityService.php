@@ -41,7 +41,7 @@ class SectionUtilityService
      * @param array $sections Flat array of sections with path and level information
      * @return array Hierarchical structure of sections
      */
-    public function buildNestedSections(array $sections): array
+    public function buildNestedSections(array $sections, bool $applyData = false): array
     {
         // Create a map of sections by ID for quick lookup
         $sectionsById = [];
@@ -50,7 +50,9 @@ class SectionUtilityService
         // First pass: index all sections by ID
         foreach ($sections as $section) {
             $section['children'] = [];
-             $this->applySectionData($section);
+            if($applyData) {
+                $this->applySectionData($section);
+            }
             $sectionsById[$section['id']] = $section;
         }
 

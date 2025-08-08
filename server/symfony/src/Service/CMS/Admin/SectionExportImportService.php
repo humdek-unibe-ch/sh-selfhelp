@@ -66,7 +66,7 @@ class SectionExportImportService extends UserContextAwareService
         }
         
         // Build hierarchical structure using existing utility method
-        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections);
+        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections,false);
         
         // Add field translations to the hierarchical structure
         $this->addFieldTranslationsToSections($hierarchicalSections);
@@ -104,7 +104,7 @@ class SectionExportImportService extends UserContextAwareService
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
         
         // Build hierarchical structure
-        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections);
+        $hierarchicalSections = $this->sectionUtilityService->buildNestedSections($flatSections,false);
         
         // Find the specific section and its subtree
         $targetSection = $this->findSectionInHierarchy($hierarchicalSections, $sectionId);

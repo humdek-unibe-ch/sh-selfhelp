@@ -381,7 +381,7 @@ class DataService extends UserContextAwareService
 
     /**
      * Fetch data records from a data table using the legacy stored procedure behavior.
-     * Mirrors the old get_data($form_id, $filter, $own_entries_only, $user_id, $db_first, $exclude_deleted) logic.
+     * Mirrors the old get_data($dataTableId, $filter, $own_entries_only, $user_id, $db_first, $exclude_deleted) logic.
      *
      * - If the filter contains dynamic placeholders ("{{"), it will be ignored
      * - When ownEntriesOnly is true and userId is not provided, current user is used (or -1 if not available)
@@ -389,7 +389,7 @@ class DataService extends UserContextAwareService
      * - When dbFirst is true, the first row (or empty array) is returned
      */
     public function getData(
-        int $formId,
+        int $dataTableId,
         string $filter = '',
         bool $ownEntriesOnly = true,
         ?int $userId = null,
@@ -414,7 +414,7 @@ class DataService extends UserContextAwareService
             }
 
             $rows = $this->dataTableRepository->getDataTableWithFilter(
-                $formId,
+                $dataTableId,
                 $resolvedUserId,
                 $filter,
                 $excludeDeleted
@@ -429,7 +429,7 @@ class DataService extends UserContextAwareService
             throw new ServiceException(
                 'Failed to fetch data: ' . $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                ['previous' => $e, 'formId' => $formId]
+                ['previous' => $e, 'dataTableId' => $dataTableId]
             );
         }
     }

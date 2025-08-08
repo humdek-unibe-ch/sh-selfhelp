@@ -299,4 +299,85 @@ class DataTableService extends UserContextAwareService
             'created' => $dataTable->getTimestamp()
         ];
     }
+
+    /**
+     * Delete selected columns from a data table
+     * Returns number of deleted columns, false if table not found
+     */
+    public function deleteColumns(string $tableName, array $columnNames): int|false
+    {
+        $dataTable = $this->dataTableRepository->findOneBy(['name' => $tableName]);
+        if (!$dataTable) {
+            return false;
+        }
+
+        if (count($columnNames) === 0) {
+            return 0;
+        }
+
+        $this->entityManager->beginTransaction();
+
+        try {
+            $deletedCount = 0;
+
+            // Fetch columns by names
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb->select('dc')
+                ->from('App\\Entity\\DataCol', 'dc')
+                ->where('dc.dataTable = :dataTable')
+                ->andWhere($qb->expr()->in('dc.name', ':names'))
+                ->setParameter('dataTable', $dataTable)
+                ->setParameter('names', $columnNames);
+
+            $columns = $qb->getQuery()->getResult();
+
+            foreach ($columns as $column) {
+                $this->entityManager->remove($column);
+                $deletedCount++;
+            }
+
+            if ($deletedCount > 0) {
+                $this->transactionService->logTransaction(
+                    'delete',
+                    'transactionBy_by_system',
+                    'dataTables',
+                    $dataTable->getId()
+                );
+            }
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return $deletedCount;
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw new ServiceException(
+                'Failed to delete columns: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous' => $e, 'tableName' => $tableName]
+            );
+        }
+    }
+
+    /**
+     * Get columns for a data table by name
+     * Returns an array of column definitions [{ id, name }] or false if not found
+     */
+    public function getColumns(string $tableName): array|false
+    {
+        $dataTable = $this->dataTableRepository->findOneBy(['name' => $tableName]);
+        if (!$dataTable) {
+            return false;
+        }
+
+        $columns = $dataTable->getDataCols();
+        $result = [];
+        foreach ($columns as $col) {
+            $result[] = [
+                'id' => $col->getId(),
+                'name' => $col->getName(),
+            ];
+        }
+        return $result;
+    }
 }
