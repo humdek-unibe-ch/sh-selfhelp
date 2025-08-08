@@ -109,7 +109,9 @@ class DataTableService extends UserContextAwareService
 
         $dataTable = $this->dataTableRepository->findOneBy(['name' => $formName]);
         if (!$dataTable) {
-            return false;
+            // Create dataTable for form section if it doesn't exist
+            $this->createDataTableForFormSection($section);
+            $dataTable = $this->dataTableRepository->findOneBy(['name' => $formName]);
         }
 
         $this->entityManager->beginTransaction();
