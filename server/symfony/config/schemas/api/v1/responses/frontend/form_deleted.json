@@ -1,15 +1,26 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
   "title": "Form Deleted Response",
-  "description": "Schema for successful form deletion response",
-  "required": ["record_id"],
-  "properties": {
-    "record_id": {
-      "type": "integer",
-      "description": "The ID of the deleted record",
-      "minimum": 1
+  "description": "Response schema for successful form deletion",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" },
+    {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "integer",
+              "description": "The ID of the deleted record",
+              "minimum": 1
+            }
+          },
+          "required": ["record_id"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["data"]
     }
-  },
-  "additionalProperties": false
+  ]
 }

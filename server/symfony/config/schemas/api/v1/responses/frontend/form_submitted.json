@@ -1,34 +1,51 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
   "title": "Form Submitted Response",
-  "description": "Schema for successful form submission response",
-  "required": ["record_id", "section_id", "page_id", "submitted_at", "user_authenticated"],
-  "properties": {
-    "record_id": {
-      "type": "integer",
-      "description": "The ID of the created record",
-      "minimum": 1
-    },
-    "section_id": {
-      "type": "integer",
-      "description": "The section ID that was submitted",
-      "minimum": 1
-    },
-    "page_id": {
-      "type": "integer",
-      "description": "The ID of the page containing the form",
-      "minimum": 1
-    },
-    "submitted_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when the form was submitted"
-    },
-    "user_authenticated": {
-      "type": "boolean",
-      "description": "Whether the user was authenticated during submission"
+  "description": "Response schema for successful form submission",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" },
+    {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "integer",
+              "description": "The ID of the created record",
+              "minimum": 1
+            },
+            "section_id": {
+              "type": "integer",
+              "description": "The section ID that was submitted",
+              "minimum": 1
+            },
+            "page_id": {
+              "type": "integer",
+              "description": "The ID of the page containing the form",
+              "minimum": 1
+            },
+            "submitted_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp when the form was submitted"
+            },
+            "user_authenticated": {
+              "type": "boolean",
+              "description": "Whether the user was authenticated during submission"
+            }
+          },
+          "required": [
+            "record_id",
+            "section_id",
+            "page_id",
+            "submitted_at",
+            "user_authenticated"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": ["data"]
     }
-  },
-  "additionalProperties": false
+  ]
 }

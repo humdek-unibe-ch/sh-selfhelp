@@ -79,7 +79,7 @@ class FormController extends AbstractController
                 'record_id' => $recordId,
                 'section_id' => $sectionId,
                 'page_id' => $pageId,
-                'submitted_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'submitted_at' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
                 'user_authenticated' => $isAuthenticated
             ];
 
@@ -148,7 +148,7 @@ class FormController extends AbstractController
                 'record_id' => $recordId,
                 'section_id' => $sectionId,
                 'page_id' => $pageId,
-                'updated_at' => (new \DateTime())->format('Y-m-d H:i:s')
+                'updated_at' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)
             ];
 
             return $this->apiResponseFormatter->formatSuccess(
