@@ -391,4 +391,74 @@ class DataService extends UserContextAwareService
     {
         return $this->dataTableRepository->findOneBy(['displayName' => $displayName]);
     }
+
+    /**
+     * Get the last record of a data table
+     * 
+     * @param string $dataTableName Data table name
+     * @return array
+     */
+    public function getFormUserInputRecordData(string $dataTableName): array
+    {
+        $dataTableId = $this->dataTableRepository->getDataTableIdByName($dataTableName);
+        $data = $this->getData($dataTableId, 'ORDER BY record_id DESC LIMIT 1', true, $this->userContextService->getCurrentUser()->getId(), false, true);
+        return $data;
+    }
+
+    /**
+     * Fetch data records from a data table using the legacy stored procedure behavior.
+     * Mirrors the old get_data($form_id, $filter, $own_entries_only, $user_id, $db_first, $exclude_deleted) logic.
+     *
+     * - If the filter contains dynamic placeholders ("{{"), it will be ignored
+     * - When ownEntriesOnly is true and userId is not provided, current user is used (or -1 if not available)
+     * - When ownEntriesOnly is false and userId is not provided, -1 is used to fetch all users
+     * - When dbFirst is true, the first row (or empty array) is returned
+     */
+    public function getData(
+        int $formId,
+        string $filter = '',
+        bool $ownEntriesOnly = true,
+        ?int $userId = null,
+        bool $dbFirst = false,
+        bool $excludeDeleted = true
+    ): array {
+        try {
+            // Guard: ignore malformed dynamic filter attempts
+            if (str_contains($filter, '{{')) {
+                $filter = '';
+            }
+
+            // Resolve user id as per legacy rules
+            $resolvedUserId = $userId;
+            if ($resolvedUserId === null) {
+                if ($ownEntriesOnly) {
+                    $currentUser = $this->userContextService->getCurrentUser();
+                    $resolvedUserId = $currentUser ? $currentUser->getId() : -1;
+                } else {
+                    $resolvedUserId = -1; // all users
+                }
+            }
+
+            $rows = $this->dataTableRepository->getDataTableWithFilter(
+                $formId,
+                $resolvedUserId,
+                $filter,
+                $excludeDeleted
+            );
+
+            if ($dbFirst) {
+                return isset($rows[0]) ? $rows[0] : [];
+            }
+
+            return $rows;
+        } catch (\Throwable $e) {
+            throw new ServiceException(
+                'Failed to fetch data: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous' => $e, 'formId' => $formId]
+            );
+        }
+    }
+
+
 }

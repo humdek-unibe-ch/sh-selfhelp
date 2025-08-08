@@ -291,7 +291,9 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'update_based_on', JSON_OBJECT('in', 'body', 'required', false)
 )),
 ('form_delete', 'v1', '/forms/delete', 'App\\Controller\\Api\\V1\\Frontend\\FormController::deleteForm', 'DELETE', NULL, JSON_OBJECT(
-    'record_id', JSON_OBJECT('in', 'query', 'required', true)
+    'record_id', JSON_OBJECT('in', 'body', 'required', true),
+    'page_id', JSON_OBJECT('in', 'body', 'required', true),
+    'section_id', JSON_OBJECT('in', 'body', 'required', true)
 ));
 
 -- add `admin.page.read` requirements to routes

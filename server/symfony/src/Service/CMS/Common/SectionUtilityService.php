@@ -3,6 +3,7 @@
 namespace App\Service\CMS\Common;
 
 use App\Repository\StylesFieldRepository;
+use App\Service\CMS\DataService;
 
 /**
  * Utility service for section-related operations
@@ -10,20 +11,17 @@ use App\Repository\StylesFieldRepository;
  */
 class SectionUtilityService
 {
+    public function __construct(
+        private readonly DataService $dataService,
+        ?StylesFieldRepository $stylesFieldRepository = null
+    ) {
+        $this->stylesFieldRepository = $stylesFieldRepository;
+    }
+
     /**
      * @var StylesFieldRepository|null
      */
     private ?StylesFieldRepository $stylesFieldRepository = null;
-    
-    /**
-     * Constructor
-     * 
-     * @param StylesFieldRepository|null $stylesFieldRepository Optional repository for styles fields
-     */
-    public function __construct(?StylesFieldRepository $stylesFieldRepository = null)
-    {
-        $this->stylesFieldRepository = $stylesFieldRepository;
-    }
     
     /**
      * Set the StylesFieldRepository
@@ -52,6 +50,7 @@ class SectionUtilityService
         // First pass: index all sections by ID
         foreach ($sections as $section) {
             $section['children'] = [];
+             $this->applySectionData($section);
             $sectionsById[$section['id']] = $section;
         }
 
@@ -216,5 +215,30 @@ class SectionUtilityService
         
         // Fallback for unexpected input
         return [];
+    }
+
+    /**
+     * Apply data to sections
+     * 
+     * @param array &$sections The sections to apply data to (passed by reference)
+     */
+    public function applySectionsData(array &$sections): void
+    {
+        foreach ($sections as $section) {
+            $this->applySectionData($section);
+        }
+    }
+
+    /**
+     * Apply data to a section
+     * 
+     * @param array &$section The section to apply data to (passed by reference)
+     */
+    public function applySectionData(array &$section): void
+    {        
+         $section['section_data'] = [];
+         if($section['style_name'] == 'formUserInputRecord') {
+            $section['section_data'] = $this->dataService->getFormUserInputRecordData($section['id']);
+         }
     }
 }

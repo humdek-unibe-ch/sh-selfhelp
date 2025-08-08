@@ -2,13 +2,8 @@
 
 namespace App\Service\CMS;
 
-use App\Entity\Page;
-use App\Entity\Section;
-use App\Entity\PagesSection;
-use App\Entity\SectionsFieldsTranslation;
-use App\Entity\SectionsHierarchy;
-use App\Entity\DataTable;
 use App\Exception\ServiceException;
+use App\Service\CMS\Common\StyleNames;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -62,11 +57,59 @@ class FormValidationService extends UserContextAwareService
             $this->throwNotFound('Section not found');
         }
 
+        // Ensure section style allows submissions
+        $styleName = $section->getStyle()?->getName();
+        if (!in_array($styleName, StyleNames::FORM_STYLE_NAMES, true)) {
+            throw new ServiceException(
+                'Invalid section type for submission',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         // Validate that the section belongs to the page using stored procedure
         $this->validateSectionBelongsToPage($pageId, $sectionId);
 
         // Validate form data structure
         $this->validateFormData($formData);
+
+        return [
+            'page' => $page,
+            'section' => $section,
+            'validated' => true
+        ];
+    }
+
+    /**
+     * Validate delete request: ACL delete permission, section in page, and correct section type
+     */
+    public function validateFormDeletion(int $pageId, int $sectionId): array
+    {
+        // Find the page
+        $page = $this->pageRepository->find($pageId);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
+        // Check delete permission on page
+        $this->checkAccess($page->getKeyword(), 'delete');
+
+        // Find the section
+        $section = $this->sectionRepository->find($sectionId);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
+        }
+
+        // Ensure section belongs to the page
+        $this->validateSectionBelongsToPage($pageId, $sectionId);
+
+        // Ensure section style is the display/input form type
+        $styleName = $section->getStyle()?->getName();
+        if ($styleName !== StyleNames::STYLE_SHOW_USER_INPUT) {
+            throw new ServiceException(
+                'Invalid section type for delete operation',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         return [
             'page' => $page,
@@ -191,6 +234,15 @@ class FormValidationService extends UserContextAwareService
 
         // Validate that the section belongs to the page using stored procedure
         $this->validateSectionBelongsToPage($pageId, $sectionId);
+
+        // Ensure section style allows submissions (public)
+        $styleName = $section->getStyle()?->getName();
+        if (!in_array($styleName, StyleNames::FORM_STYLE_NAMES, true)) {
+            throw new ServiceException(
+                'Invalid section type for submission',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         return [
             'page' => $page,

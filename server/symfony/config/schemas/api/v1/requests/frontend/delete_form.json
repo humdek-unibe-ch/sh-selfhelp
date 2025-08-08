@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Delete Form Request",
+  "description": "Schema for deleting a form record",
+  "required": ["record_id", "page_id", "section_id"],
+  "properties": {
+    "record_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the record to delete"
+    },
+    "page_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the page containing the form"
+    },
+    "section_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The section ID of the form"
+    }
+  },
+  "additionalProperties": false
+}
+
+

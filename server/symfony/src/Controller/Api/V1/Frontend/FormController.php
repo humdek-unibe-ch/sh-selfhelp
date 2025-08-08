@@ -184,13 +184,14 @@ class FormController extends AbstractController
                 );
             }
 
-            $recordId = $request->query->getInt('record_id');
-            if (!$recordId) {
-                return $this->apiResponseFormatter->formatError(
-                    'record_id parameter is required',
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            // Validate request schema (DELETE with JSON body)
+            $requestData = $this->validateRequest($request, 'requests/frontend/delete_form', $this->jsonSchemaValidationService);
+            $recordId = (int) $requestData['record_id'];
+            $pageId = (int) $requestData['page_id'];
+            $sectionId = (int) $requestData['section_id'];
+
+            // Validate ACL delete access and that section belongs to page and is correct type
+            $this->formValidationService->validateFormDeletion($pageId, $sectionId);
 
             // Delete form data
             $success = $this->dataService->deleteData($recordId, true);
@@ -203,7 +204,11 @@ class FormController extends AbstractController
             }
 
             return $this->apiResponseFormatter->formatSuccess(
-                ['record_id' => $recordId],
+                [
+                    'record_id' => $recordId,
+                    'section_id' => $sectionId,
+                    'page_id' => $pageId,
+                ],
                 'responses/frontend/form_deleted'
             );
 

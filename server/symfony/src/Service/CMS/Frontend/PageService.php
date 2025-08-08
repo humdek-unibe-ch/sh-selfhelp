@@ -268,6 +268,8 @@ class PageService extends UserContextAwareService
         
         // Apply translations to the sections recursively with fallback
         $this->sectionUtilityService->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
+
+        $this->sectionUtilityService->applySectionsData($sections);
         
         return $sections;
     }

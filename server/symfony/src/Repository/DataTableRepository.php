@@ -30,4 +30,16 @@ class DataTableRepository extends ServiceEntityRepository
 
         return $result->fetchAllAssociative();
     }
+
+    /**
+     * Get data table id by name
+     * 
+     * @param string $name Data table name
+     * @return int Data table id
+     */
+    public function getDataTableIdByName(string $name): int
+    {
+        $dataTable = $this->findOneBy(['name' => $name]);
+        return $dataTable->getId();
+    }
 }

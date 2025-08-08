@@ -5,7 +5,7 @@ namespace App\Service\CMS;
 use App\Entity\DataTable;
 use App\Entity\Section;
 use App\Exception\ServiceException;
-use App\Service\CMS\Common\FormStyleNames;
+use App\Service\CMS\Common\StyleNames;
 use App\Repository\DataTableRepository;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
@@ -174,7 +174,7 @@ class DataTableService extends UserContextAwareService
             return false;
         }
         
-        return in_array($style->getName(), FormStyleNames::FORM_STYLE_NAMES);
+        return in_array($style->getName(), StyleNames::FORM_STYLE_NAMES);
     }    
 
     /**
