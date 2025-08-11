@@ -1142,3 +1142,13 @@ WHERE ar.route_name IN ('admin_data_table_columns_delete_v1');
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.read'
 WHERE ar.route_name IN ('admin_data_table_columns_get_v1');
+
+-- Get column names for a table
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_data_table_column_names_get_v1', 'v1', '/admin/data/tables/{tableName}/column-names', 'App\\Controller\\Api\\V1\\Admin\\AdminDataController::getColumnNames', 'GET', JSON_OBJECT(
+    'tableName', '[A-Za-z0-9_-]+'
+), NULL);
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.read'
+WHERE ar.route_name IN ('admin_data_table_column_names_get_v1');

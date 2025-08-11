@@ -187,6 +187,30 @@ class AdminDataController extends AbstractController
             );
         }
     }
+
+    /**
+     * Get column names for a given data table
+     */
+    public function getColumnNames(string $tableName): JsonResponse
+    {
+        try {
+            $columnNames = $this->dataTableService->getColumnsNames($tableName);
+            if ($columnNames === false) {
+                return $this->responseFormatter->formatError('Data table not found', Response::HTTP_NOT_FOUND);
+            }
+            return $this->responseFormatter->formatSuccess(['columnNames' => $columnNames]);
+        } catch (ServiceException $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                $e->getCode() ?: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        } catch (\Throwable $e) {
+            return $this->responseFormatter->formatError(
+                'Failed to fetch column names',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }
 
 

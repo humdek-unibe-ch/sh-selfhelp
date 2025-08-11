@@ -382,4 +382,23 @@ class DataTableService extends UserContextAwareService
         }
         return $result;
     }
+
+     /**
+     * Get columns for a data table by name
+     * Returns an array of column names or false if not found
+     */
+    public function getColumnsNames(string $tableName): array|false
+    {
+        $dataTable = $this->dataTableRepository->findOneBy(['name' => $tableName]);
+        if (!$dataTable) {
+            return false;
+        }
+
+        $columns = $dataTable->getDataCols();
+        $result = ['record_id', 'entry_date', 'user_code', 'id_users', 'user_name', 'triggerType'];
+        foreach ($columns as $col) {
+            $result[] = $col->getName();
+        }
+        return $result;
+    }
 }
