@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Update Action Request",
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string" },
+    "id_actionTriggerTypes": { "type": ["integer", "null"] },
+    "config": { "$ref": "action_config.json" },
+    "id_dataTables": { "type": ["integer", "null"] }
+  }
+}
+
+

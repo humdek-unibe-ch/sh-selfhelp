@@ -955,6 +955,74 @@ WHERE ar.`route_name` IN (
   'admin_cms_preferences_update_v1'
 );
 
+-- Actions management permissions
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.action.read', 'Can read actions'),
+  ('admin.action.update', 'Can update actions'),
+  ('admin.action.delete', 'Can delete actions');
+
+-- Grant permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.action.read', 'admin.action.update', 'admin.action.delete'
+);
+
+-- Insert Actions API routes
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_actions_get_all_v1', 'v1', '/admin/actions', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::getActions', 'GET', NULL, JSON_OBJECT(
+    'page', JSON_OBJECT('in', 'query', 'required', false),
+    'pageSize', JSON_OBJECT('in', 'query', 'required', false),
+    'search', JSON_OBJECT('in', 'query', 'required', false),
+    'sort', JSON_OBJECT('in', 'query', 'required', false),
+    'sortDirection', JSON_OBJECT('in', 'query', 'required', false)
+)),
+('admin_actions_update_v1', 'v1', '/admin/actions/{actionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::updateAction', 'PUT', JSON_OBJECT(
+    'actionId', '[0-9]+'
+), JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', false),
+    'id_actionTriggerTypes', JSON_OBJECT('in', 'body', 'required', false),
+    'config', JSON_OBJECT('in', 'body', 'required', false),
+    'id_dataTables', JSON_OBJECT('in', 'body', 'required', false)
+)),
+('admin_actions_delete_v1', 'v1', '/admin/actions/{actionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::deleteAction', 'DELETE', JSON_OBJECT(
+    'actionId', '[0-9]+'
+), NULL);
+
+-- Create action route
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_actions_create_v1', 'v1', '/admin/actions', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::createAction', 'POST', NULL, JSON_OBJECT(
+    'name', JSON_OBJECT('in', 'body', 'required', true),
+    'id_actionTriggerTypes', JSON_OBJECT('in', 'body', 'required', true),
+    'config', JSON_OBJECT('in', 'body', 'required', false)
+));
+
+-- Link Actions routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.action.read'
+WHERE ar.`route_name` IN ('admin_actions_get_all_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.action.update'
+WHERE ar.`route_name` IN ('admin_actions_update_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.action.delete'
+WHERE ar.`route_name` IN ('admin_actions_delete_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.action.update'
+WHERE ar.`route_name` IN ('admin_actions_create_v1');
+
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT
   ar.`id`      AS id_api_routes,

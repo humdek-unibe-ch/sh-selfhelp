@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Create Action Request",
+  "additionalProperties": false,
+  "required": ["name", "id_actionTriggerTypes"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "id_actionTriggerTypes": { "type": "integer" },
+    "config": { "$ref": "action_config.json" }
+  }
+}
+
+

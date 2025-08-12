@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Action",
+  "properties": {
+    "id": { "type": "integer" },
+    "name": { "type": "string" },
+    "action_trigger_type": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": { "type": "integer" },
+        "type_code": { "type": "string" },
+        "lookup_code": { "type": ["string", "null"] },
+        "lookup_value": { "type": ["string", "null"] }
+      },
+      "required": ["id", "type_code"],
+      "additionalProperties": false
+    },
+    "config": { "type": ["object", "null"] },
+    "data_table": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "displayName": { "type": ["string", "null"] }
+      },
+      "required": ["id", "name"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "name"],
+  "additionalProperties": false
+}
+
+

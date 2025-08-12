@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Actions List Response Envelope",
+  "properties": {
+    "status": { "type": "integer" },
+    "message": { "type": "string" },
+    "error": { "type": ["string", "null"] },
+    "logged_in": { "type": "boolean" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["version", "timestamp"],
+      "additionalProperties": false
+    },
+    "data": { "$ref": "actions.json" }
+  },
+  "required": ["status", "message", "error", "logged_in", "meta", "data"],
+  "additionalProperties": false
+}
+
+
