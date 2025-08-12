@@ -183,7 +183,7 @@ public function getPages(Request $request): JsonResponse
     
     return $this->responseFormatter->formatSuccess(
         $result['data'],
-        'responses/admin/pages',
+        'responses/admin/pages/page',
         Response::HTTP_OK
     );
 }
@@ -250,7 +250,7 @@ class AdminPageController extends AbstractController
             
             return $this->responseFormatter->formatSuccess(
                 $page,
-                'responses/admin/page',
+                'responses/admin/pages/page',
                 Response::HTTP_CREATED
             );
             
@@ -539,7 +539,7 @@ public function getPages(Request $request): JsonResponse
         return $this->adminPageService->getPages($this->buildFilters($request));
     });
     
-    return $this->responseFormatter->formatSuccess($data, 'responses/admin/pages');
+    return $this->responseFormatter->formatSuccess($data, 'responses/admin/pages/page');
 }
 ```
 

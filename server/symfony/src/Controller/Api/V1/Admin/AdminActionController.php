@@ -37,7 +37,7 @@ class AdminActionController extends AbstractController
 
             return $this->responseFormatter->formatSuccess(
                 $result,
-                'responses/admin/action_envelope',
+                'responses/admin/actions/action_envelope',
                 Response::HTTP_CREATED
             );
         } catch (\Throwable $e) {
@@ -65,7 +65,7 @@ class AdminActionController extends AbstractController
 
             return $this->responseFormatter->formatSuccess(
                 $result,
-                'responses/admin/actions_envelope'
+                'responses/admin/actions/actions_envelope'
             );
         } catch (\Throwable $e) {
             $message = $e instanceof ServiceException ? $e->getMessage() : 'Internal Server Error';
@@ -88,7 +88,7 @@ class AdminActionController extends AbstractController
 
             return $this->responseFormatter->formatSuccess(
                 $result,
-                'responses/admin/action_envelope'
+                'responses/admin/actions/action_envelope'
             );
         } catch (\Throwable $e) {
             $message = $e instanceof ServiceException ? $e->getMessage() : 'Internal Server Error';
@@ -106,7 +106,7 @@ class AdminActionController extends AbstractController
     {
         try {
             $this->adminActionService->deleteAction($actionId);
-            return $this->responseFormatter->formatSuccess(['deleted' => true], 'responses/admin/action_deleted_envelope');
+            return $this->responseFormatter->formatSuccess(['deleted' => true], 'responses/admin/actions/action_deleted_envelope');
         } catch (\Throwable $e) {
             $message = $e instanceof ServiceException ? $e->getMessage() : 'Internal Server Error';
             $status = $e instanceof ServiceException ? $e->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;

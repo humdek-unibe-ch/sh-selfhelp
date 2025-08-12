@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Users List Response Envelope",
+  "description": "Standard API response envelope for users list",
+  "properties": {
+    "status": { "type": "integer", "description": "HTTP status code" },
+    "message": { "type": "string", "description": "Response message" },
+    "logged_in": { "type": "boolean", "description": "Whether user is logged in" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string", "description": "API version" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Response timestamp" }
+      },
+      "required": ["version", "timestamp"],
+      "additionalProperties": false
+    },
+    "data": { "$ref": "users.json" }
+  },
+  "required": ["status", "message", "logged_in", "meta", "data"],
+  "additionalProperties": false
+}
+
+

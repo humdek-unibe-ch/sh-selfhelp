@@ -3,23 +3,17 @@
     "title": "Admin Page Fields Response",
     "description": "Schema for the response containing page details with its fields and translations",
     "allOf": [
-        {
-            "$ref": "../common/_response_envelope.json"
-        }
+        { "$ref": "../../common/_response_envelope.json" }
     ],
     "properties": {
         "data": {
             "type": "object",
             "properties": {
-                "page": {
-                    "$ref": "../../entities/pageEntity.json"
-                },
+                "page": { "$ref": "../../entities/pageEntity.json" },
                 "fields": {
                     "type": "array",
                     "description": "List of fields associated with the page",
-                    "items": {
-                        "$ref": "../../entities/fieldEntity.json"
-                    }
+                    "items": { "$ref": "../../entities/fieldEntity.json" }
                 }
             },
             "required": ["page", "fields"]
@@ -27,3 +21,5 @@
     },
     "required": ["data"]
 }
+
+

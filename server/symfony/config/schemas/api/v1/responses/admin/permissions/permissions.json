@@ -9,19 +9,9 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Permission ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Permission name (e.g., 'admin.user.read')"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Permission description"
-          }
+          "id": { "type": "integer", "description": "Permission ID" },
+          "name": { "type": "string", "description": "Permission name (e.g., 'admin.user.read')" },
+          "description": { "type": "string", "nullable": true, "description": "Permission description" }
         },
         "required": ["id", "name", "description"],
         "additionalProperties": false
@@ -30,4 +20,6 @@
   },
   "required": ["permissions"],
   "additionalProperties": false
-} 
+}
+
+

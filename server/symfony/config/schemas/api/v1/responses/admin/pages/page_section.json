@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PageSectionResponseEnvelope",
   "allOf": [
-    { "$ref": "../common/_response_envelope.json" },
+    { "$ref": "../../common/_response_envelope.json" },
     {
       "type": "object",
       "properties": {
@@ -12,3 +12,5 @@
     }
   ]
 }
+
+

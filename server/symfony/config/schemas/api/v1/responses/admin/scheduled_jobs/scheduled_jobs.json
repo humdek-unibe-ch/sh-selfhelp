@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Scheduled Jobs List Response",
+  "description": "Response envelope for scheduled jobs list with pagination",
+  "allOf": [
+    { "$ref": "../../common/_response_envelope.json" },
+    {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "scheduledJobs": {
+              "type": "array",
+              "items": { "$ref": "scheduled_job_item.json" }
+            },
+            "totalCount": { "type": "integer", "description": "Total number of jobs" },
+            "page": { "type": "integer", "description": "Current page number" },
+            "pageSize": { "type": "integer", "description": "Number of jobs per page" },
+            "totalPages": { "type": "number", "description": "Total number of pages" }
+          },
+          "required": ["scheduledJobs", "totalCount", "page", "pageSize", "totalPages"]
+        }
+      },
+      "required": ["data"]
+    }
+  ]
+}
+
+

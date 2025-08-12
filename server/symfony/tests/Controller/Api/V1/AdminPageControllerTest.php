@@ -35,7 +35,7 @@ class AdminPageControllerTest extends BaseControllerTest
         // Validate response against JSON schema
         $validationErrors = $this->jsonSchemaValidationService->validate(
             $data, // Validate the full response object
-            'responses/admin/page_sections' // Schema for page sections
+            'responses/admin/pages/page_sections' // Schema for page sections
         );
         $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages/task/sections failed schema validation:\n" . implode("\n", $validationErrors));
     }
@@ -96,7 +96,7 @@ class AdminPageControllerTest extends BaseControllerTest
         // Validate response against JSON schema
         $validationErrors = $this->jsonSchemaValidationService->validate(
             $data, // Validate the full response object
-            'responses/admin/get_page_fields' // Schema for page fields
+            'responses/admin/pages/get_page_fields' // Schema for page fields
         );
         $this->assertEmpty($validationErrors, "Response for /cms-api/v1/admin/pages/home/fields failed schema validation:\n" . implode("\n", $validationErrors));
     }

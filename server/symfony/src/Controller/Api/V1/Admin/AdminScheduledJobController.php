@@ -32,16 +32,7 @@ class AdminScheduledJobController extends AbstractController
      * 
      * @route /admin/scheduled-jobs
      * @method GET
-     * @param page: which page of results (default: 1)
-     * @param pageSize: how many jobs per page (default: 20, max: 100)
-     * @param search: search term for description, id, user name, or task name
-     * @param status: filter by job status
-     * @param jobType: filter by job type
-     * @param dateFrom: start date for date range filter
-     * @param dateTo: end date for date range filter
-     * @param dateType: type of date to filter (date_create, date_to_be_executed, date_executed)
-     * @param sort: sort field (id, date_create, date_to_be_executed, date_executed, description)
-     * @param sortDirection: asc or desc (default: asc)
+     * Query params: page, pageSize, search, status, jobType, dateFrom, dateTo, dateType, sort, sortDirection
      */
     public function getScheduledJobs(Request $request): JsonResponse
     {
@@ -74,7 +65,7 @@ class AdminScheduledJobController extends AbstractController
                 $sortDirection
             );
 
-            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_jobs');
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_jobs/scheduled_jobs');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -97,7 +88,7 @@ class AdminScheduledJobController extends AbstractController
             // Add transactions to the job detail
             $job['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
             
-            return $this->responseFormatter->formatSuccess($job, 'responses/admin/scheduled_job');
+            return $this->responseFormatter->formatSuccess($job, 'responses/admin/scheduled_jobs/scheduled_job');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -121,7 +112,7 @@ class AdminScheduledJobController extends AbstractController
                 $result['transactions'] = $this->adminScheduledJobService->getJobTransactions($jobId);
             }
 
-            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_job');
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/scheduled_jobs/scheduled_job');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -160,7 +151,7 @@ class AdminScheduledJobController extends AbstractController
         try {
             $transactions = $this->adminScheduledJobService->getJobTransactions($jobId);
             
-            return $this->responseFormatter->formatSuccess($transactions,  'responses/admin/job_transactions');
+            return $this->responseFormatter->formatSuccess($transactions,  'responses/admin/scheduled_jobs/job_transactions');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),

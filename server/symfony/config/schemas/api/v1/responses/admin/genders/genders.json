@@ -10,14 +10,8 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Gender ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Gender name"
-          }
+          "id": { "type": "integer", "description": "Gender ID" },
+          "name": { "type": "string", "description": "Gender name" }
         },
         "required": ["id", "name"],
         "additionalProperties": false
@@ -26,4 +20,6 @@
   },
   "required": ["genders"],
   "additionalProperties": false
-} 
+}
+
+

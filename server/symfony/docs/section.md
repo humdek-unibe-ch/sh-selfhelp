@@ -156,7 +156,7 @@ The response follows the standard API envelope pattern and includes the followin
 ### JSON Schema
 
 The response is validated against the JSON schema located at:
-`/config/schemas/api/v1/responses/admin/section.json`
+`/config/schemas/api/v1/responses/admin/sections/section.json`
 
 ### Implementation Details
 

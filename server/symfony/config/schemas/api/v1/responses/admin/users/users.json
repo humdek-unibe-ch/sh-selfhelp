@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Users List Response",
+  "description": "Schema for paginated users list response",
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": { "$ref": "user.json" },
+      "description": "Array of users"
+    },
+    "pagination": {
+      "type": "object",
+      "properties": {
+        "page": { "type": "integer", "description": "Current page number" },
+        "pageSize": { "type": "integer", "description": "Number of items per page" },
+        "totalCount": { "type": "integer", "description": "Total number of users" },
+        "totalPages": { "type": "integer", "description": "Total number of pages" },
+        "hasNext": { "type": "boolean", "description": "Whether there is a next page" },
+        "hasPrevious": { "type": "boolean", "description": "Whether there is a previous page" }
+      },
+      "required": ["page", "pageSize", "totalCount", "totalPages", "hasNext", "hasPrevious"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["users", "pagination"],
+  "additionalProperties": false
+}
+
+

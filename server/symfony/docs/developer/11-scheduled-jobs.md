@@ -532,7 +532,7 @@ class AdminScheduledJobController extends AbstractController
 
             return $this->responseFormatter->formatSuccess(
                 $result['data'],
-                'responses/admin/scheduled_jobs'
+                'responses/admin/scheduled_jobs/scheduled_jobs'
             );
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -553,7 +553,7 @@ class AdminScheduledJobController extends AbstractController
             $job = $this->adminScheduledJobService->getScheduledJobById($jobId);
             return $this->responseFormatter->formatSuccess(
                 $job,
-                'responses/admin/scheduled_job'
+                'responses/admin/scheduled_jobs/scheduled_job'
             );
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -585,7 +585,7 @@ class AdminScheduledJobController extends AbstractController
 
             return $this->responseFormatter->formatSuccess(
                 $this->adminScheduledJobService->formatJobForResponse($job),
-                'responses/admin/scheduled_job'
+                'responses/admin/scheduled_jobs/scheduled_job'
             );
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(

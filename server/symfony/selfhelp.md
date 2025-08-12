@@ -959,14 +959,14 @@ public function getPages(): JsonResponse
 {
     return $this->executeServiceMethod(function() {
         return $this->adminPageService->getPages();
-    }, [], 'responses/admin/pages');
+    }, [], 'responses/admin/pages/page');
 }
 
 public function getPageFields(string $page_keyword): JsonResponse
 {
     return $this->executeServiceMethod(function() use ($page_keyword) {
         return $this->adminPageService->getPageFields($page_keyword);
-    }, ['page_keyword' => $page_keyword], 'responses/admin/page_fields');
+    }, ['page_keyword' => $page_keyword], 'responses/admin/pages/get_page_fields');
 }
 
 public function getPageSections(string $page_keyword): JsonResponse
@@ -977,7 +977,7 @@ public function getPageSections(string $page_keyword): JsonResponse
             'page_keyword' => $page_keyword,
             'sections' => $sections
         ];
-    }, [], 'responses/admin/page_sections');
+    }, [], 'responses/admin/pages/page_sections');
 }
 
 public function updatePage(string $page_keyword, Request $request): JsonResponse
@@ -1006,7 +1006,7 @@ public function updatePage(string $page_keyword, Request $request): JsonResponse
         
         // Return updated page with fields
         return $this->adminPageService->getPageFields($page->getKeyword());
-    }, [], 'responses/admin/page_fields');
+    }, [], 'responses/admin/pages/get_page_fields');
 }
 ```
 - **Service Method Execution**: Simplified pattern for executing service methods with automatic error handling

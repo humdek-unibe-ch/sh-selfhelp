@@ -43,7 +43,7 @@ class AdminAssetController extends AbstractController
             $folder = $request->query->get('folder');
 
             $result = $this->adminAssetService->getAllAssets($page, $pageSize, $search, $folder);
-            return $this->responseFormatter->formatSuccess($result, 'responses/admin/assets');
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/assets/assets');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -62,7 +62,7 @@ class AdminAssetController extends AbstractController
     {
         try {
             $asset = $this->adminAssetService->getAssetById($assetId);
-            return $this->responseFormatter->formatSuccess($asset, 'responses/admin/asset');
+            return $this->responseFormatter->formatSuccess($asset, 'responses/admin/assets/asset');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -110,7 +110,7 @@ class AdminAssetController extends AbstractController
                 $asset = $this->adminAssetService->createAsset($files[0], $data, $overwrite);
                 return $this->responseFormatter->formatSuccess(
                     $asset,
-                    'responses/admin/asset',
+                    'responses/admin/assets/asset',
                     Response::HTTP_CREATED
                 );
             } else {
@@ -123,7 +123,7 @@ class AdminAssetController extends AbstractController
                 
                 return $this->responseFormatter->formatSuccess(
                     $result,
-                    'responses/admin/assets_upload',
+                    'responses/admin/assets/assets_upload',
                     $statusCode
                 );
             }

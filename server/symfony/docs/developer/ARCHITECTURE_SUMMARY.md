@@ -171,7 +171,7 @@ public function createResource(Request $request): JsonResponse
 ```
 config/schemas/api/v1/
 ├── requests/admin/create_page.json
-├── responses/admin/page.json
+├── responses/admin/pages/page.json
 └── entities/pageEntity.json
 ```
 

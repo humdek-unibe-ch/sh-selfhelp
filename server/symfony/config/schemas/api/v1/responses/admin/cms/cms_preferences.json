@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "CMS Preferences Response",
+  "description": "Response schema for CMS preferences",
+  "properties": {
+    "id": { "type": "integer", "description": "CMS preferences ID" },
+    "callback_api_key": { "type": ["string", "null"], "description": "Callback API key" },
+    "default_language_id": { "type": ["integer", "null"], "description": "Default language ID" },
+    "default_language": {
+      "type": ["object", "null"],
+      "description": "Default language details",
+      "properties": {
+        "id": { "type": "integer", "description": "Language ID" },
+        "locale": { "type": "string", "description": "Language locale" },
+        "language": { "type": "string", "description": "Language name" }
+      },
+      "required": ["id", "locale", "language"],
+      "additionalProperties": false
+    },
+    "anonymous_users": { "type": "integer", "description": "Allow anonymous users" },
+    "firebase_config": { "type": ["string", "null"], "description": "Firebase configuration" }
+  },
+  "required": ["id", "callback_api_key", "default_language_id", "default_language", "anonymous_users", "firebase_config"],
+  "additionalProperties": false
+}
+
+

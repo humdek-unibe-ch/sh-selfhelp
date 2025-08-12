@@ -641,7 +641,7 @@ class AdminTransactionController extends AbstractController
             
             return $this->responseFormatter->formatSuccess(
                 $formattedTransactions,
-                'responses/admin/transactions'
+                'responses/admin/scheduled_jobs/job_transactions'
             );
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -668,7 +668,7 @@ class AdminTransactionController extends AbstractController
             
             return $this->responseFormatter->formatSuccess(
                 $formattedTransactions,
-                'responses/admin/transactions'
+                'responses/admin/scheduled_jobs/job_transactions'
             );
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(

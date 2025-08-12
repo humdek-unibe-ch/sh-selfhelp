@@ -96,7 +96,7 @@ class AdminPageController extends AbstractController
             return $this->responseFormatter->formatSuccess([
                 'pageKeyword' => $page_keyword,
                 'sections' => $sections
-            ], 'responses/admin/page_sections');
+            ], 'responses/admin/pages/page_sections');
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
         } catch (\Exception $e) {
@@ -135,7 +135,7 @@ class AdminPageController extends AbstractController
             // Return success response
             return $this->responseFormatter->formatSuccess(
                 $page,
-                'responses/admin/page',
+                'responses/admin/pages/page',
                 Response::HTTP_CREATED
             );
         } catch (ServiceException $e) {
@@ -160,7 +160,7 @@ class AdminPageController extends AbstractController
             $page = $this->adminPageService->deletePage($page_keyword);
             return $this->responseFormatter->formatSuccess( 
                 $page,
-                'responses/admin/page'
+                'responses/admin/pages/page'
             );
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);

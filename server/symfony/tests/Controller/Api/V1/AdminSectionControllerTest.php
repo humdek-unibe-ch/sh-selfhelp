@@ -83,7 +83,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
             $responseContentGet1 = $response->getContent();
             $decodedResponseGet1 = json_decode($responseContentGet1);
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet1, 'responses/admin/page_sections');
+            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet1, 'responses/admin/pages/page_sections');
             $this->assertEmpty($validationErrors, 'Get sections (S1,S2) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet1->data;
             $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of sections after adding S1, S2');
@@ -129,7 +129,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_OK, $responseGet3->getStatusCode(), 'Failed to get sections after adding S3');
             $responseContentGet3 = $responseGet3->getContent();
             $decodedResponseGet3 = json_decode($responseContentGet3);
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet3, 'responses/admin/page_sections');
+            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet3, 'responses/admin/pages/page_sections');
             $this->assertEmpty($validationErrors, 'Get sections (S1[S3],S2) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet3->data;
             $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of top-level sections after adding S3');
@@ -168,7 +168,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_OK, $responseGet4->getStatusCode(), 'Failed to get sections after S3 removal');
             $responseContentGet4 = $responseGet4->getContent();
             $decodedResponseGet4 = json_decode($responseContentGet4);
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet4, 'responses/admin/page_sections');
+            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet4, 'responses/admin/pages/page_sections');
             $this->assertEmpty($validationErrors, 'Get sections (after S3 removal) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet4->data;
             $this->assertCount(2, $pageSectionsData->sections, 'Incorrect number of top-level sections after removing S3');
@@ -202,7 +202,7 @@ class AdminSectionControllerTest extends BaseControllerTest
             $this->assertSame(Response::HTTP_OK, $responseGet5->getStatusCode(), 'Failed to get sections after all deletes');
             $responseContentGet5 = $responseGet5->getContent();
             $decodedResponseGet5 = json_decode($responseContentGet5);
-            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet5, 'responses/admin/page_sections');
+            $validationErrors = $this->jsonSchemaValidationService->validate($decodedResponseGet5, 'responses/admin/pages/page_sections');
             $this->assertEmpty($validationErrors, 'Get sections (all gone) response does not match schema: ' . implode(', ', $validationErrors));
             $pageSectionsData = $decodedResponseGet5->data;
             $this->assertEmpty($pageSectionsData->sections, 'Sections array not empty after deleting all sections');
@@ -406,7 +406,7 @@ class AdminSectionControllerTest extends BaseControllerTest
         $this->assertIsArray($data->data->languages, 'Languages is not an array');
         
         // Validate against JSON schema
-        $validationErrors = $this->jsonSchemaValidationService->validate($data, 'responses/admin/section');
+        $validationErrors = $this->jsonSchemaValidationService->validate($data, 'responses/admin/sections/section');
         $this->assertEmpty($validationErrors, 'Response does not match schema: ' . implode(', ', $validationErrors));
     }
     

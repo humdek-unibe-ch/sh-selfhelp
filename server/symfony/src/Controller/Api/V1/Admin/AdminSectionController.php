@@ -35,7 +35,7 @@ class AdminSectionController extends AbstractController
                 'fields' => $section['fields'] ?? [],
                 'languages' => $section['languages'] ?? [],
             ],
-            'responses/admin/section',
+            'responses/admin/sections/section',
             Response::HTTP_OK
         );
     }
@@ -147,7 +147,7 @@ class AdminSectionController extends AbstractController
                     'fields' => $sectionWithFields['fields'],
                     'languages' => $sectionWithFields['languages'],
                 ],
-                'responses/admin/section',
+                'responses/admin/sections/section',
                 Response::HTTP_OK
             );
         } catch (\App\Exception\ServiceException $e) {

@@ -259,7 +259,7 @@ Code-only changes require a **patch version increment** (e.g., 7.5.1 → 7.5.2):
            $profiles = $this->userProfileService->getProfilesByUserId($userId);
            return $this->responseFormatter->formatSuccess(
                $profiles,
-               'responses/admin/user_profiles'
+               'responses/admin/users/users'
            );
        } catch (\Exception $e) {
            return $this->responseFormatter->formatError(
@@ -287,7 +287,7 @@ Code-only changes require a **patch version increment** (e.g., 7.5.1 → 7.5.2):
            
            return $this->responseFormatter->formatSuccess(
                $profile,
-               'responses/admin/user_profile',
+               'responses/admin/users/user',
                Response::HTTP_CREATED
            );
            

@@ -235,7 +235,7 @@ class AdminPageController extends AbstractController
             
             return $this->responseFormatter->formatSuccess(
                 $page,
-                'responses/admin/page',
+                'responses/admin/pages/page',
                 Response::HTTP_CREATED
             );
             
@@ -728,10 +728,10 @@ public function testCreatePageValidation(): void
 config/schemas/api/
 ├── v1/
 │   ├── requests/admin/create_page.json    # Original schema
-│   └── responses/admin/page.json
+│   └── responses/admin/pages/page.json
 └── v2/
     ├── requests/admin/create_page.json    # Updated schema
-    └── responses/admin/page.json
+    └── responses/admin/pages/page.json
 ```
 
 ---
