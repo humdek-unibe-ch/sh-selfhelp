@@ -2,12 +2,11 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'formActions')]
-class FormAction
+#[ORM\Table(name: 'actions')]
+class Action
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,7 +17,7 @@ class FormAction
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_formProjectActionTriggerTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_actionTriggerTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Lookup $actionTriggerType = null; // ENTITY RULE
 
     #[ORM\Column(name: 'config', type: 'text', nullable: true)]
@@ -82,3 +81,5 @@ class FormAction
     // ENTITY RULE
 }
 // ENTITY RULE
+
+

@@ -79,6 +79,48 @@ SET version = 'v8.0.0';
 -- - /pages/{locale} - Frontend pages with locale
 -- - /admin/pages/{locale} - Admin pages with locale
 
+DROP PROCEDURE IF EXISTS rename_index;
+DELIMITER //
+
+CREATE PROCEDURE rename_index(
+  IN param_table VARCHAR(100),
+  IN old_index_name VARCHAR(100),
+  IN new_index_name VARCHAR(100)
+)
+BEGIN
+  DECLARE old_exists INT DEFAULT 0;
+  DECLARE new_exists INT DEFAULT 0;
+
+  -- does old index exist?
+  SELECT COUNT(*) INTO old_exists
+  FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME   = param_table
+    AND INDEX_NAME   = old_index_name;
+
+  -- does new index already exist?
+  SELECT COUNT(*) INTO new_exists
+  FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME   = param_table
+    AND INDEX_NAME   = new_index_name;
+
+  IF new_exists > 0 THEN
+    SELECT CONCAT('Index ', new_index_name, ' already exists on ', param_table) AS msg;
+  ELSEIF old_exists = 0 THEN
+    SELECT CONCAT('Index ', old_index_name, ' not found on ', param_table) AS msg;
+  ELSE
+    SET @sql := CONCAT('ALTER TABLE `', param_table, '` RENAME INDEX `', old_index_name, '` TO `', new_index_name, '`;');
+    PREPARE st FROM @sql;
+    EXECUTE st;
+    DEALLOCATE PREPARE st;
+    SELECT CONCAT('Renamed `', param_table, '`.`', old_index_name, '` -> `', new_index_name, '`') AS msg;
+  END IF;
+END //
+
+DELIMITER ;
+
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS add_index //
 CREATE PROCEDURE add_index(
@@ -4181,9 +4223,49 @@ SET id_type = get_field_type_id('select-css')
 WHERE `name` IN ('css', 'css_mobile');
 
 UPDATE styles_fields
-SET title = 'Mobile CSS Classes'
+SET title = 'Mobile CSS Classesf'
 WHERE id_fields = get_field_id('css_mobile');
 
 UPDATE users
 SET `name` = 'Guest'
-WHERE id = 1
+WHERE id = 1;
+
+-- ===============================
+-- Rename table `formActions` -> `actions` and update references
+-- ===============================
+
+-- Drop foreign keys and indexes referencing `formActions` in junction tables
+CALL drop_foreign_key('scheduledJobs_formActions', 'FK_AE5B5D0B293A36A9');
+CALL drop_index('scheduledJobs_formActions', 'IDX_AE5B5D0B293A36A9');
+
+CALL rename_table('formActions', 'actions');
+CALL rename_table('scheduledJobs_formActions', 'scheduledJobs_actions');
+
+CALL drop_foreign_key('actions', 'FK_3128FB5E8A8FCE9D');
+CALL drop_foreign_key('actions', 'FK_548F1EF4AC2316F');
+CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
+CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
+CALL rename_table_column('actions', 'id_formProjectActionTriggerTypes', 'id_actionTriggerTypes');
+ALTER TABLE actions CHANGE id_actionTriggerTypes id_actionTriggerTypes INT NOT NULL;
+CALL add_foreign_key(
+  'actions',
+  'FK_548F1EF4AC2316F',
+  'id_actionTriggerTypes',
+  'lookups (id)'
+);
+CALL add_index(
+  'actions',
+  'IDX_548F1EF4AC2316F',
+  'id_actionTriggerTypes',
+  FALSE
+);
+
+-- Recreate foreign key and index to point to the new table/column
+CALL add_foreign_key('scheduledJobs_actions', 'FK_SJ_ACTIONS', 'id_actions', 'actions(id)');
+CALL add_index('scheduledJobs_actions', 'IDX_862DD4F8DBD5589F', 'id_actions', FALSE);
+
+CALL rename_index('actions', 'idx_3128fb5e8a8fce9d', 'IDX_548F1EF8A8FCE9D');
+CALL rename_index('actions', 'idx_3128fb5ee2e6a7c3', 'IDX_548F1EFE2E6A7C3');
+
+CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0b8030ba52', 'IDX_862DD4F88030BA52');
+CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0bf3854f45',  'IDX_862DD4F8F3854F45');

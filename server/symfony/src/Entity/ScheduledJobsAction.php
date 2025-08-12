@@ -5,8 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'scheduledJobs_formActions')]
-class ScheduledJobsFormAction
+#[ORM\Table(name: 'scheduledJobs_actions')]
+class ScheduledJobsAction
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: ScheduledJob::class)]
@@ -14,9 +14,9 @@ class ScheduledJobsFormAction
     private ?ScheduledJob $scheduledJob = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: FormAction::class)]
-    #[ORM\JoinColumn(name: 'id_formActions', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?FormAction $formAction = null;
+    #[ORM\ManyToOne(targetEntity: Action::class)]
+    #[ORM\JoinColumn(name: 'id_actions', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Action $action = null;
 
     #[ORM\ManyToOne(targetEntity: DataRow::class)]
     #[ORM\JoinColumn(name: 'id_dataRows', referencedColumnName: 'id', onDelete: 'CASCADE')]
@@ -29,12 +29,12 @@ class ScheduledJobsFormAction
 
     public function setScheduledJob(?ScheduledJob $scheduledJob): self { $this->scheduledJob = $scheduledJob; return $this; }
 
-    public function getFormAction(): ?FormAction
+    public function getAction(): ?Action
     {
-        return $this->formAction;
+        return $this->action;
     }
 
-    public function setFormAction(?FormAction $formAction): self { $this->formAction = $formAction; return $this; }
+    public function setAction(?Action $action): self { $this->action = $action; return $this; }
 
     public function getDataRow(): ?DataRow
     {
