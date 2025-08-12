@@ -6,11 +6,12 @@
   "properties": {
     "name": { "type": "string" },
     "id_actionTriggerTypes": { "type": ["integer", "null"] },
+    "id_dataTables": { "type": ["integer", "null"] },
     "config": {
       "description": "Arbitrary action configuration; validated in UI, stored as-is.",
       "type": ["object", "string", "null"]
     },
-    "id_dataTables": { "type": ["integer", "null"] }
+    
   }
 }
 

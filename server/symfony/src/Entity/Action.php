@@ -24,7 +24,7 @@ class Action
     private ?string $config = null;
 
     #[ORM\ManyToOne(targetEntity: DataTable::class)]
-    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_dataTables', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?DataTable $dataTable = null; // ENTITY RULE
 
     public function getId(): ?int

@@ -3,10 +3,11 @@
   "type": "object",
   "title": "Create Action Request",
   "additionalProperties": false,
-  "required": ["name", "id_actionTriggerTypes"],
+  "required": ["name", "id_actionTriggerTypes", "id_dataTables"],
   "properties": {
     "name": { "type": "string", "minLength": 1 },
     "id_actionTriggerTypes": { "type": "integer" },
+    "id_dataTables": { "type": "integer" },
     "config": {
       "description": "Arbitrary action configuration; validated in UI, stored as-is.",
       "type": ["object", "string", "null"]

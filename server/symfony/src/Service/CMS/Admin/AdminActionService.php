@@ -64,8 +64,13 @@ class AdminActionService extends BaseService
             }
 
             if (array_key_exists('id_dataTables', $data)) {
-                // DataTable association is optional; use EntityUtil if project has helper; otherwise skip here
-                // Intentionally left unchanged unless specific requirement provided
+                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int)$data['id_dataTables']);
+                if (!$dataTable) {
+                    throw new ServiceException('Invalid data table', Response::HTTP_BAD_REQUEST);
+                }
+                $action->setDataTable($dataTable);
+            } else {
+                throw new ServiceException('Field "id_dataTables" is required', Response::HTTP_BAD_REQUEST);
             }
 
             $this->entityManager->flush();
@@ -118,6 +123,16 @@ class AdminActionService extends BaseService
 
             if (array_key_exists('config', $data)) {
                 $action->setConfig(is_string($data['config']) ? $data['config'] : json_encode($data['config'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            }
+
+            if (array_key_exists('id_dataTables', $data)) {
+                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int)$data['id_dataTables']);
+                if (!$dataTable) {
+                    $this->throwBadRequest('Invalid data table');
+                }
+                $action->setDataTable($dataTable);
+            } else {
+                $this->throwBadRequest('Field "id_dataTables" is required');
             }
 
             $this->entityManager->persist($action);

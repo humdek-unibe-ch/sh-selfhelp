@@ -4243,6 +4243,7 @@ CALL rename_table('scheduledJobs_formActions', 'scheduledJobs_actions');
 
 CALL drop_foreign_key('actions', 'FK_3128FB5E8A8FCE9D');
 CALL drop_foreign_key('actions', 'FK_548F1EF4AC2316F');
+CALL drop_foreign_key('actions', 'FK_3128FB5EE2E6A7C3');
 CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
 CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
 CALL rename_table_column('actions', 'id_formProjectActionTriggerTypes', 'id_actionTriggerTypes');
@@ -4260,8 +4261,11 @@ CALL add_index(
   FALSE
 );
 
+ALTER TABLE actions CHANGE id_dataTables id_dataTables INT NOT NULL;
+
 -- Recreate foreign key and index to point to the new table/column
 CALL add_foreign_key('scheduledJobs_actions', 'FK_SJ_ACTIONS', 'id_actions', 'actions(id)');
+CALL add_foreign_key('actions', 'FK_548F1EFE2E6A7C3', 'id_dataTables', 'dataTables(id)');
 CALL add_index('scheduledJobs_actions', 'IDX_862DD4F8DBD5589F', 'id_actions', FALSE);
 
 CALL rename_index('actions', 'idx_3128fb5e8a8fce9d', 'IDX_548F1EF8A8FCE9D');
