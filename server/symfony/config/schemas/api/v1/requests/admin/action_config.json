@@ -468,7 +468,6 @@
     },
     "job_ref": {
       "type": "object",
-      "id": "job",
       "title": "Job",
       "headerTemplate": "{{i}} - {{self.job_name}}",
       "format": "grid-strict",

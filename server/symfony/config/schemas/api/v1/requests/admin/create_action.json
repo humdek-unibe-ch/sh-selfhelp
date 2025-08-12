@@ -7,7 +7,10 @@
   "properties": {
     "name": { "type": "string", "minLength": 1 },
     "id_actionTriggerTypes": { "type": "integer" },
-    "config": { "$ref": "action_config.json" }
+    "config": {
+      "description": "Arbitrary action configuration; validated in UI, stored as-is.",
+      "type": ["object", "string", "null"]
+    }
   }
 }
 

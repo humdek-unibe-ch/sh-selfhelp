@@ -74,9 +74,9 @@ class JsonSchemaValidationService
             
             // Validate with schema resolution enabled
             $this->validator->validate(
-                $data, 
-                $schemaObject, 
-                Constraint::CHECK_MODE_VALIDATE_SCHEMA | 
+                $data,
+                $schemaObject,
+                // Do not validate schema meta to allow UI-only keywords/types in request schemas
                 Constraint::CHECK_MODE_APPLY_DEFAULTS
             );
             
