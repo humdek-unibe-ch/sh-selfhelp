@@ -986,6 +986,9 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'config', JSON_OBJECT('in', 'body', 'required', false),
     'id_dataTables', JSON_OBJECT('in', 'body', 'required', false)
 )),
+('admin_actions_get_one_v1', 'v1', '/admin/actions/{actionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::getActionById', 'GET', JSON_OBJECT(
+    'actionId', '[0-9]+'
+), NULL),
 ('admin_actions_delete_v1', 'v1', '/admin/actions/{actionId}', 'App\\Controller\\Api\\V1\\Admin\\AdminActionController::deleteAction', 'DELETE', JSON_OBJECT(
     'actionId', '[0-9]+'
 ), NULL);
@@ -1022,6 +1025,13 @@ SELECT ar.`id`, p.`id`
 FROM `api_routes` ar
 JOIN `permissions` p ON p.`name` = 'admin.action.update'
 WHERE ar.`route_name` IN ('admin_actions_create_v1');
+
+-- Link get-one action route to read permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.action.read'
+WHERE ar.`route_name` IN ('admin_actions_get_one_v1');
 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT

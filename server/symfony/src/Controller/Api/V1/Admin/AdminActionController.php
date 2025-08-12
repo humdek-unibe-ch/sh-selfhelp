@@ -113,6 +113,26 @@ class AdminActionController extends AbstractController
             return $this->responseFormatter->formatError($message, $status);
         }
     }
+
+    /**
+     * Get single action by ID
+     * @route /admin/actions/{actionId}
+     * @method GET
+     */
+    public function getActionById(int $actionId): JsonResponse
+    {
+        try {
+            $result = $this->adminActionService->getActionById($actionId);
+            return $this->responseFormatter->formatSuccess(
+                $result,
+                'responses/admin/actions/action_envelope'
+            );
+        } catch (\Throwable $e) {
+            $message = $e instanceof ServiceException ? $e->getMessage() : 'Internal Server Error';
+            $status = $e instanceof ServiceException ? $e->getCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+            return $this->responseFormatter->formatError($message, $status);
+        }
+    }
 }
 
 

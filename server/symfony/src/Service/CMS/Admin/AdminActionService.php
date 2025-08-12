@@ -32,6 +32,19 @@ class AdminActionService extends BaseService
     }
 
     /**
+     * Get a single action by ID
+     */
+    public function getActionById(int $actionId): array
+    {
+        /** @var Action|null $action */
+        $action = $this->entityManager->find(Action::class, $actionId);
+        if (!$action instanceof Action) {
+            throw new ServiceException('Action not found', Response::HTTP_NOT_FOUND);
+        }
+        return $this->formatAction($action);
+    }
+
+    /**
      * Update an action's basic fields and config
      */
     public function updateAction(int $actionId, array $data): array
