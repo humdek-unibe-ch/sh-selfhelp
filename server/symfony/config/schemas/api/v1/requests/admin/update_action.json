@@ -10,8 +10,7 @@
     "config": {
       "description": "Arbitrary action configuration; validated in UI, stored as-is.",
       "type": ["object", "string", "null"]
-    },
-    
+    }
   }
 }
 
