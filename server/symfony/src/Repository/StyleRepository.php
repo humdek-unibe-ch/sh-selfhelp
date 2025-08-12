@@ -5,19 +5,15 @@ namespace App\Repository;
 use App\Entity\Style;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\DBAL\Connection;
 
 /**
  * @extends ServiceEntityRepository<Style>
  */
 class StyleRepository extends ServiceEntityRepository
 {
-    private Connection $connection;
-
-    public function __construct(ManagerRegistry $registry, Connection $connection)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Style::class);
-        $this->connection = $connection;
     }
 
     /**
@@ -27,10 +23,25 @@ class StyleRepository extends ServiceEntityRepository
      */
     public function findAllStylesGroupedByGroup(): array
     {
-        $sql = 'SELECT * FROM view_styles ORDER BY style_group_position ASC, style_name ASC';
-        $stmt = $this->connection->prepare($sql);
-        $result = $stmt->executeQuery();
-        $styles = $result->fetchAllAssociative();
+        $qb = $this->createQueryBuilder('s')
+            ->select(
+                's.id AS style_id',
+                's.name AS style_name',
+                's.description AS style_description',
+                'lst.id AS style_type_id',
+                'lst.lookupValue AS style_type',
+                'sg.id AS style_group_id',
+                'sg.name AS style_group',
+                'sg.description AS style_group_description',
+                'sg.position AS style_group_position'
+            )
+            ->leftJoin('s.type', 'lst', 'WITH', 'lst.typeCode = :typeCode')
+            ->leftJoin('s.group', 'sg')
+            ->setParameter('typeCode', 'styleType')
+            ->orderBy('sg.position', 'ASC')
+            ->addOrderBy('s.name', 'ASC');
+
+        $styles = $qb->getQuery()->getArrayResult();
 
         // Group styles by their style group
         $groupedStyles = [];
@@ -60,28 +71,4 @@ class StyleRepository extends ServiceEntityRepository
         return array_values($groupedStyles);
     }
 
-    //    /**
-    //     * @return Style[] Returns an array of Style objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Style
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }
