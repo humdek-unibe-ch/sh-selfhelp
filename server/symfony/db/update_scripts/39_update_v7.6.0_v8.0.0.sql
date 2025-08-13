@@ -2,6 +2,13 @@
 UPDATE version
 SET version = 'v8.0.0';
 
+-- N+1 Query Optimization for StylesField Repository
+-- Added findDefaultValuesByStyleIds batch method to StylesFieldRepository
+-- to eliminate N+1 query problem when fetching default values for multiple styles
+-- in SectionUtilityService::applySectionTranslations method.
+-- This reduces database queries from N individual queries to 1 batch query,
+-- significantly improving performance for pages with many sections.
+
 -- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System, Scheduled Jobs API
 
 -- Scheduled Jobs API Enhancement

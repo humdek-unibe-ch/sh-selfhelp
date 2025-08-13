@@ -17,27 +17,41 @@ class StylesFieldRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find default values for all fields of a specific style
+     * Find default values for all fields of multiple styles in a single query
+     * This method eliminates N+1 queries when fetching default values for multiple styles
      *
-     * @param int $styleId The style ID
-     * @return array Associative array with field name as key and default value as value
+     * @param array $styleIds Array of style IDs
+     * @return array Nested associative array with style ID as first key, field name as second key, and default value as value
      */
-    public function findDefaultValuesByStyleId(int $styleId): array
+    public function findDefaultValuesByStyleIds(array $styleIds): array
     {
+        if (empty($styleIds)) {
+            return [];
+        }
+
         $qb = $this->createQueryBuilder('sf')
-            ->select('f.name AS field_name, sf.defaultValue')
+            ->select('s.id AS style_id, f.name AS field_name, sf.defaultValue')
             ->leftJoin('sf.field', 'f')
-            ->where('sf.style = :styleId')
-            ->setParameter('styleId', $styleId);
+            ->leftJoin('sf.style', 's')
+            ->where('sf.style IN (:styleIds)')
+            ->setParameter('styleIds', $styleIds);
 
         $results = $qb->getQuery()->getResult();
         
-        // Organize results by field name
-        $defaultValues = [];
+        // Organize results by style ID and field name
+        $defaultValuesByStyle = [];
         foreach ($results as $result) {
-            $defaultValues[$result['field_name']] = $result['defaultValue'];
+            $styleId = $result['style_id'];
+            $fieldName = $result['field_name'];
+            $defaultValue = $result['defaultValue'];
+            
+            if (!isset($defaultValuesByStyle[$styleId])) {
+                $defaultValuesByStyle[$styleId] = [];
+            }
+            
+            $defaultValuesByStyle[$styleId][$fieldName] = $defaultValue;
         }
         
-        return $defaultValues;
+        return $defaultValuesByStyle;
     }
 }

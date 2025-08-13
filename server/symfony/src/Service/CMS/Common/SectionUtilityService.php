@@ -132,6 +132,71 @@ class SectionUtilityService
         array $defaultTranslations = [], 
         array $propertyTranslations = []
     ): void {
+        // First pass: collect all unique style IDs to batch fetch default values
+        $styleIds = $this->collectUniqueStyleIds($sections);
+        
+        // Batch fetch default values for all styles in one query to avoid N+1
+        $defaultValuesByStyle = [];
+        if (!empty($styleIds) && $this->stylesFieldRepository !== null) {
+            $defaultValuesByStyle = $this->stylesFieldRepository->findDefaultValuesByStyleIds($styleIds);
+        } elseif (!empty($styleIds) && $this->stylesFieldRepository === null) {
+            throw new \LogicException('StylesFieldRepository is required for applying default style values');
+        }
+        
+        // Second pass: apply translations and default values
+        $this->applySectionTranslationsRecursive(
+            $sections, 
+            $translations, 
+            $defaultTranslations, 
+            $propertyTranslations,
+            $defaultValuesByStyle
+        );
+    }
+    
+    /**
+     * Collect all unique style IDs from sections recursively
+     * 
+     * @param array $sections The sections to collect style IDs from
+     * @return array Array of unique style IDs
+     */
+    private function collectUniqueStyleIds(array $sections): array
+    {
+        $styleIds = [];
+        
+        foreach ($sections as $section) {
+            $styleId = $section['id_styles'] ?? null;
+            if ($styleId !== null) {
+                $styleIds[$styleId] = true; // Use array key to ensure uniqueness
+            }
+            
+            // Process children recursively
+            if (isset($section['children']) && is_array($section['children'])) {
+                $childStyleIds = $this->collectUniqueStyleIds($section['children']);
+                foreach ($childStyleIds as $childStyleId) {
+                    $styleIds[$childStyleId] = true;
+                }
+            }
+        }
+        
+        return array_keys($styleIds);
+    }
+    
+    /**
+     * Apply translations to sections recursively with pre-fetched default values
+     * 
+     * @param array &$sections The sections to apply translations to (passed by reference)
+     * @param array $translations The translations keyed by section ID
+     * @param array $defaultTranslations Default language translations for fallback
+     * @param array $propertyTranslations Property translations (language ID 1) for fields of type 1
+     * @param array $defaultValuesByStyle Pre-fetched default values organized by style ID
+     */
+    private function applySectionTranslationsRecursive(
+        array &$sections, 
+        array $translations, 
+        array $defaultTranslations = [], 
+        array $propertyTranslations = [],
+        array $defaultValuesByStyle = []
+    ): void {
         foreach ($sections as &$section) {
             $sectionId = $section['id'] ?? null;
             $fields = [];
@@ -155,10 +220,9 @@ class SectionUtilityService
                     $section = array_merge($section, $translations[$sectionId]);
                 }
                 
-                // For any fields that still don't have values, use default values from styles_fields table
-                if ($styleId && $this->stylesFieldRepository !== null) {
-                    // Get all fields for this section's style
-                    $stylesFields = $this->stylesFieldRepository->findDefaultValuesByStyleId($styleId);
+                // For any fields that still don't have values, use pre-fetched default values
+                if ($styleId && isset($defaultValuesByStyle[$styleId])) {
+                    $stylesFields = $defaultValuesByStyle[$styleId];
                     
                     // Apply default values for fields that don't have translations
                     foreach ($stylesFields as $fieldName => $defaultValue) {
@@ -170,8 +234,6 @@ class SectionUtilityService
                             ];
                         }
                     }
-                } elseif ($styleId && $this->stylesFieldRepository === null) {
-                    throw new \LogicException('StylesFieldRepository is required for applying default style values');
                 }
             }
             
@@ -179,11 +241,12 @@ class SectionUtilityService
             
             // Process children recursively
             if (isset($section['children']) && is_array($section['children'])) {
-                $this->applySectionTranslations(
+                $this->applySectionTranslationsRecursive(
                     $section['children'], 
                     $translations, 
                     $defaultTranslations, 
-                    $propertyTranslations
+                    $propertyTranslations,
+                    $defaultValuesByStyle
                 );
             }
         }
