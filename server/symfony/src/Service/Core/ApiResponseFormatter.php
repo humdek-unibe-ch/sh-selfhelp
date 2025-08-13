@@ -20,6 +20,13 @@ use Symfony\Component\Serializer\Serializer;
  */
 class ApiResponseFormatter
 {
+    /**
+     * Whether to validate the response schema. It consumes a lot of resources and should be disabled in production.
+     * 
+     * @var bool
+     */
+    private const VALIDATE_RESPONSE_SCHEMA = true;
+    
     public function __construct(
         private readonly Security $security,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
@@ -57,7 +64,7 @@ class ApiResponseFormatter
         ];
 
         // Only perform schema validation in non-production environments
-        if ($responseSchemaName !== null && $this->kernel->getEnvironment() !== 'prod') {
+        if ($responseSchemaName !== null && $this->kernel->getEnvironment() !== 'prod' && self::VALIDATE_RESPONSE_SCHEMA) {
             try {
                 // Deep convert arrays to objects for proper JSON Schema validation
                 $responseDataForValidation = $this->arrayToObject($responseData);
