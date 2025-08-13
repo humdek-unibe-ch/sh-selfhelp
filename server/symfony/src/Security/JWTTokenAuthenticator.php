@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\Auth\JWTService;
+use App\Service\Auth\UserCacheService;
 use App\Service\Core\ApiResponseFormatter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,6 +23,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly JWTService $jwtService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly UserCacheService $userCacheService,
         private readonly ApiResponseFormatter $responseFormatter
     ) {
     }
@@ -54,7 +56,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('User identifier not found in token payload.');
         }
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userIdentifier]);
+        $user = $this->userCacheService->getUserByEmail($userIdentifier);
 
         if (null === $user) {
             throw new CustomUserMessageAuthenticationException(sprintf('User "%s" not found.', $userIdentifier));

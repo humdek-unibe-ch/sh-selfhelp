@@ -7,16 +7,35 @@ use App\Entity\User;
 
 class UserContextService
 {
+    private ?User $cachedUser = null;
+    private bool $userResolved = false;
+
     public function __construct(private Security $security) {}
 
     /**
      * Returns the current authenticated User entity or null if not authenticated.
+     * Uses request-scoped caching to avoid multiple security context lookups.
      *
      * @return User|null
      */
     public function getCurrentUser(): ?User
     {
-        $user = $this->security->getUser();
-        return $user instanceof User ? $user : null;
+        // Use request-scoped cache to avoid multiple security context lookups
+        if (!$this->userResolved) {
+            $user = $this->security->getUser();
+            $this->cachedUser = $user instanceof User ? $user : null;
+            $this->userResolved = true;
+        }
+
+        return $this->cachedUser;
+    }
+
+    /**
+     * Clear the cached user (useful for testing or when user context changes)
+     */
+    public function clearCache(): void
+    {
+        $this->cachedUser = null;
+        $this->userResolved = false;
     }
 }

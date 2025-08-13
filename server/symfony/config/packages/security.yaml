@@ -12,6 +12,7 @@ security:
         api:
             pattern: ^/cms-api/v1
             stateless: true
+            lazy: true
             custom_authenticators:
                 - App\Security\JWTTokenAuthenticator
 

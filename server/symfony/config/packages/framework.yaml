@@ -8,6 +8,16 @@ framework:
     # File upload configuration
     # Maximum upload size per file (default 2M)
     http_method_override: true
+    
+    # Performance optimizations
+    serializer:
+        enable_attributes: false
+        mapping:
+            paths: []
+    
+    # Disable unused features for API-only usage
+    form: false
+    csrf_protection: false
     # This is handled by PHP settings, but documented here:
     # max_file_size: 100M  # Set in php.ini as upload_max_filesize
     # max_post_size: 1000M # Set in php.ini as post_max_size
