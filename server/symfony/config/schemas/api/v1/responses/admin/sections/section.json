@@ -9,7 +9,7 @@
         "data": {
             "type": "object",
             "properties": {
-                "section": { "$ref": "../../entities/sectionEntity.json" },
+                "section": { "$ref": "../../../entities/sectionEntity.json" },
                 "fields": {
                     "type": "array",
                     "description": "List of fields associated with the section's style",
