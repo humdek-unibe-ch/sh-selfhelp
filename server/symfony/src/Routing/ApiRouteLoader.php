@@ -7,6 +7,8 @@ use App\Repository\ApiRouteRepository;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Custom route loader that loads routes from database
@@ -17,6 +19,7 @@ class ApiRouteLoader extends Loader
     
     public function __construct(
         private ApiRouteRepository $apiRouteRepository,
+        private CacheInterface $cache,
         protected ?string $env
     ) {
         // The parent Loader doesn't need any arguments
@@ -29,67 +32,90 @@ class ApiRouteLoader extends Loader
             throw new \RuntimeException('Do not add the database routes loader twice');
         }
 
-        $routes = new RouteCollection();
-        
-        // Get all available versions
-        $versions = $this->apiRouteRepository->findAllVersions();
-        
-        foreach ($versions as $version) {
-            // Load routes for this version
-            $dbRoutes = $this->apiRouteRepository->findAllRoutesByVersion($version);
-            
-            foreach ($dbRoutes as $dbRoute) {
-                // Always prepend version to the path
-                $path = '/' . $version . $dbRoute->getPath();
-                
-                // Map controller to versioned namespace
-                $controller = $this->mapControllerToVersionedNamespace($dbRoute->getController(), $version);
-                
-                $defaults = [
-                    '_controller' => $controller,
-                    '_version' => $version,
-                ];
-                
-                // Parse methods (GET, POST, etc.)
-                $methods = explode(',', $dbRoute->getMethods());
+        // Use cache in production, skip in dev for easier development
+        $cacheKey = 'api_routes_collection';
+        $useCache = $this->env !== 'dev';
 
-                // Requirements and params are now arrays
-                $requirements = $dbRoute->getRequirements() ?? [];
-                $params = $dbRoute->getParams() ?? [];
-
-                // Attach params as a default for controller access
-                $defaults['_params'] = $params;
+        if ($useCache) {
+            $routes = $this->cache->get($cacheKey, function (ItemInterface $item) {
+                // Cache for 1 hour in production
+                $item->expiresAfter(3600);
                 
-                // Fetch permissions for this route
-                $permissions = $this->apiRouteRepository->findPermissionsForRoute($dbRoute->getId());
-                
-                // Extract permission names for easier access in security voter
-                $permissionNames = array_map(function(Permission $permission) {
-                    return $permission->getName();
-                }, $permissions);
-                
-                // Create route options with permissions
-                $options = [
-                    'permissions' => $permissionNames
-                ];
-                
-                // Create the route with permissions in options
-                $route = new Route(
-                    $path,                 // path
-                    $defaults,             // defaults
-                    $requirements,         // requirements
-                    $options,              // options (contains permissions)
-                    '',                    // host
-                    [],                    // schemes
-                    $methods               // methods
-                );
-                $routes->add($dbRoute->getRouteName() . '_' . $version, $route);
-            }
+                return $this->buildRouteCollection();
+            });
+        } else {
+            $routes = $this->buildRouteCollection();
         }
 
         $this->isLoaded = true;
 
         return $routes;
+    }
+
+    /**
+     * Build the route collection from database
+     */
+    private function buildRouteCollection(): RouteCollection
+    {
+        $routes = new RouteCollection();
+        
+        // Use optimized single-query method to get all routes with permissions
+        $allRoutesData = $this->apiRouteRepository->findAllRoutesWithPermissionsAsArray();
+        
+        foreach ($allRoutesData as $routeData) {
+            $version = $routeData['version'];
+            
+            // Always prepend version to the path
+            $path = '/' . $version . $routeData['path'];
+            
+            // Map controller to versioned namespace
+            $controller = $this->mapControllerToVersionedNamespace($routeData['controller'], $version);
+            
+            $defaults = [
+                '_controller' => $controller,
+                '_version' => $version,
+            ];
+            
+            // Parse methods (GET, POST, etc.)
+            $methods = explode(',', $routeData['methods']);
+
+            // Requirements and params are already arrays from the optimized query
+            $requirements = $routeData['requirements'] ?? [];
+            $params = $routeData['params'] ?? [];
+
+            // Attach params as a default for controller access
+            $defaults['_params'] = $params;
+            
+            // Permission names are already parsed from the optimized query
+            $permissionNames = $routeData['permission_names'] ?? [];
+            
+            // Create route options with permissions
+            $options = [
+                'permissions' => $permissionNames
+            ];
+            
+            // Create the route with permissions in options
+            $route = new Route(
+                $path,                 // path
+                $defaults,             // defaults
+                $requirements,         // requirements
+                $options,              // options (contains permissions)
+                '',                    // host
+                [],                    // schemes
+                $methods               // methods
+            );
+            $routes->add($routeData['route_name'] . '_' . $version, $route);
+        }
+
+        return $routes;
+    }
+
+    /**
+     * Clear the route cache - call this when routes/permissions change
+     */
+    public function clearCache(): void
+    {
+        $this->cache->delete('api_routes_collection');
     }
     
     /**

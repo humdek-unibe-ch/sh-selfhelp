@@ -47,16 +47,35 @@ class EntityUtil
                         $result[$name] = $value->format('Y-m-d H:i:s');
                     } 
                     // For Doctrine collections, convert to array of IDs
+                    // WARNING: This can cause N+1 queries if collection is not initialized
                     elseif ($value instanceof \Doctrine\Common\Collections\Collection) {
-                        $result[$name] = array_map(function($item) {
-                            return method_exists($item, 'getId') ? $item->getId() : null;
-                        }, $value->toArray());
+                        try {
+                            // Try to access collection safely - if it's a PersistentCollection, check if initialized
+                            if (method_exists($value, 'isInitialized') && !$value->isInitialized()) {
+                                // For uninitialized collections, just indicate it's a collection
+                                $result[$name] = 'Collection[lazy]';
+                            } else {
+                                // Collection is initialized or not a PersistentCollection
+                                $result[$name] = array_map(function($item) {
+                                    return method_exists($item, 'getId') ? $item->getId() : null;
+                                }, $value->toArray());
+                            }
+                        } catch (\Throwable $e) {
+                            // If anything fails, just indicate it's a collection
+                            $result[$name] = 'Collection[error]';
+                        }
                     }
                     // For other objects, try to get ID or handle lazy loading
                     else {
                         if (method_exists($value, 'getId')) {
                             try {
-                                $result[$name] = $value->getId();
+                                // Check if it's a Doctrine proxy to avoid lazy loading
+                                if (is_object($value) && str_contains(get_class($value), 'Proxy')) {
+                                    // For proxies, try to get ID without initializing
+                                    $result[$name] = $value->getId();
+                                } else {
+                                    $result[$name] = $value->getId();
+                                }
                             } catch (\Throwable $e) {
                                 // Skip if lazy loading fails
                                 $result[$name] = null;
@@ -66,7 +85,7 @@ class EntityUtil
                             if ($value instanceof \Symfony\Component\VarExporter\Internal\LazyObjectState || 
                                 (is_object($value) && str_contains(get_class($value), 'Proxy'))) {
                                 // Skip lazy-loaded objects that can't be converted
-                                $result[$name] = null;
+                                $result[$name] = 'Proxy[' . get_class($value) . ']';
                             } else {
                                 try {
                                     $result[$name] = (string)$value;

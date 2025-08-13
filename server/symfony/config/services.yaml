@@ -30,6 +30,7 @@ services:
     App\Routing\ApiRouteLoader:
         tags: [routing.loader]
         arguments:
+            $cache: '@cache.app'
             $env: '%kernel.environment%'
     
     # API Request Logger Services
