@@ -491,14 +491,27 @@ class AdminUserService extends UserContextAwareService
                 throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
             }
 
-            foreach ($groupIds as $groupId) {
-                $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-                if ($group) {
-                    $userGroup = $this->entityManager->getRepository(UsersGroup::class)
-                        ->findOneBy(['user' => $user, 'group' => $group]);
-                    if ($userGroup) {
-                        $this->entityManager->remove($userGroup);
-                    }
+            if (!empty($groupIds)) {
+                // Batch load groups to avoid N+1
+                $groups = $this->entityManager->getRepository(Group::class)
+                    ->createQueryBuilder('g')
+                    ->where('g.id IN (:groupIds)')
+                    ->setParameter('groupIds', $groupIds)
+                    ->getQuery()
+                    ->getResult();
+
+                // Batch load existing user-group relationships
+                $userGroups = $this->entityManager->getRepository(UsersGroup::class)
+                    ->createQueryBuilder('ug')
+                    ->where('ug.user = :user')
+                    ->andWhere('ug.group IN (:groupIds)')
+                    ->setParameter('user', $user)
+                    ->setParameter('groupIds', $groupIds)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($userGroups as $userGroup) {
+                    $this->entityManager->remove($userGroup);
                 }
             }
 
@@ -571,9 +584,16 @@ class AdminUserService extends UserContextAwareService
                 throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
             }
 
-            foreach ($roleIds as $roleId) {
-                $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-                if ($role) {
+            if (!empty($roleIds)) {
+                // Batch load roles to avoid N+1
+                $roles = $this->entityManager->getRepository(Role::class)
+                    ->createQueryBuilder('r')
+                    ->where('r.id IN (:roleIds)')
+                    ->setParameter('roleIds', $roleIds)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($roles as $role) {
                     $user->removeRole($role);
                 }
             }
@@ -799,19 +819,47 @@ class AdminUserService extends UserContextAwareService
             $user->getUsersGroups()->clear();
         }
 
+        if (empty($groupIds)) {
+            return;
+        }
+
+        // Batch load all groups in one query to avoid N+1
+        $groups = $this->entityManager->getRepository(Group::class)
+            ->createQueryBuilder('g')
+            ->where('g.id IN (:groupIds)')
+            ->setParameter('groupIds', $groupIds)
+            ->getQuery()
+            ->getResult();
+        
+        // Create a map for quick lookup
+        $groupMap = [];
+        foreach ($groups as $group) {
+            $groupMap[$group->getId()] = $group;
+        }
+
+        // Get existing user-group relationships to avoid duplicates
+        $existingUserGroups = [];
+        if (!$replace) {
+            $existingUserGroupEntities = $this->entityManager->getRepository(UsersGroup::class)
+                ->createQueryBuilder('ug')
+                ->where('ug.user = :user')
+                ->andWhere('ug.group IN (:groupIds)')
+                ->setParameter('user', $user)
+                ->setParameter('groupIds', $groupIds)
+                ->getQuery()
+                ->getResult();
+            
+            foreach ($existingUserGroupEntities as $existingUg) {
+                $existingUserGroups[$existingUg->getGroup()->getId()] = true;
+            }
+        }
+
         foreach ($groupIds as $groupId) {
-            $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-            if ($group) {
-                // Check if already assigned
-                $existingUserGroup = $this->entityManager->getRepository(UsersGroup::class)
-                    ->findOneBy(['user' => $user, 'group' => $group]);
-                
-                if (!$existingUserGroup) {
-                    $userGroup = new UsersGroup();
-                    $userGroup->setUser($user);
-                    $userGroup->setGroup($group);
-                    $this->entityManager->persist($userGroup);
-                }
+            if (isset($groupMap[$groupId]) && !isset($existingUserGroups[$groupId])) {
+                $userGroup = new UsersGroup();
+                $userGroup->setUser($user);
+                $userGroup->setGroup($groupMap[$groupId]);
+                $this->entityManager->persist($userGroup);
             }
         }
     }
@@ -825,9 +873,28 @@ class AdminUserService extends UserContextAwareService
             }
         }
 
-        foreach ($roleIds as $roleId) {
-            $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-            if ($role) {
+        if (empty($roleIds)) {
+            return;
+        }
+
+        // Batch load all roles in one query to avoid N+1
+        $roles = $this->entityManager->getRepository(Role::class)
+            ->createQueryBuilder('r')
+            ->where('r.id IN (:roleIds)')
+            ->setParameter('roleIds', $roleIds)
+            ->getQuery()
+            ->getResult();
+        
+        // Get existing user roles to avoid duplicates when not replacing
+        $existingRoleIds = [];
+        if (!$replace) {
+            foreach ($user->getUserRoles() as $role) {
+                $existingRoleIds[$role->getId()] = true;
+            }
+        }
+
+        foreach ($roles as $role) {
+            if (!isset($existingRoleIds[$role->getId()])) {
                 $user->addRole($role);
             }
         }

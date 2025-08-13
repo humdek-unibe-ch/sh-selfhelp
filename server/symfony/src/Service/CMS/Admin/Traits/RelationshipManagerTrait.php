@@ -124,23 +124,31 @@ trait RelationshipManagerTrait
      */
     protected function removeAllSectionRelationships(Section $section, EntityManagerInterface $entityManager): void
     {
+        // Use batch operations with DQL for better performance - removes all relationships in fewer queries
+        
         // Remove from pages_sections
-        $pagesSections = $entityManager->getRepository(PagesSection::class)->findBy(['section' => $section]);
-        foreach ($pagesSections as $pagesSection) {
-            $entityManager->remove($pagesSection);
-        }
+        $entityManager->createQueryBuilder()
+            ->delete(PagesSection::class, 'ps')
+            ->where('ps.section = :section')
+            ->setParameter('section', $section)
+            ->getQuery()
+            ->execute();
 
         // Remove from sections_hierarchy as parent
-        $hierarchiesAsParent = $entityManager->getRepository(SectionsHierarchy::class)->findBy(['parentSection' => $section]);
-        foreach ($hierarchiesAsParent as $hierarchy) {
-            $entityManager->remove($hierarchy);
-        }
+        $entityManager->createQueryBuilder()
+            ->delete(SectionsHierarchy::class, 'sh')
+            ->where('sh.parentSection = :section')
+            ->setParameter('section', $section)
+            ->getQuery()
+            ->execute();
 
         // Remove from sections_hierarchy as child
-        $hierarchiesAsChild = $entityManager->getRepository(SectionsHierarchy::class)->findBy(['childSection' => $section]);
-        foreach ($hierarchiesAsChild as $hierarchy) {
-            $entityManager->remove($hierarchy);
-        }
+        $entityManager->createQueryBuilder()
+            ->delete(SectionsHierarchy::class, 'sh')
+            ->where('sh.childSection = :section')
+            ->setParameter('section', $section)
+            ->getQuery()
+            ->execute();
     }
 
     /**

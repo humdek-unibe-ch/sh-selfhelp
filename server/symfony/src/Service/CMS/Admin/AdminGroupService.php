@@ -397,24 +397,45 @@ class AdminGroupService extends UserContextAwareService
         $this->entityManager->flush();
 
         // Then, add only the ACL permissions that are passed in the request
-        foreach ($aclsData as $aclData) {
-            $this->validateAclData($aclData);
-            
-            $page = $this->entityManager->getRepository(Page::class)->find($aclData['page_id']);
-            if (!$page) {
-                throw new ServiceException('Page not found: ' . $aclData['page_id'], Response::HTTP_NOT_FOUND);
+        if (!empty($aclsData)) {
+            // Validate all ACL data first
+            foreach ($aclsData as $aclData) {
+                $this->validateAclData($aclData);
             }
 
-            // Create new ACL
-            $acl = new AclGroup();
-            $acl->setGroup($group);
-            $acl->setPage($page);
-            $acl->setAclSelect($aclData['acl_select'] ?? true);
-            $acl->setAclInsert($aclData['acl_insert'] ?? false);
-            $acl->setAclUpdate($aclData['acl_update'] ?? false);
-            $acl->setAclDelete($aclData['acl_delete'] ?? false);
+            // Batch load all pages in one query to avoid N+1
+            $pageIds = array_column($aclsData, 'page_id');
+            $pages = $this->entityManager->getRepository(Page::class)
+                ->createQueryBuilder('p')
+                ->where('p.id IN (:pageIds)')
+                ->setParameter('pageIds', $pageIds)
+                ->getQuery()
+                ->getResult();
             
-            $this->entityManager->persist($acl);
+            // Create a map for quick lookup
+            $pageMap = [];
+            foreach ($pages as $page) {
+                $pageMap[$page->getId()] = $page;
+            }
+
+            // Create ACLs
+            foreach ($aclsData as $aclData) {
+                $pageId = $aclData['page_id'];
+                if (!isset($pageMap[$pageId])) {
+                    throw new ServiceException('Page not found: ' . $pageId, Response::HTTP_NOT_FOUND);
+                }
+
+                // Create new ACL
+                $acl = new AclGroup();
+                $acl->setGroup($group);
+                $acl->setPage($pageMap[$pageId]);
+                $acl->setAclSelect($aclData['acl_select'] ?? true);
+                $acl->setAclInsert($aclData['acl_insert'] ?? false);
+                $acl->setAclUpdate($aclData['acl_update'] ?? false);
+                $acl->setAclDelete($aclData['acl_delete'] ?? false);
+                
+                $this->entityManager->persist($acl);
+            }
         }
 
         // Flush the insertions
