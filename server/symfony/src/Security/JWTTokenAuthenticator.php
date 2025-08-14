@@ -30,8 +30,31 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        // Only try to authenticate on API routes and if an Authorization header with Bearer token exists
-        return str_starts_with($request->getPathInfo(), '/cms-api/v1/') && $request->headers->has('Authorization') && str_starts_with($request->headers->get('Authorization', ''), 'Bearer ');
+        $pathInfo = $request->getPathInfo();
+        $isApiRoute = str_starts_with($pathInfo, '/cms-api/v1/');
+        
+        if (!$isApiRoute) {
+            return false;
+        }
+        
+        // Check for Authorization header in multiple ways (for Apache compatibility)
+        $hasAuth = $request->headers->has('Authorization') && str_starts_with($request->headers->get('Authorization', ''), 'Bearer ');
+        $hasHttpAuth = $request->server->has('HTTP_AUTHORIZATION') && str_starts_with($request->server->get('HTTP_AUTHORIZATION', ''), 'Bearer ');
+        $hasRedirectAuth = $request->server->has('REDIRECT_HTTP_AUTHORIZATION') && str_starts_with($request->server->get('REDIRECT_HTTP_AUTHORIZATION', ''), 'Bearer ');
+        
+        $hasToken = $hasAuth || $hasHttpAuth || $hasRedirectAuth;
+        
+        // Debug logging to help diagnose Apache issues
+        error_log(sprintf(
+            '[JWTTokenAuthenticator] Path: %s, HasAuth: %s, HasHttpAuth: %s, HasRedirectAuth: %s, Supports: %s',
+            $pathInfo,
+            $hasAuth ? 'yes' : 'no',
+            $hasHttpAuth ? 'yes' : 'no', 
+            $hasRedirectAuth ? 'yes' : 'no',
+            $hasToken ? 'yes' : 'no'
+        ));
+        
+        return $hasToken;
     }
 
     public function authenticate(Request $request): Passport

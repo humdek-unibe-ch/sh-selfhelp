@@ -234,10 +234,24 @@ class JWTService
      */
     public function getTokenFromRequest(Request $request): ?string
     {
+        // Try standard Authorization header first
         $authHeader = $request->headers->get('Authorization');
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             return substr($authHeader, 7);
         }
+
+        // Try HTTP_AUTHORIZATION (Apache might pass it this way)
+        $httpAuth = $request->server->get('HTTP_AUTHORIZATION');
+        if ($httpAuth && str_starts_with($httpAuth, 'Bearer ')) {
+            return substr($httpAuth, 7);
+        }
+
+        // Try REDIRECT_HTTP_AUTHORIZATION (some Apache configurations)
+        $redirectAuth = $request->server->get('REDIRECT_HTTP_AUTHORIZATION');
+        if ($redirectAuth && str_starts_with($redirectAuth, 'Bearer ')) {
+            return substr($redirectAuth, 7);
+        }
+
         return null;
     }
 }

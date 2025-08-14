@@ -8,6 +8,10 @@
     # Prevent directory listings
     Options -Indexes
 
+    # Pass Authorization header to PHP (required for JWT authentication)
+    RewriteCond %{HTTP:Authorization} ^(.*)
+    RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
     # Redirect Trailing Slashes...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.+)/$ $1 [L,R=301]
