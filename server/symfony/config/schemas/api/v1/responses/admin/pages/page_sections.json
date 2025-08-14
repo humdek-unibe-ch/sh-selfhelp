@@ -21,7 +21,7 @@
     },
     "required": ["data"],
     "definitions": {
-        "sectionItem": { "$ref": "../../entities/page_section_entity.json" }
+        "sectionItem": { "$ref": "../../../entities/page_section_entity.json" }
     }
 }
 

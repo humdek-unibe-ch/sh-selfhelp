@@ -43,7 +43,7 @@ class AdminAssetController extends AbstractController
             $folder = $request->query->get('folder');
 
             $result = $this->adminAssetService->getAllAssets($page, $pageSize, $search, $folder);
-            return $this->responseFormatter->formatSuccess($result, 'responses/admin/assets/assets');
+            return $this->responseFormatter->formatSuccess($result, 'responses/admin/assets/assets_envelope');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
