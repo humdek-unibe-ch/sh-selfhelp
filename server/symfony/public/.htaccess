@@ -1,0 +1,19 @@
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Prevent directory listings
+    Options -Indexes
+
+    # Redirect Trailing Slashes...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)/$ $1 [L,R=301]
+
+    # Send requests to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
