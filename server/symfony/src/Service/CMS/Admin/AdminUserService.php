@@ -260,7 +260,7 @@ class AdminUserService extends UserContextAwareService
 
             // Invalidate user caches after successful creation
             if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidateUser($user, 'create');
+                $this->cacheInvalidationService->invalidateUser($user->getId(), 'create');
                 $this->cacheInvalidationService->invalidatePermissions();
             }
 
@@ -356,7 +356,7 @@ class AdminUserService extends UserContextAwareService
 
             // Invalidate user caches after successful update
             if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidateUser($user, 'update');
+                $this->cacheInvalidationService->invalidateUser($user->getId(), 'update');
                 $this->cacheInvalidationService->invalidatePermissions();
             }
 
@@ -402,7 +402,7 @@ class AdminUserService extends UserContextAwareService
 
             // Invalidate user caches after successful deletion
             if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidateUser($user, 'delete');
+                $this->cacheInvalidationService->invalidateUser($user->getId(), 'delete');
                 $this->cacheInvalidationService->invalidatePermissions();
             }
 
@@ -443,7 +443,7 @@ class AdminUserService extends UserContextAwareService
 
             // Invalidate user caches after successful block/unblock
             if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidateUser($user, 'update');
+                $this->cacheInvalidationService->invalidateUser($user->getId(), 'update');
             }
 
             return $this->formatUserForDetail($user);

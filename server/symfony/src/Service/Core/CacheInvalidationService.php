@@ -54,11 +54,11 @@ class CacheInvalidationService
 
     /**
      * Invalidate caches when a user is modified
+     * @param int $userId
+     * @param string $operation
      */
-    public function invalidateUser(User $user, string $operation = 'update'): void
+    public function invalidateUser(int $userId, string $operation = 'update'): void
     {
-        $userId = $user->getId();
-        
         // Invalidate specific user cache
         $this->cacheService->delete(GlobalCacheService::CATEGORY_USERS, "user_{$userId}");
         $this->cacheService->delete(GlobalCacheService::CATEGORY_USERS, "user_profile_{$userId}");
@@ -284,7 +284,7 @@ class CacheInvalidationService
     public function invalidateAllUserCaches(int $userId): void
     {
         // Invalidate user-specific caches
-        $this->invalidateUser(new User(), 'update'); // This will handle user-specific invalidation
+        $this->invalidateUser($userId, 'update'); // This will handle user-specific invalidation
         
         // Invalidate all frontend caches for this user
         $this->cacheService->invalidateUserFrontend($userId);
