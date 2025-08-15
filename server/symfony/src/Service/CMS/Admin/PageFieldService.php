@@ -11,6 +11,8 @@ use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +27,8 @@ class PageFieldService extends UserContextAwareService
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -42,6 +46,14 @@ class PageFieldService extends UserContextAwareService
      */
     public function getPageWithFields(string $pageKeyword): array
     {
+        // Try to get from cache first
+        $cacheKey = "page_with_fields_{$pageKeyword}";
+        $cachedResult = $this->globalCacheService->get(GlobalCacheService::CATEGORY_PAGES, $cacheKey);
+        
+        if ($cachedResult !== null) {
+            return $cachedResult;
+        }
+        
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
 
         if (!$page) {
@@ -133,10 +145,15 @@ class PageFieldService extends UserContextAwareService
         }
 
         // Return page data with fields and their translations
-        return [
+        $result = [
             'page' => $page,
             'fields' => $formattedFields
         ];
+        
+        // Cache the result for 30 minutes
+        $this->globalCacheService->set(GlobalCacheService::CATEGORY_PAGES, $cacheKey, $result, 1800);
+        
+        return $result;
     }
 
     /**
@@ -166,5 +183,8 @@ class PageFieldService extends UserContextAwareService
 
         // Update field translations using trait method
         $this->updatePageFieldTranslations($page->getId(), $fields, $this->entityManager);
+        
+        // Invalidate page cache after updates
+        $this->cacheInvalidationService->invalidatePage($page, 'update');
     }
 } 

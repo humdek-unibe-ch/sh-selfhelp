@@ -4,6 +4,8 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -15,7 +17,9 @@ class PositionManagementService
      * Constructor
      */
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService
     ) {
     }
 
@@ -49,6 +53,12 @@ class PositionManagementService
         // Only flush if requested (allows caller to control transaction)
         if ($flush) {
             $this->entityManager->flush();
+            
+            // Invalidate page cache when positions are normalized
+            $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
+            if ($page) {
+                $this->cacheInvalidationService->invalidatePage($page, 'update');
+            }
         }
     }
     
@@ -81,6 +91,12 @@ class PositionManagementService
         // Only flush if requested (allows caller to control transaction)
         if ($flush) {
             $this->entityManager->flush();
+            
+            // Invalidate section cache when positions are normalized
+            $parentSection = $this->entityManager->getRepository(\App\Entity\Section::class)->find($parentSectionId);
+            if ($parentSection) {
+                $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            }
         }
     }
     
@@ -135,6 +151,11 @@ class PositionManagementService
         // Only flush if requested (allows caller to control transaction)
         if ($flush) {
             $this->entityManager->flush();
+            
+            // Invalidate page caches when positions are reordered
+            foreach ($pages as $page) {
+                $this->cacheInvalidationService->invalidatePage($page, 'update');
+            }
         }
     }
 }

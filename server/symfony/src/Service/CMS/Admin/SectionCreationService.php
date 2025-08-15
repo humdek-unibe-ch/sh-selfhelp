@@ -10,6 +10,8 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
@@ -26,6 +28,8 @@ class SectionCreationService extends UserContextAwareService
         private readonly StyleRepository $styleRepository,
         private readonly PositionManagementService $positionManagementService,
         private readonly DataTableService $dataTableService,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -80,6 +84,10 @@ class SectionCreationService extends UserContextAwareService
             }
 
             $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
+
+            // Invalidate page and section caches
+            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            $this->cacheInvalidationService->invalidateSection($section, 'create');
 
             $this->entityManager->commit();
             return [
@@ -159,6 +167,11 @@ class SectionCreationService extends UserContextAwareService
             $this->entityManager->persist($sectionHierarchy);
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
+            
+            // Invalidate section caches
+            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            $this->cacheInvalidationService->invalidateSection($childSection, 'create');
+            
             $this->entityManager->commit();
             return [
                 'id' => $childSection->getId(),

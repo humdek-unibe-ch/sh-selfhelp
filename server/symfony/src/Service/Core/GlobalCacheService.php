@@ -52,14 +52,9 @@ class GlobalCacheService
     private CacheItemPoolInterface $lookupsCache;
     private CacheItemPoolInterface $permissionsCache;
 
-    // Cache statistics
-    private array $stats = [
-        'hits' => 0,
-        'misses' => 0,
-        'sets' => 0,
-        'invalidations' => 0,
-        'category_stats' => []
-    ];
+    // Cache statistics key in Redis
+    private const STATS_CACHE_KEY = 'cache_statistics';
+    private const STATS_TTL = 86400; // 24 hours
 
     public function __construct(
         #[Autowire(service: 'cache.global')] CacheItemPoolInterface $globalCache,
@@ -75,16 +70,8 @@ class GlobalCacheService
         $this->lookupsCache = $lookupsCache;
         $this->permissionsCache = $permissionsCache;
 
-        // Initialize category stats
-        $categories = $this->getAllCategories();
-        foreach ($categories as $category) {
-            $this->stats['category_stats'][$category] = [
-                'hits' => 0,
-                'misses' => 0,
-                'sets' => 0,
-                'invalidations' => 0
-            ];
-        }
+        // Initialize persistent cache statistics if they don't exist
+        $this->initializePersistentStats();
     }
 
     /**
@@ -251,8 +238,9 @@ class GlobalCacheService
         }
         
         if ($success) {
-            $this->recordInvalidation('all', 'all');
-            $this->log('info', 'All caches cleared');
+            // Clear statistics when clearing all caches
+            $this->resetStats();
+            $this->log('info', 'All caches and statistics cleared');
         }
         
         return $success;
@@ -263,15 +251,17 @@ class GlobalCacheService
      */
     public function getStats(): array
     {
+        $stats = $this->getPersistentStats();
+        
         return [
             'global_stats' => [
-                'hits' => $this->stats['hits'],
-                'misses' => $this->stats['misses'],
-                'sets' => $this->stats['sets'],
-                'invalidations' => $this->stats['invalidations'],
-                'hit_rate' => $this->calculateHitRate()
+                'hits' => $stats['hits'],
+                'misses' => $stats['misses'],
+                'sets' => $stats['sets'],
+                'invalidations' => $stats['invalidations'],
+                'hit_rate' => $this->calculateHitRate($stats)
             ],
-            'category_stats' => $this->stats['category_stats']
+            'category_stats' => $stats['category_stats']
         ];
     }
 
@@ -280,7 +270,7 @@ class GlobalCacheService
      */
     public function resetStats(): void
     {
-        $this->stats = [
+        $stats = [
             'hits' => 0,
             'misses' => 0,
             'sets' => 0,
@@ -290,7 +280,7 @@ class GlobalCacheService
         
         $categories = $this->getAllCategories();
         foreach ($categories as $category) {
-            $this->stats['category_stats'][$category] = [
+            $stats['category_stats'][$category] = [
                 'hits' => 0,
                 'misses' => 0,
                 'sets' => 0,
@@ -298,6 +288,7 @@ class GlobalCacheService
             ];
         }
         
+        $this->savePersistentStats($stats);
         $this->log('info', 'Cache statistics reset');
     }
 
@@ -360,8 +351,12 @@ class GlobalCacheService
      */
     private function recordHit(string $category): void
     {
-        $this->stats['hits']++;
-        $this->stats['category_stats'][$category]['hits']++;
+        $stats = $this->getPersistentStats();
+        $stats['hits']++;
+        if (isset($stats['category_stats'][$category])) {
+            $stats['category_stats'][$category]['hits']++;
+        }
+        $this->savePersistentStats($stats);
     }
 
     /**
@@ -369,8 +364,12 @@ class GlobalCacheService
      */
     private function recordMiss(string $category): void
     {
-        $this->stats['misses']++;
-        $this->stats['category_stats'][$category]['misses']++;
+        $stats = $this->getPersistentStats();
+        $stats['misses']++;
+        if (isset($stats['category_stats'][$category])) {
+            $stats['category_stats'][$category]['misses']++;
+        }
+        $this->savePersistentStats($stats);
     }
 
     /**
@@ -378,8 +377,12 @@ class GlobalCacheService
      */
     private function recordSet(string $category): void
     {
-        $this->stats['sets']++;
-        $this->stats['category_stats'][$category]['sets']++;
+        $stats = $this->getPersistentStats();
+        $stats['sets']++;
+        if (isset($stats['category_stats'][$category])) {
+            $stats['category_stats'][$category]['sets']++;
+        }
+        $this->savePersistentStats($stats);
     }
 
     /**
@@ -387,19 +390,21 @@ class GlobalCacheService
      */
     private function recordInvalidation(string $category, string $type = 'item'): void
     {
-        $this->stats['invalidations']++;
-        if (isset($this->stats['category_stats'][$category])) {
-            $this->stats['category_stats'][$category]['invalidations']++;
+        $stats = $this->getPersistentStats();
+        $stats['invalidations']++;
+        if (isset($stats['category_stats'][$category])) {
+            $stats['category_stats'][$category]['invalidations']++;
         }
+        $this->savePersistentStats($stats);
     }
 
     /**
      * Calculate hit rate percentage
      */
-    private function calculateHitRate(): float
+    private function calculateHitRate(array $stats): float
     {
-        $total = $this->stats['hits'] + $this->stats['misses'];
-        return $total > 0 ? round(($this->stats['hits'] / $total) * 100, 2) : 0.0;
+        $total = $stats['hits'] + $stats['misses'];
+        return $total > 0 ? round(($stats['hits'] / $total) * 100, 2) : 0.0;
     }
 
     /**
@@ -410,5 +415,79 @@ class GlobalCacheService
         if ($this->logger) {
             $this->logger->log($level, "[GlobalCache] {$message}", $context);
         }
+    }
+
+    /**
+     * Initialize persistent cache statistics if they don't exist
+     */
+    private function initializePersistentStats(): void
+    {
+        $statsItem = $this->globalCache->getItem(self::STATS_CACHE_KEY);
+        
+        if (!$statsItem->isHit()) {
+            $stats = [
+                'hits' => 0,
+                'misses' => 0,
+                'sets' => 0,
+                'invalidations' => 0,
+                'category_stats' => []
+            ];
+            
+            $categories = $this->getAllCategories();
+            foreach ($categories as $category) {
+                $stats['category_stats'][$category] = [
+                    'hits' => 0,
+                    'misses' => 0,
+                    'sets' => 0,
+                    'invalidations' => 0
+                ];
+            }
+            
+            $this->savePersistentStats($stats);
+        }
+    }
+
+    /**
+     * Get persistent cache statistics from Redis
+     */
+    private function getPersistentStats(): array
+    {
+        $statsItem = $this->globalCache->getItem(self::STATS_CACHE_KEY);
+        
+        if ($statsItem->isHit()) {
+            return $statsItem->get();
+        }
+        
+        // Return empty stats if not found (shouldn't happen after initialization)
+        $stats = [
+            'hits' => 0,
+            'misses' => 0,
+            'sets' => 0,
+            'invalidations' => 0,
+            'category_stats' => []
+        ];
+        
+        $categories = $this->getAllCategories();
+        foreach ($categories as $category) {
+            $stats['category_stats'][$category] = [
+                'hits' => 0,
+                'misses' => 0,
+                'sets' => 0,
+                'invalidations' => 0
+            ];
+        }
+        
+        return $stats;
+    }
+
+    /**
+     * Save persistent cache statistics to Redis
+     */
+    private function savePersistentStats(array $stats): void
+    {
+        $statsItem = $this->globalCache->getItem(self::STATS_CACHE_KEY);
+        $statsItem->set($stats);
+        $statsItem->expiresAfter(self::STATS_TTL);
+        $this->globalCache->save($statsItem);
     }
 }

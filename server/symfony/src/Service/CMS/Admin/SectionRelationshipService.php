@@ -11,6 +11,8 @@ use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +29,8 @@ class SectionRelationshipService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly PositionManagementService $positionManagementService,
         private readonly TransactionService $transactionService,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -72,6 +76,11 @@ class SectionRelationshipService extends UserContextAwareService
             
             $this->entityManager->flush();
             $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
+            
+            // Invalidate page and section caches
+            $this->cacheInvalidationService->invalidatePage($parentPage, 'update');
+            $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+            
             $this->entityManager->commit();
         
             return $pageSection;
@@ -133,6 +142,11 @@ class SectionRelationshipService extends UserContextAwareService
             
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
+            
+            // Invalidate section caches
+            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+            
             $this->entityManager->commit();
             
             return $sectionHierarchy;
@@ -170,6 +184,9 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->entityManager->remove($pageSection);
                 $this->entityManager->flush();
                 $this->positionManagementService->normalizePageSectionPositions($page->getId());
+                
+                // Invalidate page cache
+                $this->cacheInvalidationService->invalidatePage($page, 'update');
             } else {
                 // Not directly associated - check if it's a child section in the page hierarchy
                 $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -186,6 +203,10 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->removeAllSectionRelationships($section, $this->entityManager);
                 $this->entityManager->remove($section);
                 $this->entityManager->flush();
+                
+                // Invalidate page and section caches
+                $this->cacheInvalidationService->invalidatePage($page, 'update');
+                $this->cacheInvalidationService->invalidateSection($section, 'delete');
             }
 
             $this->entityManager->commit();
@@ -220,6 +241,17 @@ class SectionRelationshipService extends UserContextAwareService
             $this->entityManager->remove($sectionHierarchy);
             $this->entityManager->flush();
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
+            
+            // Invalidate section caches
+            $parentSection = $this->sectionRepository->find($parentSectionId);
+            $childSection = $this->sectionRepository->find($childSectionId);
+            if ($parentSection) {
+                $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            }
+            if ($childSection) {
+                $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+            }
+            
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -277,6 +309,11 @@ class SectionRelationshipService extends UserContextAwareService
             $this->removeAllSectionRelationships($section, $this->entityManager);
             $this->entityManager->remove($section);
             $this->entityManager->flush();
+            
+            // Invalidate page and section caches
+            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            $this->cacheInvalidationService->invalidateSection($section, 'delete');
+            
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();

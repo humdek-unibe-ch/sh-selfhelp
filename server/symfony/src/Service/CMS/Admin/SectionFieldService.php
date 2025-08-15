@@ -10,6 +10,8 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +27,8 @@ class SectionFieldService extends UserContextAwareService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly DataTableService $dataTableService,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -41,6 +45,14 @@ class SectionFieldService extends UserContextAwareService
      */
     public function getSectionFields(Section $section): array
     {
+        // Try to get from cache first
+        $cacheKey = "section_fields_{$section->getId()}";
+        $cachedResult = $this->globalCacheService->get(GlobalCacheService::CATEGORY_SECTIONS, $cacheKey);
+        
+        if ($cachedResult !== null) {
+            return $cachedResult;
+        }
+        
         // Get style and its fields
         $style = $section->getStyle();
         if (!$style) {
@@ -139,6 +151,9 @@ class SectionFieldService extends UserContextAwareService
             $formattedFields[] = $fieldData;
         }
 
+        // Cache the result for 30 minutes
+        $this->globalCacheService->set(GlobalCacheService::CATEGORY_SECTIONS, $cacheKey, $formattedFields, 1800);
+        
         return $formattedFields;
     }
 
@@ -276,6 +291,9 @@ class SectionFieldService extends UserContextAwareService
         if ($isFormSection && $displayNameUpdate !== null) {
             $this->dataTableService->updateDataTableDisplayName($section, $displayNameUpdate);
         }
+        
+        // Invalidate section cache after updates
+        $this->cacheInvalidationService->invalidateSection($section, 'update');
     }
 
     /**

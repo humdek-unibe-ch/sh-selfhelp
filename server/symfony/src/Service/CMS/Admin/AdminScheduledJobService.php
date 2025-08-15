@@ -227,25 +227,4 @@ class AdminScheduledJobService extends UserContextAwareService
         ];
     }
 
-    /**
-     * Log transaction for scheduled job operations
-     */
-    private function logTransaction(ScheduledJob $job, string $action, string $log): void
-    {
-        $transaction = new Transaction();
-        $transaction->setTransactionTime(new \DateTime());
-        $transaction->setTableName('scheduledJobs');
-        $transaction->setIdTableName($job->getId());
-        $transaction->setTransactionLog($log);
-        $transaction->setUser($this->getCurrentUser());
-        
-        $transactionType = $this->lookupService->getLookupByValue($action);
-        $transaction->setTransactionType($transactionType);
-        
-        $transactionBy = $this->lookupService->getLookupByValue('Manual');
-        $transaction->setTransactionBy($transactionBy);
-
-        $this->entityManager->persist($transaction);
-        $this->entityManager->flush();
-    }
 } 

@@ -15,6 +15,8 @@ use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Core\GlobalCacheService;
+use App\Service\Core\CacheInvalidationService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
@@ -32,6 +34,8 @@ class SectionExportImportService extends UserContextAwareService
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly StyleRepository $styleRepository,
         private readonly TransactionService $transactionService,
+        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -114,9 +118,10 @@ class SectionExportImportService extends UserContextAwareService
         }
         
         // Add field translations to the section subtree
-        $this->addFieldTranslationsToSections([$targetSection]);
+        $targetSections = [$targetSection];
+        $this->addFieldTranslationsToSections($targetSections);
         
-        return [$targetSection];
+        return $targetSections;
     }
     
     /**
@@ -144,6 +149,10 @@ class SectionExportImportService extends UserContextAwareService
         
         try {
             $importedSections = $this->importSections($sectionsData, $page, null, $position);
+            
+            // Invalidate page and sections cache after import
+            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
             
             // Commit transaction
             $this->entityManager->commit();
@@ -188,6 +197,10 @@ class SectionExportImportService extends UserContextAwareService
         
         try {
             $importedSections = $this->importSections($sectionsData, null, $parentSection, $position);
+            
+            // Invalidate sections cache after import
+            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
             
             // Commit transaction
             $this->entityManager->commit();
