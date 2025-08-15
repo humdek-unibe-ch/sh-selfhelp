@@ -9,6 +9,8 @@ use App\Service\CMS\Frontend\PageService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
+use App\Service\Core\CacheInvalidationService;
+use App\Service\Core\GlobalCacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +32,9 @@ class AdminPageController extends AbstractController
         private readonly AdminPageService $adminPageService,
         private readonly ApiResponseFormatter $responseFormatter,
         private readonly PageService $pageService,
-        private readonly JsonSchemaValidationService $jsonSchemaValidationService
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly GlobalCacheService $globalCacheService
     ) {
     }
 
@@ -158,6 +162,11 @@ class AdminPageController extends AbstractController
     {
         try {
             $page = $this->adminPageService->deletePage($page_keyword);
+            
+            // Invalidate pages and sections cache
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            
             return $this->responseFormatter->formatSuccess( 
                 $page,
                 'responses/admin/pages/page'
@@ -194,6 +203,9 @@ class AdminPageController extends AbstractController
                 $data['fields']
             );
             
+            // Invalidate page cache
+            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            
             // Return updated page with fields
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
             
@@ -219,6 +231,10 @@ class AdminPageController extends AbstractController
             $data['oldParentSectionId'] ?? null,
         );
 
+        // Invalidate pages and sections cache
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+
         return $this->responseFormatter->formatSuccess(
             ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()],
             null,
@@ -229,6 +245,11 @@ class AdminPageController extends AbstractController
     public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
         $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
+        
+        // Invalidate pages and sections cache
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        
         return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 }

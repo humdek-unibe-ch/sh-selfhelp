@@ -7,6 +7,8 @@ use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
 use App\Service\CMS\Common\SectionUtilityService;
+use App\Service\Core\CacheInvalidationService;
+use App\Service\Core\GlobalCacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +22,9 @@ class AdminSectionController extends AbstractController
         private readonly AdminSectionService $adminSectionService,
         private readonly ApiResponseFormatter $apiResponseFormatter,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly SectionUtilityService $sectionUtilityService
+        private readonly SectionUtilityService $sectionUtilityService,
+        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly GlobalCacheService $globalCacheService
     ) {}
 
     /**
@@ -52,6 +56,12 @@ class AdminSectionController extends AbstractController
             oldParentSectionId: $data['oldParentSectionId'] ?? null
         );
 
+        // Invalidate section and page caches
+        $this->cacheInvalidationService->invalidateSection($result->getChildSection(), 'update');
+        if ($result->getParentSection()) {
+            $this->cacheInvalidationService->invalidateSection($result->getParentSection(), 'update');
+        }
+
         return $this->apiResponseFormatter->formatSuccess(
             ['id' => $result->getChildSection()->getId(), 'position' => $result->getPosition()],
             null,
@@ -63,12 +73,20 @@ class AdminSectionController extends AbstractController
     {
         $this->adminSectionService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
 
+        // Invalidate all sections and pages cache since we can't get specific entities after deletion
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
     public function deleteSection(string $page_keyword, int $section_id): Response
     {
         $this->adminSectionService->deleteSection($page_keyword, $section_id);
+
+        // Invalidate all sections and pages cache since we can't get specific entities after deletion
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
@@ -85,6 +103,10 @@ class AdminSectionController extends AbstractController
             $data['styleId'],
             $data['position'] ?? null
         );
+
+        // Invalidate sections and pages cache
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(
             [
@@ -109,6 +131,10 @@ class AdminSectionController extends AbstractController
             $data['styleId'],
             $data['position'] ?? null
         );
+
+        // Invalidate sections and pages cache
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(
             [
@@ -137,6 +163,9 @@ class AdminSectionController extends AbstractController
                 $data['contentFields'],
                 $data['propertyFields']
             );
+            
+            // Invalidate section cache
+            $this->cacheInvalidationService->invalidateSection($section, 'update');
             
             // Return updated section with fields
             $sectionWithFields = $this->adminSectionService->getSection($page_keyword, $section->getId());
@@ -233,6 +262,10 @@ class AdminSectionController extends AbstractController
                 $data['position'] ?? null
             );
             
+            // Invalidate sections and pages cache after import
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+            
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
                 null,
@@ -269,6 +302,10 @@ class AdminSectionController extends AbstractController
                 $data['sections'], 
                 $data['position'] ?? null
             );
+            
+            // Invalidate sections and pages cache after import
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
