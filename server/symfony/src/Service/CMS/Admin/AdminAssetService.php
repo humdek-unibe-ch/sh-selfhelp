@@ -7,6 +7,8 @@ use App\Repository\AssetRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\GlobalCacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -14,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminAssetService extends BaseService
 {
+    use CacheableServiceTrait;
+    
     private const UPLOAD_DIR = 'uploads/assets/';
     private const ALLOWED_EXTENSIONS = [
         'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', // Images
@@ -44,6 +48,21 @@ class AdminAssetService extends BaseService
      * @return array
      */
     public function getAllAssets(int $page = 1, int $pageSize = 100, ?string $search = null, ?string $folder = null): array
+    {
+        // Create cache key based on parameters
+        $cacheKey = "assets_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($folder ?? ''));
+        
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_ASSETS,
+            $cacheKey,
+            function() use ($page, $pageSize, $search, $folder) {
+                return $this->fetchAssetsFromDatabase($page, $pageSize, $search, $folder);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_ASSETS)
+        );
+    }
+    
+    private function fetchAssetsFromDatabase(int $page, int $pageSize, ?string $search, ?string $folder): array
     {
         $result = $this->assetRepository->findAssetsWithPagination($page, $pageSize, $search, $folder);
         

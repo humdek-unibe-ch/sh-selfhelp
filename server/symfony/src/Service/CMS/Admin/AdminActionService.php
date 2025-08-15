@@ -9,12 +9,16 @@ use App\Repository\LookupRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\GlobalCacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Exception\ServiceException;
 
 class AdminActionService extends BaseService
 {
+    use CacheableServiceTrait;
+    
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
@@ -28,7 +32,17 @@ class AdminActionService extends BaseService
      */
     public function getActions(int $page = 1, int $pageSize = 20, ?string $search = null, ?string $sort = null, string $sortDirection = 'asc'): array
     {
-        return $this->actionRepository->findActionsWithPagination($page, $pageSize, $search, $sort, $sortDirection);
+        // Create cache key based on parameters
+        $cacheKey = "actions_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
+        
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_ACTIONS,
+            $cacheKey,
+            function() use ($page, $pageSize, $search, $sort, $sortDirection) {
+                return $this->actionRepository->findActionsWithPagination($page, $pageSize, $search, $sort, $sortDirection);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_ACTIONS)
+        );
     }
 
     /**
@@ -36,12 +50,19 @@ class AdminActionService extends BaseService
      */
     public function getActionById(int $actionId): array
     {
-        /** @var Action|null $action */
-        $action = $this->entityManager->find(Action::class, $actionId);
-        if (!$action instanceof Action) {
-            throw new ServiceException('Action not found', Response::HTTP_NOT_FOUND);
-        }
-        return $this->formatAction($action);
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_ACTIONS,
+            "action_{$actionId}",
+            function() use ($actionId) {
+                /** @var Action|null $action */
+                $action = $this->entityManager->find(Action::class, $actionId);
+                if (!$action instanceof Action) {
+                    throw new ServiceException('Action not found', Response::HTTP_NOT_FOUND);
+                }
+                return $this->formatAction($action);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_ACTIONS)
+        );
     }
 
     /**

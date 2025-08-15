@@ -50,3 +50,91 @@ services:
     App\Service\CMS\Admin\AdminAssetService:
         arguments:
             $projectDir: '%kernel.project_dir%'
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    # Global Cache Service Configuration
+    App\Service\Core\GlobalCacheService:
+        arguments:
+            $globalCache: '@cache.global'
+            $userFrontendCache: '@cache.user_frontend'
+            $adminCache: '@cache.admin'
+            $lookupsCache: '@cache.lookups'
+            $permissionsCache: '@cache.permissions'
+    
+    # Cache Invalidation Service
+    App\Service\Core\CacheInvalidationService:
+        arguments:
+            $cacheService: '@App\Service\Core\GlobalCacheService'
+    
+    # Services that use CacheableServiceTrait
+    # Frontend Services
+    App\Service\CMS\Frontend\PageService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    # Core Services
+    App\Service\Core\LookupService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\Core\JobSchedulerService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    # Admin Services - All entities
+    App\Service\CMS\Admin\AdminPageService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminUserService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminSectionService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminGroupService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminRoleService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminGenderService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+
+    
+    App\Service\CMS\Admin\AdminScheduledJobService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminActionService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\CMS\Admin\AdminCmsPreferenceService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]
+    
+    App\Service\Auth\UserPermissionCacheService:
+        calls:
+            - [setGlobalCacheService, ['@App\Service\Core\GlobalCacheService']]
+            - [setCacheInvalidationService, ['@App\Service\Core\CacheInvalidationService']]

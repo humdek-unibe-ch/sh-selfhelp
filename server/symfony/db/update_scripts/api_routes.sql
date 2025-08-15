@@ -1230,3 +1230,43 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.data.read'
 WHERE ar.route_name IN ('admin_data_table_column_names_get_v1');
+
+-- Cache Management API Routes
+INSERT IGNORE INTO `permissions` (`name`, `description`)
+VALUES
+  ('admin.cache.read', 'Can read cache statistics and monitoring data'),
+  ('admin.cache.clear', 'Can clear caches'),
+  ('admin.cache.manage', 'Can manage cache settings and operations');
+
+-- Grant cache permissions to admin role
+INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'admin' AND p.name IN (
+  'admin.cache.read', 'admin.cache.clear', 'admin.cache.manage'
+);
+
+-- Insert Cache Management API routes
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_cache_stats_v1', 'v1', '/admin/cache/stats', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::getCacheStats', 'GET', NULL, NULL),
+('admin_cache_clear_all_v1', 'v1', '/admin/cache/clear/all', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::clearAllCaches', 'POST', NULL, NULL),
+('admin_cache_clear_category_v1', 'v1', '/admin/cache/clear/category', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::clearCacheCategory', 'POST', NULL, JSON_OBJECT(
+    'category', JSON_OBJECT('in', 'body', 'required', true)
+)),
+('admin_cache_clear_user_v1', 'v1', '/admin/cache/clear/user', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::clearUserCache', 'POST', NULL, JSON_OBJECT(
+    'user_id', JSON_OBJECT('in', 'body', 'required', true)
+)),
+('admin_cache_reset_stats_v1', 'v1', '/admin/cache/stats/reset', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::resetCacheStats', 'POST', NULL, NULL),
+('admin_cache_health_v1', 'v1', '/admin/cache/health', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::getCacheHealth', 'GET', NULL, NULL);
+
+-- Link cache routes to permissions
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.cache.read'
+WHERE ar.route_name IN ('admin_cache_stats_v1', 'admin_cache_health_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.cache.clear'
+WHERE ar.route_name IN ('admin_cache_clear_all_v1', 'admin_cache_clear_category_v1', 'admin_cache_clear_user_v1');
+
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.cache.manage'
+WHERE ar.route_name IN ('admin_cache_reset_stats_v1');

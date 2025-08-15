@@ -3,6 +3,7 @@
 namespace App\Service\Auth;
 
 use App\Entity\User;
+use App\Service\Core\CacheableServiceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Routing\RouterInterface;
@@ -15,6 +16,8 @@ use Psr\Log\LoggerInterface;
  */
 class UserPermissionCacheService
 {
+    use CacheableServiceTrait;
+    
     private CacheItemPoolInterface $cache;
     private const CACHE_PREFIX = 'user_permissions_';
     private const ROUTE_PERMISSIONS_PREFIX = 'route_permissions_';

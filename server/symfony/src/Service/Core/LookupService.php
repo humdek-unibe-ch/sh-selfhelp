@@ -12,6 +12,8 @@ use App\Repository\LookupRepository;
  */
 final class LookupService
 {
+    use CacheableServiceTrait;
+
     // Lookup Types
     public const NOTIFICATION_TYPES = 'notificationTypes';
     public const ACTION_SCHEDULE_TYPES = 'actionScheduleTypes';
@@ -150,7 +152,14 @@ final class LookupService
      */
     public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
     {
-        return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_LOOKUPS,
+            "lookup_{$typeCode}_{$lookupValue}",
+            function() use ($typeCode, $lookupValue) {
+                return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_LOOKUPS)
+        );
     }
 
     /**
@@ -171,7 +180,14 @@ final class LookupService
      */
     public function getLookups(string $typeCode): array
     {
-        return $this->lookupRepository->getLookups($typeCode);
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_LOOKUPS,
+            "lookups_{$typeCode}",
+            function() use ($typeCode) {
+                return $this->lookupRepository->getLookups($typeCode);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_LOOKUPS)
+        );
     }
 
     /**

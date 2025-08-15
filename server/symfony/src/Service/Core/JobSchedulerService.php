@@ -28,6 +28,8 @@ use Psr\Log\LoggerInterface;
  */
 class JobSchedulerService extends BaseService
 {
+    use CacheableServiceTrait;
+    
     private TransactionService $transactionService;
     private LookupService $lookupService;
     private LoggerInterface $logger;

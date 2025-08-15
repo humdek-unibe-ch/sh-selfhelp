@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Clear User Cache Request",
+  "description": "Request schema for clearing cache for a specific user",
+  "properties": {
+    "user_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the user whose cache should be cleared"
+    }
+  },
+  "required": ["user_id"],
+  "additionalProperties": false
+}

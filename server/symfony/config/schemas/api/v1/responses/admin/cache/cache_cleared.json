@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Cache Cleared Response",
+  "description": "Response schema for cache clearing operations",
+  "properties": {
+    "cleared": {
+      "type": "boolean",
+      "description": "Whether the cache clearing operation was successful"
+    },
+    "category": {
+      "type": "string",
+      "pattern": "^[a-z_]+$",
+      "description": "Cache category that was cleared (for category-specific operations)"
+    },
+    "user_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "User ID for user-specific cache clearing operations"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when cache was cleared"
+    }
+  },
+  "required": ["cleared", "timestamp"],
+  "additionalProperties": false
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Cache Health Response",
+  "description": "Response schema for cache health endpoint",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["excellent", "good", "fair", "poor", "unknown"],
+      "description": "Overall cache health status"
+    },
+    "color": {
+      "type": "string",
+      "enum": ["green", "blue", "yellow", "red", "gray"],
+      "description": "Color indicator for UI display"
+    },
+    "hit_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Current cache hit rate percentage"
+    },
+    "total_operations": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of cache operations"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["performance", "category", "invalidation", "memory"],
+            "description": "Type of recommendation"
+          },
+          "message": {
+            "type": "string",
+            "description": "Recommendation message"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "Priority level of the recommendation"
+          },
+          "category": {
+            "type": "string",
+            "pattern": "^[a-z_]+$",
+            "description": "Related cache category (if applicable)"
+          }
+        },
+        "required": ["type", "message", "priority"],
+        "additionalProperties": false
+      },
+      "description": "List of performance recommendations"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when health status was generated"
+    }
+  },
+  "required": ["status", "color", "hit_rate", "total_operations", "recommendations", "timestamp"],
+  "additionalProperties": false
+}

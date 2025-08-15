@@ -16,6 +16,7 @@
         "justinrainbow/json-schema": "^6.4",
         "lexik/jwt-authentication-bundle": "*",
         "nelmio/cors-bundle": "*",
+        "predis/predis": "^3.2",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2.5.1",

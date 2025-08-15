@@ -9,12 +9,16 @@ use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\GlobalCacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminCmsPreferenceService extends BaseService
 {
+    use CacheableServiceTrait;
+
     public function __construct(
         private readonly CmsPreferenceRepository $cmsPreferenceRepository,
         private readonly LanguageRepository $languageRepository,
@@ -30,24 +34,31 @@ class AdminCmsPreferenceService extends BaseService
      */
     public function getCmsPreferences(): array
     {
-        $preferences = $this->cmsPreferenceRepository->getCmsPreferences();
-        
-        if (!$preferences) {
-            throw new ServiceException('CMS preferences not found', Response::HTTP_NOT_FOUND);
-        }
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_CMS_PREFERENCES,
+            'cms_preferences',
+            function() {
+                $preferences = $this->cmsPreferenceRepository->getCmsPreferences();
+                
+                if (!$preferences) {
+                    throw new ServiceException('CMS preferences not found', Response::HTTP_NOT_FOUND);
+                }
 
-        return [
-            'id' => $preferences->getId(),
-            'callback_api_key' => $preferences->getCallbackApiKey(),
-            'default_language_id' => $preferences->getDefaultLanguage()?->getId(),
-            'default_language' => $preferences->getDefaultLanguage() ? [
-                'id' => $preferences->getDefaultLanguage()->getId(),
-                'locale' => $preferences->getDefaultLanguage()->getLocale(),
-                'language' => $preferences->getDefaultLanguage()->getLanguage()
-            ] : null,
-            'anonymous_users' => $preferences->getAnonymousUsers(),
-            'firebase_config' => $preferences->getFirebaseConfig()
-        ];
+                return [
+                    'id' => $preferences->getId(),
+                    'callback_api_key' => $preferences->getCallbackApiKey(),
+                    'default_language_id' => $preferences->getDefaultLanguage()?->getId(),
+                    'default_language' => $preferences->getDefaultLanguage() ? [
+                        'id' => $preferences->getDefaultLanguage()->getId(),
+                        'locale' => $preferences->getDefaultLanguage()->getLocale(),
+                        'language' => $preferences->getDefaultLanguage()->getLanguage()
+                    ] : null,
+                    'anonymous_users' => $preferences->getAnonymousUsers(),
+                    'firebase_config' => $preferences->getFirebaseConfig()
+                ];
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_CMS_PREFERENCES)
+        );
     }
 
     /**

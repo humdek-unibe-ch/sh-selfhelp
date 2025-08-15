@@ -18,6 +18,8 @@ use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\CMS\Common\SectionUtilityService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\CacheInvalidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminPageService extends UserContextAwareService
 {
     use TranslationManagerTrait;
+    use CacheableServiceTrait;
 
     // ACL group name constants
     private const GROUP_ADMIN = 'admin';
@@ -217,6 +220,13 @@ class AdminPageService extends UserContextAwareService
             );
 
             $this->entityManager->commit();
+
+            // Invalidate page-related caches after successful creation
+            if ($this->cacheInvalidationService) {
+                $this->cacheInvalidationService->invalidatePage($page, 'create');
+                $this->cacheInvalidationService->invalidatePermissions(); // ACLs changed
+            }
+
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException(
@@ -391,6 +401,12 @@ class AdminPageService extends UserContextAwareService
             );
 
             $this->entityManager->commit();
+
+            // Invalidate page-related caches after successful update
+            if ($this->cacheInvalidationService) {
+                $this->cacheInvalidationService->invalidatePage($page, 'update');
+            }
+
             return $page;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -462,6 +478,13 @@ class AdminPageService extends UserContextAwareService
             );
 
             $this->entityManager->commit();
+
+            // Invalidate page-related caches after successful deletion
+            if ($this->cacheInvalidationService) {
+                $this->cacheInvalidationService->invalidatePage($deleted_page, 'delete');
+                $this->cacheInvalidationService->invalidatePermissions(); // ACLs removed
+            }
+
             return $deleted_page;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();

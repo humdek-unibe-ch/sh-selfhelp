@@ -13,10 +13,14 @@ use App\Service\ACL\ACLService as ACLACLService;
 use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\GlobalCacheService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PageService extends UserContextAwareService
 {
+    use CacheableServiceTrait;
+
     // Default values for language
     private const PROPERTY_LANGUAGE_ID = 1; // Language ID 1 is for properties, not a real language
 
@@ -84,6 +88,17 @@ class PageService extends UserContextAwareService
             $userId = $user->getId();
         }
 
+        // Determine which language ID to use for translations
+        $languageId = $this->determineLanguageId($language_id);
+
+        // Try to get from cache first
+        $cacheKey = "pages_{$mode}_{$admin}_{$languageId}";
+        
+        $cachedPages = $this->getCachedUserData($userId, $cacheKey);
+        if ($cachedPages !== null) {
+            return $cachedPages;
+        }
+
         // Get all pages with ACL for the user using the ACLService (cached)
         $allPages = $this->aclService->getAllUserAcls($userId);
 
@@ -113,9 +128,6 @@ class PageService extends UserContextAwareService
             return $item['id_pageAccessTypes'] != $removeTypeId;
         }));
 
-        // Determine which language ID to use for translations
-        $languageId = $this->determineLanguageId($language_id);
-        
         // Get default language ID for fallback translations
         $defaultLanguageId = null;
         try {
@@ -178,6 +190,8 @@ class PageService extends UserContextAwareService
         // Optional: Sort children by nav_position if needed
         $this->sortPagesRecursively($nestedPages);
 
+        // Cache the result for this user
+         $this->cacheUserData($userId, $cacheKey, $nestedPages, $this->getCacheTTL(GlobalCacheService::CATEGORY_FRONTEND_USER));
         return $nestedPages;
     }
 
@@ -191,18 +205,29 @@ class PageService extends UserContextAwareService
      */
     public function getPage(string $page_keyword, ?int $language_id = null): array
     {
-            $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        // Determine which language ID to use for translations
+        $languageId = $this->determineLanguageId($language_id);
+        
+        // Get current user for caching
+        $user = $this->getCurrentUser();
+        $userId = $user ? $user->getId() : 1; // guest user
+
+        // Try to get from cache first
+        $cacheKey = "page_{$page_keyword}_{$languageId}";
+        $cachedPage = $this->getCachedUserData($userId, $cacheKey);
+        if ($cachedPage !== null) {
+            return $cachedPage;
+        }
+
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
 
         // Check if user has access to the page
         $this->checkAccess($page_keyword, 'select');
-        
-        // Determine which language ID to use for translations
-        $languageId = $this->determineLanguageId($language_id);
 
-        return [
+        $pageData = [
             'page' => [
                 'id' => $page->getId(),
                 'keyword' => $page->getKeyword(),
@@ -214,6 +239,11 @@ class PageService extends UserContextAwareService
                 'sections' => $this->getPageSections($page->getId(), $languageId)
             ]
         ];
+
+        // Cache the page data for this user
+        $this->cacheUserData($userId, $cacheKey, $pageData, $this->getCacheTTL(GlobalCacheService::CATEGORY_FRONTEND_USER));
+
+        return $pageData;
     }
 
     /**

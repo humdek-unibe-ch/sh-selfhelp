@@ -8,6 +8,8 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
+use App\Service\Core\CacheableServiceTrait;
+use App\Service\Core\GlobalCacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleService extends UserContextAwareService
 {
+    use CacheableServiceTrait;
+    
     private EntityManagerInterface $entityManager;
 
     public function __construct(
@@ -42,6 +46,21 @@ class AdminRoleService extends UserContextAwareService
         if ($pageSize < 1 || $pageSize > 100) $pageSize = 20;
         if (!in_array($sortDirection, ['asc', 'desc'])) $sortDirection = 'asc';
 
+        // Create cache key based on parameters
+        $cacheKey = "roles_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
+        
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_ROLES,
+            $cacheKey,
+            function() use ($page, $pageSize, $search, $sort, $sortDirection) {
+                return $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
+            },
+            $this->getCacheTTL(GlobalCacheService::CATEGORY_ROLES)
+        );
+    }
+    
+    private function fetchRolesFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
+    {
         $qb = $this->createRoleQueryBuilder();
         
         // Apply search filter
