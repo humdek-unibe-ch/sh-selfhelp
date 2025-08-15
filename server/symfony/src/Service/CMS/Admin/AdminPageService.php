@@ -397,11 +397,6 @@ class AdminPageService extends UserContextAwareService
 
             $this->entityManager->commit();
 
-            // Invalidate page-related caches after successful update
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidatePage($page, 'update');
-            }
-
             return $page;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -472,13 +467,7 @@ class AdminPageService extends UserContextAwareService
                 'Page deleted with keyword: ' . $pageKeywordForLog
             );
 
-            $this->entityManager->commit();
-
-            // Invalidate page-related caches after successful deletion
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidatePage($deleted_page, 'delete');
-                $this->cacheInvalidationService->invalidatePermissions(); // ACLs removed
-            }
+            $this->entityManager->commit();            
 
             return $deleted_page;
         } catch (\Throwable $e) {

@@ -109,6 +109,7 @@ class GlobalCacheService
         $pool = $this->getCachePool($category);
         
         $item = $pool->getItem($fullKey);
+        $data = Utils::normalizeWithSymfonySerializer($data);
         $item->set($data);
         
         if ($ttl !== null) {

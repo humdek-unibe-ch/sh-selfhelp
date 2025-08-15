@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminPageController extends AbstractController
 {
     use RequestValidatorTrait;
-    
+
     /**
      * Constructor
      */
@@ -49,7 +49,7 @@ class AdminPageController extends AbstractController
     {
         try {
             // Mode detection logic: default to 'web', could be extended to accept a query param
-            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB, true, $language_id);            
+            $pages = $this->pageService->getAllAccessiblePagesForUser(LookupService::PAGE_ACCESS_TYPES_MOBILE_AND_WEB, true, $language_id);
             return $this->responseFormatter->formatSuccess(
                 $pages,
                 'responses/common/_acl_page_definition',
@@ -75,7 +75,7 @@ class AdminPageController extends AbstractController
     {
         try {
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
-            
+
             return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
@@ -123,7 +123,7 @@ class AdminPageController extends AbstractController
             // Validate request against JSON schema
             // This will throw an exception if validation fails
             $data = $this->validateRequest($request, 'requests/admin/create_page', $this->jsonSchemaValidationService);
-            
+
             // Create page using pageAccessTypeCode
             $page = $this->adminPageService->createPage(
                 $data['keyword'],
@@ -141,7 +141,7 @@ class AdminPageController extends AbstractController
                 $this->cacheInvalidationService->invalidatePage($page, 'create');
                 $this->cacheInvalidationService->invalidatePermissions(); // ACLs changed
             }
-            
+
             // Return success response
             return $this->responseFormatter->formatSuccess(
                 $page,
@@ -168,12 +168,17 @@ class AdminPageController extends AbstractController
     {
         try {
             $page = $this->adminPageService->deletePage($page_keyword);
-            
+
             // Invalidate pages and sections cache
             $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
             $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-            
-            return $this->responseFormatter->formatSuccess( 
+            // Invalidate page-related caches after successful deletion
+            if ($this->cacheInvalidationService) {
+                $this->cacheInvalidationService->invalidatePage($page, 'delete');
+                $this->cacheInvalidationService->invalidatePermissions(); // ACLs removed
+            }
+
+            return $this->responseFormatter->formatSuccess(
                 $page,
                 'responses/admin/pages/page'
             );
@@ -201,20 +206,20 @@ class AdminPageController extends AbstractController
             // Validate request against JSON schema
             // This will throw an exception if validation fails
             $data = $this->validateRequest($request, 'requests/admin/update_page', $this->jsonSchemaValidationService);
-            
+
             // Update the page
             $page = $this->adminPageService->updatePage(
                 $page_keyword,
                 $data['pageData'],
                 $data['fields']
             );
-            
+
             // Invalidate page cache
             $this->cacheInvalidationService->invalidatePage($page, 'update');
-            
+
             // Return updated page with fields
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
-            
+
             return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
@@ -251,11 +256,11 @@ class AdminPageController extends AbstractController
     public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
         $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
-        
+
         // Invalidate pages and sections cache
         $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
         $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-        
+
         return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 }
