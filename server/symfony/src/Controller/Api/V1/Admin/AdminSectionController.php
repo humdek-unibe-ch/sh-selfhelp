@@ -91,6 +91,26 @@ class AdminSectionController extends AbstractController
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
+    public function forceDeleteSection(string $page_keyword, int $section_id): Response
+    {
+        try {
+            $this->adminSectionService->forceDeleteSection($page_keyword, $section_id);
+
+            // Invalidate all sections and pages cache since we can't get specific entities after deletion
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+
+            return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
+        } catch (\App\Exception\ServiceException $e) {
+            return $this->apiResponseFormatter->formatException($e);
+        } catch (\Exception $e) {
+            return $this->apiResponseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     /**
      * Creates a new section with the specified style and adds it to a page
      */

@@ -9,7 +9,7 @@ SET version = 'v8.0.0';
 -- This reduces database queries from N individual queries to 1 batch query,
 -- significantly improving performance for pages with many sections.
 
--- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System, Scheduled Jobs API
+-- Add new features for v8.0.0: Gender API, CMS Preferences API, Asset Management API, User Validation System, Scheduled Jobs API, Section Management API
 
 -- Scheduled Jobs API Enhancement
 -- Added comprehensive scheduled jobs management API with:
@@ -4280,3 +4280,15 @@ CALL rename_index('actions', 'idx_3128fb5ee2e6a7c3', 'IDX_548F1EFE2E6A7C3');
 
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0b8030ba52', 'IDX_862DD4F88030BA52');
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0bf3854f45',  'IDX_862DD4F8F3854F45');
+
+-- Section Management API Enhancement
+-- Added new section deletion capabilities:
+-- - DELETE /admin/sections/unused/{section_id} - Delete single unused section (requires admin.section.delete permission)
+-- - DELETE /admin/sections/unused - Delete all unused sections (requires admin.section.delete permission)
+-- - DELETE /admin/pages/{page_keyword}/sections/{section_id}/force-delete - Force delete section from page (requires admin.page.delete permission)
+-- - Updated existing DELETE /admin/pages/{page_keyword}/sections/{section_id} to require admin.page.delete permission
+-- Added comprehensive transaction logging for all section deletion operations
+-- Enhanced AdminSectionUtilityService with deletion capabilities and proper relationship cleanup
+-- Added forceDeleteSection method that always deletes (never just removes from page)
+-- All deletion operations are wrapped in database transactions with proper rollback handling
+-- All operations properly check page access permissions before allowing section deletion

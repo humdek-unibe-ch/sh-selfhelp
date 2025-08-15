@@ -238,6 +238,22 @@ class AdminSectionService extends UserContextAwareService
     }
 
     /**
+     * Force deletes a section permanently (always delete, never just remove from page).
+     *
+     * This will always completely delete the section and all its relationships,
+     * unlike deleteSection which might just remove from page for direct associations.
+     *
+     * @param string $page_keyword The page keyword.
+     * @param int $section_id The ID of the section to force delete.
+     * @throws ServiceException If the section is not found or access denied.
+     */
+    public function forceDeleteSection(string $page_keyword, int $section_id): void
+    {
+        $this->sectionRelationshipService->forceDeleteSection($page_keyword, $section_id);
+        $this->invalidateSectionUtilityCache();
+    }
+
+    /**
      * Creates a new section with the specified style and adds it to a page
      *
      * @param string $page_keyword The keyword of the page to add the section to

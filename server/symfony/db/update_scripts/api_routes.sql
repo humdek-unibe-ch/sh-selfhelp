@@ -1036,14 +1036,42 @@ WHERE ar.`route_name` IN ('admin_actions_get_one_v1');
 -- Section Utility API routes
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_sections_unused_get_v1', 'v1', '/admin/sections/unused', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getUnusedSections', 'GET', NULL, NULL),
-('admin_sections_ref_containers_get_v1', 'v1', '/admin/sections/ref-containers', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getRefContainers', 'GET', NULL, NULL);
+('admin_sections_ref_containers_get_v1', 'v1', '/admin/sections/ref-containers', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getRefContainers', 'GET', NULL, NULL),
+('admin_sections_unused_delete_v1', 'v1', '/admin/sections/unused/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::deleteUnusedSection', 'DELETE', JSON_OBJECT('section_id', '[0-9]+'), NULL),
+('admin_sections_unused_delete_all_v1', 'v1', '/admin/sections/unused', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::deleteAllUnusedSections', 'DELETE', NULL, NULL),
+('admin_sections_force_delete_v1', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}/force-delete', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::forceDeleteSection', 'DELETE', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '[0-9]+'), NULL);
 
--- Link Section Utility routes to admin.page.update permission
+-- Add admin.section.delete permission
+INSERT IGNORE INTO `permissions` (`name`, `description`) VALUES
+('admin.section.delete', 'Can delete sections');
+
+-- Link Section Utility GET routes to admin.page.update permission
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT ar.`id`, p.`id`
 FROM `api_routes` ar
 JOIN `permissions` p ON p.`name` = 'admin.page.update'
 WHERE ar.`route_name` IN ('admin_sections_unused_get_v1', 'admin_sections_ref_containers_get_v1');
+
+-- Link Section Delete routes to admin.section.delete permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.section.delete'
+WHERE ar.`route_name` IN ('admin_sections_unused_delete_v1', 'admin_sections_unused_delete_all_v1');
+
+-- Update existing section delete route to use admin.page.delete permission (for sections within pages)
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.page.delete'
+WHERE ar.`route_name` IN ('admin_sections_delete');
+
+-- Link force section delete route to admin.page.delete permission (can force delete sections from pages)
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.page.delete'
+WHERE ar.`route_name` IN ('admin_sections_force_delete_v1');
 
 -- API Routes Cache Management
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
@@ -1265,7 +1293,7 @@ VALUES
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
 SELECT r.id, p.id FROM roles r, permissions p 
 WHERE r.name = 'admin' AND p.name IN (
-  'admin.cache.read', 'admin.cache.clear', 'admin.cache.manage'
+  'admin.cache.read', 'admin.cache.clear', 'admin.cache.manage', 'admin.cache.clear_api_routes', 'admin.section.delete'
 );
 
 -- Insert Cache Management API routes

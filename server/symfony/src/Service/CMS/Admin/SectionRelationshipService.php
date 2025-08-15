@@ -320,4 +320,63 @@ class SectionRelationshipService extends UserContextAwareService
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to delete section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
         }
     }
+
+    /**
+     * Force delete a section permanently (always delete, never just remove from page)
+     * This is different from deleteSection which might just remove from page for direct associations
+     * 
+     * @param string $pageKeyword The page keyword
+     * @param int $sectionId The ID of the section to delete
+     * @throws ServiceException If the section is not found or access denied
+     */
+    public function forceDeleteSection(string $pageKeyword, int $sectionId): void
+    {
+        $section = $this->sectionRepository->find($sectionId);
+        if (!$section) {
+            $this->throwNotFound('Section not found');
+        }
+        
+        // Permission check
+        $this->checkAccess($pageKeyword, 'delete');
+        
+        // Check if section belongs to page hierarchy
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
+        if (!$this->sectionBelongsToPageHierarchy($page, $sectionId, $this->entityManager, $this->sectionRepository)) {
+            $this->throwForbidden("Section $sectionId is not associated with page {$page->getKeyword()}");
+        }
+        
+        $this->entityManager->beginTransaction();
+        try {
+            // Store original section for transaction logging
+            $originalSection = clone $section;
+            
+            // Always remove all relationships and delete the section completely
+            $this->removeAllSectionRelationships($section, $this->entityManager);
+            $this->entityManager->remove($section);
+            $this->entityManager->flush();
+            
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                \App\Service\Core\LookupService::TRANSACTION_TYPES_DELETE,
+                \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                'sections',
+                $section->getId(),
+                (object) ["deleted_section" => $originalSection, "page_keyword" => $pageKeyword],
+                'Section force deleted from page: ' . $section->getName() . ' (ID: ' . $section->getId() . ') from page: ' . $pageKeyword
+            );
+            
+            // Invalidate page and section caches
+            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            $this->cacheInvalidationService->invalidateSection($section, 'delete');
+            
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e instanceof ServiceException ? $e : new ServiceException('Failed to force delete section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+    }
 } 
