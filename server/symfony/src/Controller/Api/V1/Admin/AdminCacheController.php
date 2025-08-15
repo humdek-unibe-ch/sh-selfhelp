@@ -45,6 +45,7 @@ class AdminCacheController extends AbstractController
                 'cache_stats' => $stats,
                 'cache_categories' => $this->getCacheCategories(),
                 'cache_pools' => $this->getCachePoolsInfo(),
+                'top_performing_categories' => $this->cacheService->getTopPerformingCategories(5),
                 'timestamp' => date('c')
             ];
 
@@ -197,6 +198,40 @@ class AdminCacheController extends AbstractController
             
             return $this->responseFormatter->formatError(
                 'Failed to clear user cache',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Get statistics for a specific cache category
+     */
+    public function getCategoryStats(Request $request, string $category): Response
+    {
+        try {
+            $categoryStats = $this->cacheService->getCategoryStatistics($category);
+            
+            $this->log('info', 'Category cache statistics retrieved', ['category' => $category]);
+            
+            return $this->responseFormatter->formatSuccess(
+                $categoryStats,
+                null,
+                Response::HTTP_OK
+            );
+            
+        } catch (\InvalidArgumentException $e) {
+            return $this->responseFormatter->formatError(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (\Exception $e) {
+            $this->log('error', 'Failed to get category cache statistics', [
+                'category' => $category,
+                'error' => $e->getMessage()
+            ]);
+            
+            return $this->responseFormatter->formatError(
+                'Failed to retrieve category cache statistics',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
