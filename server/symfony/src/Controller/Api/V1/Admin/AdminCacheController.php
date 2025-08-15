@@ -204,6 +204,44 @@ class AdminCacheController extends AbstractController
     }
 
     /**
+     * Clear API routes cache specifically
+     * This is useful when new routes are added to the database
+     */
+    public function clearApiRoutesCache(Request $request): Response
+    {
+        try {
+            $success = $this->cacheService->clearApiRoutesCache();
+            
+            if ($success) {
+                $user = $this->getUser();
+                $adminUserId = $user && method_exists($user, 'getId') ? $user->getId() : null;
+                $this->log('info', 'API routes cache cleared by admin', [
+                    'admin_user_id' => $adminUserId
+                ]);
+            }
+            
+            return $this->responseFormatter->formatSuccess(
+                [
+                    'cleared' => $success,
+                    'cache_type' => 'api_routes',
+                    'message' => $success ? 'API routes cache cleared successfully' : 'Failed to clear API routes cache',
+                    'timestamp' => date('c')
+                ],
+                null,
+                $success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+
+        } catch (\Exception $e) {
+            $this->log('error', 'Failed to clear API routes cache', ['error' => $e->getMessage()]);
+            
+            return $this->responseFormatter->formatError(
+                'Failed to clear API routes cache',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
      * Get statistics for a specific cache category
      */
     public function getCategoryStats(Request $request, string $category): Response

@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminAssetService extends BaseService
 {
-    use CacheableServiceTrait;
-    
     private const UPLOAD_DIR = 'uploads/assets/';
     private const ALLOWED_EXTENSIONS = [
         'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', // Images

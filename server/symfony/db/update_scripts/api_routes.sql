@@ -1033,6 +1033,29 @@ FROM `api_routes` ar
 JOIN `permissions` p ON p.`name` = 'admin.action.read'
 WHERE ar.`route_name` IN ('admin_actions_get_one_v1');
 
+-- Section Utility API routes
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_sections_unused_get_v1', 'v1', '/admin/sections/unused', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getUnusedSections', 'GET', NULL, NULL),
+('admin_sections_ref_containers_get_v1', 'v1', '/admin/sections/ref-containers', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getRefContainers', 'GET', NULL, NULL);
+
+-- Link Section Utility routes to admin.page.update permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.page.update'
+WHERE ar.`route_name` IN ('admin_sections_unused_get_v1', 'admin_sections_ref_containers_get_v1');
+
+-- API Routes Cache Management
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('admin_cache_clear_api_routes_v1', 'v1', '/admin/cache/api-routes/clear', 'App\\Controller\\Api\\V1\\Admin\\AdminCacheController::clearApiRoutesCache', 'POST', NULL, NULL);
+
+-- Link API routes cache clearing to admin cache permission
+INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
+SELECT ar.`id`, p.`id`
+FROM `api_routes` ar
+JOIN `permissions` p ON p.`name` = 'admin.cache'
+WHERE ar.`route_name` IN ('admin_cache_clear_api_routes_v1');
+
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT
   ar.`id`      AS id_api_routes,

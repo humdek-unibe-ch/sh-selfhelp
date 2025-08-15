@@ -13,6 +13,7 @@ use App\Service\Auth\UserContextService;
 use App\Service\CMS\Admin\PositionManagementService;
 use App\Service\CMS\Admin\PageFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
+use App\Service\CMS\Admin\AdminSectionUtilityService;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
@@ -31,7 +32,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminPageService extends UserContextAwareService
 {
     use TranslationManagerTrait;
-    use CacheableServiceTrait;
 
     // ACL group name constants
     private const GROUP_ADMIN = 'admin';
@@ -51,6 +51,7 @@ class AdminPageService extends UserContextAwareService
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly PageFieldService $pageFieldService,
         private readonly SectionRelationshipService $sectionRelationshipService,
+        private readonly AdminSectionUtilityService $adminSectionUtilityService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -508,7 +509,9 @@ class AdminPageService extends UserContextAwareService
      */
     public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
-        return $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
+        $result = $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
+        $this->adminSectionUtilityService->invalidateUtilityCache();
+        return $result;
     }
 
     /**
@@ -523,5 +526,6 @@ class AdminPageService extends UserContextAwareService
     public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
     {
         $this->sectionRelationshipService->removeSectionFromPage($pageKeyword, $sectionId);
+        $this->adminSectionUtilityService->invalidateUtilityCache();
     }
 }

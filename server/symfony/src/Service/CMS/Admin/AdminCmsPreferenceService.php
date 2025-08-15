@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminCmsPreferenceService extends BaseService
 {
-    use CacheableServiceTrait;
-
     public function __construct(
         private readonly CmsPreferenceRepository $cmsPreferenceRepository,
         private readonly LanguageRepository $languageRepository,

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Unused Sections Response Envelope",
+  "description": "Standard API response envelope for unused sections list",
+  "properties": {
+    "status": { "type": "integer", "description": "HTTP status code" },
+    "message": { "type": "string", "description": "Response message" },
+    "error": { "type": ["string", "null"], "description": "Error message if any" },
+    "logged_in": { "type": "boolean", "description": "Whether user is logged in" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string", "description": "API version" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Response timestamp" }
+      },
+      "required": ["version", "timestamp"],
+      "additionalProperties": false
+    },
+    "data": { "$ref": "unused_sections.json" }
+  },
+  "required": ["status", "message", "logged_in", "meta", "data"],
+  "additionalProperties": false
+}

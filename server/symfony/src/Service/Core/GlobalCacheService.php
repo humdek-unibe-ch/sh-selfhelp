@@ -51,6 +51,7 @@ class GlobalCacheService
     private CacheItemPoolInterface $adminCache;
     private CacheItemPoolInterface $lookupsCache;
     private CacheItemPoolInterface $permissionsCache;
+    private CacheItemPoolInterface $appCache; // Default Symfony cache pool for API routes
 
     // Cache statistics keys in Redis
     private const STATS_CACHE_KEY = 'cache_statistics';
@@ -64,6 +65,7 @@ class GlobalCacheService
         #[Autowire(service: 'cache.admin')] CacheItemPoolInterface $adminCache,
         #[Autowire(service: 'cache.lookups')] CacheItemPoolInterface $lookupsCache,
         #[Autowire(service: 'cache.permissions')] CacheItemPoolInterface $permissionsCache,
+        #[Autowire(service: 'cache.app')] CacheItemPoolInterface $appCache,
         private ?LoggerInterface $logger = null
     ) {
         $this->globalCache = $globalCache;
@@ -71,6 +73,7 @@ class GlobalCacheService
         $this->adminCache = $adminCache;
         $this->lookupsCache = $lookupsCache;
         $this->permissionsCache = $permissionsCache;
+        $this->appCache = $appCache;
 
         // Initialize persistent cache statistics if they don't exist
         $this->initializePersistentStats();
@@ -226,7 +229,8 @@ class GlobalCacheService
             'user_frontend' => $this->userFrontendCache,
             'admin' => $this->adminCache,
             'lookups' => $this->lookupsCache,
-            'permissions' => $this->permissionsCache
+            'permissions' => $this->permissionsCache,
+            'app' => $this->appCache
         ];
         
         $success = true;
@@ -243,6 +247,37 @@ class GlobalCacheService
             // Clear statistics when clearing all caches
             $this->resetStats();
             $this->log('info', 'All caches and statistics cleared');
+        }
+        
+        return $success;
+    }
+
+    /**
+     * Clear API routes cache specifically
+     * This is useful when new routes are added to the database
+     */
+    public function clearApiRoutesCache(): bool
+    {
+        $result = $this->appCache->deleteItem('api_routes_collection');
+        
+        if ($result) {
+            $this->log('info', 'API routes cache cleared');
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Clear all caches except JWT blacklist and persistent stats
+     * This is a safe cache clear that preserves security data
+     */
+    public function clearApplicationCaches(): bool
+    {
+        $success = $this->clearAll();
+        
+        if ($success) {
+            // Also clear API routes
+            $success = $success && $this->clearApiRoutesCache();
         }
         
         return $success;

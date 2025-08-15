@@ -27,6 +27,7 @@ use App\Service\CMS\Admin\SectionFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
 use App\Service\CMS\Admin\SectionCreationService;
 use App\Service\CMS\Admin\SectionExportImportService;
+use App\Service\CMS\Admin\AdminSectionUtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,7 +37,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminSectionService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
     /**
      * Constructor
      */
@@ -51,6 +51,7 @@ class AdminSectionService extends UserContextAwareService
         private readonly SectionRelationshipService $sectionRelationshipService,
         private readonly SectionCreationService $sectionCreationService,
         private readonly SectionExportImportService $sectionExportImportService,
+        private readonly AdminSectionUtilityService $adminSectionUtilityService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -202,7 +203,9 @@ class AdminSectionService extends UserContextAwareService
      */
     public function addSectionToSection(string $page_keyword, int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
-        return $this->sectionRelationshipService->addSectionToSection($page_keyword, $parent_section_id, $child_section_id, $position, $oldParentPageKeyword, $oldParentSectionId);
+        $result = $this->sectionRelationshipService->addSectionToSection($page_keyword, $parent_section_id, $child_section_id, $position, $oldParentPageKeyword, $oldParentSectionId);
+        $this->invalidateSectionUtilityCache();
+        return $result;
     }
 
     /**
@@ -216,6 +219,7 @@ class AdminSectionService extends UserContextAwareService
     public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): void
     {
         $this->sectionRelationshipService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
+        $this->invalidateSectionUtilityCache();
     }
 
     /**
@@ -230,6 +234,7 @@ class AdminSectionService extends UserContextAwareService
     public function deleteSection(?string $page_keyword, int $section_id): void
     {
         $this->sectionRelationshipService->deleteSection($page_keyword, $section_id);
+        $this->invalidateSectionUtilityCache();
     }
 
     /**
@@ -243,7 +248,9 @@ class AdminSectionService extends UserContextAwareService
      */
     public function createPageSection(string $page_keyword, int $styleId, ?int $position): array
     {
-        return $this->sectionCreationService->createPageSection($page_keyword, $styleId, $position);
+        $result = $this->sectionCreationService->createPageSection($page_keyword, $styleId, $position);
+        $this->invalidateSectionUtilityCache();
+        return $result;
     }
 
     /**
@@ -258,7 +265,9 @@ class AdminSectionService extends UserContextAwareService
      */
     public function createChildSection(?string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
     {
-        return $this->sectionCreationService->createChildSection($page_keyword, $parent_section_id, $styleId, $position);
+        $result = $this->sectionCreationService->createChildSection($page_keyword, $parent_section_id, $styleId, $position);
+        $this->invalidateSectionUtilityCache();
+        return $result;
     }
 
     /**
@@ -824,5 +833,13 @@ class AdminSectionService extends UserContextAwareService
         }
 
         $this->entityManager->flush();
+    }
+
+    /**
+     * Invalidate section utility cache when sections are modified
+     */
+    private function invalidateSectionUtilityCache(): void
+    {
+        $this->adminSectionUtilityService->invalidateUtilityCache();
     }
 }

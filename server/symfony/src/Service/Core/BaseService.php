@@ -6,10 +6,11 @@ use App\Exception\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Base service with error handling capabilities
+ * Base service with error handling and caching capabilities
  */
 abstract class BaseService
 {
+    use CacheableServiceTrait;
     /**
      * Throw a not found exception
      */

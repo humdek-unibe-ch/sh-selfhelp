@@ -8,6 +8,7 @@ use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
+use App\Service\Core\GlobalCacheService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -16,18 +17,15 @@ use Throwable;
 
 class LanguageService extends BaseService
 {
-    private LanguageRepository $languageRepository;
-    private EntityManagerInterface $entityManager;
-    private TransactionService $transactionService;
+    private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct(
-        LanguageRepository $languageRepository,
-        EntityManagerInterface $entityManager,
-        TransactionService $transactionService
+        private readonly LanguageRepository $languageRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TransactionService $transactionService,
+        private readonly GlobalCacheService $globalCacheService
     ) {
-        $this->languageRepository = $languageRepository;
-        $this->entityManager = $entityManager;
-        $this->transactionService = $transactionService;
+        $this->setGlobalCacheService($globalCacheService);
     }
 
     /**
@@ -37,10 +35,19 @@ class LanguageService extends BaseService
      */
     public function getAllLanguages(): array
     {
-        $languages = $this->languageRepository->findAllLanguages();
-        return array_map(function (Language $language) {
-            return EntityUtil::convertEntityToArray($language);
-        }, $languages);
+        $cacheKey = 'all_languages';
+        
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_LANGUAGES,
+            $cacheKey,
+            function() {
+                $languages = $this->languageRepository->findAllLanguages();
+                return array_map(function (Language $language) {
+                    return EntityUtil::convertEntityToArray($language);
+                }, $languages);
+            },
+            self::CACHE_TTL
+        );
     }
 
     /**
@@ -51,51 +58,60 @@ class LanguageService extends BaseService
      */
     public function getAllNonInternalLanguages(): array
     {
-        // Clear any cached entities to avoid proxy objects
-        $this->entityManager->clear();
+        $cacheKey = 'non_internal_languages';
         
-        // Get all non-internal languages
-        $languages = $this->languageRepository->findAllExceptInternal();
-        
-        // Get default language from CMS preferences
-        $defaultLanguage = null;
-        $defaultLanguageId = null;
-        
-        try {
-            $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
-            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
-                $defaultLanguage = $cmsPreference->getDefaultLanguage();
-                $defaultLanguageId = $defaultLanguage->getId();
-            }
-        } catch (\Exception $e) {
-            // If there's an error getting the default language, continue without it
-        }
-        
-        // Convert entities to arrays
-        $languageArrays = array_map(function (Language $language) {
-            return EntityUtil::convertEntityToArray($language);
-        }, $languages);
-        
-        // If we have a default language, ensure it's first in the array
-        if ($defaultLanguageId !== null) {
-            $defaultLanguageArray = null;
-            $otherLanguages = [];
-            
-            foreach ($languageArrays as $langArray) {
-                if ($langArray['id'] === $defaultLanguageId) {
-                    $defaultLanguageArray = $langArray;
-                } else {
-                    $otherLanguages[] = $langArray;
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_LANGUAGES,
+            $cacheKey,
+            function() {
+                // Clear any cached entities to avoid proxy objects
+                $this->entityManager->clear();
+                
+                // Get all non-internal languages
+                $languages = $this->languageRepository->findAllExceptInternal();
+                
+                // Get default language from CMS preferences
+                $defaultLanguage = null;
+                $defaultLanguageId = null;
+                
+                try {
+                    $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
+                    if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                        $defaultLanguage = $cmsPreference->getDefaultLanguage();
+                        $defaultLanguageId = $defaultLanguage->getId();
+                    }
+                } catch (\Exception $e) {
+                    // If there's an error getting the default language, continue without it
                 }
-            }
-            
-            // If default language was found in the results, put it first
-            if ($defaultLanguageArray !== null) {
-                return array_merge([$defaultLanguageArray], $otherLanguages);
-            }
-        }
-        
-        return $languageArrays;
+                
+                // Convert entities to arrays
+                $languageArrays = array_map(function (Language $language) {
+                    return EntityUtil::convertEntityToArray($language);
+                }, $languages);
+                
+                // If we have a default language, ensure it's first in the array
+                if ($defaultLanguageId !== null) {
+                    $defaultLanguageArray = null;
+                    $otherLanguages = [];
+                    
+                    foreach ($languageArrays as $langArray) {
+                        if ($langArray['id'] === $defaultLanguageId) {
+                            $defaultLanguageArray = $langArray;
+                        } else {
+                            $otherLanguages[] = $langArray;
+                        }
+                    }
+                    
+                    // If default language was found in the results, put it first
+                    if ($defaultLanguageArray !== null) {
+                        return array_merge([$defaultLanguageArray], $otherLanguages);
+                    }
+                }
+                
+                return $languageArrays;
+            },
+            self::CACHE_TTL
+        );
     }
 
     /**
@@ -107,12 +123,21 @@ class LanguageService extends BaseService
      */
     public function getLanguageById(int $id): array
     {
-        $language = $this->languageRepository->find($id);
-        if (!$language) {
-            throw new NotFoundHttpException('Language not found');
-        }
+        $cacheKey = "language_{$id}";
         
-        return EntityUtil::convertEntityToArray($language);
+        return $this->cacheGet(
+            GlobalCacheService::CATEGORY_LANGUAGES,
+            $cacheKey,
+            function() use ($id) {
+                $language = $this->languageRepository->find($id);
+                if (!$language) {
+                    throw new NotFoundHttpException('Language not found');
+                }
+                
+                return EntityUtil::convertEntityToArray($language);
+            },
+            self::CACHE_TTL
+        );
     }
 
     /**
@@ -150,6 +175,10 @@ class LanguageService extends BaseService
             );
             
             $this->entityManager->commit();
+            
+            // Invalidate language cache
+            $this->invalidateLanguageCache();
+            
             return EntityUtil::convertEntityToArray($language);
         } catch (Throwable $e) {
             $this->entityManager->rollback();
@@ -210,6 +239,10 @@ class LanguageService extends BaseService
             );
             
             $this->entityManager->commit();
+            
+            // Invalidate language cache
+            $this->invalidateLanguageCache();
+            
             return EntityUtil::convertEntityToArray($language);
         } catch (Throwable $e) {
             $this->entityManager->rollback();
@@ -260,10 +293,24 @@ class LanguageService extends BaseService
             );
             
             $this->entityManager->commit();
+            
+            // Invalidate language cache
+            $this->invalidateLanguageCache();
+            
             return $deletedLanguage;
         } catch (Throwable $e) {
             $this->entityManager->rollback();
             throw $e;
+        }
+    }
+
+    /**
+     * Invalidate language cache
+     */
+    private function invalidateLanguageCache(): void
+    {
+        if ($this->globalCacheService) {
+            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_LANGUAGES);
         }
     }
 
