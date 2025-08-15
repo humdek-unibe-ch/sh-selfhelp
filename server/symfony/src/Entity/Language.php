@@ -14,10 +14,10 @@ class Language
     private ?int $id = null;
 
     #[ORM\Column(name: 'locale', type: 'string', length: 5, unique: true)]
-    private string $locale;
+    private string $locale = '';
 
     #[ORM\Column(name: 'language', type: 'string', length: 100)]
-    private string $language;
+    private string $language = '';
 
     #[ORM\Column(name: 'csv_separator', type: 'string', length: 1)]
     private string $csvSeparator = ',';

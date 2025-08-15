@@ -17,7 +17,7 @@ class Lookup
     private ?int $id = null;
 
     #[ORM\Column(name: 'type_code', type: 'string', length: 100)]
-    private string $typeCode;
+    private string $typeCode = '';
 
     #[ORM\Column(name: 'lookup_code', type: 'string', length: 100, nullable: true)]
     private ?string $lookupCode = null;
@@ -38,6 +38,9 @@ class Lookup
 
     public function getTypeCode(): string
     {
+        if (empty($this->typeCode)) {
+            throw new \LogicException('TypeCode must be set before accessing');
+        }
         return $this->typeCode;
     }
 

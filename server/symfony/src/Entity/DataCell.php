@@ -20,7 +20,7 @@ class DataCell
     private ?DataCol $dataCol = null;
 
     #[ORM\Column(name: 'value', type: 'text')]
-    private string $value;
+    private string $value = '';
 
     public function getDataRow(): ?DataRow
     {

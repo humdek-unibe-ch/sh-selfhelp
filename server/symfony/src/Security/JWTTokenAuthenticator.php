@@ -44,15 +44,16 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
         
         $hasToken = $hasAuth || $hasHttpAuth || $hasRedirectAuth;
         
-        // Debug logging to help diagnose Apache issues
-        error_log(sprintf(
-            '[JWTTokenAuthenticator] Path: %s, HasAuth: %s, HasHttpAuth: %s, HasRedirectAuth: %s, Supports: %s',
-            $pathInfo,
-            $hasAuth ? 'yes' : 'no',
-            $hasHttpAuth ? 'yes' : 'no', 
-            $hasRedirectAuth ? 'yes' : 'no',
-            $hasToken ? 'yes' : 'no'
-        ));
+        // Only log when there are authentication issues or in debug mode
+        if (!$hasToken && $isApiRoute) {
+            error_log(sprintf(
+                '[JWTTokenAuthenticator] Missing token for API route: %s, HasAuth: %s, HasHttpAuth: %s, HasRedirectAuth: %s',
+                $pathInfo,
+                $hasAuth ? 'yes' : 'no',
+                $hasHttpAuth ? 'yes' : 'no', 
+                $hasRedirectAuth ? 'yes' : 'no'
+            ));
+        }
         
         return $hasToken;
     }

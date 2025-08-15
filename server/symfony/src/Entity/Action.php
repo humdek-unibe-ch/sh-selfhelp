@@ -14,7 +14,7 @@ class Action
     private ?int $id = null;
 
     #[ORM\Column(name: 'name', type: 'string', length: 200)]
-    private string $name;
+    private string $name = '';
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
     #[ORM\JoinColumn(name: 'id_actionTriggerTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
