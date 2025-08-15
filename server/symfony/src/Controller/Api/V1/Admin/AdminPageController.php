@@ -135,6 +135,12 @@ class AdminPageController extends AbstractController
                 $data['footerPosition'] ?? null,
                 $data['parent'] ?? null,
             );
+
+            // Invalidate page-related caches after successful creation
+            if ($this->cacheInvalidationService) {
+                $this->cacheInvalidationService->invalidatePage($page, 'create');
+                $this->cacheInvalidationService->invalidatePermissions(); // ACLs changed
+            }
             
             // Return success response
             return $this->responseFormatter->formatSuccess(

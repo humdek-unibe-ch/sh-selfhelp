@@ -220,13 +220,7 @@ class AdminPageService extends UserContextAwareService
                 'Page created with keyword: ' . $keyword
             );
 
-            $this->entityManager->commit();
-
-            // Invalidate page-related caches after successful creation
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidatePage($page, 'create');
-                $this->cacheInvalidationService->invalidatePermissions(); // ACLs changed
-            }
+            $this->entityManager->commit();            
 
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
