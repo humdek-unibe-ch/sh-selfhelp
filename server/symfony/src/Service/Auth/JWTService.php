@@ -32,59 +32,21 @@ class JWTService
     }
 
     /**
-     * Create a JWT token for a user with roles and permissions included
+     * Create a JWT token for a user with minimal payload (security best practice)
      */
     public function createToken(User $user): string
     {
-        // Get role names
-        $roleNames = $user->getUserRoles()
-            ->map(fn($role) => $role->getName())
-            ->toArray();
-            
-        // Get permission names
-        $permissionNames = $user->getPermissionNames();
-        
-        // Determine user language with fallback to CMS preferences
-        $userLanguageId = null;
-        $userLanguageLocale = null;
-        
-        if ($user->getLanguage()) {
-            // User has a language set, get the locale
-            $userLanguageId = $user->getLanguage()->getId();
-            $userLanguageLocale = $user->getLanguage()->getLocale();
-        } else {
-            // User doesn't have language set, use CMS default
-            try {
-                $cmsPreference = $this->entityManager->getRepository('App\Entity\CmsPreference')->findOneBy([]);
-                if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
-                    $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
-                    $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
-                }
-            } catch (\Exception $e) {
-                // If there's an error getting the default language, use fallback
-                $userLanguageId = 2; // Fallback language ID
-                $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
-                if ($fallbackLanguage) {
-                    $userLanguageLocale = $fallbackLanguage->getLocale();
-                }
-            }
-        }
-        
-        // Create payload with custom claims
+        // Create payload with minimal claims - no roles/permissions for security
         $payload = [
-            'roles' => $roleNames,
-            'permissions' => $permissionNames,
             'id_users' => $user->getId(),
             'email' => $user->getEmail(),
-            'user_name' => $user->getName(),
-            'language_id' => $userLanguageId,
-            'language_locale' => $userLanguageLocale
+            'user_name' => $user->getName()
         ];
         
         // Note: Token TTL is configured in lexik_jwt_authentication.yaml
         // using the JWT_TOKEN_TTL environment variable
         
-        // Create token with additional payload
+        // Create token with minimal payload
         return $this->jwtManager->createFromPayload($user, $payload);
     }
 

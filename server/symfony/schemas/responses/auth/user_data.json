@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User Data Response",
+  "description": "Response schema for user data endpoint",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "User ID"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "User email address"
+    },
+    "name": {
+      "type": ["string", "null"],
+      "description": "User full name"
+    },
+    "user_name": {
+      "type": ["string", "null"],
+      "description": "Username"
+    },
+    "blocked": {
+      "type": "boolean",
+      "description": "Whether the user is blocked"
+    },
+    "language": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": ["integer", "null"],
+          "description": "Language ID"
+        },
+        "locale": {
+          "type": ["string", "null"],
+          "description": "Language locale (e.g., 'en', 'de')"
+        },
+        "name": {
+          "type": ["string", "null"],
+          "description": "Language name"
+        }
+      },
+      "required": ["id", "locale", "name"],
+      "additionalProperties": false
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Role ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Role name"
+          },
+          "description": {
+            "type": ["string", "null"],
+            "description": "Role description"
+          }
+        },
+        "required": ["id", "name", "description"],
+        "additionalProperties": false
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Permission name"
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Group ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          },
+          "description": {
+            "type": ["string", "null"],
+            "description": "Group description"
+          }
+        },
+        "required": ["id", "name", "description"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["id", "email", "name", "user_name", "blocked", "language", "roles", "permissions", "groups"],
+  "additionalProperties": false
+}

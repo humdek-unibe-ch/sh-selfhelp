@@ -1321,3 +1321,9 @@ WHERE ar.route_name IN ('admin_cache_clear_all_v1', 'admin_cache_clear_category_
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT ar.id, p.id FROM api_routes ar JOIN permissions p ON p.name = 'admin.cache.manage'
 WHERE ar.route_name IN ('admin_cache_reset_stats_v1');
+
+-- JWT Security Enhancement: User Data API Route
+-- Added new endpoint to retrieve user data (roles, permissions, language) that was previously embedded in JWT tokens
+-- This follows security best practices by keeping JWT tokens minimal and fetching user data on-demand
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('auth_user_data_get_v1', 'v1', '/auth/user-data', 'App\\Controller\\Api\\V1\\Auth\\UserDataController::getCurrentUserData', 'GET', NULL, NULL);
