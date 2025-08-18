@@ -24,8 +24,7 @@ class AdminUserController extends AbstractController
     public function __construct(
         private readonly AdminUserService $adminUserService,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly CacheInvalidationService $cacheInvalidationService
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {
     }
 
@@ -119,7 +118,7 @@ class AdminUserController extends AbstractController
             $user = $this->adminUserService->updateUser($userId, $data);
             
             // Invalidate user cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
+            // User cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess($user);
         } catch (\Exception $e) {
@@ -142,7 +141,7 @@ class AdminUserController extends AbstractController
             $this->adminUserService->deleteUser($userId);
             
             // Invalidate user cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'delete');
+            // User cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['deleted' => true]);
         } catch (\Exception $e) {
@@ -168,7 +167,7 @@ class AdminUserController extends AbstractController
             $user = $this->adminUserService->toggleUserBlock($userId, $blocked);
             
             // Invalidate user cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
+            // User cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess($user);
         } catch (\Exception $e) {
@@ -239,8 +238,8 @@ class AdminUserController extends AbstractController
             $groups = $this->adminUserService->addGroupsToUser($userId, $groupIds);
             
             // Invalidate user and permissions cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
-            $this->cacheInvalidationService->invalidatePermissions($userId);
+            // User cache is automatically invalidated by the service
+            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['groups' => $groups]);
         } catch (\Exception $e) {
@@ -273,8 +272,8 @@ class AdminUserController extends AbstractController
             $groups = $this->adminUserService->removeGroupsFromUser($userId, $groupIds);
             
             // Invalidate user and permissions cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
-            $this->cacheInvalidationService->invalidatePermissions($userId);
+            // User cache is automatically invalidated by the service
+            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['groups' => $groups]);
         } catch (\Exception $e) {
@@ -307,8 +306,8 @@ class AdminUserController extends AbstractController
             $roles = $this->adminUserService->addRolesToUser($userId, $roleIds);
             
             // Invalidate user and permissions cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
-            $this->cacheInvalidationService->invalidatePermissions($userId);
+            // User cache is automatically invalidated by the service
+            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['roles' => $roles]);
         } catch (\Exception $e) {
@@ -341,8 +340,8 @@ class AdminUserController extends AbstractController
             $roles = $this->adminUserService->removeRolesFromUser($userId, $roleIds);
             
             // Invalidate user and permissions cache
-            $this->cacheInvalidationService->invalidateUser($userId, 'update');
-            $this->cacheInvalidationService->invalidatePermissions($userId);
+            // User cache is automatically invalidated by the service
+            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['roles' => $roles]);
         } catch (\Exception $e) {

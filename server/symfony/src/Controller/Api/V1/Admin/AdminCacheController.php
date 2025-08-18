@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api\V1\Admin;
 
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheStatsService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Controller\Trait\RequestValidatorTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,8 +26,8 @@ class AdminCacheController extends AbstractController
     use RequestValidatorTrait;
 
     public function __construct(
-        private GlobalCacheService $cacheService,
-        private CacheInvalidationService $invalidationService,
+        private CacheService $cacheService,
+        private CacheStatsService $cacheStatsService,
         private ApiResponseFormatter $responseFormatter,
         private ?LoggerInterface $logger = null
     ) {}
@@ -38,14 +38,14 @@ class AdminCacheController extends AbstractController
     public function getCacheStats(Request $request): Response
     {
         try {
-            $stats = $this->cacheService->getStats();
+            $stats = $this->cacheStatsService->getStats();
             
             // Add additional monitoring data
             $monitoringData = [
                 'cache_stats' => $stats,
                 'cache_categories' => $this->getCacheCategories(),
                 'cache_pools' => $this->getCachePoolsInfo(),
-                'top_performing_categories' => $this->cacheService->getTopPerformingCategories(5),
+                'top_performing_categories' => $this->cacheStatsService->getTopPerformingCategories(5),
                 'timestamp' => date('c')
             ];
 
@@ -174,7 +174,7 @@ class AdminCacheController extends AbstractController
 
             $userId = $requestData['user_id'];
 
-            $this->invalidationService->invalidateAllUserCaches($userId);
+            $this->cacheService->invalidateAllUserCaches($userId);
             
             $user = $this->getUser();
             $adminUserId = $user && method_exists($user, 'getId') ? $user->getId() : null;
@@ -247,7 +247,7 @@ class AdminCacheController extends AbstractController
     public function getCategoryStats(Request $request, string $category): Response
     {
         try {
-            $categoryStats = $this->cacheService->getCategoryStatistics($category);
+            $categoryStats = $this->cacheStatsService->getCategoryStatistics($category);
             
             $this->log('info', 'Category cache statistics retrieved', ['category' => $category]);
             
@@ -281,7 +281,7 @@ class AdminCacheController extends AbstractController
     public function resetCacheStats(Request $request): Response
     {
         try {
-            $this->cacheService->resetStats();
+            $this->cacheStatsService->resetStats();
             
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
@@ -309,43 +309,12 @@ class AdminCacheController extends AbstractController
     public function getCacheHealth(Request $request): Response
     {
         try {
-            $stats = $this->cacheService->getStats();
-            $globalStats = $stats['global_stats'];
+            $health = $this->cacheStatsService->getCacheHealth();
             
-            // Determine health status based on hit rate and usage
-            $hitRate = $globalStats['hit_rate'];
-            $totalOperations = $globalStats['hits'] + $globalStats['misses'];
-            
-            $healthStatus = 'unknown';
-            $healthColor = 'gray';
-            
-            if ($totalOperations > 100) { // Only evaluate if we have enough data
-                if ($hitRate >= 80) {
-                    $healthStatus = 'excellent';
-                    $healthColor = 'green';
-                } elseif ($hitRate >= 60) {
-                    $healthStatus = 'good';
-                    $healthColor = 'blue';
-                } elseif ($hitRate >= 40) {
-                    $healthStatus = 'fair';
-                    $healthColor = 'yellow';
-                } else {
-                    $healthStatus = 'poor';
-                    $healthColor = 'red';
-                }
-            }
-
-            $healthData = [
-                'status' => $healthStatus,
-                'color' => $healthColor,
-                'hit_rate' => $hitRate,
-                'total_operations' => $totalOperations,
-                'recommendations' => $this->getCacheRecommendations($stats),
-                'timestamp' => date('c')
-            ];
+            $this->log('info', 'Cache health status retrieved');
 
             return $this->responseFormatter->formatSuccess(
-                $healthData,
+                $health,
                 null,
                 Response::HTTP_OK
             );
@@ -366,18 +335,18 @@ class AdminCacheController extends AbstractController
     private function getCacheCategories(): array
     {
         return [
-            GlobalCacheService::CATEGORY_PAGES,
-            GlobalCacheService::CATEGORY_USERS,
-            GlobalCacheService::CATEGORY_SECTIONS,
-            GlobalCacheService::CATEGORY_LANGUAGES,
-            GlobalCacheService::CATEGORY_GROUPS,
-            GlobalCacheService::CATEGORY_ROLES,
-            GlobalCacheService::CATEGORY_PERMISSIONS,
-            GlobalCacheService::CATEGORY_LOOKUPS,
-            GlobalCacheService::CATEGORY_ASSETS,
-            GlobalCacheService::CATEGORY_FRONTEND_USER,
-            GlobalCacheService::CATEGORY_CMS_PREFERENCES,
-            GlobalCacheService::CATEGORY_SCHEDULED_JOBS
+            CacheService::CATEGORY_PAGES,
+            CacheService::CATEGORY_USERS,
+            CacheService::CATEGORY_SECTIONS,
+            CacheService::CATEGORY_LANGUAGES,
+            CacheService::CATEGORY_GROUPS,
+            CacheService::CATEGORY_ROLES,
+            CacheService::CATEGORY_PERMISSIONS,
+            CacheService::CATEGORY_LOOKUPS,
+            CacheService::CATEGORY_ASSETS,
+            CacheService::CATEGORY_FRONTEND_USER,
+            CacheService::CATEGORY_CMS_PREFERENCES,
+            CacheService::CATEGORY_SCHEDULED_JOBS
         ];
     }
 

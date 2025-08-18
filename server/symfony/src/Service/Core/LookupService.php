@@ -4,6 +4,8 @@ namespace App\Service\Core;
 
 use App\Entity\Lookup;
 use App\Repository\LookupRepository;
+use App\Service\Cache\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheService;
 
 /**
  * Lookup service providing access to lookup data and constants.
@@ -152,13 +154,13 @@ final class LookupService
      */
     public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
     {
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LOOKUPS,
+        return $this->getCache(
+            CacheService::CATEGORY_LOOKUPS,
             "lookup_{$typeCode}_{$lookupValue}",
             function() use ($typeCode, $lookupValue) {
                 return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_LOOKUPS)
+null
         );
     }
 
@@ -180,13 +182,13 @@ final class LookupService
      */
     public function getLookups(string $typeCode): array
     {
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LOOKUPS,
+        return $this->getCache(
+            CacheService::CATEGORY_LOOKUPS,
             "lookups_{$typeCode}",
             function() use ($typeCode) {
                 return $this->lookupRepository->getLookups($typeCode);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_LOOKUPS)
+null
         );
     }
 

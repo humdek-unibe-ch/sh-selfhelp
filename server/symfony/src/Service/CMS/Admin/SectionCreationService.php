@@ -10,8 +10,8 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
@@ -28,8 +28,7 @@ class SectionCreationService extends UserContextAwareService
         private readonly StyleRepository $styleRepository,
         private readonly PositionManagementService $positionManagementService,
         private readonly DataTableService $dataTableService,
-        private readonly GlobalCacheService $globalCacheService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly CacheService $cacheService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,

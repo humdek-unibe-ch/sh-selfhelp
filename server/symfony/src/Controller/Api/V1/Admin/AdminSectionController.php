@@ -2,17 +2,16 @@
 
 namespace App\Controller\Api\V1\Admin;
 
+use App\Service\Cache\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\Admin\AdminSectionService;
 use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
 use App\Service\CMS\Common\SectionUtilityService;
-use App\Service\Core\CacheInvalidationService;
-use App\Service\Core\GlobalCacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminSectionController extends AbstractController
 {
@@ -23,8 +22,7 @@ class AdminSectionController extends AbstractController
         private readonly ApiResponseFormatter $apiResponseFormatter,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
         private readonly SectionUtilityService $sectionUtilityService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
-        private readonly GlobalCacheService $globalCacheService
+        private readonly CacheService $cacheService
     ) {}
 
     /**
@@ -56,11 +54,7 @@ class AdminSectionController extends AbstractController
             oldParentSectionId: $data['oldParentSectionId'] ?? null
         );
 
-        // Invalidate section and page caches
-        $this->cacheInvalidationService->invalidateSection($result->getChildSection(), 'update');
-        if ($result->getParentSection()) {
-            $this->cacheInvalidationService->invalidateSection($result->getParentSection(), 'update');
-        }
+        // Section cache is automatically invalidated by the service
 
         return $this->apiResponseFormatter->formatSuccess(
             ['id' => $result->getChildSection()->getId(), 'position' => $result->getPosition()],
@@ -74,8 +68,8 @@ class AdminSectionController extends AbstractController
         $this->adminSectionService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
 
         // Invalidate all sections and pages cache since we can't get specific entities after deletion
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
@@ -85,8 +79,8 @@ class AdminSectionController extends AbstractController
         $this->adminSectionService->deleteSection($page_keyword, $section_id);
 
         // Invalidate all sections and pages cache since we can't get specific entities after deletion
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
@@ -97,8 +91,8 @@ class AdminSectionController extends AbstractController
             $this->adminSectionService->forceDeleteSection($page_keyword, $section_id);
 
             // Invalidate all sections and pages cache since we can't get specific entities after deletion
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
             return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
         } catch (\App\Exception\ServiceException $e) {
@@ -125,8 +119,8 @@ class AdminSectionController extends AbstractController
         );
 
         // Invalidate sections and pages cache
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(
             [
@@ -153,8 +147,8 @@ class AdminSectionController extends AbstractController
         );
 
         // Invalidate sections and pages cache
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(
             [
@@ -184,8 +178,7 @@ class AdminSectionController extends AbstractController
                 $data['propertyFields']
             );
             
-            // Invalidate section cache
-            $this->cacheInvalidationService->invalidateSection($section, 'update');
+            // Section cache is automatically invalidated by the service
             
             // Return updated section with fields
             $sectionWithFields = $this->adminSectionService->getSection($page_keyword, $section->getId());
@@ -283,8 +276,8 @@ class AdminSectionController extends AbstractController
             );
             
             // Invalidate sections and pages cache after import
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
@@ -324,8 +317,8 @@ class AdminSectionController extends AbstractController
             );
             
             // Invalidate sections and pages cache after import
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],

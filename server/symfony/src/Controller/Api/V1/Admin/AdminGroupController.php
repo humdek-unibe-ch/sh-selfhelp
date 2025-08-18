@@ -3,10 +3,10 @@
 namespace App\Controller\Api\V1\Admin;
 
 use App\Controller\Trait\RequestValidatorTrait;
+use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\CMS\Admin\AdminGroupService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
-use App\Service\Core\CacheInvalidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,8 +25,7 @@ class AdminGroupController extends AbstractController
     public function __construct(
         private readonly AdminGroupService $adminGroupService,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly CacheInvalidationService $cacheInvalidationService
+        private readonly JsonSchemaValidationService $jsonSchemaValidationService
     ) {
     }
 
@@ -117,9 +116,7 @@ class AdminGroupController extends AbstractController
             $data = $this->validateRequest($request, 'requests/admin/update_group', $this->jsonSchemaValidationService);
             
             $group = $this->adminGroupService->updateGroup($groupId, $data);
-            
-            // Invalidate group and permissions cache
-            $this->cacheInvalidationService->invalidatePermissions();
+            // Group cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess($group);
         } catch (\Exception $e) {
@@ -141,8 +138,7 @@ class AdminGroupController extends AbstractController
         try {
             $this->adminGroupService->deleteGroup($groupId);
             
-            // Invalidate group and permissions cache
-            $this->cacheInvalidationService->invalidatePermissions();
+            // Group cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['deleted' => true]);
         } catch (\Exception $e) {
@@ -185,8 +181,7 @@ class AdminGroupController extends AbstractController
             
             $acls = $this->adminGroupService->updateGroupAcls($groupId, $data['acls']);
             
-            // Invalidate permissions cache
-            $this->cacheInvalidationService->invalidatePermissions();
+            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['acls' => $acls]);
         } catch (\Exception $e) {

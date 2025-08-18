@@ -8,7 +8,7 @@ use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -17,15 +17,15 @@ use Throwable;
 
 class LanguageService extends BaseService
 {
-    private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct(
         private readonly LanguageRepository $languageRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
-        private readonly GlobalCacheService $globalCacheService
+        private readonly CacheService $cacheService
     ) {
-        $this->setGlobalCacheService($globalCacheService);
+        // CacheService is injected directly, set it for the trait
+        $this->setCacheService($cacheService);
     }
 
     /**
@@ -37,8 +37,8 @@ class LanguageService extends BaseService
     {
         $cacheKey = 'all_languages';
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LANGUAGES,
+        return $this->getCache(
+            CacheService::CATEGORY_LANGUAGES,
             $cacheKey,
             function() {
                 $languages = $this->languageRepository->findAllLanguages();
@@ -46,7 +46,6 @@ class LanguageService extends BaseService
                     return EntityUtil::convertEntityToArray($language);
                 }, $languages);
             },
-            self::CACHE_TTL
         );
     }
 
@@ -60,8 +59,8 @@ class LanguageService extends BaseService
     {
         $cacheKey = 'non_internal_languages';
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LANGUAGES,
+        return $this->getCache(
+            CacheService::CATEGORY_LANGUAGES,
             $cacheKey,
             function() {
                 // Clear any cached entities to avoid proxy objects
@@ -109,8 +108,7 @@ class LanguageService extends BaseService
                 }
                 
                 return $languageArrays;
-            },
-            self::CACHE_TTL
+            }
         );
     }
 
@@ -125,8 +123,8 @@ class LanguageService extends BaseService
     {
         $cacheKey = "language_{$id}";
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LANGUAGES,
+        return $this->getCache(
+            CacheService::CATEGORY_LANGUAGES,
             $cacheKey,
             function() use ($id) {
                 $language = $this->languageRepository->find($id);
@@ -135,8 +133,7 @@ class LanguageService extends BaseService
                 }
                 
                 return EntityUtil::convertEntityToArray($language);
-            },
-            self::CACHE_TTL
+            }
         );
     }
 
@@ -176,8 +173,8 @@ class LanguageService extends BaseService
             
             $this->entityManager->commit();
             
-            // Invalidate language cache
-            $this->invalidateLanguageCache();
+            // Invalidate language cache using new method
+            $this->invalidateAfterChange('create', CacheService::CATEGORY_LANGUAGES, $language);
             
             return EntityUtil::convertEntityToArray($language);
         } catch (Throwable $e) {
@@ -240,8 +237,8 @@ class LanguageService extends BaseService
             
             $this->entityManager->commit();
             
-            // Invalidate language cache
-            $this->invalidateLanguageCache();
+            // Invalidate language cache using new method
+            $this->invalidateAfterChange('update', CacheService::CATEGORY_LANGUAGES, $language);
             
             return EntityUtil::convertEntityToArray($language);
         } catch (Throwable $e) {
@@ -294,23 +291,13 @@ class LanguageService extends BaseService
             
             $this->entityManager->commit();
             
-            // Invalidate language cache
-            $this->invalidateLanguageCache();
+            // Invalidate language cache using new method
+            $this->invalidateAfterChange('delete', CacheService::CATEGORY_LANGUAGES, $deletedLanguage);
             
             return $deletedLanguage;
         } catch (Throwable $e) {
             $this->entityManager->rollback();
             throw $e;
-        }
-    }
-
-    /**
-     * Invalidate language cache
-     */
-    private function invalidateLanguageCache(): void
-    {
-        if ($this->globalCacheService) {
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_LANGUAGES);
         }
     }
 

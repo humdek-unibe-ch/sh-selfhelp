@@ -14,6 +14,7 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 

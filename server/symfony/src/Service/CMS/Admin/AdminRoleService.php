@@ -3,13 +3,13 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Role;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Entity\Permission;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
     
     private EntityManagerInterface $entityManager;
 
@@ -49,13 +48,13 @@ class AdminRoleService extends UserContextAwareService
         // Create cache key based on parameters
         $cacheKey = "roles_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_ROLES,
+        return $this->getCache(
+            CacheService::CATEGORY_ROLES,
             $cacheKey,
             function() use ($page, $pageSize, $search, $sort, $sortDirection) {
                 return $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_ROLES)
+null
         );
     }
     

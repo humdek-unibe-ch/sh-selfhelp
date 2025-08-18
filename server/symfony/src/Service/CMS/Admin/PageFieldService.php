@@ -11,8 +11,8 @@ use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,8 +27,7 @@ class PageFieldService extends UserContextAwareService
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly GlobalCacheService $globalCacheService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly CacheService $cacheService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -48,7 +47,7 @@ class PageFieldService extends UserContextAwareService
     {
         // Try to get from cache first
         $cacheKey = "page_with_fields_{$pageKeyword}";
-        $cachedResult = $this->globalCacheService->get(GlobalCacheService::CATEGORY_PAGES, $cacheKey);
+        $cachedResult = $this->cacheService->get(CacheService::CATEGORY_PAGES, $cacheKey);
         
         if ($cachedResult !== null) {
             return $cachedResult;
@@ -151,7 +150,7 @@ class PageFieldService extends UserContextAwareService
         ];
         
         // Cache the result for 30 minutes
-        $this->globalCacheService->set(GlobalCacheService::CATEGORY_PAGES, $cacheKey, $result, 1800);
+        $this->cacheService->set(CacheService::CATEGORY_PAGES, $cacheKey, $result, 1800);
         
         return $result;
     }

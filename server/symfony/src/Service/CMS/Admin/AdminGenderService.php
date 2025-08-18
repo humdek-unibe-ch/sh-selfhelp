@@ -3,14 +3,13 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Gender;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Repository\GenderRepository;
 use App\Service\Core\BaseService;
-use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 
 class AdminGenderService extends BaseService
 {
-    use CacheableServiceTrait;
 
     public function __construct(
         private readonly GenderRepository $genderRepository
@@ -24,8 +23,8 @@ class AdminGenderService extends BaseService
      */
     public function getAllGenders(): array
     {
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_LOOKUPS,
+        return $this->getCache(
+            CacheService::CATEGORY_LOOKUPS,
             'genders_all',
             function() {
                 $genders = $this->genderRepository->findAllGenders();
@@ -37,7 +36,7 @@ class AdminGenderService extends BaseService
                     ];
                 }, $genders);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_LOOKUPS)
+null
         );
     }
 } 

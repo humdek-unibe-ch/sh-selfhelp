@@ -21,7 +21,7 @@ use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\CMS\Admin\SectionFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
@@ -72,13 +72,13 @@ class AdminSectionService extends UserContextAwareService
     {
         $cacheKey = "section_{$section_id}_" . ($page_keyword ?? 'auto');
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_SECTIONS,
+        return $this->getCache(
+            CacheService::CATEGORY_SECTIONS,
             $cacheKey,
             function() use ($page_keyword, $section_id) {
                 return $this->fetchSectionFromDatabase($page_keyword, $section_id);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_SECTIONS)
+null
         );
     }
     

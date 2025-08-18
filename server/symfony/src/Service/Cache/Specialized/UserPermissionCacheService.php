@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Service\Auth;
+namespace App\Service\Cache\Specialized;
 
 use App\Entity\User;
-use App\Service\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Routing\RouterInterface;
@@ -12,7 +12,9 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service for caching user permissions during request lifecycle
- * This prevents N+1 queries when checking permissions multiple times
+ * This prevents N+1 queries when checking permissions multiple times within a single request
+ * 
+ * Uses ArrayAdapter for fast in-memory caching during request
  */
 class UserPermissionCacheService
 {

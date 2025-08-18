@@ -4,8 +4,8 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -18,8 +18,7 @@ class PositionManagementService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly GlobalCacheService $globalCacheService,
-        private readonly CacheInvalidationService $cacheInvalidationService
+        private readonly CacheService $cacheService
     ) {
     }
 

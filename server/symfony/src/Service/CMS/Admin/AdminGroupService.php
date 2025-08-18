@@ -9,8 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,8 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminGroupService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
-    
     private EntityManagerInterface $entityManager;
 
     public function __construct(
@@ -50,16 +47,17 @@ class AdminGroupService extends UserContextAwareService
         // Create cache key based on parameters
         $cacheKey = "groups_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_GROUPS,
+        return $this->getCache(
+            CacheService::CATEGORY_GROUPS,
             $cacheKey,
             function() use ($page, $pageSize, $search, $sort, $sortDirection) {
                 return $this->fetchGroupsFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_GROUPS)
+null
         );
     }
     
+
     private function fetchGroupsFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
     {
         $qb = $this->createGroupQueryBuilder();
@@ -201,12 +199,6 @@ class AdminGroupService extends UserContextAwareService
             );
 
             $this->entityManager->commit();
-
-            // Invalidate group caches after successful creation
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidateGroup($group, 'create');
-                $this->cacheInvalidationService->invalidatePermissions();
-            }
 
             return $this->formatGroupForDetail($group);
         } catch (\Exception $e) {

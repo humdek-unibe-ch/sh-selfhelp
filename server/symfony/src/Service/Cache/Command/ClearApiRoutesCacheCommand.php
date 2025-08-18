@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Service\Cache\Command;
 
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,10 +13,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'cache:clear-api-routes',
     description: 'Clear API routes cache after adding new routes to database'
 )]
-class CacheClearApiRoutesCommand extends Command
+class ClearApiRoutesCacheCommand extends Command
 {
     public function __construct(
-        private GlobalCacheService $cacheService
+        private CacheService $cacheService
     ) {
         parent::__construct();
     }
@@ -28,7 +28,7 @@ class CacheClearApiRoutesCommand extends Command
         $io->title('Clearing API Routes Cache');
 
         try {
-            $success = $this->cacheService->clearApiRoutesCache();
+            $success = $this->cacheService->clearApiRoutes();
 
             if ($success) {
                 $io->success('API routes cache cleared successfully!');

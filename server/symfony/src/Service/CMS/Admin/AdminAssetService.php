@@ -8,7 +8,7 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -50,13 +50,13 @@ class AdminAssetService extends BaseService
         // Create cache key based on parameters
         $cacheKey = "assets_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($folder ?? ''));
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_ASSETS,
+        return $this->getCache(
+            CacheService::CATEGORY_ASSETS,
             $cacheKey,
             function() use ($page, $pageSize, $search, $folder) {
                 return $this->fetchAssetsFromDatabase($page, $pageSize, $search, $folder);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_ASSETS)
+null
         );
     }
     

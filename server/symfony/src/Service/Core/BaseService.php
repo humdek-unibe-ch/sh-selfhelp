@@ -3,6 +3,7 @@
 namespace App\Service\Core;
 
 use App\Exception\ServiceException;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

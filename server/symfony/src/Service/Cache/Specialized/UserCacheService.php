@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Auth;
+namespace App\Service\Cache\Specialized;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,7 +10,9 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service for caching user entities during request lifecycle
- * This prevents multiple database queries for the same user
+ * This prevents multiple database queries for the same user within a single request
+ * 
+ * Uses ArrayAdapter for fast in-memory caching during request
  */
 class UserCacheService
 {

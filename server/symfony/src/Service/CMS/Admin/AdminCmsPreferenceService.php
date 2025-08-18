@@ -10,7 +10,7 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,8 +32,8 @@ class AdminCmsPreferenceService extends BaseService
      */
     public function getCmsPreferences(): array
     {
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_CMS_PREFERENCES,
+        return $this->getCache(
+            CacheService::CATEGORY_CMS_PREFERENCES,
             'cms_preferences',
             function() {
                 $preferences = $this->cmsPreferenceRepository->getCmsPreferences();
@@ -55,7 +55,7 @@ class AdminCmsPreferenceService extends BaseService
                     'firebase_config' => $preferences->getFirebaseConfig()
                 ];
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_CMS_PREFERENCES)
+null
         );
     }
 

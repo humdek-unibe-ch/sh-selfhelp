@@ -9,8 +9,8 @@ use App\Service\CMS\Frontend\PageService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
-use App\Service\Core\CacheInvalidationService;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +33,7 @@ class AdminPageController extends AbstractController
         private readonly ApiResponseFormatter $responseFormatter,
         private readonly PageService $pageService,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
-        private readonly GlobalCacheService $globalCacheService
+        private readonly CacheService $cacheService
     ) {
     }
 
@@ -136,11 +135,7 @@ class AdminPageController extends AbstractController
                 $data['parent'] ?? null,
             );
 
-            // Invalidate page-related caches after successful creation
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidatePage($page, 'create');
-                $this->cacheInvalidationService->invalidatePermissions(); // ACLs changed
-            }
+            // Page cache is automatically invalidated by the service
 
             // Return success response
             return $this->responseFormatter->formatSuccess(
@@ -170,13 +165,9 @@ class AdminPageController extends AbstractController
             $page = $this->adminPageService->deletePage($page_keyword);
 
             // Invalidate pages and sections cache
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
-            // Invalidate page-related caches after successful deletion
-            if ($this->cacheInvalidationService) {
-                $this->cacheInvalidationService->invalidatePage($page, 'delete');
-                $this->cacheInvalidationService->invalidatePermissions(); // ACLs removed
-            }
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            // Page cache is automatically invalidated by the service
 
             return $this->responseFormatter->formatSuccess(
                 $page,
@@ -214,8 +205,7 @@ class AdminPageController extends AbstractController
                 $data['fields']
             );
 
-            // Invalidate page cache
-            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            // Page cache is automatically invalidated by the service
 
             // Return updated page with fields
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
@@ -243,8 +233,8 @@ class AdminPageController extends AbstractController
         );
 
         // Invalidate pages and sections cache
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
 
         return $this->responseFormatter->formatSuccess(
             ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()],
@@ -258,8 +248,8 @@ class AdminPageController extends AbstractController
         $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
 
         // Invalidate pages and sections cache
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_PAGES);
-        $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
 
         return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }

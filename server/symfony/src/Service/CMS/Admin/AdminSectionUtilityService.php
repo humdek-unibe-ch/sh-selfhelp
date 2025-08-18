@@ -5,7 +5,7 @@ namespace App\Service\CMS\Admin;
 use App\Entity\Section;
 use App\Repository\SectionRepository;
 use App\Service\Core\BaseService;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,10 +21,10 @@ class AdminSectionUtilityService extends BaseService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly SectionRepository $sectionRepository,
-        private readonly GlobalCacheService $globalCacheService,
+        private readonly CacheService $cacheService,
         private readonly TransactionService $transactionService
     ) {
-        $this->setGlobalCacheService($globalCacheService);
+        $this->setCacheService($cacheService);
     }
 
     /**
@@ -36,8 +36,8 @@ class AdminSectionUtilityService extends BaseService
     {
         $cacheKey = 'unused_sections';
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_SECTIONS,
+        return $this->getCache(
+            CacheService::CATEGORY_SECTIONS,
             $cacheKey,
             function() {
                 $qb = $this->entityManager->createQueryBuilder();
@@ -66,8 +66,8 @@ class AdminSectionUtilityService extends BaseService
     {
         $cacheKey = 'ref_containers';
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_SECTIONS,
+        return $this->getCache(
+            CacheService::CATEGORY_SECTIONS,
             $cacheKey,
             function() {
                 $qb = $this->entityManager->createQueryBuilder();
@@ -90,9 +90,9 @@ class AdminSectionUtilityService extends BaseService
      */
     public function invalidateUtilityCache(): void
     {
-        if ($this->globalCacheService) {
-            $this->globalCacheService->delete(GlobalCacheService::CATEGORY_SECTIONS, 'unused_sections');
-            $this->globalCacheService->delete(GlobalCacheService::CATEGORY_SECTIONS, 'ref_containers');
+        if ($this->cacheService) {
+            $this->cacheService->delete(CacheService::CATEGORY_SECTIONS, 'unused_sections');
+            $this->cacheService->delete(CacheService::CATEGORY_SECTIONS, 'ref_containers');
         }
     }
 
@@ -290,14 +290,5 @@ class AdminSectionUtilityService extends BaseService
         }
     }
 
-    /**
-     * Get cache TTL for utility operations
-     */
-    protected function getCacheTTL(string $category): int
-    {
-        return match($category) {
-            GlobalCacheService::CATEGORY_SECTIONS => self::CACHE_TTL,
-            default => 3600
-        };
-    }
+
 }

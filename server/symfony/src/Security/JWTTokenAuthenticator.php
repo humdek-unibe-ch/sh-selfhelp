@@ -4,7 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\Auth\JWTService;
-use App\Service\Auth\UserCacheService;
+use App\Service\Cache\Specialized\UserCacheService;
 use App\Service\Core\ApiResponseFormatter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

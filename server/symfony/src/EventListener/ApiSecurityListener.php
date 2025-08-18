@@ -3,7 +3,7 @@
 namespace App\EventListener;
 
 use App\Service\Auth\UserContextService;
-use App\Service\Auth\UserPermissionCacheService;
+use App\Service\Cache\Specialized\UserPermissionCacheService;
 use App\Service\Core\ApiResponseFormatter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

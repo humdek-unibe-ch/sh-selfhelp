@@ -11,8 +11,8 @@ use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,8 +29,7 @@ class SectionRelationshipService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly PositionManagementService $positionManagementService,
         private readonly TransactionService $transactionService,
-        private readonly GlobalCacheService $globalCacheService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly CacheService $cacheService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,

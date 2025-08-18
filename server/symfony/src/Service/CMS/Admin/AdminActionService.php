@@ -10,7 +10,7 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\CacheableServiceTrait;
-use App\Service\Core\GlobalCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Exception\ServiceException;
@@ -34,13 +34,13 @@ class AdminActionService extends BaseService
         // Create cache key based on parameters
         $cacheKey = "actions_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
         
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_ACTIONS,
+        return $this->getCache(
+            CacheService::CATEGORY_ACTIONS,
             $cacheKey,
             function() use ($page, $pageSize, $search, $sort, $sortDirection) {
                 return $this->actionRepository->findActionsWithPagination($page, $pageSize, $search, $sort, $sortDirection);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_ACTIONS)
+null
         );
     }
 
@@ -49,8 +49,8 @@ class AdminActionService extends BaseService
      */
     public function getActionById(int $actionId): array
     {
-        return $this->cacheGet(
-            GlobalCacheService::CATEGORY_ACTIONS,
+        return $this->getCache(
+            CacheService::CATEGORY_ACTIONS,
             "action_{$actionId}",
             function() use ($actionId) {
                 /** @var Action|null $action */
@@ -60,7 +60,7 @@ class AdminActionService extends BaseService
                 }
                 return $this->formatAction($action);
             },
-            $this->getCacheTTL(GlobalCacheService::CATEGORY_ACTIONS)
+null
         );
     }
 

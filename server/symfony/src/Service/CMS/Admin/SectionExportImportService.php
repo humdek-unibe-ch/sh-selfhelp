@@ -15,8 +15,8 @@ use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Core\GlobalCacheService;
-use App\Service\Core\CacheInvalidationService;
+use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
@@ -34,8 +34,7 @@ class SectionExportImportService extends UserContextAwareService
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly StyleRepository $styleRepository,
         private readonly TransactionService $transactionService,
-        private readonly GlobalCacheService $globalCacheService,
-        private readonly CacheInvalidationService $cacheInvalidationService,
+        private readonly CacheService $cacheService,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -152,7 +151,7 @@ class SectionExportImportService extends UserContextAwareService
             
             // Invalidate page and sections cache after import
             $this->cacheInvalidationService->invalidatePage($page, 'update');
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
             
             // Commit transaction
             $this->entityManager->commit();
@@ -200,7 +199,7 @@ class SectionExportImportService extends UserContextAwareService
             
             // Invalidate sections cache after import
             $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
-            $this->globalCacheService->invalidateCategory(GlobalCacheService::CATEGORY_SECTIONS);
+            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
             
             // Commit transaction
             $this->entityManager->commit();
