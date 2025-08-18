@@ -9,7 +9,7 @@
     "properties": {
         "data": {
             "description": "The page entity",
-            "$ref": "../../entities/pageEntity.json"
+            "$ref": "../../../entities/pageEntity.json"
         }
     },
     "required": ["data"]

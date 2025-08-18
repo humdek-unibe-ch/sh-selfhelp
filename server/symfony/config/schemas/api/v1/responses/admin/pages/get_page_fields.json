@@ -9,11 +9,11 @@
         "data": {
             "type": "object",
             "properties": {
-                "page": { "$ref": "../../entities/pageEntity.json" },
+                "page": { "$ref": "../../../entities/pageEntity.json" },
                 "fields": {
                     "type": "array",
                     "description": "List of fields associated with the page",
-                    "items": { "$ref": "../../entities/fieldEntity.json" }
+                    "items": { "$ref": "../../../entities/fieldEntity.json" }
                 }
             },
             "required": ["page", "fields"]

@@ -6,7 +6,7 @@
     {
       "type": "object",
       "properties": {
-        "data": { "$ref": "../../entities/page_section_entity.json" }
+        "data": { "$ref": "../../../entities/page_section_entity.json" }
       },
       "required": ["data"]
     }
