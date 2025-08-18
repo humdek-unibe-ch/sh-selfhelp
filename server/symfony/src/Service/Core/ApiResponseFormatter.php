@@ -9,9 +9,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 use App\Service\JSON\JsonSchemaValidationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * API response formatter service
@@ -25,7 +22,7 @@ class ApiResponseFormatter
      * 
      * @var bool
      */
-    private const VALIDATE_RESPONSE_SCHEMA = false;
+    private const VALIDATE_RESPONSE_SCHEMA = true;
     
     public function __construct(
         private readonly Security $security,

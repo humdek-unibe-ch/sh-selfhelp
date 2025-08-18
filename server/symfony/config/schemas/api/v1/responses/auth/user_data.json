@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "User Data Response",
-  "description": "Response schema for user data endpoint",
+  "description": "Response schema for user data endpoint - validates only the data field content",
   "type": "object",
   "properties": {
     "id": {
@@ -34,7 +34,7 @@
         },
         "locale": {
           "type": ["string", "null"],
-          "description": "Language locale (e.g., 'en', 'de')"
+          "description": "Language locale (e.g., 'en-GB', 'de-DE')"
         },
         "name": {
           "type": ["string", "null"],
