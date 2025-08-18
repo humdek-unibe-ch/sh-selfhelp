@@ -55,7 +55,7 @@ class PositionManagementService
             // Invalidate page cache when positions are normalized
             $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
             if ($page) {
-                $this->cacheInvalidationService->invalidatePage($page, 'update');
+                $this->cacheService->invalidatePage($page, 'update');
             }
         }
     }
@@ -93,7 +93,7 @@ class PositionManagementService
             // Invalidate section cache when positions are normalized
             $parentSection = $this->entityManager->getRepository(\App\Entity\Section::class)->find($parentSectionId);
             if ($parentSection) {
-                $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+                $this->cacheService->invalidateSection($parentSection, 'update');
             }
         }
     }
@@ -152,7 +152,7 @@ class PositionManagementService
             
             // Invalidate page caches when positions are reordered
             foreach ($pages as $page) {
-                $this->cacheInvalidationService->invalidatePage($page, 'update');
+                $this->cacheService->invalidatePage($page, 'update');
             }
         }
     }

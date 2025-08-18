@@ -76,8 +76,8 @@ class SectionRelationshipService extends UserContextAwareService
             $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
             
             // Invalidate page and section caches
-            $this->cacheInvalidationService->invalidatePage($parentPage, 'update');
-            $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+            $this->cacheService->invalidatePage($parentPage, 'update');
+            $this->cacheService->invalidateSection($childSection, 'update');
             
             $this->entityManager->commit();
         
@@ -142,8 +142,8 @@ class SectionRelationshipService extends UserContextAwareService
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
             
             // Invalidate section caches
-            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
-            $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+            $this->cacheService->invalidateSection($parentSection, 'update');
+            $this->cacheService->invalidateSection($childSection, 'update');
             
             $this->entityManager->commit();
             
@@ -184,7 +184,7 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->positionManagementService->normalizePageSectionPositions($page->getId());
                 
                 // Invalidate page cache
-                $this->cacheInvalidationService->invalidatePage($page, 'update');
+                $this->cacheService->invalidatePage($page, 'update');
             } else {
                 // Not directly associated - check if it's a child section in the page hierarchy
                 $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -203,8 +203,8 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->entityManager->flush();
                 
                 // Invalidate page and section caches
-                $this->cacheInvalidationService->invalidatePage($page, 'update');
-                $this->cacheInvalidationService->invalidateSection($section, 'delete');
+                $this->cacheService->invalidatePage($page, 'update');
+                $this->cacheService->invalidateSection($section, 'delete');
             }
 
             $this->entityManager->commit();
@@ -244,10 +244,10 @@ class SectionRelationshipService extends UserContextAwareService
             $parentSection = $this->sectionRepository->find($parentSectionId);
             $childSection = $this->sectionRepository->find($childSectionId);
             if ($parentSection) {
-                $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+                $this->cacheService->invalidateSection($parentSection, 'update');
             }
             if ($childSection) {
-                $this->cacheInvalidationService->invalidateSection($childSection, 'update');
+                $this->cacheService->invalidateSection($childSection, 'update');
             }
             
             $this->entityManager->commit();
@@ -309,8 +309,8 @@ class SectionRelationshipService extends UserContextAwareService
             $this->entityManager->flush();
             
             // Invalidate page and section caches
-            $this->cacheInvalidationService->invalidatePage($page, 'update');
-            $this->cacheInvalidationService->invalidateSection($section, 'delete');
+            $this->cacheService->invalidatePage($page, 'update');
+            $this->cacheService->invalidateSection($section, 'delete');
             
             $this->entityManager->commit();
         } catch (\Throwable $e) {
@@ -368,8 +368,8 @@ class SectionRelationshipService extends UserContextAwareService
             );
             
             // Invalidate page and section caches
-            $this->cacheInvalidationService->invalidatePage($page, 'update');
-            $this->cacheInvalidationService->invalidateSection($section, 'delete');
+            $this->cacheService->invalidatePage($page, 'update');
+            $this->cacheService->invalidateSection($section, 'delete');
             
             $this->entityManager->commit();
         } catch (\Throwable $e) {

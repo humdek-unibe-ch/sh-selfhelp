@@ -281,7 +281,7 @@ $this->cacheStatsService->resetStats();
 ```php
 // BEFORE: Multiple services
 $this->cacheService->get(...);
-$this->cacheInvalidationService->invalidateForEntity(...);
+$this->cacheService->invalidateForEntity(...);
 
 // AFTER: Single service
 $this->cacheService->get(...);
@@ -310,7 +310,7 @@ use App\Service\Cache\Core\CacheInvalidationService;
 
 // Separate operations
 $data = $this->cacheService->get($category, $key);
-$this->cacheInvalidationService->invalidateForEntity($entity);
+$this->cacheService->invalidateForEntity($entity);
 
 // Duplicate logic
 protected function getCacheTTL($category) { /* duplicate in multiple files */ }

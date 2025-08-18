@@ -149,7 +149,7 @@ class SectionExportImportService extends UserContextAwareService
             $importedSections = $this->importSections($sectionsData, $page, null, $position);
             
             // Invalidate page and sections cache after import
-            $this->cacheInvalidationService->invalidatePage($page, 'update');
+            $this->cacheService->invalidatePage($page, 'update');
             $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
             
             // Commit transaction
@@ -197,7 +197,7 @@ class SectionExportImportService extends UserContextAwareService
             $importedSections = $this->importSections($sectionsData, null, $parentSection, $position);
             
             // Invalidate sections cache after import
-            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
+            $this->cacheService->invalidateSection($parentSection, 'update');
             $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
             
             // Commit transaction

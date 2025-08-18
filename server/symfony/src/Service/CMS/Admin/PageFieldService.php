@@ -183,6 +183,6 @@ class PageFieldService extends UserContextAwareService
         $this->updatePageFieldTranslations($page->getId(), $fields, $this->entityManager);
         
         // Invalidate page cache after updates
-        $this->cacheInvalidationService->invalidatePage($page, 'update');
+        $this->cacheService->invalidatePage($page, 'update');
     }
 } 

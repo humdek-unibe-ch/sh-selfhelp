@@ -84,8 +84,8 @@ class SectionCreationService extends UserContextAwareService
             $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
 
             // Invalidate page and section caches
-            $this->cacheInvalidationService->invalidatePage($page, 'update');
-            $this->cacheInvalidationService->invalidateSection($section, 'create');
+            $this->cacheService->invalidatePage($page, 'update');
+            $this->cacheService->invalidateSection($section, 'create');
 
             $this->entityManager->commit();
             return [
@@ -167,8 +167,8 @@ class SectionCreationService extends UserContextAwareService
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
             
             // Invalidate section caches
-            $this->cacheInvalidationService->invalidateSection($parentSection, 'update');
-            $this->cacheInvalidationService->invalidateSection($childSection, 'create');
+            $this->cacheService->invalidateSection($parentSection, 'update');
+            $this->cacheService->invalidateSection($childSection, 'create');
             
             $this->entityManager->commit();
             return [

@@ -291,7 +291,7 @@ class SectionFieldService extends UserContextAwareService
         }
         
         // Invalidate section cache after updates
-        $this->cacheInvalidationService->invalidateSection($section, 'update');
+        $this->cacheService->invalidateSection($section, 'update');
     }
 
     /**
