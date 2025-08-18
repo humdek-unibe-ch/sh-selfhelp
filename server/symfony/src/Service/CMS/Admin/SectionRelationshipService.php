@@ -12,7 +12,6 @@ use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheInvalidationService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;

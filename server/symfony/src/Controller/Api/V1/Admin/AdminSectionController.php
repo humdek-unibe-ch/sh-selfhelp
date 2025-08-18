@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api\V1\Admin;
 
-use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\Admin\AdminSectionService;
 use App\Controller\Trait\RequestValidatorTrait;

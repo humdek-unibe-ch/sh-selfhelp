@@ -3,7 +3,6 @@
 namespace App\Controller\Api\V1\Admin;
 
 use App\Controller\Trait\RequestValidatorTrait;
-use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\CMS\Admin\AdminGroupService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;

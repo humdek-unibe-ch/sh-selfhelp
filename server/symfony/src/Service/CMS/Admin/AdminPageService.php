@@ -19,8 +19,6 @@ use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\CMS\Common\SectionUtilityService;
-use App\Service\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheInvalidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;

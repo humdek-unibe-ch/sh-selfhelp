@@ -5,7 +5,6 @@ namespace App\Service\CMS\Admin;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
 use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheInvalidationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

@@ -6,7 +6,6 @@ use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\CMS\Admin\AdminUserService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
-use App\Service\Core\CacheInvalidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

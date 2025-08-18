@@ -9,7 +9,6 @@ use App\Service\CMS\Frontend\PageService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
-use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\Cache\Core\CacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

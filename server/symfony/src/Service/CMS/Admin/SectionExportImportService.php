@@ -16,7 +16,6 @@ use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheInvalidationService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
