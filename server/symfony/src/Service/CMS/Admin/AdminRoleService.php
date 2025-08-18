@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleService extends UserContextAwareService
 {
+    use CacheableServiceTrait;
     
     private EntityManagerInterface $entityManager;
 

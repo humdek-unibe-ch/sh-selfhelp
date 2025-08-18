@@ -9,6 +9,7 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -17,15 +18,14 @@ use Throwable;
 
 class LanguageService extends BaseService
 {
+    use CacheableServiceTrait;
 
     public function __construct(
         private readonly LanguageRepository $languageRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly TransactionService $transactionService,
-        private readonly CacheService $cacheService
+        private readonly TransactionService $transactionService
     ) {
-        // CacheService is injected directly, set it for the trait
-        $this->setCacheService($cacheService);
+        // CacheService will be injected via setCacheService() from services.yaml
     }
 
     /**

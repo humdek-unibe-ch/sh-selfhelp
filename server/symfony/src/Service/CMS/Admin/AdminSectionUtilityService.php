@@ -6,6 +6,7 @@ use App\Entity\Section;
 use App\Repository\SectionRepository;
 use App\Service\Core\BaseService;
 use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,15 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminSectionUtilityService extends BaseService
 {
+    use CacheableServiceTrait;
+    
     private const CACHE_TTL = 1800; // 30 minutes
     
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly SectionRepository $sectionRepository,
-        private readonly CacheService $cacheService,
         private readonly TransactionService $transactionService
     ) {
-        $this->setCacheService($cacheService);
+        // CacheService will be injected via setCacheService() from services.yaml
     }
 
     /**

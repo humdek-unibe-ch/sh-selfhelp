@@ -80,14 +80,10 @@ services:
         calls:
             - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
     
-    App\Service\Core\JobSchedulerService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+
     
     # Admin Services - All entities
-    App\Service\CMS\Admin\AdminPageService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+
     
     App\Service\CMS\Admin\AdminUserService:
         calls:
@@ -111,9 +107,7 @@ services:
     
 
     
-    App\Service\CMS\Admin\AdminScheduledJobService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+
     
     App\Service\CMS\Admin\AdminActionService:
         calls:
@@ -123,6 +117,25 @@ services:
         calls:
             - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
     
+    App\Service\CMS\Admin\AdminSectionUtilityService:
+        calls:
+            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+    
+    # Language Service (extends BaseService but needs caching)
+    App\Service\CMS\LanguageService:
+        calls:
+            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+    
+    # Specialized Cache Services
     App\Service\Cache\Specialized\UserPermissionCacheService:
+        calls:
+            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+    
+    App\Service\Cache\Specialized\UserCacheService:
+        calls:
+            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+    
+    # Repositories using cache
+    App\Repository\AclRepository:
         calls:
             - [setCacheService, ['@App\Service\Cache\Core\CacheService']]

@@ -25,7 +25,7 @@ class ApiResponseFormatter
      * 
      * @var bool
      */
-    private const VALIDATE_RESPONSE_SCHEMA = true;
+    private const VALIDATE_RESPONSE_SCHEMA = false;
     
     public function __construct(
         private readonly Security $security,

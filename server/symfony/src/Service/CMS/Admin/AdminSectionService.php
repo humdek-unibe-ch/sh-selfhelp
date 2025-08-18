@@ -20,7 +20,7 @@ use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
-use App\Service\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\CMS\Admin\SectionFieldService;
@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminSectionService extends UserContextAwareService
 {
+    use CacheableServiceTrait;
     /**
      * Constructor
      */

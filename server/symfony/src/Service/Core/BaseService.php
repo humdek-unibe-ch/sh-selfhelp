@@ -3,15 +3,16 @@
 namespace App\Service\Core;
 
 use App\Exception\ServiceException;
-use App\Service\Cache\Core\CacheableServiceTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Base service with error handling and caching capabilities
+ * Base service with error handling capabilities
+ * 
+ * Note: Caching capabilities moved to CacheableServiceTrait
+ * Add the trait individually to services that need caching to avoid circular dependencies
  */
 abstract class BaseService
 {
-    use CacheableServiceTrait;
     /**
      * Throw a not found exception
      */

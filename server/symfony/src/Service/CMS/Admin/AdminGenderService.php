@@ -10,6 +10,7 @@ use App\Service\Cache\Core\CacheService;
 
 class AdminGenderService extends BaseService
 {
+    use CacheableServiceTrait;
 
     public function __construct(
         private readonly GenderRepository $genderRepository

@@ -3,28 +3,32 @@
 namespace App\Service\Cache\Specialized;
 
 use App\Entity\User;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Service for caching user entities during request lifecycle
  * This prevents multiple database queries for the same user within a single request
  * 
- * Uses ArrayAdapter for fast in-memory caching during request
+ * Uses unified CacheService with user category for consistent caching
  */
 class UserCacheService
 {
-    private CacheItemPoolInterface $cache;
-    private const CACHE_PREFIX = 'user_';
+    private ?CacheService $cacheService = null;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ?LoggerInterface $logger = null
     ) {
-        // Use ArrayAdapter for fast in-memory caching during request
-        $this->cache = new ArrayAdapter(0, false);
+    }
+
+    /**
+     * Set the cache service (injected via services.yaml)
+     */
+    public function setCacheService(?CacheService $cacheService): void
+    {
+        $this->cacheService = $cacheService;
     }
 
     /**
@@ -32,16 +36,21 @@ class UserCacheService
      */
     public function getUserByEmail(string $email): ?User
     {
-        $cacheKey = self::CACHE_PREFIX . 'email_' . md5($email);
-        $cacheItem = $this->cache->getItem($cacheKey);
+        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$this->cacheService) {
+            return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        }
 
-        if ($cacheItem->isHit()) {
+        $cacheKey = 'user_email_' . md5($email);
+        $cachedUser = $this->cacheService->get(CacheService::CATEGORY_USERS, $cacheKey);
+
+        if ($cachedUser !== null) {
             if ($this->logger) {
                 $this->logger->debug('User cache hit for email {email}', [
                     'email' => $email
                 ]);
             }
-            return $cacheItem->get();
+            return $cachedUser;
         }
 
         if ($this->logger) {
@@ -53,8 +62,10 @@ class UserCacheService
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
         // Cache the result (even if null)
-        $cacheItem->set($user);
-        $this->cache->save($cacheItem);
+        if ($user !== null) {
+            $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_USERS);
+            $this->cacheService->set(CacheService::CATEGORY_USERS, $cacheKey, $user, $ttl);
+        }
 
         return $user;
     }
@@ -64,16 +75,20 @@ class UserCacheService
      */
     public function getUserById(int $id): ?User
     {
-        $cacheKey = self::CACHE_PREFIX . 'id_' . $id;
-        $cacheItem = $this->cache->getItem($cacheKey);
+        if (!$this->cacheService) {
+            return $this->entityManager->getRepository(User::class)->find($id);
+        }
 
-        if ($cacheItem->isHit()) {
+        $cacheKey = 'user_id_' . $id;
+        $cachedUser = $this->cacheService->get(CacheService::CATEGORY_USERS, $cacheKey);
+
+        if ($cachedUser !== null) {
             if ($this->logger) {
                 $this->logger->debug('User cache hit for ID {userId}', [
                     'userId' => $id
                 ]);
             }
-            return $cacheItem->get();
+            return $cachedUser;
         }
 
         if ($this->logger) {
@@ -85,8 +100,10 @@ class UserCacheService
         $user = $this->entityManager->getRepository(User::class)->find($id);
 
         // Cache the result (even if null)
-        $cacheItem->set($user);
-        $this->cache->save($cacheItem);
+        if ($user !== null) {
+            $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_USERS);
+            $this->cacheService->set(CacheService::CATEGORY_USERS, $cacheKey, $user, $ttl);
+        }
 
         return $user;
     }
@@ -96,17 +113,18 @@ class UserCacheService
      */
     public function cacheUser(User $user): void
     {
+        if (!$this->cacheService) {
+            return;
+        }
+
         // Cache by both email and ID
-        $emailCacheKey = self::CACHE_PREFIX . 'email_' . md5($user->getEmail());
-        $idCacheKey = self::CACHE_PREFIX . 'id_' . $user->getId();
-
-        $emailCacheItem = $this->cache->getItem($emailCacheKey);
-        $emailCacheItem->set($user);
-        $this->cache->save($emailCacheItem);
-
-        $idCacheItem = $this->cache->getItem($idCacheKey);
-        $idCacheItem->set($user);
-        $this->cache->save($idCacheItem);
+        $emailCacheKey = 'user_email_' . md5($user->getEmail());
+        $idCacheKey = 'user_id_' . $user->getId();
+        
+        $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_USERS);
+        
+        $this->cacheService->set(CacheService::CATEGORY_USERS, $emailCacheKey, $user, $ttl);
+        $this->cacheService->set(CacheService::CATEGORY_USERS, $idCacheKey, $user, $ttl);
     }
 
     /**
@@ -114,10 +132,15 @@ class UserCacheService
      */
     public function clearUserCache(User $user): void
     {
-        $emailCacheKey = self::CACHE_PREFIX . 'email_' . md5($user->getEmail());
-        $idCacheKey = self::CACHE_PREFIX . 'id_' . $user->getId();
+        if (!$this->cacheService) {
+            return;
+        }
 
-        $this->cache->deleteItems([$emailCacheKey, $idCacheKey]);
+        $emailCacheKey = 'user_email_' . md5($user->getEmail());
+        $idCacheKey = 'user_id_' . $user->getId();
+
+        $this->cacheService->delete(CacheService::CATEGORY_USERS, $emailCacheKey);
+        $this->cacheService->delete(CacheService::CATEGORY_USERS, $idCacheKey);
     }
 
     /**
@@ -125,6 +148,10 @@ class UserCacheService
      */
     public function clearAll(): void
     {
-        $this->cache->clear();
+        if (!$this->cacheService) {
+            return;
+        }
+
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_USERS);
     }
 }

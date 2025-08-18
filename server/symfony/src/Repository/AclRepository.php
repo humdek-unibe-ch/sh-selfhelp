@@ -5,51 +5,38 @@ namespace App\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Page;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Psr\Cache\CacheItemPoolInterface;
+use App\Service\Cache\Core\CacheService;
 use Psr\Log\LoggerInterface;
 
 /**
  * Repository for ACL operations
+ * Uses the unified CacheService for caching ACL data
  */
 class AclRepository extends ServiceEntityRepository
 {
-    /**
-     * In-memory cache adapter using PSR-6 standard
-     */
-    private CacheItemPoolInterface $cache;
-
-    /**
-     * Optional logger for cache operations
-     */
+    private ?CacheService $cacheService = null;
     private ?LoggerInterface $logger;
-
-    /**
-     * Prefix for all cache keys to prevent collisions
-     */
-    private const CACHE_PREFIX = 'acl_user_';
-
-    /**
-     * Cache lifetime for request-scoped cache (in seconds)
-     * A negative value means the cache is only valid for the current request
-     */
-    private const CACHE_TTL = -1;
 
     public function __construct(
         ManagerRegistry $registry, 
         ?LoggerInterface $logger = null
     ) {
         parent::__construct($registry, Page::class);
-        // Use ArrayAdapter for fast in-memory caching
-        $this->cache = new ArrayAdapter(0, false);
         $this->logger = $logger;
+    }
+
+    /**
+     * Set the cache service (injected via services.yaml)
+     */
+    public function setCacheService(?CacheService $cacheService): void
+    {
+        $this->cacheService = $cacheService;
     }
 
     /**
      * Get all ACLs for a user, optionally filtered by page
      * 
-     * This method uses in-memory caching to ensure it's only executed once per request
-     * even if called multiple times. It closely mirrors the get_user_acl stored procedure.
+     * Uses unified CacheService for caching ACL data within permissions category
      * 
      * @param int $userId User ID to get ACLs for
      * @param int $pageId Optional page ID to filter by (-1 for all pages)
@@ -57,20 +44,25 @@ class AclRepository extends ServiceEntityRepository
      */
     public function getUserAcl(int $userId, ?int $pageId = -1): array
     {
+        if (!$this->cacheService) {
+            // If no cache service, fetch directly
+            return $this->fetchUserAclFromDatabase($userId, $pageId);
+        }
+
         // Generate a cache key based on parameters
-        $cacheKey = $this->generateCacheKey($userId, $pageId);
+        $cacheKey = "user_acl_{$userId}_{$pageId}";
 
         // Try to get from cache first
-        $cacheItem = $this->cache->getItem($cacheKey);
+        $cachedResult = $this->cacheService->get(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $userId);
 
-        if ($cacheItem->isHit()) {
+        if ($cachedResult !== null) {
             if ($this->logger) {
                 $this->logger->debug('ACL cache hit for user {userId}, page {pageId}', [
                     'userId' => $userId,
                     'pageId' => $pageId,
                 ]);
             }
-            return $cacheItem->get();
+            return $cachedResult;
         }
 
         if ($this->logger) {
@@ -81,6 +73,20 @@ class AclRepository extends ServiceEntityRepository
         }
 
         // Cache miss - fetch from database
+        $result = $this->fetchUserAclFromDatabase($userId, $pageId);
+
+        // Store in cache with permissions TTL
+        $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_PERMISSIONS);
+        $this->cacheService->set(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $result, $ttl, $userId);
+
+        return $result;
+    }
+
+    /**
+     * Fetch user ACL data from database using stored procedure
+     */
+    private function fetchUserAclFromDatabase(int $userId, int $pageId): array
+    {
         $conn = $this->getEntityManager()->getConnection();
 
         // Call the stored procedure directly
@@ -89,38 +95,24 @@ class AclRepository extends ServiceEntityRepository
         $stmt->bindValue('userId', $userId, \PDO::PARAM_INT);
         $stmt->bindValue('pageId', $pageId, \PDO::PARAM_INT);
         
-        $result = $stmt->executeQuery()->fetchAllAssociative();
-
-        // Store in cache
-        $cacheItem->set($result);
-        // Set TTL if needed (-1 means valid for current request only)
-        if (self::CACHE_TTL > 0) {
-            $cacheItem->expiresAfter(self::CACHE_TTL);
-        }
-        $this->cache->save($cacheItem);
-
-        return $result;
+        return $stmt->executeQuery()->fetchAllAssociative();
     }
    
     /**
-     * Clear the in-memory ACL cache for a specific user
+     * Clear ACL cache for a specific user
      * 
      * @param int $userId The user ID to clear cache for
      * @return bool True if the cache was cleared successfully
      */
     public function clearUserAclCache(int $userId): bool
     {
-        $cacheKey = self::CACHE_PREFIX . $userId . '_*';
-        $success = $this->cache->deleteItem($this->generateCacheKey($userId, -1));
-        
-        // Also clear any page-specific caches for this user
-        // (Since ArrayAdapter doesn't support deleteItems with wildcards)
-        $allItems = $this->cache->getItems([]);
-        foreach ($allItems as $key => $item) {
-            if (strpos($key, self::CACHE_PREFIX . $userId . '_') === 0) {
-                $this->cache->deleteItem($key);
-            }
+        if (!$this->cacheService) {
+            return false;
         }
+
+        // Use CacheService's user invalidation method
+        $this->cacheService->invalidatePermissions($userId);
+        $success = true;
 
         if ($this->logger) {
             $this->logger->debug('Cleared ACL cache for user {userId}', [
@@ -132,30 +124,24 @@ class AclRepository extends ServiceEntityRepository
     }
 
     /**
-     * Clear the entire in-memory ACL cache
+     * Clear all ACL cache
      * 
      * @return bool True if the cache was cleared successfully
      */
     public function clearAllAclCache(): bool
     {
-        $success = $this->cache->clear();
+        if (!$this->cacheService) {
+            return false;
+        }
+
+        // Use CacheService's permission invalidation method
+        $this->cacheService->invalidatePermissions();
+        $success = true;
         
         if ($this->logger) {
             $this->logger->debug('Cleared all ACL cache');
         }
 
         return $success;
-    }
-
-    /**
-     * Generates a standardized cache key for ACL items
-     *
-     * @param int $userId The user ID
-     * @param int $pageId The page ID (-1 for all pages)
-     * @return string The formatted cache key
-     */
-    private function generateCacheKey(int $userId, int $pageId): string
-    {
-        return self::CACHE_PREFIX . $userId . '_' . $pageId;
     }
 }

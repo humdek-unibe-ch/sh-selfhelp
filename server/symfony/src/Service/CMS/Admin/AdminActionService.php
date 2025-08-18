@@ -9,7 +9,7 @@ use App\Repository\LookupRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +17,7 @@ use App\Exception\ServiceException;
 
 class AdminActionService extends BaseService
 {
+    use CacheableServiceTrait;
     
     public function __construct(
         private readonly EntityManagerInterface $entityManager,

@@ -3,34 +3,34 @@
 namespace App\Service\Cache\Specialized;
 
 use App\Entity\User;
-use App\Service\Cache\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Routing\RouterInterface;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Service for caching user permissions during request lifecycle
  * This prevents N+1 queries when checking permissions multiple times within a single request
  * 
- * Uses ArrayAdapter for fast in-memory caching during request
+ * Uses unified CacheService with permissions category for consistent caching
  */
 class UserPermissionCacheService
 {
-    use CacheableServiceTrait;
-    
-    private CacheItemPoolInterface $cache;
-    private const CACHE_PREFIX = 'user_permissions_';
-    private const ROUTE_PERMISSIONS_PREFIX = 'route_permissions_';
+    private ?CacheService $cacheService = null;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
         private RouterInterface $router,
         private ?LoggerInterface $logger = null
     ) {
-        // Use ArrayAdapter for fast in-memory caching during request
-        $this->cache = new ArrayAdapter(0, false);
+    }
+
+    /**
+     * Set the cache service (injected via services.yaml)
+     */
+    public function setCacheService(?CacheService $cacheService): void
+    {
+        $this->cacheService = $cacheService;
     }
 
     /**
@@ -39,16 +39,20 @@ class UserPermissionCacheService
      */
     public function getUserPermissions(User $user): array
     {
-        $cacheKey = self::CACHE_PREFIX . $user->getId();
-        $cacheItem = $this->cache->getItem($cacheKey);
+        if (!$this->cacheService) {
+            return $this->fetchUserPermissionsFromDatabase($user->getId());
+        }
 
-        if ($cacheItem->isHit()) {
+        $cacheKey = 'user_permissions_' . $user->getId();
+        $cachedPermissions = $this->cacheService->get(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $user->getId());
+
+        if ($cachedPermissions !== null) {
             if ($this->logger) {
                 $this->logger->debug('User permissions cache hit for user {userId}', [
                     'userId' => $user->getId()
                 ]);
             }
-            return $cacheItem->get();
+            return $cachedPermissions;
         }
 
         if ($this->logger) {
@@ -57,6 +61,47 @@ class UserPermissionCacheService
             ]);
         }
 
+        $permissions = $this->fetchUserPermissionsFromDatabase($user->getId());
+
+        // Cache the result
+        $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_PERMISSIONS);
+        $this->cacheService->set(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $permissions, $ttl, $user->getId());
+
+        return $permissions;
+    }
+
+    /**
+     * Get route permissions with caching
+     * Uses router to get permissions from route options (already cached by ApiRouteLoader)
+     */
+    public function getRoutePermissions(string $routeName): array
+    {
+        return $this->fetchRoutePermissionsFromRouter($routeName);
+        if (!$this->cacheService) {
+            return $this->fetchRoutePermissionsFromRouter($routeName);
+        }
+
+        $cacheKey = 'route_permissions_' . $routeName;
+        $cachedPermissions = $this->cacheService->get(CacheService::CATEGORY_PERMISSIONS, $cacheKey);
+
+        if ($cachedPermissions !== null) {
+            return $cachedPermissions;
+        }
+
+        $permissions = $this->fetchRoutePermissionsFromRouter($routeName);
+
+        // Cache the result
+        $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_PERMISSIONS);
+        $this->cacheService->set(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $permissions, $ttl);
+
+        return $permissions;
+    }
+
+    /**
+     * Fetch user permissions from database
+     */
+    private function fetchUserPermissionsFromDatabase(int $userId): array
+    {
         // Optimized query to get all permissions in one go
         $sql = '
             SELECT DISTINCT p.name
@@ -68,46 +113,26 @@ class UserPermissionCacheService
         ';
 
         $stmt = $this->entityManager->getConnection()->prepare($sql);
-        $stmt->bindValue('userId', $user->getId());
+        $stmt->bindValue('userId', $userId);
         $result = $stmt->executeQuery();
         
-        $permissions = array_column($result->fetchAllAssociative(), 'name');
-
-        // Cache the result
-        $cacheItem->set($permissions);
-        $this->cache->save($cacheItem);
-
-        return $permissions;
+        return array_column($result->fetchAllAssociative(), 'name');
     }
 
     /**
-     * Get route permissions with caching
-     * Uses router to get permissions from route options (already cached by ApiRouteLoader)
+     * Fetch route permissions from router
      */
-    public function getRoutePermissions(string $routeName): array
+    private function fetchRoutePermissionsFromRouter(string $routeName): array
     {
-        $cacheKey = self::ROUTE_PERMISSIONS_PREFIX . $routeName;
-        $cacheItem = $this->cache->getItem($cacheKey);
-
-        if ($cacheItem->isHit()) {
-            return $cacheItem->get();
-        }
-
         // Get route from router collection (already cached by ApiRouteLoader)
         $route = $this->router->getRouteCollection()->get($routeName);
         if (!$route) {
             // Route not found, return empty permissions
-            $permissions = [];
-        } else {
-            // Get permissions from route options
-            $permissions = $route->getOption('permissions') ?? [];
+            return [];
         }
-
-        // Cache the result
-        $cacheItem->set($permissions);
-        $this->cache->save($cacheItem);
-
-        return $permissions;
+        
+        // Get permissions from route options
+        return $route->getOption('permissions') ?? [];
     }
 
     /**
@@ -115,8 +140,12 @@ class UserPermissionCacheService
      */
     public function clearUserPermissions(int $userId): void
     {
-        $cacheKey = self::CACHE_PREFIX . $userId;
-        $this->cache->deleteItem($cacheKey);
+        if (!$this->cacheService) {
+            return;
+        }
+
+        $cacheKey = 'user_permissions_' . $userId;
+        $this->cacheService->delete(CacheService::CATEGORY_PERMISSIONS, $cacheKey, $userId);
     }
 
     /**
@@ -124,8 +153,12 @@ class UserPermissionCacheService
      */
     public function clearRoutePermissions(string $routeName): void
     {
-        $cacheKey = self::ROUTE_PERMISSIONS_PREFIX . $routeName;
-        $this->cache->deleteItem($cacheKey);
+        if (!$this->cacheService) {
+            return;
+        }
+
+        $cacheKey = 'route_permissions_' . $routeName;
+        $this->cacheService->delete(CacheService::CATEGORY_PERMISSIONS, $cacheKey);
     }
 
     /**
@@ -133,6 +166,10 @@ class UserPermissionCacheService
      */
     public function clearAll(): void
     {
-        $this->cache->clear();
+        if (!$this->cacheService) {
+            return;
+        }
+
+        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PERMISSIONS);
     }
 }

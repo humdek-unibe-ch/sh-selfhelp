@@ -10,6 +10,7 @@ use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
 use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminGroupService extends UserContextAwareService
 {
+    use CacheableServiceTrait;
+    
     private EntityManagerInterface $entityManager;
 
     public function __construct(

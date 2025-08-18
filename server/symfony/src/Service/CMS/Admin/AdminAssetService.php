@@ -7,7 +7,7 @@ use App\Repository\AssetRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminAssetService extends BaseService
 {
+    use CacheableServiceTrait;
+    
     private const UPLOAD_DIR = 'uploads/assets/';
     private const ALLOWED_EXTENSIONS = [
         'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', // Images
