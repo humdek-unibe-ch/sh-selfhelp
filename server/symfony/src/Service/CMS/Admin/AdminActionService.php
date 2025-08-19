@@ -6,11 +6,11 @@ use App\Entity\Action;
 use App\Entity\Lookup;
 use App\Repository\ActionRepository;
 use App\Repository\LookupRepository;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Cache\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Exception\ServiceException;
@@ -18,12 +18,13 @@ use App\Exception\ServiceException;
 class AdminActionService extends BaseService
 {
     use CacheableServiceTrait;
-    
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly ActionRepository $actionRepository,
-        private readonly LookupRepository $lookupRepository
+        private readonly LookupRepository $lookupRepository,
+        private readonly ReworkedCacheService $cache,
     ) {
     }
 
@@ -34,15 +35,14 @@ class AdminActionService extends BaseService
     {
         // Create cache key based on parameters
         $cacheKey = "actions_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
-        
-        return $this->getCache(
-            CacheService::CATEGORY_ACTIONS,
-            $cacheKey,
-            function() use ($page, $pageSize, $search, $sort, $sortDirection) {
-                return $this->actionRepository->findActionsWithPagination($page, $pageSize, $search, $sort, $sortDirection);
-            },
-null
-        );
+
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->getList(
+                $cacheKey,
+                fn() =>
+                $this->actionRepository->findActionsWithPagination($page, $pageSize, $search, $sort, $sortDirection)
+            );
     }
 
     /**
@@ -50,19 +50,20 @@ null
      */
     public function getActionById(int $actionId): array
     {
-        return $this->getCache(
-            CacheService::CATEGORY_ACTIONS,
-            "action_{$actionId}",
-            function() use ($actionId) {
-                /** @var Action|null $action */
-                $action = $this->entityManager->find(Action::class, $actionId);
-                if (!$action instanceof Action) {
-                    throw new ServiceException('Action not found', Response::HTTP_NOT_FOUND);
+
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->getItem(
+                "action_{$actionId}",
+                function () use ($actionId) {
+                    /** @var Action|null $action */
+                    $action = $this->entityManager->find(Action::class, $actionId);
+                    if (!$action instanceof Action) {
+                        throw new ServiceException('Action not found', Response::HTTP_NOT_FOUND);
+                    }
+                    return $this->formatAction($action);
                 }
-                return $this->formatAction($action);
-            },
-null
-        );
+            );
     }
 
     /**
@@ -98,7 +99,7 @@ null
             }
 
             if (array_key_exists('id_dataTables', $data)) {
-                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int)$data['id_dataTables']);
+                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int) $data['id_dataTables']);
                 if (!$dataTable) {
                     throw new ServiceException('Invalid data table', Response::HTTP_BAD_REQUEST);
                 }
@@ -119,6 +120,10 @@ null
             );
 
             $this->entityManager->commit();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->invalidateItemAndLists("action_{$actionId}");
 
             return $this->formatAction($action);
         } catch (\Throwable $e) {
@@ -160,7 +165,7 @@ null
             }
 
             if (array_key_exists('id_dataTables', $data)) {
-                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int)$data['id_dataTables']);
+                $dataTable = $this->entityManager->getReference(\App\Entity\DataTable::class, (int) $data['id_dataTables']);
                 if (!$dataTable) {
                     $this->throwBadRequest('Invalid data table');
                 }
@@ -182,6 +187,11 @@ null
             );
 
             $this->entityManager->commit();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->invalidateAllListsInCategory();
+
             return $this->formatAction($action);
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -218,6 +228,11 @@ null
             $this->entityManager->remove($action);
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->invalidateItemAndLists("action_{$actionId}");
+
             return true;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();

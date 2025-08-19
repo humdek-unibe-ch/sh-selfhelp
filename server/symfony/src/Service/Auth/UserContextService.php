@@ -29,13 +29,4 @@ class UserContextService
 
         return $this->cachedUser;
     }
-
-    /**
-     * Clear the cached user (useful for testing or when user context changes)
-     */
-    public function clearCache(): void
-    {
-        $this->cachedUser = null;
-        $this->userResolved = false;
-    }
 }
