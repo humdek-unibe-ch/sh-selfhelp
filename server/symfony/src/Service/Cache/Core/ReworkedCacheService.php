@@ -55,7 +55,13 @@ class ReworkedCacheService
     /** @var string Cache category for action entities and configurations */
     public const CATEGORY_ACTIONS = 'actions';
 
-    private const ALL_CATEGORIES = [
+    /** @var string Cache category for API routes */
+    public const CATEGORY_API_ROUTES = 'api_routes';
+
+    /** @var string Cache category for API routes */
+    public const CATEGORY_DEFAULT = 'default';
+
+    public const ALL_CATEGORIES = [
         self::CATEGORY_PAGES,
         self::CATEGORY_USERS,
         self::CATEGORY_SECTIONS,
@@ -69,10 +75,12 @@ class ReworkedCacheService
         self::CATEGORY_CMS_PREFERENCES,
         self::CATEGORY_SCHEDULED_JOBS,
         self::CATEGORY_ACTIONS,
+        self::CATEGORY_API_ROUTES,
+        self::CATEGORY_DEFAULT,
     ];
 
     /** @var string Current cache category for this service instance */
-    private string $category = 'default';
+    private string $category = self::CATEGORY_DEFAULT;
     
     /** @var string Cache key prefix for namespacing */
     private string $prefix = 'cms';
