@@ -1,37 +1,34 @@
-# Consolidated Cache System
+# ReworkedCacheService - Generation-Based Cache System
 
 ## Overview
 
-The SelfHelp Symfony Backend implements a comprehensive, well-structured cache system that has been consolidated into a single core service for maximum simplicity and maintainability. The cache system provides category-based caching, user-specific cache invalidation, and optional statistics monitoring with clear separation of concerns.
+The SelfHelp Symfony Backend implements an advanced generation-based cache system built around the `ReworkedCacheService`. This system provides O(1) cache invalidation through generation counters, builder pattern configuration, and automatic statistics tracking. The architecture eliminates the need for cache scanning or deletion operations while providing precise control over cache invalidation.
 
 ## Architecture
 
-### Streamlined Structure
+### Core Structure
 
 ```
-src/Service/Cache/
-├── Core/
-│   ├── CacheService.php              # SINGLE CORE SERVICE: All cache operations + invalidation
-│   ├── CacheStatsService.php         # Statistics & monitoring (optional)
-│   └── CacheableServiceTrait.php     # Provides caching capabilities to services
-├── Specialized/
-│   ├── UserCacheService.php          # User entity caching during request lifecycle
-│   └── UserPermissionCacheService.php # User permissions caching during request lifecycle
-└── Command/
-    └── ClearApiRoutesCacheCommand.php # Cache management commands
-
-tests/Controller/Api/V1/Admin/
-└── AdminCacheTestController.php       # Test controller (moved to proper location)
+src/Service/Cache/Core/
+└── ReworkedCacheService.php          # MAIN CACHE SERVICE: Generation-based caching
 ```
 
-### Core Components
+### Key Features
 
-1. **CacheService** - **SINGLE UNIFIED SERVICE** for all cache operations and invalidation
-2. **CacheStatsService** - Statistics and monitoring (separated for debugging/monitoring only)
-3. **CacheableServiceTrait** - Provides standardized caching capabilities to services
-4. **UserCacheService** - Request-lifecycle user entity caching
-5. **UserPermissionCacheService** - Request-lifecycle user permissions caching
-6. **AdminCacheController** - API endpoints for cache monitoring and management
+1. **ReworkedCacheService** - Advanced tag-based cache service with generation-based invalidation
+2. **Builder Pattern** - Immutable service instances with `withCategory()` and `withPrefix()` methods
+3. **Generation-Based Invalidation** - O(1) cache invalidation using generation counters
+4. **Dual Cache Types** - Separate handling for lists (collections) and items (individual entities)
+5. **Automatic Statistics** - Built-in hit/miss/set/invalidate tracking per category
+6. **Tag-Based Operations** - Fine-grained invalidation using cache tags
+
+### Architecture Benefits
+
+- **O(1) Invalidation**: No cache scanning or deletion required
+- **Immutable Configuration**: Builder pattern prevents configuration conflicts
+- **Automatic TTL Management**: Category-based TTL configuration
+- **Built-in Monitoring**: Statistics tracking without separate services
+- **Memory Efficient**: Generation counters instead of cache entry deletion
 
 ### Cache Categories
 
@@ -52,210 +49,221 @@ The system uses predefined cache categories with specific prefixes:
 - `scheduled_jobs` - Scheduled job entities
 - `actions` - Actions for dataTables
 
-### Cache Pools
-
-The system utilizes multiple Redis cache pools for optimal performance:
-
-- `cache.global` - General application cache (default)
-- `cache.user_frontend` - Frontend user-specific data
-- `cache.admin` - Admin interface data
-- `cache.lookups` - Lookup data and constants
-- `cache.permissions` - Permission-related data
-- `cache.app` - Application metadata (routes, etc.)
-
 ### Cache Configuration
 
-Cache pools are configured in `config/packages/cache.yaml`:
+ReworkedCacheService uses a single tag-aware cache pool for all operations:
+
+Cache configuration in `config/packages/cache.yaml`:
 
 ```yaml
 framework:
     cache:
         pools:
-            cache.global:
-                adapter: cache.adapter.redis
-                default_lifetime: 3600
-            cache.user_frontend:
-                adapter: cache.adapter.redis
-                default_lifetime: 1800
-            cache.admin:
-                adapter: cache.adapter.redis
-                default_lifetime: 1800
-            cache.lookups:
-                adapter: cache.adapter.redis
-                default_lifetime: 7200
-            cache.permissions:
-                adapter: cache.adapter.redis
-                default_lifetime: 1800
+            # Single tag-aware cache pool for ReworkedCacheService
             cache.app:
-                adapter: cache.adapter.redis
-                default_lifetime: 86400
+                adapter: cache.adapter.redis_tag_aware
+                default_lifetime: 3600
 ```
 
 ### Service Configuration (config/services.yaml)
 
 ```yaml
 services:
-    # Cache Service Configuration - SINGLE CORE SERVICE
-    App\Service\Cache\Core\CacheService:
+    # ReworkedCacheService - Single cache service with generation-based invalidation
+    App\Service\Cache\Core\ReworkedCacheService:
         arguments:
-            $globalCache: '@cache.global'
-            $userFrontendCache: '@cache.user_frontend'
-            $adminCache: '@cache.admin'
-            $lookupsCache: '@cache.lookups'
-            $permissionsCache: '@cache.permissions'
-            $appCache: '@cache.app'
-        calls:
-            - [setStatsService, ['@App\Service\Cache\Core\CacheStatsService']]
+            $cache: '@cache.app'
     
-    # Cache Statistics Service (optional monitoring)
-    App\Service\Cache\Core\CacheStatsService:
-        arguments:
-            $cacheService: '@App\Service\Cache\Core\CacheService'
-    
-    # Services using cache automatically get the CacheableServiceTrait methods
+    # Services can inject ReworkedCacheService directly
     # Example configuration:
-    App\Service\CMS\Admin\AdminUserService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
+    App\Service\CMS\Admin\AdminActionService:
+        arguments:
+            $cache: '@App\Service\Cache\Core\ReworkedCacheService'
 ```
 
 ## Usage
 
-### Standardized Cache Operations
+### Builder Pattern with Generation-Based Caching
 
-#### Using CacheService Directly (Single Service)
+#### Basic Usage Pattern
 
 ```php
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 
 class YourService
 {
     public function __construct(
-        private CacheService $cacheService
+        private ReworkedCacheService $cache
     ) {}
     
-    public function getData(int $id): array
+    public function getActions(int $page, int $pageSize): array
     {
-        // Get from cache with automatic set if not found
-        $data = $this->cacheService->get(
-            CacheService::CATEGORY_PAGES,
-            "page_{$id}"
-        );
-        
-        if ($data === null) {
-            // Fetch from database
-            $data = $this->fetchFromDatabase($id);
-            
-            // Store in cache with automatic TTL
-            $this->cacheService->set(
-                CacheService::CATEGORY_PAGES,
-                "page_{$id}",
-                $data
+        // Builder pattern with automatic cache-or-compute
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->getList(
+                "actions_page_{$page}_size_{$pageSize}",
+                fn() => $this->repository->findActionsWithPagination($page, $pageSize)
             );
-        }
-        
-        return $data;
     }
     
-    public function updateData(int $id, array $newData): void
+    public function getAction(int $actionId): array
+    {
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->getItem(
+                "action_{$actionId}",
+                fn() => $this->formatAction($this->repository->find($actionId))
+            );
+    }
+    
+    public function updateAction(int $actionId, array $data): array
     {
         // Update database
-        $this->updateDatabase($id, $newData);
+        $action = $this->repository->update($actionId, $data);
         
-        // Automatically invalidate related caches
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
+        // Invalidate both the specific item and all lists
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->invalidateItemAndLists("action_{$actionId}");
+        
+        return $this->formatAction($action);
     }
 }
 ```
 
-#### Using CacheableServiceTrait (Recommended)
+#### Advanced Usage Patterns
 
 ```php
-use App\Service\Cache\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheService;
+// User-scoped caching
+$userSpecificData = $this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_FRONTEND_USER)
+    ->getItem("user_preferences_{$userId}", 
+        fn() => $this->fetchUserPreferences($userId),
+        $userId  // User-scoped cache key
+    );
 
-class YourService
-{
-    use CacheableServiceTrait;
-    
-    public function getData(int $id): array
-    {
-        // Single method handles get-or-set with automatic TTL
-        return $this->getCache(
-            CacheService::CATEGORY_PAGES,
-            "page_{$id}",
-            fn() => $this->fetchFromDatabase($id)
-        );
-    }
-    
-    public function updateData(Page $page): void
-    {
-        // Update database
-        $this->updateDatabase($page);
-        
-        // Automatic entity-based invalidation
-        $this->triggerCacheInvalidation('update', CacheService::CATEGORY_PAGES, $page);
-    }
-}
+// Custom TTL override
+$shortLivedData = $this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+    ->getList("temp_lookups",
+        fn() => $this->fetchTempLookups(),
+        null,
+        300  // 5 minutes TTL override
+    );
+
+// Multiple categories with different prefixes
+$apiCache = $this->cache->withPrefix('api')->withCategory(ReworkedCacheService::CATEGORY_USERS);
+$adminCache = $this->cache->withPrefix('admin')->withCategory(ReworkedCacheService::CATEGORY_USERS);
 ```
 
-### Entity-Based Invalidation (Built into CacheService)
+### Generation-Based Invalidation (O(1) Operations)
 
 ```php
-// The CacheService now handles entity-specific invalidation
-$this->cacheService->invalidateForEntity($user, 'update');
-$this->cacheService->invalidateForEntity($page, 'delete');
-$this->cacheService->invalidateForEntity($section, 'create');
+// Invalidate entire category - all lists and items (O(1))
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->invalidateCategory();
 
-// Or use specific methods directly
-$this->cacheService->invalidateUser($userId, 'update');
-$this->cacheService->invalidatePage($page, 'delete');
-$this->cacheService->invalidateSection($section, 'update');
+// Invalidate specific item only
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->invalidateItem("action_{$actionId}");
+
+// Invalidate specific item AND all lists in category
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->invalidateItemAndLists("action_{$actionId}");
+
+// Invalidate all lists in category (keep items)
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->invalidateAllListsInCategory();
 ```
 
 ### User-Specific Cache Management
 
 ```php
-// Invalidate all caches for a specific user
-$this->cacheService->invalidateAllUserCaches($userId);
+// Invalidate all user cache within specific category (O(1))
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_FRONTEND_USER)
+    ->invalidateUser($userId);
 
-// Invalidate only frontend caches for a user
-$this->cacheService->invalidateUserCategory($userId);
+// Global user invalidation - ALL categories for this user (O(1))
+$this->cache->invalidateUserGlobally($userId);
 
-// Invalidate specific permissions for a user
-$this->cacheService->invalidatePermissions($userId);
+// User-scoped item invalidation
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+    ->invalidateItem("user_profile_{$userId}", $userId);
 ```
 
-### Category-Based Operations
+### Invalidation Strategy Patterns
 
 ```php
-// Invalidate entire categories
-$this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-$this->cacheService->invalidateCategory(CacheService::CATEGORY_USERS);
+// CREATE operations - only invalidate lists (new item doesn't exist in cache)
+public function createAction(array $data): array 
+{
+    $action = $this->repository->create($data);
+    
+    $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+        ->invalidateAllListsInCategory();
+    
+    return $this->formatAction($action);
+}
 
-// Clear all caches
-$this->cacheService->clearAll();
+// UPDATE operations - invalidate specific item and all lists
+public function updateAction(int $id, array $data): array 
+{
+    $action = $this->repository->update($id, $data);
+    
+    $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+        ->invalidateItemAndLists("action_{$id}");
+    
+    return $this->formatAction($action);
+}
 
-// Clear API routes cache specifically
-$this->cacheService->clearApiRoutes();
+// DELETE operations - invalidate specific item and all lists
+public function deleteAction(int $id): bool 
+{
+    $this->repository->delete($id);
+    
+    $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+        ->invalidateItemAndLists("action_{$id}");
+    
+    return true;
+}
 ```
 
-### Statistics and Monitoring (Optional)
+### Built-in Statistics Tracking
 
 ```php
-use App\Service\Cache\Core\CacheStatsService;
+// Get statistics for all categories
+$allStats = $this->cache->getStats();
 
-// Get comprehensive statistics
-$stats = $this->cacheStatsService->getStats();
+// Get statistics for specific category
+$actionStats = $this->cache->getStats(ReworkedCacheService::CATEGORY_ACTIONS);
 
-// Get cache health with recommendations
-$health = $this->cacheStatsService->getCacheHealth();
+// Example stats structure:
+// [
+//     'actions' => [
+//         'hit' => 1250,
+//         'miss' => 180,
+//         'set' => 180,
+//         'invalidate' => 45
+//     ],
+//     'users' => [...],
+//     ...
+// ]
 
-// Get top performing categories
-$topCategories = $this->cacheStatsService->getTopPerformingCategories(5);
-
-// Reset statistics
-$this->cacheStatsService->resetStats();
+// Statistics are automatically tracked during all operations:
+// - Hits: Successful cache retrievals
+// - Misses: Cache misses that triggered compute callbacks
+// - Sets: New values stored in cache
+// - Invalidations: Cache invalidation operations
 ```
 
 ## API Endpoints
@@ -270,71 +278,67 @@ $this->cacheStatsService->resetStats();
 - `GET /admin/cache/category/{category}` - Get statistics for specific category
 - `POST /admin/cache/reset-stats` - Reset cache statistics
 
-## Key Consolidation Benefits
+## Key ReworkedCacheService Benefits
 
-### 🎯 **Single Responsibility**
-- **One Core Service**: All cache operations (get, set, delete, invalidate) in `CacheService.php`
-- **Separate Stats Service**: Statistics moved to dedicated `CacheStatsService.php` for monitoring
-- **Clean Architecture**: Core caching logic separate from debugging/monitoring
+### 🚀 **Performance Advantages**
+- **O(1) Invalidation**: Generation counters eliminate cache scanning/deletion
+- **Memory Efficient**: Old cache entries become inaccessible without deletion
+- **Tag-Based Precision**: Fine-grained invalidation using cache tags
+- **Single Pool**: Simplified Redis configuration with tag-aware caching
 
-### 🚀 **Simplified Usage**
+### 🎯 **Developer Experience**
+- **Builder Pattern**: Clean, chainable API: `$cache->withCategory(CATEGORY_ACTIONS)->getList(...)`
+- **Immutable Config**: No state conflicts between service usages
+- **Automatic Statistics**: Built-in monitoring without separate services
+- **Intelligent TTL**: Category-based TTL with override support
+
+### 📊 **Advanced Features**
+- **Generation-Based Keys**: Cache keys include generation counters for instant invalidation
+- **User Scoping**: User-specific cache namespacing with global kill switches  
+- **Dual Types**: Separate handling for lists (collections) vs items (entities)
+- **Strategic Invalidation**: Different patterns for create/update/delete operations
+
+## Architecture Comparison
+
+### Traditional Cache Systems
 ```php
-// BEFORE: Multiple services
-$this->cacheService->get(...);
-$this->cacheService->invalidateForEntity(...);
+// Manual cache management
+$key = "actions_page_{$page}";
+$data = $cache->get($key);
+if ($data === null) {
+    $data = $repository->getData();
+    $cache->set($key, $data, 3600);
+}
 
-// AFTER: Single service
-$this->cacheService->get(...);
-$this->cacheService->invalidateForEntity(...);
+// Manual invalidation with scanning
+$cache->delete($key);
+foreach ($cache->getAllKeys('actions_*') as $cacheKey) {
+    $cache->delete($cacheKey); // Expensive operation
+}
 ```
 
-### 📦 **Better Organization**
-- **CacheService.php**: ~450 lines with ALL core functionality
-- **CacheStatsService.php**: ~250 lines with monitoring only
-- **No Duplication**: Removed `getCacheTTL` from utility services
-- **Test Location**: Test controller moved to proper `tests/` directory
-
-### 🔧 **Enhanced Developer Experience**
-- **Single Import**: Only need `use App\Service\Cache\Core\CacheService;`
-- **Consistent API**: All operations through one service
-- **Auto-Invalidation**: Entity changes automatically trigger cache invalidation
-- **Error Resilient**: Cache failures don't break application functionality
-
-## Before vs After Comparison
-
-### Before Consolidation
+### ReworkedCacheService Approach
 ```php
-// Multiple services needed
-use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheInvalidationService;
+// Automatic cache-or-compute with builder pattern
+$data = $this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->getList("actions_page_{$page}", 
+        fn() => $repository->getData()
+    );
 
-// Separate operations
-$data = $this->cacheService->get($category, $key);
-$this->cacheService->invalidateForEntity($entity);
-
-// Duplicate logic
-protected function getCacheTTL($category) { /* duplicate in multiple files */ }
+// O(1) invalidation with generation bump
+$this->cache
+    ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+    ->invalidateCategory(); // Instant, no scanning required
 ```
 
-### After Consolidation
-```php
-// Single service handles everything
-use App\Service\Cache\Core\CacheService;
+## Migration Benefits
 
-// Unified operations
-$data = $this->cacheService->get($category, $key);
-$this->cacheService->invalidateForEntity($entity);
+- **🎯 Cleaner API**: Builder pattern eliminates configuration conflicts
+- **⚡ Better Performance**: O(1) invalidation instead of cache scanning
+- **📊 Built-in Monitoring**: Automatic statistics without separate services
+- **🔄 Smart Invalidation**: Different strategies for different operation types
+- **🛡️ Error Resilience**: Cache failures don't break application functionality
+- **📝 Self-Documenting**: Category constants and method names make intent clear
 
-// No duplication - TTL handled automatically
-$this->cacheService->getCacheTTL($category); // Built-in
-```
-
-## Migration Impact
-
-- **✅ Zero Breaking Changes**: All existing code works unchanged
-- **✅ Better Performance**: Reduced service dependencies and method calls  
-- **✅ Easier Maintenance**: All cache logic in one place
-- **✅ Cleaner Tests**: Test controller in proper location
-- **✅ Better Documentation**: Clear separation between core and monitoring
-
-The consolidated cache system maintains all existing functionality while providing a much cleaner and more maintainable architecture.
+The ReworkedCacheService represents a significant advancement in cache architecture, providing both superior performance and developer experience.
