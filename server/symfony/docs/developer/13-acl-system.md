@@ -652,7 +652,7 @@ class AdminPageService extends BaseService
     public function updatePage(string $pageKeyword, array $updateData): Page
     {
         // Check ACL permissions before update
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         
@@ -685,7 +685,7 @@ class AdminPageService extends BaseService
     public function deletePage(string $pageKeyword): bool
     {
         // Check ACL permissions before delete
-        $this->checkAccess($pageKeyword, 'delete');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
         
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         

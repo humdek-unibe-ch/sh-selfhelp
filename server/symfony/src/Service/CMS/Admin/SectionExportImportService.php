@@ -10,7 +10,7 @@ use App\Entity\SectionsHierarchy;
 use App\Entity\SectionsFieldsTranslation;
 use App\Entity\Field;
 use App\Exception\ServiceException;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
@@ -20,13 +20,14 @@ use App\Service\CMS\Common\SectionUtilityService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling section export/import operations
  */
-class SectionExportImportService extends UserContextAwareService
+class SectionExportImportService extends BaseService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -34,12 +35,12 @@ class SectionExportImportService extends UserContextAwareService
         private readonly StyleRepository $styleRepository,
         private readonly TransactionService $transactionService,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly SectionRelationshipService $sectionRelationshipService,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -52,7 +53,7 @@ class SectionExportImportService extends UserContextAwareService
     public function exportPageSections(string $pageKeyword): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'select');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
         
         // Get the page
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
@@ -87,8 +88,8 @@ class SectionExportImportService extends UserContextAwareService
     public function exportSection(string $pageKeyword, int $sectionId): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'select');
-        $this->checkSectionInPage($pageKeyword, $sectionId);
+       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $sectionId);
         
         // Get the section
         $section = $this->sectionRepository->find($sectionId);
@@ -134,7 +135,7 @@ class SectionExportImportService extends UserContextAwareService
     public function importSectionsToPage(string $pageKeyword, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         
         // Get the page
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
@@ -185,8 +186,8 @@ class SectionExportImportService extends UserContextAwareService
     public function importSectionsToSection(string $pageKeyword, int $parentSectionId, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
-        $this->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $parentSectionId);
         
         // Get the parent section
         $parentSection = $this->sectionRepository->find($parentSectionId);

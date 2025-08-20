@@ -510,7 +510,7 @@ class SectionCreationService extends BaseService
     public function createPageSection(string $pageKeyword, int $styleId, ?int $position): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         
         $this->entityManager->beginTransaction();

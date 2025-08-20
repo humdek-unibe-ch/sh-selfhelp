@@ -13,26 +13,8 @@ class SectionUtilityService
 {
     public function __construct(
         private readonly DataService $dataService,
-        ?StylesFieldRepository $stylesFieldRepository = null
+        private readonly StylesFieldRepository $stylesFieldRepository
     ) {
-        $this->stylesFieldRepository = $stylesFieldRepository;
-    }
-
-    /**
-     * @var StylesFieldRepository|null
-     */
-    private ?StylesFieldRepository $stylesFieldRepository = null;
-    
-    /**
-     * Set the StylesFieldRepository
-     * 
-     * @param StylesFieldRepository $stylesFieldRepository The repository to use for styles fields
-     * @return self
-     */
-    public function setStylesFieldRepository(StylesFieldRepository $stylesFieldRepository): self
-    {
-        $this->stylesFieldRepository = $stylesFieldRepository;
-        return $this;
     }
     
     /**

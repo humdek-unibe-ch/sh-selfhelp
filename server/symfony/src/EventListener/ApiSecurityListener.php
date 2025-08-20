@@ -3,8 +3,7 @@
 namespace App\EventListener;
 
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Specialized\UserPermissionCacheService;
-use App\Service\Core\ApiResponseFormatter;
+use App\Service\CMS\UserPermissionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -25,7 +24,7 @@ class ApiSecurityListener implements EventSubscriberInterface
     public function __construct(
         private RouterInterface $router,
         private UserContextService $userContextService,
-        private UserPermissionCacheService $permissionCacheService,
+        private UserPermissionService $permissionService,
         private LoggerInterface $logger
     ) {}
     
@@ -68,7 +67,7 @@ class ApiSecurityListener implements EventSubscriberInterface
             }
             
             // Get the required permissions using optimized cache service
-            $requiredPermissions = $this->permissionCacheService->getRoutePermissions($routeName);
+            $requiredPermissions = $this->permissionService->getRoutePermissions($routeName);
             
             if (empty($requiredPermissions)) {
                 return;
@@ -82,7 +81,7 @@ class ApiSecurityListener implements EventSubscriberInterface
             }
             
             // Get the user's permissions using optimized cache service
-            $userPermissions = $this->permissionCacheService->getUserPermissions($user);
+            $userPermissions = $this->permissionService->getUserPermissions($user);
             
             $this->logger->debug('Checking permissions for route', [
                 'route' => $routeName,

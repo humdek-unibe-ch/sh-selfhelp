@@ -8,7 +8,7 @@ use App\Exception\ServiceException;
 use App\Service\CMS\Common\StyleNames;
 use App\Repository\DataTableRepository;
 use App\Service\Core\TransactionService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Repository\PageRepository;
@@ -19,19 +19,18 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Service for managing dataTables creation and column management
  */
-class DataTableService extends UserContextAwareService
+class DataTableService extends BaseService
 {
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly DataTableRepository $dataTableRepository,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly UserContextService $userContextService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**

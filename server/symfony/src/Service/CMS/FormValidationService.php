@@ -4,31 +4,33 @@ namespace App\Service\CMS;
 
 use App\Exception\ServiceException;
 use App\Service\CMS\Common\StyleNames;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\DataTableRepository;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+
 
 /**
  * Service for validating form submission permissions and relationships
  */
-class FormValidationService extends UserContextAwareService
+class FormValidationService extends BaseService
 {
     
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly DataTableRepository $dataTableRepository,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly UserContextService $userContextService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -49,7 +51,7 @@ class FormValidationService extends UserContextAwareService
         }
 
         // Check if user has access to the page (use 'insert' permission for form submission)
-        $this->checkAccess($page->getKeyword(), 'insert');
+       $this->userContextAwareService->checkAccess($page->getKeyword(), 'insert');
 
         // Find the section
         $section = $this->sectionRepository->find($sectionId);
@@ -91,7 +93,7 @@ class FormValidationService extends UserContextAwareService
         }
 
         // Check delete permission on page
-        $this->checkAccess($page->getKeyword(), 'delete');
+       $this->userContextAwareService->checkAccess($page->getKeyword(), 'delete');
 
         // Find the section
         $section = $this->sectionRepository->find($sectionId);

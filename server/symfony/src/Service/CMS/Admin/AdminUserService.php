@@ -11,7 +11,7 @@ use App\Entity\Gender;
 use App\Entity\Language;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Auth\UserContextService;
@@ -22,22 +22,18 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminUserService extends UserContextAwareService
+class AdminUserService extends BaseService
 {
-    private EntityManagerInterface $entityManager;
-
     public function __construct(
-        UserContextService $userContextService,
-        private readonly EntityManagerInterface $entityManagerInterface,
+        private readonly UserContextService $userContextService,
         private readonly UserRepository $userRepository,
         private readonly LookupService $lookupService,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly TransactionService $transactionService,
         private readonly UserValidationService $userValidationService,
         private readonly ReworkedCacheService $cache,
+        private readonly EntityManagerInterface $entityManager
     ) {
-        parent::__construct($userContextService);
-        $this->entityManager = $entityManagerInterface;
     }
 
     /**

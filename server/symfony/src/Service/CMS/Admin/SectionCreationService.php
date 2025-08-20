@@ -7,20 +7,21 @@ use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
 use App\Service\CMS\DataTableService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling section creation operations
  */
-class SectionCreationService extends UserContextAwareService
+class SectionCreationService extends BaseService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -28,12 +29,12 @@ class SectionCreationService extends UserContextAwareService
         private readonly PositionManagementService $positionManagementService,
         private readonly DataTableService $dataTableService,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly SectionRelationshipService $sectionRelationshipService,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -48,7 +49,7 @@ class SectionCreationService extends UserContextAwareService
     public function createPageSection(string $pageKeyword, int $styleId, ?int $position): array
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
@@ -138,8 +139,8 @@ class SectionCreationService extends UserContextAwareService
         }
         
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
-        $this->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $parentSectionId);
         
         $this->entityManager->beginTransaction();
         try {

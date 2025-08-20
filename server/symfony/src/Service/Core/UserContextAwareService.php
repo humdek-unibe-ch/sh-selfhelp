@@ -4,34 +4,22 @@ namespace App\Service\Core;
 
 use App\Entity\User;
 use App\Repository\PageRepository;
-use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 
-abstract class UserContextAwareService extends BaseService
+class UserContextAwareService extends BaseService
 {
-    protected UserContextService $userContextService;
-    protected ?ACLService $aclService;
-    protected ?PageRepository $pageRepository;
-    protected ?SectionRepository $sectionRepository;
-
-    public function __construct(        
-        UserContextService $userContextService,
-        ?ACLService $aclService = null,
-        ?PageRepository $pageRepository = null,
-        ?SectionRepository $sectionRepository = null        
-    ) {
-        $this->userContextService = $userContextService;
-        $this->aclService = $aclService;
-        $this->pageRepository = $pageRepository;
-        $this->sectionRepository = $sectionRepository;
-    }
+    public function __construct(
+        private readonly UserContextService $userContextService,
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+    ) {}
 
     /**
      * Get the current authenticated user
      */
-    protected function getCurrentUser(): ?User
+    public function getCurrentUser(): ?User
     {
         return $this->userContextService->getCurrentUser();
     }
@@ -39,7 +27,7 @@ abstract class UserContextAwareService extends BaseService
     /**
      * Check if a user is logged in
      */
-    protected function isUserLoggedIn(): bool
+    public function isUserLoggedIn(): bool
     {
         return $this->userContextService->getCurrentUser() !== null;
     }
@@ -51,8 +39,9 @@ abstract class UserContextAwareService extends BaseService
      * @param string $permission The permission to check
      * @throws ServiceException If the page is not found or access denied
      */
-    protected function checkAccess(string $page_keyword, string $permission = 'select'): void
+    public function checkAccess(string $page_keyword, string $permission = 'select'): void
     {
+        
         $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
@@ -78,32 +67,6 @@ abstract class UserContextAwareService extends BaseService
                 $this->throwForbidden('Access denied');
             }
         }
-    }
-
-    /**
-     * Check if the section is in the page
-     * 
-     * IMportant check for api calls in order to manipulate sections. 
-     * 
-     * @param string $page_keyword The page keyword
-     * @param string $section_id The section ID
-     * @throws ServiceException If the section is not found or access denied
-     */
-    protected function checkSectionInPage(string $page_keyword, string $section_id): void
-    {
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
-        if (!$page) {
-            $this->throwNotFound('Page not found');
-        }
-        // Fetch all sections (flat) for this page
-        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-        // Extract all section IDs
-        $sectionIds = array_map(function ($section) {
-            return is_array($section) && isset($section['id']) ? (string) $section['id'] : null;
-        }, $flatSections);
-        if (!in_array((string) $section_id, $sectionIds, true)) {
-            $this->throwForbidden('Access denied: Section does not belong to page');
-        }
-    }
+    }    
 
 }

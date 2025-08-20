@@ -12,9 +12,9 @@ use App\Entity\MailQueue;
 use App\Entity\Notification;
 use App\Entity\Task;
 use App\Entity\User;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
-use App\Service\Cache\Core\CacheableServiceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -29,21 +29,13 @@ use Psr\Log\LoggerInterface;
  */
 class JobSchedulerService extends BaseService
 {
-    use CacheableServiceTrait;
-    
-    private TransactionService $transactionService;
-    private LookupService $lookupService;
-    private LoggerInterface $logger;
-
     public function __construct(
         private readonly EntityManagerInterface $em,
-        TransactionService $transactionService,
-        LookupService $lookupService,
-        LoggerInterface $logger
+        private readonly TransactionService $transactionService,
+        private readonly LookupService $lookupService,
+        private readonly LoggerInterface $logger,
+        private readonly ReworkedCacheService $cache
     ) {
-        $this->transactionService = $transactionService;
-        $this->lookupService = $lookupService;
-        $this->logger = $logger;
     }
 
     /**
@@ -56,7 +48,7 @@ class JobSchedulerService extends BaseService
     public function scheduleJob(array $jobData, string $transactionBy): ScheduledJob|false
     {
         try {
-            
+
             $job = $this->createScheduledJob($jobData);
             if (!$job) {
                 throw new \Exception('Failed to create scheduled job');
@@ -160,7 +152,7 @@ class JobSchedulerService extends BaseService
 
             // Update job status
             $status = $this->lookupService->findByTypeAndCode($this->lookupService::SCHEDULED_JOBS_STATUS, $success ? $this->lookupService::SCHEDULED_JOBS_STATUS_DONE : $this->lookupService::SCHEDULED_JOBS_STATUS_FAILED);
-            
+
             $job->setStatus($status);
             $job->setDateExecuted(new \DateTime());
             $this->em->flush();
@@ -174,6 +166,10 @@ class JobSchedulerService extends BaseService
                 false,
                 'Job executed: ' . ($success ? 'executed' : 'failed')
             );
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateItemAndLists("scheduledJob_{$jobId}");
 
             $this->em->commit();
             return $job;
@@ -218,6 +214,10 @@ class JobSchedulerService extends BaseService
                 'Job marked as deleted'
             );
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateItemAndLists("scheduledJob_{$jobId}");
+
             $this->em->commit();
             return true;
 
@@ -240,8 +240,8 @@ class JobSchedulerService extends BaseService
      * @return int|false Job ID if successful, false on failure
      */
     public function scheduleDirectEmailJob(
-        array $emailConfig, 
-        ?\DateTime $dateToExecute = null, 
+        array $emailConfig,
+        ?\DateTime $dateToExecute = null,
         ?int $userId = null
     ): int|false {
         $jobData = [
@@ -273,14 +273,18 @@ class JobSchedulerService extends BaseService
             $scheduledJob->setDescription($jobData['description'] ?? '');
             $scheduledJob->setDateCreate(new \DateTime());
             $scheduledJob->setDateToBeExecuted($jobData['date_to_be_executed'] ?? new \DateTime());
-            
+
             if (isset($jobData['condition'])) {
                 $scheduledJob->setConfig(json_encode($jobData['condition']));
             }
 
             $this->em->persist($scheduledJob);
-            
+
             $this->em->flush();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateAllListsInCategory();
 
             return $scheduledJob;
 
@@ -297,7 +301,7 @@ class JobSchedulerService extends BaseService
     {
         try {
             $emailConfig = $jobData['email_config'];
-            
+
             $mailQueue = new MailQueue();
             $mailQueue->setFromEmail($emailConfig['from_email']);
             $mailQueue->setFromName($emailConfig['from_name']);
@@ -342,17 +346,17 @@ class JobSchedulerService extends BaseService
     {
         try {
             $notificationConfig = $jobData['notification_config'];
-            
+
             $notification = new Notification();
             $notification->setSubject($notificationConfig['subject']);
             $notification->setBody($notificationConfig['body']);
-            
+
             if (isset($notificationConfig['url'])) {
                 $notification->setUrl($notificationConfig['url']);
             }
 
             $this->em->persist($notification);
-            
+
             $this->em->flush();
 
             // Link scheduled job to notification
@@ -362,7 +366,7 @@ class JobSchedulerService extends BaseService
             $scheduledJobNotification->setNotification($notification);
 
             $this->em->persist($scheduledJobNotification);
-            
+
             $this->em->flush();
 
             return true;
@@ -380,12 +384,12 @@ class JobSchedulerService extends BaseService
     {
         try {
             $taskConfig = $jobData['task_config'];
-            
+
             $task = new Task();
             $task->setConfig(json_encode($taskConfig));
 
             $this->em->persist($task);
-            
+
             $this->em->flush();
 
             // Link scheduled job to task
@@ -395,7 +399,7 @@ class JobSchedulerService extends BaseService
             $scheduledJobTask->setTask($task);
 
             $this->em->persist($scheduledJobTask);
-            
+
             $this->em->flush();
 
             return true;
@@ -418,6 +422,10 @@ class JobSchedulerService extends BaseService
             $scheduledJobUser->setUser($user);
 
             $this->em->persist($scheduledJobUser);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withUser($userId)
+                ->invalidateUserInCategory();
         }
         
         $this->em->flush();
@@ -462,7 +470,7 @@ class JobSchedulerService extends BaseService
     private function getDefaultValidationEmailBody(int $userId, string $token): string
     {
         $validationUrl = "validate/{$userId}/{$token}";
-        
+
         return "
         <h2>Account Validation Required</h2>
         <p>Thank you for registering! Please click the link below to validate your account:</p>
@@ -470,4 +478,4 @@ class JobSchedulerService extends BaseService
         <p>If you did not create this account, please ignore this email.</p>
         ";
     }
-} 
+}

@@ -17,8 +17,9 @@ use App\Service\CMS\Admin\AdminSectionUtilityService;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\CMS\Common\SectionUtilityService;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Service for handling page-related operations in the admin panel
  * ENTITY RULE
  */
-class AdminPageService extends UserContextAwareService
+class AdminPageService extends BaseService
 {
     use TranslationManagerTrait;
 
@@ -50,12 +51,12 @@ class AdminPageService extends UserContextAwareService
         private readonly PageFieldService $pageFieldService,
         private readonly SectionRelationshipService $sectionRelationshipService,
         private readonly AdminSectionUtilityService $adminSectionUtilityService,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly UserContextService $userContextService,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository); 
     }
 
     /**
@@ -79,14 +80,14 @@ class AdminPageService extends UserContextAwareService
      */
     public function getPageSections(string $pageKeyword): array
     {
-        $this->checkAccess($pageKeyword, 'select');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
         // Check if user has access to the page
-        $this->checkAccess($pageKeyword, 'select');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
         // Call stored procedure for hierarchical sections
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
@@ -265,7 +266,7 @@ class AdminPageService extends UserContextAwareService
             }
 
             // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
+           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
 
             // Store original page for transaction logging
             $originalPage = clone $page;
@@ -426,7 +427,7 @@ class AdminPageService extends UserContextAwareService
             }
 
             // Check if user has delete access to the page
-            $this->checkAccess($pageKeyword, 'delete');
+           $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
 
             // Check if the page has children
             $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);

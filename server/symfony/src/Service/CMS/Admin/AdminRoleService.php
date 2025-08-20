@@ -6,7 +6,7 @@ use App\Entity\Role;
 use App\Entity\Permission;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Auth\UserContextService;
@@ -15,19 +15,17 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminRoleService extends UserContextAwareService
+class AdminRoleService extends BaseService
 {
-    private EntityManagerInterface $entityManager;
 
     public function __construct(
-        UserContextService $userContextService,
+        private readonly UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
         private readonly TransactionService $transactionService,
         private readonly ReworkedCacheService $cache,
+        private readonly EntityManagerInterface $entityManager
     ) {
-        parent::__construct($userContextService);
-        $this->entityManager = $entityManagerInterface;
     }
 
     /**

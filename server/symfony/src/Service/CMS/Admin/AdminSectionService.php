@@ -3,30 +3,24 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Field;
-use App\Entity\FieldType;
 use App\Entity\Page;
 use App\Entity\PagesSection;
 use App\Entity\Section;
 use App\Entity\SectionsFieldsTranslation;
 use App\Entity\SectionsHierarchy;
-use App\Entity\Style;
-use App\Entity\StylesField;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
-use App\Repository\StylesFieldRepository;
 use App\Repository\PageRepository;
-use App\Service\ACL\ACLService;
-use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\CMS\Admin\SectionFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
 use App\Service\CMS\Admin\SectionCreationService;
-use App\Service\CMS\Admin\SectionExportImportService;
 use App\Service\CMS\Admin\AdminSectionUtilityService;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Service for handling section-related operations in the admin panel
  * MEMORY_RULE - I am Claude Sonnet 4, your AI coding assistant in Cursor
  */
-class AdminSectionService extends UserContextAwareService
+class AdminSectionService extends BaseService
 {
     /**
      * Constructor
@@ -43,22 +37,17 @@ class AdminSectionService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly StyleRepository $styleRepository,
-        private readonly StylesFieldRepository $stylesFieldRepository,
         private readonly PositionManagementService $positionManagementService,
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly SectionFieldService $sectionFieldService,
         private readonly SectionRelationshipService $sectionRelationshipService,
         private readonly SectionCreationService $sectionCreationService,
-        private readonly SectionExportImportService $sectionExportImportService,
         private readonly AdminSectionUtilityService $adminSectionUtilityService,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
-        $this->sectionUtilityService->setStylesFieldRepository($this->stylesFieldRepository);
     }
 
     /**
@@ -71,7 +60,7 @@ class AdminSectionService extends UserContextAwareService
     public function getSection(?string $page_keyword, int $section_id): array
     {
         $cacheKey = "section_{$section_id}_" . ($page_keyword ?? 'auto');
-        
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
             ->getItem(
@@ -79,7 +68,7 @@ class AdminSectionService extends UserContextAwareService
                 fn() => $this->fetchSectionFromDatabase($page_keyword, $section_id)
             );
     }
-    
+
     private function fetchSectionFromDatabase(?string $page_keyword, int $section_id): array
     {
         // Fetch section
@@ -107,15 +96,15 @@ class AdminSectionService extends UserContextAwareService
         }
 
         // Permission check
-        $this->checkAccess($page_keyword, 'select');
-        $this->checkSectionInPage($page_keyword, $section_id);
+       $this->userContextAwareService->checkAccess($page_keyword, 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $section_id);
 
         // Get fields using the dedicated service
         $formattedFields = $this->sectionFieldService->getSectionFields($section);
 
         // Get languages from the formatted fields
         $languages = [];
-        foreach ($formattedFields as $field) {            
+        foreach ($formattedFields as $field) {
             foreach ($field['translations'] as $translation) {
                 if (isset($translation['language_id']) && $translation['language_id'] > 1) {
                     $langId = $translation['language_id'];
@@ -124,7 +113,7 @@ class AdminSectionService extends UserContextAwareService
                         'locale' => $translation['language_code'] ?? null,
                     ];
                 }
-            }            
+            }
         }
         $languages = array_values($languages);
 
@@ -142,8 +131,8 @@ class AdminSectionService extends UserContextAwareService
      */
     public function getChildrenSections(string $page_keyword, int $parent_section_id): array
     {
-        $this->checkAccess($page_keyword, 'select');
-        $this->checkSectionInPage($page_keyword, $parent_section_id);
+        $this->userContextAwareService->checkAccess($page_keyword, 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $parent_section_id);
         $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
         $sections = [];
@@ -307,8 +296,8 @@ class AdminSectionService extends UserContextAwareService
             }
 
             // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
-            $this->checkSectionInPage($pageKeyword, $sectionId);
+           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+            $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $sectionId);
 
             // Store original section for transaction logging
             $originalSection = clone $section;
@@ -359,7 +348,7 @@ class AdminSectionService extends UserContextAwareService
     public function exportPageSections(string $page_keyword): array
     {
         // Permission check
-        $this->checkAccess($page_keyword, 'select');
+       $this->userContextAwareService->checkAccess($page_keyword, 'select');
 
         // Get the page
         $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
@@ -394,8 +383,8 @@ class AdminSectionService extends UserContextAwareService
     public function exportSection(string $page_keyword, int $section_id): array
     {
         // Permission check
-        $this->checkAccess($page_keyword, 'select');
-        $this->checkSectionInPage($page_keyword, $section_id);
+       $this->userContextAwareService->checkAccess($page_keyword, 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $section_id);
 
         // Get the section
         $section = $this->sectionRepository->find($section_id);
@@ -478,7 +467,7 @@ class AdminSectionService extends UserContextAwareService
     {
         foreach ($sections as $section) {
             // Use strict comparison to ensure type safety
-            if (isset($section['id']) && (int)$section['id'] === $sectionId) {
+            if (isset($section['id']) && (int) $section['id'] === $sectionId) {
                 return $section;
             }
 
@@ -513,7 +502,7 @@ class AdminSectionService extends UserContextAwareService
                 'name' => $section['name'] ?? '',
                 'style_name' => $section['style_name'] ?? null,
                 'children' => [],
-                'fields' => (object)[]
+                'fields' => (object) []
             ];
 
             // Get all translations for this section
@@ -551,7 +540,7 @@ class AdminSectionService extends UserContextAwareService
             }
 
             // Add fields to clean section - use object if empty to match JSON schema
-            $cleanSection['fields'] = empty($fields) ? (object)[] : $fields;
+            $cleanSection['fields'] = empty($fields) ? (object) [] : $fields;
 
             // Process children recursively
             if (!empty($section['children'])) {
@@ -576,7 +565,7 @@ class AdminSectionService extends UserContextAwareService
     public function importSectionsToPage(string $page_keyword, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-        $this->checkAccess($page_keyword, 'update');
+       $this->userContextAwareService->checkAccess($page_keyword, 'update');
 
         // Get the page
         $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
@@ -622,8 +611,8 @@ class AdminSectionService extends UserContextAwareService
     public function importSectionsToSection(string $page_keyword, int $parent_section_id, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-        $this->checkAccess($page_keyword, 'update');
-        $this->checkSectionInPage($page_keyword, $parent_section_id);
+       $this->userContextAwareService->checkAccess($page_keyword, 'update');
+        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $parent_section_id);
 
         // Get the parent section
         $parentSection = $this->sectionRepository->find($parent_section_id);

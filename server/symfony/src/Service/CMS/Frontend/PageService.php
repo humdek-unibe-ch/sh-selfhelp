@@ -8,37 +8,33 @@ use App\Repository\SectionRepository;
 use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
 use App\Repository\PagesFieldsTranslationRepository;
+use App\Service\ACL\ACLService;
+use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
-use App\Service\Core\UserContextAwareService;
-use App\Service\ACL\ACLService as ACLACLService;
-use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;
-use App\Service\Cache\Core\CacheableServiceTrait;
+use App\Service\Core\BaseService;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 
-class PageService extends UserContextAwareService
+class PageService extends BaseService
 {
-    use CacheableServiceTrait;
-
     // Default values for language
     private const PROPERTY_LANGUAGE_ID = 1; // Language ID 1 is for properties, not a real language
 
     public function __construct(
-        SectionRepository $sectionRepository,
+        private readonly SectionRepository $sectionRepository,
         private readonly LookupService $lookupService,
-        AuthUserContextService $userContextService,
-        ACLACLService $aclService,
-        PageRepository $pageRepository,
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
         private readonly SectionsFieldsTranslationRepository $translationRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly StylesFieldRepository $stylesFieldRepository,
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly PagesFieldsTranslationRepository $pagesFieldsTranslationRepository,
-        private readonly ReworkedCacheService $cache
+        private readonly ReworkedCacheService $cache,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
-        $this->sectionUtilityService->setStylesFieldRepository($stylesFieldRepository);
     }
 
     /**
@@ -83,7 +79,7 @@ class PageService extends UserContextAwareService
      */
     public function getAllAccessiblePagesForUser(string $mode, bool $admin, ?int $language_id = null): array
     {
-        $user = $this->getCurrentUser();
+        $user = $this->userContextAwareService->getCurrentUser();
         $userId = 1; // guest user
         if ($user) {
             $userId = $user->getId();
@@ -212,7 +208,7 @@ class PageService extends UserContextAwareService
         $languageId = $this->determineLanguageId($language_id);
 
         // Get current user for caching
-        $user = $this->getCurrentUser();
+        $user = $this->userContextAwareService->getCurrentUser();
         $userId = $user ? $user->getId() : 1; // guest user
 
         // Try to get from cache first
@@ -228,7 +224,7 @@ class PageService extends UserContextAwareService
                 }
 
                 // Check if user has access to the page
-                $this->checkAccess($page_keyword, 'select');
+                $this->userContextAwareService->checkAccess($page_keyword, 'select');
 
                 $pageData = [
                     'page' => [
@@ -319,7 +315,7 @@ class PageService extends UserContextAwareService
         }
 
         // If user is logged in, use their preferred language
-        $user = $this->getCurrentUser();
+        $user = $this->userContextAwareService->getCurrentUser();
         if ($user && $user->getLanguage()) {
             return $user->getLanguage()->getId();
         }

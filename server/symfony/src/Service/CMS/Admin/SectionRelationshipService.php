@@ -7,20 +7,21 @@ use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\RelationshipManagerTrait;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service for handling section relationship operations
  */
-class SectionRelationshipService extends UserContextAwareService
+class SectionRelationshipService extends BaseService
 {
     use RelationshipManagerTrait;
 
@@ -29,12 +30,11 @@ class SectionRelationshipService extends UserContextAwareService
         private readonly PositionManagementService $positionManagementService,
         private readonly TransactionService $transactionService,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -58,7 +58,7 @@ class SectionRelationshipService extends UserContextAwareService
             }
             
             // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
+           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
             
             // Find the section
             $childSection = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -108,7 +108,7 @@ class SectionRelationshipService extends UserContextAwareService
     public function addSectionToSection(string $pageKeyword, int $parentSectionId, int $childSectionId, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         $this->checkSectionInPage($pageKeyword, $parentSectionId);
         
         $this->entityManager->beginTransaction();
@@ -180,7 +180,7 @@ class SectionRelationshipService extends UserContextAwareService
             }
 
             // Check if user has update access to the page
-            $this->checkAccess($pageKeyword, 'update');
+           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
 
             // First, check if the section is directly associated with the page
             $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
@@ -239,7 +239,7 @@ class SectionRelationshipService extends UserContextAwareService
     public function removeSectionFromSection(string $pageKeyword, int $parentSectionId, int $childSectionId): void
     {
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         $this->checkSectionInPage($pageKeyword, $parentSectionId);
         
         $this->entityManager->beginTransaction();
@@ -307,7 +307,7 @@ class SectionRelationshipService extends UserContextAwareService
         }
         
         // Permission check
-        $this->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
         
         // Check if section belongs to page hierarchy
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
@@ -357,7 +357,7 @@ class SectionRelationshipService extends UserContextAwareService
         }
         
         // Permission check
-        $this->checkAccess($pageKeyword, 'delete');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
         
         // Check if section belongs to page hierarchy
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
@@ -401,6 +401,34 @@ class SectionRelationshipService extends UserContextAwareService
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
             throw $e instanceof ServiceException ? $e : new ServiceException('Failed to force delete section: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, ['previous' => $e]);
+        }
+
+        
+    }
+
+    /**
+     * Check if the section is in the page
+     * 
+     * IMportant check for api calls in order to manipulate sections. 
+     * 
+     * @param string $page_keyword The page keyword
+     * @param string $section_id The section ID
+     * @throws ServiceException If the section is not found or access denied
+     */
+    public function checkSectionInPage(string $page_keyword, string $section_id): void
+    {
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        // Fetch all sections (flat) for this page
+        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+        // Extract all section IDs
+        $sectionIds = array_map(function ($section) {
+            return is_array($section) && isset($section['id']) ? (string) $section['id'] : null;
+        }, $flatSections);
+        if (!in_array((string) $section_id, $sectionIds, true)) {
+            $this->throwForbidden('Access denied: Section does not belong to page');
         }
     }
 } 

@@ -10,7 +10,7 @@ use App\Entity\Lookup;
 use App\Exception\ServiceException;
 use App\Repository\DataTableRepository;
 use App\Service\Core\TransactionService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Core service for handling form data operations with transactions and validation
  * ENTITY RULE - Uses association objects instead of primitive foreign keys
  */
-class DataService extends UserContextAwareService
+class DataService extends BaseService
 {
 
 
@@ -32,12 +32,11 @@ class DataService extends UserContextAwareService
         private readonly TransactionService $transactionService,
         private readonly DataTableRepository $dataTableRepository,
         private readonly LookupService $lookupService,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly UserContextService $userContextService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -63,7 +62,7 @@ class DataService extends UserContextAwareService
         try {
             // Ensure user ID is set
             if (!isset($data['id_users'])) {
-                $currentUser = $this->userContextService->getCurrentUser();
+                $currentUser = $this->getCurrentUser();
                 $data['id_users'] = $currentUser ? $currentUser->getId() : 1; // Guest user fallback
             }
 

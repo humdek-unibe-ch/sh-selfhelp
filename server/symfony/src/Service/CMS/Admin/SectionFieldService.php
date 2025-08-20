@@ -7,7 +7,7 @@ use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\CMS\DataTableService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
@@ -18,7 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Service for handling section field operations
  */
-class SectionFieldService extends UserContextAwareService
+class SectionFieldService extends BaseService
 {
     use TranslationManagerTrait;
     use FieldValidatorTrait;
@@ -27,12 +27,11 @@ class SectionFieldService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly DataTableService $dataTableService,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly UserContextService $userContextService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**

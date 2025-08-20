@@ -8,18 +8,19 @@ use App\Entity\PagesFieldsTranslation;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
+use App\Service\Core\UserContextAwareService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Service for handling page field operations
  */
-class PageFieldService extends UserContextAwareService
+class PageFieldService extends BaseService
 {
     use TranslationManagerTrait;
     use FieldValidatorTrait;
@@ -27,12 +28,11 @@ class PageFieldService extends UserContextAwareService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ReworkedCacheService $cache,
-        ACLService $aclService,
-        UserContextService $userContextService,
-        PageRepository $pageRepository,
-        SectionRepository $sectionRepository
+        private readonly ACLService $aclService,
+        private readonly PageRepository $pageRepository,
+        private readonly SectionRepository $sectionRepository,
+        private readonly UserContextAwareService $userContextAwareService
     ) {
-        parent::__construct($userContextService, $aclService, $pageRepository, $sectionRepository);
     }
 
     /**
@@ -67,7 +67,7 @@ class PageFieldService extends UserContextAwareService
         }
 
         // Check if user has access to the page
-        $this->checkAccess($pageKeyword, 'select');
+       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();

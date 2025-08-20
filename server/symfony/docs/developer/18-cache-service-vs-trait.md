@@ -19,7 +19,7 @@ The caching system has been refactored to provide clear distinction between low-
 
 **Example Usage:**
 ```php
-class PageFieldService extends UserContextAwareService
+class PageFieldService extends BaseService
 {
     public function __construct(
         private readonly CacheService $cacheService,
@@ -58,7 +58,7 @@ class PageFieldService extends UserContextAwareService
 
 **Example Usage:**
 ```php
-class AdminUserService extends UserContextAwareService
+class AdminUserService extends BaseService
 {
     use CacheableServiceTrait;
     

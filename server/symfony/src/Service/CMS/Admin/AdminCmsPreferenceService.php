@@ -2,8 +2,6 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\CmsPreference;
-use App\Entity\Language;
 use App\Repository\CmsPreferenceRepository;
 use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;

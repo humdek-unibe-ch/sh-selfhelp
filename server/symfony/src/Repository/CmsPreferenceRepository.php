@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CmsPreference;
+use App\Service\Cache\Core\ReworkedCacheService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -11,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CmsPreferenceRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly ReworkedCacheService $cache)
     {
         parent::__construct($registry, CmsPreference::class);
     }
@@ -23,9 +24,14 @@ class CmsPreferenceRepository extends ServiceEntityRepository
      */
     public function getCmsPreferences(): ?CmsPreference
     {
-        return $this->createQueryBuilder('c')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
+            ->getItem("cms_preferences", function () {
+
+                return $this->createQueryBuilder('c')
+                    ->setMaxResults(1)
+                    ->getQuery()
+                    ->getOneOrNullResult();
+            });
     }
-} 
+}

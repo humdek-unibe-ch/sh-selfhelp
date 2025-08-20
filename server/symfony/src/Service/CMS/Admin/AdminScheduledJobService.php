@@ -4,17 +4,12 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\ScheduledJob;
 
-use App\Entity\ScheduledJobsTask;
-use App\Entity\ScheduledJobsUser;
-use App\Entity\Task;
-use App\Entity\User;
-use App\Entity\Transaction;
 use App\Repository\ScheduledJobRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Repository\TransactionRepository;
 use App\Service\Core\LookupService;
-use App\Service\Core\UserContextAwareService;
+use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 
 use App\Service\Auth\UserContextService;
@@ -23,11 +18,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\Core\JobSchedulerService;
 
-class AdminScheduledJobService extends UserContextAwareService
+class AdminScheduledJobService extends BaseService
 {
     
     public function __construct(
-        UserContextService $userContextService,
+        private readonly UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManager,
         private readonly ScheduledJobRepository $scheduledJobRepository,
         private readonly TaskRepository $taskRepository,
@@ -37,7 +32,6 @@ class AdminScheduledJobService extends UserContextAwareService
         private readonly TransactionService $transactionService,
         private readonly JobSchedulerService $jobSchedulerService
     ) {
-        parent::__construct($userContextService);
     }
 
     /**

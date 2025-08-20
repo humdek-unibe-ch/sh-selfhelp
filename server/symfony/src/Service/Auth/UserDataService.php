@@ -4,7 +4,7 @@ namespace App\Service\Auth;
 
 use App\Entity\User;
 use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Specialized\UserPermissionCacheService;
+use App\Service\CMS\UserPermissionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -16,7 +16,7 @@ class UserDataService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly UserPermissionCacheService $userPermissionCacheService,
+        private readonly UserPermissionService $userPermissionService,
         private readonly CacheService $cacheService,
         private readonly LoggerInterface $logger
     ) {
@@ -131,7 +131,7 @@ class UserDataService
      */
     private function getUserPermissions(User $user): array
     {
-        return $this->userPermissionCacheService->getUserPermissions($user);
+        return $this->userPermissionService->getUserPermissions($user);
     }
 
     /**
