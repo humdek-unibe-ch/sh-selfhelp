@@ -4,8 +4,7 @@ namespace App\Service\Core;
 
 use App\Entity\Lookup;
 use App\Repository\LookupRepository;
-use App\Service\Cache\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 
 /**
  * Lookup service providing access to lookup data and constants.
@@ -14,8 +13,6 @@ use App\Service\Cache\Core\CacheService;
  */
 final class LookupService
 {
-    use CacheableServiceTrait;
-
     // Lookup Types
     public const NOTIFICATION_TYPES = 'notificationTypes';
     public const ACTION_SCHEDULE_TYPES = 'actionScheduleTypes';
@@ -142,7 +139,8 @@ final class LookupService
     public const PLUGINS_CALC_SLEEP_EFFICIENCY = 'calc_sleep_efficiency';
 
     public function __construct(
-        private readonly LookupRepository $lookupRepository
+        private readonly LookupRepository $lookupRepository,
+        private readonly ReworkedCacheService $cache
     ) {}
 
     /**
@@ -154,13 +152,13 @@ final class LookupService
      */
     public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
     {
-        return $this->getCache(
-            CacheService::CATEGORY_LOOKUPS,
-            "lookup_{$typeCode}_{$lookupValue}",
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_{$typeCode}_{$lookupValue}",
             function() use ($typeCode, $lookupValue) {
                 return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
-            },
-null
+            }
         );
     }
 
@@ -182,13 +180,13 @@ null
      */
     public function getLookups(string $typeCode): array
     {
-        return $this->getCache(
-            CacheService::CATEGORY_LOOKUPS,
-            "lookups_{$typeCode}",
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookups_{$typeCode}",
             function() use ($typeCode) {
                 return $this->lookupRepository->getLookups($typeCode);
-            },
-null
+            }
         );
     }
 
@@ -201,7 +199,14 @@ null
      */
     public function getLookupIdByValue(string $typeCode, string $lookupValue): ?int
     {
-        return $this->lookupRepository->getLookupIdByValue($typeCode, $lookupValue);
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_id_by_value_{$typeCode}_{$lookupValue}",
+            function() use ($typeCode, $lookupValue) {
+                return $this->lookupRepository->getLookupIdByValue($typeCode, $lookupValue);
+            }
+        );
     }
 
     /**
@@ -213,7 +218,14 @@ null
      */
     public function getLookupIdByCode(string $typeCode, string $lookupCode): ?int
     {
-        return $this->lookupRepository->getLookupIdByCode($typeCode, $lookupCode);
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_id_by_code_{$typeCode}_{$lookupCode}",
+            function() use ($typeCode, $lookupCode) {
+                return $this->lookupRepository->getLookupIdByCode($typeCode, $lookupCode);
+            }
+        );
     }
 
     /**
@@ -223,31 +235,14 @@ null
      */
     public function getAllLookups(): array
     {
-        return $this->lookupRepository->getAllLookups();
-    }
-
-    /**
-     * Check if a lookup exists by type and value
-     *
-     * @param string $typeCode
-     * @param string $lookupValue
-     * @return bool
-     */
-    public function existsByTypeAndValue(string $typeCode, string $lookupValue): bool
-    {
-        return $this->findByTypeAndValue($typeCode, $lookupValue) !== null;
-    }
-
-    /**
-     * Check if a lookup exists by type and code
-     *
-     * @param string $typeCode
-     * @param string $lookupCode
-     * @return bool
-     */
-    public function existsByTypeAndCode(string $typeCode, string $lookupCode): bool
-    {
-        return $this->getLookupIdByCode($typeCode, $lookupCode) !== null;
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "all_lookups",
+            function() {
+                return $this->lookupRepository->getAllLookups();
+            }
+        );
     }
 
     /**
@@ -259,26 +254,20 @@ null
      */
     public function findByTypeAndCode(string $typeCode, string $lookupCode): ?Lookup
     {
-        return $this->lookupRepository->createQueryBuilder('l')
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_by_type_and_code_{$typeCode}_{$lookupCode}",
+            function() use ($typeCode, $lookupCode) {
+                return $this->lookupRepository->createQueryBuilder('l')
             ->where('l.typeCode = :typeCode')
             ->andWhere('l.lookupCode = :lookupCode')
             ->setParameter('typeCode', $typeCode)
             ->setParameter('lookupCode', $lookupCode)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    /**
-     * Get lookup value by type and code
-     *
-     * @param string $typeCode
-     * @param string $lookupCode
-     * @return string|null
-     */
-    public function getLookupValueByCode(string $typeCode, string $lookupCode): ?string
-    {
-        $lookup = $this->findByTypeAndCode($typeCode, $lookupCode);
-        return $lookup ? $lookup->getLookupValue() : null;
+                ->getQuery()
+                ->getOneOrNullResult();
+            }
+        );
     }
 
     /**
@@ -289,30 +278,14 @@ null
      */
     public function findById(int $id): ?Lookup
     {
-        return $this->lookupRepository->find($id);
-    }
-
-    /**
-     * Find a lookup by type and code (alias for findByTypeAndCode)
-     *
-     * @param array $criteria
-     * @return Lookup|null
-     */
-    public function findOneBy(array $criteria): ?Lookup
-    {
-        return $this->lookupRepository->findOneBy($criteria);
-    }
-
-    /**
-     * Get the lookup value by ID
-     *
-     * @param int $id
-     * @return string|null
-     */
-    public function getLookupValueById(int $id): ?string
-    {
-        $lookup = $this->findById($id);
-        return $lookup ? $lookup->getLookupValue() : null;
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_by_id_{$id}",
+            function() use ($id) {
+                return $this->lookupRepository->find($id);
+            }
+        );
     }
 
     /**
@@ -323,7 +296,14 @@ null
      */
     public function getLookupCodeById(int $id): ?string
     {
-        $lookup = $this->findById($id);
-        return $lookup ? $lookup->getLookupCode() : null;
+        return $this->cache
+        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->getItem(
+                "lookup_code_by_id_{$id}",
+            function() use ($id) {
+                return $this->lookupRepository->find($id);
+            }
+        )->getLookupCode();
     }
+
 }

@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Base service with error handling capabilities
  * 
- * Note: Caching capabilities moved to CacheableServiceTrait
  * Add the trait individually to services that need caching to avoid circular dependencies
  */
 abstract class BaseService
