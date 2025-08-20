@@ -15,7 +15,7 @@ use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
@@ -33,7 +33,7 @@ class SectionExportImportService extends UserContextAwareService
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly StyleRepository $styleRepository,
         private readonly TransactionService $transactionService,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -149,8 +149,12 @@ class SectionExportImportService extends UserContextAwareService
             $importedSections = $this->importSections($sectionsData, $page, null, $position);
             
             // Invalidate page and sections cache after import
-            $this->cacheService->invalidatePage($page, 'update');
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateAllListsInCategory();
             
             // Commit transaction
             $this->entityManager->commit();
@@ -197,8 +201,12 @@ class SectionExportImportService extends UserContextAwareService
             $importedSections = $this->importSections($sectionsData, null, $parentSection, $position);
             
             // Invalidate sections cache after import
-            $this->cacheService->invalidateSection($parentSection, 'update');
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$parentSection->getId()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateAllListsInCategory();
             
             // Commit transaction
             $this->entityManager->commit();

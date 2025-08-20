@@ -3,13 +3,12 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Role;
-use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Entity\Permission;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,15 +17,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
-    
     private EntityManagerInterface $entityManager;
 
     public function __construct(
         UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly ReworkedCacheService $cache,
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -49,14 +47,12 @@ class AdminRoleService extends UserContextAwareService
         // Create cache key based on parameters
         $cacheKey = "roles_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
         
-        return $this->getCache(
-            CacheService::CATEGORY_ROLES,
-            $cacheKey,
-            function() use ($page, $pageSize, $search, $sort, $sortDirection) {
-                return $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
-            },
-null
-        );
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->getList(
+                $cacheKey,
+                fn() => $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
+            );
     }
     
     private function fetchRolesFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
@@ -147,6 +143,11 @@ null
 
             $this->entityManager->commit();
 
+            // Invalidate cache after create
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateAllListsInCategory();
+
             return $this->formatRoleForDetail($role);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -190,6 +191,11 @@ null
 
             $this->entityManager->commit();
 
+            // Invalidate cache after update
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateAllListsInCategory();
+
             return $this->formatRoleForDetail($role);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -229,6 +235,11 @@ null
             $this->entityManager->flush();
 
             $this->entityManager->commit();
+
+            // Invalidate cache after delete
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateAllListsInCategory();
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;

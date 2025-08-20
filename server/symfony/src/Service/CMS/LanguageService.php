@@ -25,7 +25,6 @@ class LanguageService extends BaseService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService
     ) {
-        // CacheService will be injected via setCacheService() from services.yaml
     }
 
     /**

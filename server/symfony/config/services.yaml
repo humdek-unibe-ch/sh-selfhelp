@@ -30,7 +30,6 @@ services:
     App\Routing\ApiRouteLoader:
         tags: [routing.loader]
         arguments:
-            $cache: '@cache.app'
             $env: '%kernel.environment%'
     
     # API Request Logger Services
@@ -59,66 +58,3 @@ services:
             $adminCache: '@cache.admin'
             $lookupsCache: '@cache.lookups'
             $permissionsCache: '@cache.permissions'
-    
-    # Services that use CacheableServiceTrait
-    # Frontend Services
-    App\Service\CMS\Frontend\PageService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    # Core Services
-    App\Service\Core\LookupService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-
-    
-    # Admin Services - All entities
-
-    
-    App\Service\CMS\Admin\AdminUserService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminSectionService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminGroupService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminRoleService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminGenderService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminCmsPreferenceService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\CMS\Admin\AdminSectionUtilityService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    # Language Service (extends BaseService but needs caching)
-    App\Service\CMS\LanguageService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    # Specialized Cache Services
-    App\Service\Cache\Specialized\UserPermissionCacheService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    App\Service\Cache\Specialized\UserCacheService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-    # Repositories using cache
-    App\Repository\AclRepository:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]

@@ -10,7 +10,7 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +26,7 @@ class SectionFieldService extends UserContextAwareService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly DataTableService $dataTableService,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -45,11 +45,19 @@ class SectionFieldService extends UserContextAwareService
     {
         // Try to get from cache first
         $cacheKey = "section_fields_{$section->getId()}";
-        $cachedResult = $this->cacheService->get(CacheService::CATEGORY_SECTIONS, $cacheKey);
         
-        if ($cachedResult !== null) {
-            return $cachedResult;
-        }
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->getItem(
+                $cacheKey,
+                function() use ($section) {
+                    return $this->fetchSectionFieldsFromDatabase($section);
+                }
+            );
+    }
+
+    private function fetchSectionFieldsFromDatabase(Section $section): array
+    {
         
         // Get style and its fields
         $style = $section->getStyle();
@@ -149,9 +157,6 @@ class SectionFieldService extends UserContextAwareService
             $formattedFields[] = $fieldData;
         }
 
-        // Cache the result for 30 minutes
-        $this->cacheService->set(CacheService::CATEGORY_SECTIONS, $cacheKey, $formattedFields, 1800);
-        
         return $formattedFields;
     }
 
@@ -291,7 +296,9 @@ class SectionFieldService extends UserContextAwareService
         }
         
         // Invalidate section cache after updates
-        $this->cacheService->invalidateSection($section, 'update');
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateItem("section_fields_{$section->getId()}");
     }
 
     /**

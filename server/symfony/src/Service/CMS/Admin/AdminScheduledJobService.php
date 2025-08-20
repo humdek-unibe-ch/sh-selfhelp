@@ -3,7 +3,7 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\ScheduledJob;
-use App\Service\Cache\Core\CacheableServiceTrait;
+
 use App\Entity\ScheduledJobsTask;
 use App\Entity\ScheduledJobsUser;
 use App\Entity\Task;
@@ -16,7 +16,7 @@ use App\Repository\TransactionRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\CacheService;
+
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;

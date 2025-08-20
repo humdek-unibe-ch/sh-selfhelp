@@ -20,8 +20,7 @@ use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\UserContextAwareService;
-use App\Service\Cache\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\CMS\Admin\SectionFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
@@ -37,7 +36,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminSectionService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
     /**
      * Constructor
      */
@@ -53,6 +51,7 @@ class AdminSectionService extends UserContextAwareService
         private readonly SectionCreationService $sectionCreationService,
         private readonly SectionExportImportService $sectionExportImportService,
         private readonly AdminSectionUtilityService $adminSectionUtilityService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -73,14 +72,12 @@ class AdminSectionService extends UserContextAwareService
     {
         $cacheKey = "section_{$section_id}_" . ($page_keyword ?? 'auto');
         
-        return $this->getCache(
-            CacheService::CATEGORY_SECTIONS,
-            $cacheKey,
-            function() use ($page_keyword, $section_id) {
-                return $this->fetchSectionFromDatabase($page_keyword, $section_id);
-            },
-null
-        );
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->getItem(
+                $cacheKey,
+                fn() => $this->fetchSectionFromDatabase($page_keyword, $section_id)
+            );
     }
     
     private function fetchSectionFromDatabase(?string $page_keyword, int $section_id): array

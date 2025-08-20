@@ -5,8 +5,7 @@ namespace App\Service\CMS\Admin;
 use App\Entity\Section;
 use App\Repository\SectionRepository;
 use App\Service\Core\BaseService;
-use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,16 +16,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminSectionUtilityService extends BaseService
 {
-    use CacheableServiceTrait;
-    
-    private const CACHE_TTL = 1800; // 30 minutes
-    
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly SectionRepository $sectionRepository,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly ReworkedCacheService $cache,
     ) {
-        // CacheService will be injected via setCacheService() from services.yaml
     }
 
     /**
@@ -36,27 +31,25 @@ class AdminSectionUtilityService extends BaseService
      */
     public function getUnusedSections(): array
     {
-        $cacheKey = 'unused_sections';
-        
-        return $this->getCache(
-            CacheService::CATEGORY_SECTIONS,
-            $cacheKey,
-            function() {
-                $qb = $this->entityManager->createQueryBuilder();
-                
-                return $qb->select('s.id', 's.name', 's.idStyles', 'st.name as styleName')
-                    ->from(Section::class, 's')
-                    ->leftJoin('s.style', 'st')
-                    ->leftJoin('App\Entity\SectionsHierarchy', 'sh', 'WITH', 's.id = sh.childSection')
-                    ->leftJoin('App\Entity\PagesSection', 'ps', 'WITH', 's.id = ps.section')
-                    ->where('sh.childSection IS NULL')
-                    ->andWhere('ps.section IS NULL')
-                    ->orderBy('s.name', 'ASC')
-                    ->getQuery()
-                    ->getArrayResult();
-            },
-            self::CACHE_TTL
-        );
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->getList(
+                'unused_sections',
+                function() {
+                    $qb = $this->entityManager->createQueryBuilder();
+                    
+                    return $qb->select('s.id', 's.name', 's.idStyles', 'st.name as styleName')
+                        ->from(Section::class, 's')
+                        ->leftJoin('s.style', 'st')
+                        ->leftJoin('App\Entity\SectionsHierarchy', 'sh', 'WITH', 's.id = sh.childSection')
+                        ->leftJoin('App\Entity\PagesSection', 'ps', 'WITH', 's.id = ps.section')
+                        ->where('sh.childSection IS NULL')
+                        ->andWhere('ps.section IS NULL')
+                        ->orderBy('s.name', 'ASC')
+                        ->getQuery()
+                        ->getArrayResult();
+                }
+            );
     }
 
     /**
@@ -66,25 +59,23 @@ class AdminSectionUtilityService extends BaseService
      */
     public function getRefContainers(): array
     {
-        $cacheKey = 'ref_containers';
-        
-        return $this->getCache(
-            CacheService::CATEGORY_SECTIONS,
-            $cacheKey,
-            function() {
-                $qb = $this->entityManager->createQueryBuilder();
-                
-                return $qb->select('s.id', 's.name', 's.idStyles', 'st.name as styleName')
-                    ->from(Section::class, 's')
-                    ->innerJoin('s.style', 'st')
-                    ->where('st.name = :styleName')
-                    ->setParameter('styleName', 'refContainer')
-                    ->orderBy('s.name', 'ASC')
-                    ->getQuery()
-                    ->getArrayResult();
-            },
-            self::CACHE_TTL
-        );
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->getList(
+                'ref_containers',
+                function() {
+                    $qb = $this->entityManager->createQueryBuilder();
+                    
+                    return $qb->select('s.id', 's.name', 's.idStyles', 'st.name as styleName')
+                        ->from(Section::class, 's')
+                        ->innerJoin('s.style', 'st')
+                        ->where('st.name = :styleName')
+                        ->setParameter('styleName', 'refContainer')
+                        ->orderBy('s.name', 'ASC')
+                        ->getQuery()
+                        ->getArrayResult();
+                }
+            );
     }
 
     /**
@@ -92,10 +83,12 @@ class AdminSectionUtilityService extends BaseService
      */
     public function invalidateUtilityCache(): void
     {
-        if ($this->cacheService) {
-            $this->cacheService->delete(CacheService::CATEGORY_SECTIONS, 'unused_sections');
-            $this->cacheService->delete(CacheService::CATEGORY_SECTIONS, 'ref_containers');
-        }
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateItem('unused_sections');
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateItem('ref_containers');
     }
 
     /**

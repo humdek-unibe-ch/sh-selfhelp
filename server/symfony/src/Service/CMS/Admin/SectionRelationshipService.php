@@ -11,7 +11,7 @@ use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +28,7 @@ class SectionRelationshipService extends UserContextAwareService
         private readonly EntityManagerInterface $entityManager,
         private readonly PositionManagementService $positionManagementService,
         private readonly TransactionService $transactionService,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -76,8 +76,12 @@ class SectionRelationshipService extends UserContextAwareService
             $this->positionManagementService->normalizePageSectionPositions($parentPage->getId());
             
             // Invalidate page and section caches
-            $this->cacheService->invalidatePage($parentPage, 'update');
-            $this->cacheService->invalidateSection($childSection, 'update');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItem("page_with_fields_{$parentPage->getKeyword()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$childSection->getId()}");
             
             $this->entityManager->commit();
         
@@ -142,8 +146,12 @@ class SectionRelationshipService extends UserContextAwareService
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
             
             // Invalidate section caches
-            $this->cacheService->invalidateSection($parentSection, 'update');
-            $this->cacheService->invalidateSection($childSection, 'update');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$parentSection->getId()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$childSection->getId()}");
             
             $this->entityManager->commit();
             
@@ -184,7 +192,9 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->positionManagementService->normalizePageSectionPositions($page->getId());
                 
                 // Invalidate page cache
-                $this->cacheService->invalidatePage($page, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
             } else {
                 // Not directly associated - check if it's a child section in the page hierarchy
                 $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -203,8 +213,12 @@ class SectionRelationshipService extends UserContextAwareService
                 $this->entityManager->flush();
                 
                 // Invalidate page and section caches
-                $this->cacheService->invalidatePage($page, 'update');
-                $this->cacheService->invalidateSection($section, 'delete');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->invalidateItem("section_fields_{$section->getId()}");
             }
 
             $this->entityManager->commit();
@@ -244,10 +258,14 @@ class SectionRelationshipService extends UserContextAwareService
             $parentSection = $this->sectionRepository->find($parentSectionId);
             $childSection = $this->sectionRepository->find($childSectionId);
             if ($parentSection) {
-                $this->cacheService->invalidateSection($parentSection, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->invalidateItem("section_fields_{$parentSection->getId()}");
             }
             if ($childSection) {
-                $this->cacheService->invalidateSection($childSection, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->invalidateItem("section_fields_{$childSection->getId()}");
             }
             
             $this->entityManager->commit();
@@ -309,8 +327,12 @@ class SectionRelationshipService extends UserContextAwareService
             $this->entityManager->flush();
             
             // Invalidate page and section caches
-            $this->cacheService->invalidatePage($page, 'update');
-            $this->cacheService->invalidateSection($section, 'delete');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$section->getId()}");
             
             $this->entityManager->commit();
         } catch (\Throwable $e) {
@@ -368,8 +390,12 @@ class SectionRelationshipService extends UserContextAwareService
             );
             
             // Invalidate page and section caches
-            $this->cacheService->invalidatePage($page, 'update');
-            $this->cacheService->invalidateSection($section, 'delete');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$section->getId()}");
             
             $this->entityManager->commit();
         } catch (\Throwable $e) {

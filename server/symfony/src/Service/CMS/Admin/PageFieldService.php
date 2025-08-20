@@ -11,7 +11,7 @@ use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +26,7 @@ class PageFieldService extends UserContextAwareService
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -46,11 +46,19 @@ class PageFieldService extends UserContextAwareService
     {
         // Try to get from cache first
         $cacheKey = "page_with_fields_{$pageKeyword}";
-        $cachedResult = $this->cacheService->get(CacheService::CATEGORY_PAGES, $cacheKey);
         
-        if ($cachedResult !== null) {
-            return $cachedResult;
-        }
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->getItem(
+                $cacheKey,
+                function() use ($pageKeyword) {
+                    return $this->fetchPageWithFieldsFromDatabase($pageKeyword);
+                }
+            );
+    }
+
+    private function fetchPageWithFieldsFromDatabase(string $pageKeyword): array
+    {
         
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
 
@@ -143,15 +151,10 @@ class PageFieldService extends UserContextAwareService
         }
 
         // Return page data with fields and their translations
-        $result = [
+        return [
             'page' => $page,
             'fields' => $formattedFields
         ];
-        
-        // Cache the result for 30 minutes
-        $this->cacheService->set(CacheService::CATEGORY_PAGES, $cacheKey, $result, 1800);
-        
-        return $result;
     }
 
     /**
@@ -183,6 +186,8 @@ class PageFieldService extends UserContextAwareService
         $this->updatePageFieldTranslations($page->getId(), $fields, $this->entityManager);
         
         // Invalidate page cache after updates
-        $this->cacheService->invalidatePage($page, 'update');
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateItem("page_with_fields_{$page->getKeyword()}");
     }
 } 

@@ -10,7 +10,7 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
@@ -27,7 +27,7 @@ class SectionCreationService extends UserContextAwareService
         private readonly StyleRepository $styleRepository,
         private readonly PositionManagementService $positionManagementService,
         private readonly DataTableService $dataTableService,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         ACLService $aclService,
         UserContextService $userContextService,
         PageRepository $pageRepository,
@@ -84,8 +84,12 @@ class SectionCreationService extends UserContextAwareService
             $this->positionManagementService->normalizePageSectionPositions($page->getId(), true);
 
             // Invalidate page and section caches
-            $this->cacheService->invalidatePage($page, 'update');
-            $this->cacheService->invalidateSection($section, 'create');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$section->getId()}");
 
             $this->entityManager->commit();
             return [
@@ -167,8 +171,12 @@ class SectionCreationService extends UserContextAwareService
             $this->positionManagementService->normalizeSectionHierarchyPositions($parentSectionId, true);
             
             // Invalidate section caches
-            $this->cacheService->invalidateSection($parentSection, 'update');
-            $this->cacheService->invalidateSection($childSection, 'create');
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$parentSection->getId()}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItem("section_fields_{$childSection->getId()}");
             
             $this->entityManager->commit();
             return [

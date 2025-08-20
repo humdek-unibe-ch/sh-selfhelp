@@ -4,7 +4,7 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -17,7 +17,7 @@ class PositionManagementService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly CacheService $cacheService
+        private readonly ReworkedCacheService $cache
     ) {
     }
 
@@ -55,7 +55,9 @@ class PositionManagementService
             // Invalidate page cache when positions are normalized
             $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
             if ($page) {
-                $this->cacheService->invalidatePage($page, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
             }
         }
     }
@@ -93,7 +95,9 @@ class PositionManagementService
             // Invalidate section cache when positions are normalized
             $parentSection = $this->entityManager->getRepository(\App\Entity\Section::class)->find($parentSectionId);
             if ($parentSection) {
-                $this->cacheService->invalidateSection($parentSection, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->invalidateItem("section_fields_{$parentSection->getId()}");
             }
         }
     }
@@ -152,7 +156,9 @@ class PositionManagementService
             
             // Invalidate page caches when positions are reordered
             foreach ($pages as $page) {
-                $this->cacheService->invalidatePage($page, 'update');
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
             }
         }
     }

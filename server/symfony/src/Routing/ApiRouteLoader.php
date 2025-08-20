@@ -4,10 +4,10 @@ namespace App\Routing;
 
 use App\Entity\Permission;
 use App\Repository\ApiRouteRepository;
+use App\Service\Cache\Core\ReworkedCacheService;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
@@ -19,11 +19,12 @@ class ApiRouteLoader extends Loader
     
     public function __construct(
         private ApiRouteRepository $apiRouteRepository,
-        private CacheInterface $cache,
+        private ReworkedCacheService $cache,
         protected ?string $env
     ) {
         // The parent Loader doesn't need any arguments
         parent::__construct();
+
     }
 
     public function load(mixed $resource, string $type = null): RouteCollection
@@ -37,12 +38,9 @@ class ApiRouteLoader extends Loader
         $useCache = $this->env !== 'dev';
 
         if ($useCache) {
-            $routes = $this->cache->get($cacheKey, function (ItemInterface $item) {
-                // Cache for 1 hour in production
-                $item->expiresAfter(3600);
-                
-                return $this->buildRouteCollection();
-            });
+            $routes = $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_API_ROUTES)
+                ->getList($cacheKey, fn() => $this->buildRouteCollection());
         } else {
             $routes = $this->buildRouteCollection();
         }

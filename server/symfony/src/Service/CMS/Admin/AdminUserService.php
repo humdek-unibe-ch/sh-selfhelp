@@ -13,8 +13,7 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\UserContextAwareService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\CacheService;
-use App\Service\Cache\Core\CacheableServiceTrait;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Auth\UserContextService;
 use App\Service\Auth\UserValidationService;
 use App\Exception\ServiceException;
@@ -25,8 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminUserService extends UserContextAwareService
 {
-    use CacheableServiceTrait;
-    
     private EntityManagerInterface $entityManager;
 
     public function __construct(
@@ -36,7 +33,8 @@ class AdminUserService extends UserContextAwareService
         private readonly LookupService $lookupService,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly TransactionService $transactionService,
-        private readonly UserValidationService $userValidationService
+        private readonly UserValidationService $userValidationService,
+        private readonly ReworkedCacheService $cache,
     ) {
         parent::__construct($userContextService);
         $this->entityManager = $entityManagerInterface;
@@ -59,13 +57,12 @@ class AdminUserService extends UserContextAwareService
         // Create cache key based on parameters
         $cacheKey = "users_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
         
-        return $this->getCache(
-            CacheService::CATEGORY_USERS,
-            $cacheKey,
-            function() use ($page, $pageSize, $search, $sort, $sortDirection) {
-                return $this->fetchUsersFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
-            }
-        );
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->getList(
+                $cacheKey,
+                fn() => $this->fetchUsersFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
+            );
     }
     
     private function fetchUsersFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
@@ -136,17 +133,18 @@ class AdminUserService extends UserContextAwareService
      */
     public function getUserById(int $userId): array
     {
-        return $this->getCache(
-            CacheService::CATEGORY_USERS,
-            "user_{$userId}",
-            function() use ($userId) {
-                $user = $this->userRepository->find($userId);
-                if (!$user) {
-                    throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->getItem(
+                "user_{$userId}",
+                function() use ($userId) {
+                    $user = $this->userRepository->find($userId);
+                    if (!$user) {
+                        throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+                    }
+                    return $this->formatUserForDetail($user);
                 }
-                return $this->formatUserForDetail($user);
-            }
-        );
+            );
     }
 
     /**
@@ -257,7 +255,9 @@ class AdminUserService extends UserContextAwareService
             $this->entityManager->commit();
 
             // Invalidate user caches after successful creation
-            $this->invalidateAfterChange('create', CacheService::CATEGORY_USERS, $user);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+                ->invalidateAllListsInCategory();
 
             $result = $this->formatUserForDetail($user);
             
@@ -350,7 +350,9 @@ class AdminUserService extends UserContextAwareService
             $this->entityManager->commit();
 
             // Invalidate user caches after successful update
-            $this->invalidateAfterChange('update', CacheService::CATEGORY_USERS, $user);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+                ->invalidateItemAndLists("user_{$userId}");
 
             return $this->formatUserForDetail($user);
         } catch (\Exception $e) {
@@ -393,7 +395,9 @@ class AdminUserService extends UserContextAwareService
             $this->entityManager->commit();
 
             // Invalidate user caches after successful deletion
-            $this->invalidateAfterChange('delete', CacheService::CATEGORY_USERS, $user);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+                ->invalidateItemAndLists("user_{$userId}");
 
             return true;
         } catch (\Exception $e) {
@@ -431,7 +435,9 @@ class AdminUserService extends UserContextAwareService
             $this->entityManager->commit();
 
             // Invalidate user caches after successful block/unblock
-            $this->invalidateAfterChange('update', CacheService::CATEGORY_USERS, $user);
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+                ->invalidateItemAndLists("user_{$userId}");
 
             return $this->formatUserForDetail($user);
         } catch (\Exception $e) {
@@ -445,25 +451,25 @@ class AdminUserService extends UserContextAwareService
      */
     public function getUserGroups(int $userId): array
     {
-        return $this->getCache(
-            CacheService::CATEGORY_USERS,
-            "user_groups_{$userId}",
-            function() use ($userId) {
-                $user = $this->userRepository->find($userId);
-                if (!$user) {
-                    throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-                }
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->getItem(
+                "user_groups_{$userId}",
+                function() use ($userId) {
+                    $user = $this->userRepository->find($userId);
+                    if (!$user) {
+                        throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+                    }
 
-                return array_map(function(Group $group) {
-                    return [
-                        'id' => $group->getId(),
-                        'name' => $group->getName(),
-                        'description' => $group->getDescription()
-                    ];
-                }, $user->getGroups()->toArray());
-            },
-            // TTL handled automatically by getCache method (CacheService::CATEGORY_USERS)
-        );
+                    return array_map(function(Group $group) {
+                        return [
+                            'id' => $group->getId(),
+                            'name' => $group->getName(),
+                            'description' => $group->getDescription()
+                        ];
+                    }, $user->getGroups()->toArray());
+                }
+            );
     }
 
     /**
@@ -471,25 +477,25 @@ class AdminUserService extends UserContextAwareService
      */
     public function getUserRoles(int $userId): array
     {
-        return $this->getCache(
-            CacheService::CATEGORY_USERS,
-            "user_roles_{$userId}",
-            function() use ($userId) {
-                $user = $this->userRepository->find($userId);
-                if (!$user) {
-                    throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
-                }
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->getItem(
+                "user_roles_{$userId}",
+                function() use ($userId) {
+                    $user = $this->userRepository->find($userId);
+                    if (!$user) {
+                        throw new ServiceException('User not found', Response::HTTP_NOT_FOUND);
+                    }
 
-                return array_map(function(Role $role) {
-                    return [
-                        'id' => $role->getId(),
-                        'name' => $role->getName(),
-                        'description' => $role->getDescription()
-                    ];
-                }, $user->getUserRoles()->toArray());
-            },
-            // TTL handled automatically by getCache method (CacheService::CATEGORY_USERS)
-        );
+                    return array_map(function(Role $role) {
+                        return [
+                            'id' => $role->getId(),
+                            'name' => $role->getName(),
+                            'description' => $role->getDescription()
+                        ];
+                    }, $user->getUserRoles()->toArray());
+                }
+            );
     }
 
     /**

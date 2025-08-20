@@ -2,8 +2,14 @@
 
 namespace App\Service\ACL;
 
+use App\Entity\AclUser;
+use App\Entity\Group;
+use App\Entity\Page;
+use App\Entity\User;
+use App\Service\Cache\Core\ReworkedCacheService;
 use Doctrine\DBAL\Connection;
 use App\Repository\AclRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * ACL service
@@ -18,6 +24,7 @@ class ACLService
     public function __construct(
         private readonly Connection $connection,
         private readonly AclRepository $aclRepository,
+        private readonly ReworkedCacheService $cache,
     ) {}
 
     /**
@@ -51,7 +58,9 @@ class ACLService
         $aclColumn = $modeMap[$accessType];
 
         // Get ACL for specific page using repository (cached)
-        $results = $this->aclRepository->getUserAcl($userId, $pageId);
+        $results = $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->getItem("user_acl_{$userId}_{$pageId}", fn() => $this->aclRepository->getUserAcl($userId, $pageId));
         
         // If no results or empty array, deny access
         if (empty($results)) {
@@ -91,13 +100,15 @@ class ACLService
         }
         
         // Use the repository to get all ACLs (cached)
-        return $this->aclRepository->getUserAcl($userId);
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->getItem("user_acl_{$userId}", fn() => $this->aclRepository->getUserAcl($userId));
     }
 
     /**
      * Add or update a group ACL for a page
      */
-    public function addGroupAcl(\App\Entity\Page $page, \App\Entity\Group $group, bool $select, bool $insert, bool $update, bool $delete, \Doctrine\ORM\EntityManagerInterface $em): void
+    public function addGroupAcl(Page $page, Group $group, bool $select, bool $insert, bool $update, bool $delete, EntityManagerInterface $em): void
     {
         $aclGroup = new \App\Entity\AclGroup();
         $aclGroup->setGroup($group)
@@ -107,14 +118,17 @@ class ACLService
             ->setAclUpdate($update)
             ->setAclDelete($delete);
         $em->persist($aclGroup);
-    }
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->invalidateAllListsInCategory();
+    }   
 
     /**
      * Add or update a user ACL for a page
      */
-    public function addUserAcl(\App\Entity\Page $page, \App\Entity\User $user, bool $select, bool $insert, bool $update, bool $delete, \Doctrine\ORM\EntityManagerInterface $em): void
+    public function addUserAcl(Page $page, User $user, bool $select, bool $insert, bool $update, bool $delete, EntityManagerInterface $em): void
     {
-        $aclUser = new \App\Entity\AclUser();
+        $aclUser = new AclUser();
         $aclUser->setUser($user)
             ->setPage($page)
             ->setAclSelect($select)
@@ -122,5 +136,8 @@ class ACLService
             ->setAclUpdate($update)
             ->setAclDelete($delete);
         $em->persist($aclUser);
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->invalidateAllListsInCategory();
     }
 }

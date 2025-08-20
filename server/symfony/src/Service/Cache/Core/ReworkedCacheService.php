@@ -505,11 +505,17 @@ class ReworkedCacheService
      */
     private function incr(string $key): void
     {
-        $this->cache->get($key, function (ItemInterface $item) {
+        $item = $this->cache->getItem($key);  // ✅ fetch cache item
+
+        if ($item->isHit()) {
             $current = (int) $item->get();
-            $item->expiresAfter(null);
-            return $current + 1;
-        });
+        } else {
+            $current = -1; // so first store becomes 0
+        }
+
+        $item->set($current + 1);
+        $item->expiresAfter(null); // keep forever
+        $this->cache->save($item);
     }
 
     /**
