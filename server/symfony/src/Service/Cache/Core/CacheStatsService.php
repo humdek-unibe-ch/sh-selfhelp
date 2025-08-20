@@ -2,6 +2,8 @@
 
 namespace App\Service\Cache\Core;
 
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -9,40 +11,74 @@ use Psr\Log\LoggerInterface;
  * 
  * This service handles all cache statistics, monitoring, and debugging functionality
  * separate from the core cache operations for better separation of concerns.
+ * 
+ * Features:
+ * - Statistics tracking per category (hits, misses, sets, invalidations)
+ * - Global statistics aggregation
+ * - Cache health monitoring with recommendations
+ * - Top performing categories analysis
+ * - Statistics reset functionality
  */
-class CacheStatsService
+class CacheStatsService extends ReworkedCacheService
 {
-    // Cache statistics keys in Redis
-    private const STATS_CACHE_KEY = 'cache_statistics';
-    private const CATEGORY_STATS_PREFIX = 'cache_category_stats-';
-    private const STATS_TTL = 86400; // 24 hours
-    private const CATEGORY_STATS_TTL = 3600; // 1 hour
 
     public function __construct(
-        private CacheService $cacheService,
-        private ?LoggerInterface $logger = null
-    ) {}
+        private readonly TagAwareCacheInterface $cache,
+        private readonly ?LoggerInterface $logger = null
+    ) {
+        parent::__construct($cache, $logger);
+    }
 
     /**
-     * Get comprehensive cache statistics
+     * Get cache statistics for one or all categories
+     * 
+     * Returns hit/miss/set/invalidate counters that are automatically tracked
+     * during cache operations. Useful for monitoring cache performance.
+     * 
+     * @param string|null $category Specific category to get stats for, or null for all categories
+     * @return array Statistics data structure following cache_stats.json schema format
      */
-    public function getStats(): array
+    public function getStats(?string $category = null): array
     {
-        $globalStats = $this->getGlobalStats();
-        $categoryStats = $this->getAllCategoryStats();
-        
+        if ($category !== null) {
+            return $this->readStatsBucket($category);
+        }
+
+        // Collect raw stats for all categories
+        $categoryStats = [];
+        foreach (self::ALL_CATEGORIES as $cat) {
+            $rawStats = $this->readStatsBucket($cat);
+            $categoryStats[$cat] = [
+                'hits' => $rawStats['hit'] ?? 0,
+                'misses' => $rawStats['miss'] ?? 0,
+                'sets' => $rawStats['set'] ?? 0,
+                'invalidations' => $rawStats['invalidate'] ?? 0,
+            ];
+        }
+
+        // Calculate global statistics
+        $globalStats = $this->calculateGlobalStatsFromCategories($categoryStats);
+
         return [
-            'global_stats' => [
-                'hits' => $globalStats['hits'] ?? 0,
-                'misses' => $globalStats['misses'] ?? 0,
-                'sets' => $globalStats['sets'] ?? 0,
-                'invalidations' => $globalStats['invalidations'] ?? 0,
-                'hit_rate' => $this->calculateGlobalHitRate($globalStats),
-                'total_operations' => ($globalStats['hits'] ?? 0) + ($globalStats['misses'] ?? 0),
-                'last_updated' => $globalStats['last_updated'] ?? null
+            'cache_stats' => [
+                'global_stats' => $globalStats,
+                'category_stats' => $categoryStats,
             ],
-            'category_stats' => $this->formatCategoryStats($categoryStats)
+            'cache_categories' => self::ALL_CATEGORIES,
+            'timestamp' => date('c'),
         ];
+    }
+
+    /**
+     * Get raw category statistics (internal format)
+     */
+    public function getRawCategoryStats(): array
+    {
+        $out = [];
+        foreach (self::ALL_CATEGORIES as $cat) {
+            $out[$cat] = $this->readStatsBucket($cat);
+        }
+        return $out;
     }
 
     /**
@@ -50,7 +86,7 @@ class CacheStatsService
      */
     public function getTopPerformingCategories(int $limit = 5): array
     {
-        $categoryStats = $this->getAllCategoryStats();
+        $categoryStats = $this->getRawCategoryStats();
         $formatted = $this->formatCategoryStats($categoryStats);
         
         // Sort by hit rate descending
@@ -66,22 +102,21 @@ class CacheStatsService
      */
     public function getCategoryStatistics(string $category): array
     {
-        if (!in_array($category, $this->getAllCategories())) {
+        if (!in_array($category, self::ALL_CATEGORIES)) {
             throw new \InvalidArgumentException("Invalid cache category: {$category}");
         }
         
-        $stats = $this->getCategoryStats($category);
+        $stats = $this->readStatsBucket($category);
         
         return [
             'category' => $category,
-            'hits' => $stats['hits'] ?? 0,
-            'misses' => $stats['misses'] ?? 0,
-            'sets' => $stats['sets'] ?? 0,
-            'invalidations' => $stats['invalidations'] ?? 0,
-            'hit_rate' => $stats['hit_rate'] ?? 0.0,
-            'total_operations' => ($stats['hits'] ?? 0) + ($stats['misses'] ?? 0),
-            'cache_pool' => $this->getCachePoolName($category),
-            'last_activity' => $stats['last_updated'] ?? null,
+            'hits' => $stats['hit'] ?? 0,
+            'misses' => $stats['miss'] ?? 0,
+            'sets' => $stats['set'] ?? 0,
+            'invalidations' => $stats['invalidate'] ?? 0,
+            'hit_rate' => $this->calculateHitRate($stats),
+            'total_operations' => ($stats['hit'] ?? 0) + ($stats['miss'] ?? 0),            
+            'last_activity' => date('c'),
         ];
     }
 
@@ -90,21 +125,9 @@ class CacheStatsService
      */
     public function resetStats(): void
     {
-        $globalStats = [
-            'hits' => 0,
-            'misses' => 0,
-            'sets' => 0,
-            'invalidations' => 0,
-            'last_updated' => date('c')
-        ];
-        $this->saveGlobalStats($globalStats);
-        
-        $categories = $this->getAllCategories();
-        foreach ($categories as $category) {
+        foreach (self::ALL_CATEGORIES as $category) {
             $this->resetCategoryStats($category);
         }
-        
-        $this->log('info', 'Cache statistics reset');
     }
 
     /**
@@ -112,8 +135,8 @@ class CacheStatsService
      */
     public function getCacheHealth(): array
     {
-        $stats = $this->getStats();
-        $globalStats = $stats['global_stats'];
+        $allStats = $this->getRawCategoryStats();
+        $globalStats = $this->calculateGlobalStats($allStats);
         
         $hitRate = $globalStats['hit_rate'];
         $totalOps = $globalStats['total_operations'];
@@ -169,222 +192,118 @@ class CacheStatsService
         ];
     }
 
-    /**
-     * Record cache hit for statistics
-     */
-    public function recordHit(string $category): void
-    {
-        $this->incrementGlobalStat('hits');
-        $this->incrementCategoryStat($category, 'hits');
-    }
-
-    /**
-     * Record cache miss for statistics
-     */
-    public function recordMiss(string $category): void
-    {
-        $this->incrementGlobalStat('misses');
-        $this->incrementCategoryStat($category, 'misses');
-    }
-
-    /**
-     * Record cache set for statistics
-     */
-    public function recordSet(string $category): void
-    {
-        $this->incrementGlobalStat('sets');
-        $this->incrementCategoryStat($category, 'sets');
-    }
-
-    /**
-     * Record cache invalidation for statistics
-     */
-    public function recordInvalidation(string $category, string $type = 'item'): void
-    {
-        $this->incrementGlobalStat('invalidations');
-        $this->incrementCategoryStat($category, 'invalidations');
-    }
-
     // Private helper methods
-    private function getGlobalStats(): array
+
+    private function readStatsBucket(string $category): array
     {
-        try {
-            $statsItem = $this->cacheService->getCachePool('stats')->getItem(self::STATS_CACHE_KEY);
-            
-            if ($statsItem->isHit()) {
-                return $statsItem->get();
-            }
-        } catch (\Exception $e) {
-            $this->log('error', 'Failed to get global stats: ' . $e->getMessage());
-        }
-        
         return [
-            'hits' => 0,
-            'misses' => 0,
-            'sets' => 0,
-            'invalidations' => 0,
-            'last_updated' => date('c')
+            'hit' => $this->getInt($this->statKey($category, 'hit'), 0),
+            'miss' => $this->getInt($this->statKey($category, 'miss'), 0),
+            'set' => $this->getInt($this->statKey($category, 'set'), 0),
+            'invalidate' => $this->getInt($this->statKey($category, 'invalidate'), 0),
         ];
     }
 
-    private function saveGlobalStats(array $stats): void
-    {
-        try {
-            $stats['last_updated'] = date('c');
-            $pool = $this->cacheService->getCachePool('stats');
-            $statsItem = $pool->getItem(self::STATS_CACHE_KEY);
-            $statsItem->set($stats);
-            $statsItem->expiresAfter(self::STATS_TTL);
-            $pool->save($statsItem);
-        } catch (\Exception $e) {
-            $this->log('error', 'Failed to save global stats: ' . $e->getMessage());
-        }
-    }
-
-    private function incrementGlobalStat(string $statName): void
-    {
-        $stats = $this->getGlobalStats();
-        $stats[$statName] = ($stats[$statName] ?? 0) + 1;
-        $this->saveGlobalStats($stats);
-    }
-
-    private function getCategoryStats(string $category): array
-    {
-        try {
-            $pool = $this->cacheService->getCachePool('stats');
-            $statsItem = $pool->getItem(self::CATEGORY_STATS_PREFIX . $category);
-            
-            if ($statsItem->isHit()) {
-                return $statsItem->get();
-            }
-        } catch (\Exception $e) {
-            $this->log('error', 'Failed to get category stats: ' . $e->getMessage());
-        }
-        
-        return [
-            'hits' => 0,
-            'misses' => 0,
-            'sets' => 0,
-            'invalidations' => 0,
-            'hit_rate' => 0.0,
-            'last_updated' => date('c')
-        ];
-    }
-
-    private function saveCategoryStats(string $category, array $stats): void
-    {
-        try {
-            $pool = $this->cacheService->getCachePool('stats');
-            $statsItem = $pool->getItem(self::CATEGORY_STATS_PREFIX . $category);
-            $statsItem->set($stats);
-            $statsItem->expiresAfter(self::CATEGORY_STATS_TTL);
-            $pool->save($statsItem);
-        } catch (\Exception $e) {
-            $this->log('error', 'Failed to save category stats: ' . $e->getMessage());
-        }
-    }
-
-    private function incrementCategoryStat(string $category, string $statName): void
-    {
-        $stats = $this->getCategoryStats($category);
-        $stats[$statName] = ($stats[$statName] ?? 0) + 1;
-        
-        $total = ($stats['hits'] ?? 0) + ($stats['misses'] ?? 0);
-        $stats['hit_rate'] = $total > 0 ? round(($stats['hits'] / $total) * 100, 2) : 0.0;
-        $stats['last_updated'] = date('c');
-        
-        $this->saveCategoryStats($category, $stats);
-    }
-
-    private function resetCategoryStats(string $category): void
-    {
-        $stats = [
-            'hits' => 0,
-            'misses' => 0,
-            'sets' => 0,
-            'invalidations' => 0,
-            'hit_rate' => 0.0,
-            'last_updated' => date('c')
-        ];
-        
-        $this->saveCategoryStats($category, $stats);
-    }
-
-    private function getAllCategoryStats(): array
-    {
-        $categoryStats = [];
-        $categories = $this->getAllCategories();
-        
-        foreach ($categories as $category) {
-            $categoryStats[$category] = $this->getCategoryStats($category);
-        }
-        
-        return $categoryStats;
-    }
-
+    /**
+     * Format category statistics
+     */
     private function formatCategoryStats(array $categoryStats): array
     {
         $formatted = [];
         
         foreach ($categoryStats as $category => $stats) {
             $formatted[$category] = [
-                'hits' => $stats['hits'] ?? 0,
-                'misses' => $stats['misses'] ?? 0,
-                'sets' => $stats['sets'] ?? 0,
-                'invalidations' => $stats['invalidations'] ?? 0,
-                'hit_rate' => $stats['hit_rate'] ?? 0.0,
-                'total_operations' => ($stats['hits'] ?? 0) + ($stats['misses'] ?? 0),
-                'last_activity' => $stats['last_updated'] ?? null
+                'hits' => $stats['hit'] ?? 0,
+                'misses' => $stats['miss'] ?? 0,
+                'sets' => $stats['set'] ?? 0,
+                'invalidations' => $stats['invalidate'] ?? 0,
+                'hit_rate' => $this->calculateHitRate($stats),
+                'total_operations' => ($stats['hit'] ?? 0) + ($stats['miss'] ?? 0),
+                'last_activity' => date('c')
             ];
         }
         
         return $formatted;
     }
 
-    private function calculateGlobalHitRate(array $stats): float
+    /**
+     * Calculate the hit rate for a category
+     */
+    private function calculateHitRate(array $stats): float
     {
-        $total = ($stats['hits'] ?? 0) + ($stats['misses'] ?? 0);
-        return $total > 0 ? round(($stats['hits'] / $total) * 100, 2) : 0.0;
+        $total = ($stats['hit'] ?? 0) + ($stats['miss'] ?? 0);
+        return $total > 0 ? round(($stats['hit'] / $total) * 100, 2) : 0.0;
     }
 
-    private function getAllCategories(): array
+    /**
+     * Calculate global statistics from all category statistics
+     */
+    private function calculateGlobalStatsFromCategories(array $categoryStats): array
     {
+        $totalHits = 0;
+        $totalMisses = 0;
+        $totalSets = 0;
+        $totalInvalidations = 0;
+
+        foreach ($categoryStats as $stats) {
+            $totalHits += $stats['hits'];
+            $totalMisses += $stats['misses'];
+            $totalSets += $stats['sets'];
+            $totalInvalidations += $stats['invalidations'];
+        }
+
+        $totalOps = $totalHits + $totalMisses;
+        $hitRate = $totalOps > 0 ? round(($totalHits / $totalOps) * 100, 2) : 0.0;
+
         return [
-            CacheService::CATEGORY_PAGES,
-            CacheService::CATEGORY_USERS,
-            CacheService::CATEGORY_SECTIONS,
-            CacheService::CATEGORY_LANGUAGES,
-            CacheService::CATEGORY_GROUPS,
-            CacheService::CATEGORY_ROLES,
-            CacheService::CATEGORY_PERMISSIONS,
-            CacheService::CATEGORY_LOOKUPS,
-            CacheService::CATEGORY_ASSETS,
-            CacheService::CATEGORY_FRONTEND_USER,
-            CacheService::CATEGORY_CMS_PREFERENCES,
-            CacheService::CATEGORY_SCHEDULED_JOBS,
-            CacheService::CATEGORY_ACTIONS
+            'hits' => $totalHits,
+            'misses' => $totalMisses,
+            'sets' => $totalSets,
+            'invalidations' => $totalInvalidations,
+            'hit_rate' => $hitRate,
         ];
     }
 
-    private function getCachePoolName(string $category): string
+    /**
+     * Calculate the global statistics (for compatibility with getCacheHealth)
+     */
+    private function calculateGlobalStats(array $allStats): array
     {
-        return match ($category) {
-            CacheService::CATEGORY_FRONTEND_USER => 'user_frontend',
-            CacheService::CATEGORY_LOOKUPS => 'lookups',
-            CacheService::CATEGORY_PERMISSIONS => 'permissions',
-            CacheService::CATEGORY_ACTIONS => 'admin',
-            CacheService::CATEGORY_CMS_PREFERENCES => 'admin',
-            CacheService::CATEGORY_SCHEDULED_JOBS => 'admin',
-            CacheService::CATEGORY_ROLES => 'admin',
-            CacheService::CATEGORY_ASSETS => 'admin',
-            default => 'global'
-        };
+        $totalHits = 0;
+        $totalMisses = 0;
+        $totalSets = 0;
+        $totalInvalidations = 0;
+        
+        foreach ($allStats as $stats) {
+            $totalHits += $stats['hit'] ?? 0;
+            $totalMisses += $stats['miss'] ?? 0;
+            $totalSets += $stats['set'] ?? 0;
+            $totalInvalidations += $stats['invalidate'] ?? 0;
+        }
+        
+        $totalOps = $totalHits + $totalMisses;
+        
+        return [
+            'hits' => $totalHits,
+            'misses' => $totalMisses,
+            'sets' => $totalSets,
+            'invalidations' => $totalInvalidations,
+            'hit_rate' => $totalOps > 0 ? round(($totalHits / $totalOps) * 100, 2) : 0.0,
+            'total_operations' => $totalOps,
+            'last_updated' => date('c')
+        ];
     }
 
-    private function log(string $level, string $message, array $context = []): void
+    /**
+     * Reset the statistics for a category
+     */
+    private function resetCategoryStats(string $category): void
     {
-        if ($this->logger) {
-            $this->logger->log($level, "[CacheStats] {$message}", $context);
+        // Reset all stat keys for this category
+        $statTypes = ['hit', 'miss', 'set', 'invalidate'];
+        foreach ($statTypes as $statType) {
+            $key = $this->statKey($category, $statType);
+            $this->cache->delete($key);
         }
     }
 }

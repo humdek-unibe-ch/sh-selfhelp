@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api\V1\Admin;
 
-use App\Service\Cache\Core\CacheStatsService;
 use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheStatsService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Controller\Trait\RequestValidatorTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +26,7 @@ class AdminCacheController extends AbstractController
 
     public function __construct(
         private ReworkedCacheService $cacheService,
-        private CacheStatsService $cacheStatsService,
+        private CacheStatsService $statsService,
         private ApiResponseFormatter $responseFormatter,
         private ?LoggerInterface $logger = null
     ) {
@@ -38,21 +38,18 @@ class AdminCacheController extends AbstractController
     public function getCacheStats(Request $request): Response
     {
         try {
-            $stats = $this->cacheStatsService->getStats();
+            $stats = $this->statsService->getStats();
 
+            // The getStats() method now returns the full schema format
             // Add additional monitoring data
-            $monitoringData = [
-                'cache_stats' => $stats,
-                'cache_categories' => ReworkedCacheService::ALL_CATEGORIES,
-                'top_performing_categories' => $this->cacheStatsService->getTopPerformingCategories(5),
-                'timestamp' => date('c')
-            ];
+            $monitoringData = $stats;
+            $monitoringData['top_performing_categories'] = $this->statsService->getTopPerformingCategories(5);
 
             $this->log('info', 'Cache statistics retrieved');
 
             return $this->responseFormatter->formatSuccess(
                 $monitoringData,
-                null,
+                'responses/admin/cache/cache_stats',
                 Response::HTTP_OK
             );
 
@@ -76,6 +73,7 @@ class AdminCacheController extends AbstractController
             foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
                 $this->cacheService->withCategory($category)->invalidateCategory();
             }
+            $this->statsService->resetStats();
 
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
@@ -115,7 +113,7 @@ class AdminCacheController extends AbstractController
             $category = $requestData['category'];
 
             // Validate category exists
-            if (!in_array($category, $this->getCacheCategories())) {
+            if (!in_array($category, ReworkedCacheService::ALL_CATEGORIES)) {
                 return $this->responseFormatter->formatError(
                     'Invalid cache category',
                     Response::HTTP_BAD_REQUEST
@@ -241,7 +239,7 @@ class AdminCacheController extends AbstractController
     public function getCategoryStats(Request $request, string $category): Response
     {
         try {
-            $categoryStats = $this->cacheStatsService->getCategoryStatistics($category);
+            $categoryStats = $this->statsService->getCategoryStatistics($category);
 
             $this->log('info', 'Category cache statistics retrieved', ['category' => $category]);
 
@@ -275,7 +273,7 @@ class AdminCacheController extends AbstractController
     public function resetCacheStats(Request $request): Response
     {
         try {
-            $this->cacheStatsService->resetStats();
+            $this->statsService->resetStats();
 
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
@@ -303,7 +301,7 @@ class AdminCacheController extends AbstractController
     public function getCacheHealth(Request $request): Response
     {
         try {
-            $health = $this->cacheStatsService->getCacheHealth();
+            $health = $this->statsService->getCacheHealth();
 
             $this->log('info', 'Cache health status retrieved');
 

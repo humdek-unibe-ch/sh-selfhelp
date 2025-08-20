@@ -4,6 +4,7 @@ namespace App\Service\Cache\Core;
 
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * ReworkedCacheService - Advanced tag-based cache service with generation-based invalidation
@@ -87,9 +88,11 @@ class ReworkedCacheService
 
     /**
      * @param TagAwareCacheInterface $cache Tag-aware cache interface for advanced cache operations
+     * @param LoggerInterface|null $logger Optional logger for debugging and monitoring
      */
     public function __construct(
         private readonly TagAwareCacheInterface $cache,
+        private readonly ?LoggerInterface $logger = null
     ) {
     }
 
@@ -174,7 +177,6 @@ class ReworkedCacheService
             $item->tag($tags);
 
             $val = $compute();
-            $this->recordSet($this->category);
             return $val;
         });
 
@@ -383,62 +385,9 @@ class ReworkedCacheService
         };
     }
 
-    /* =========================
-       Statistics Tracking (per category)
-       ========================= */
 
-    /**
-     * Get cache statistics for one or all categories
-     * 
-     * Returns hit/miss/set/invalidate counters that are automatically tracked
-     * during cache operations. Useful for monitoring cache performance.
-     * 
-     * @param string|null $category Specific category to get stats for, or null for all categories
-     * @return array Statistics data structure with hit/miss/set/invalidate counters
-     * 
-     * @example 
-     * $allStats = $cache->getStats(); // All categories
-     * $actionStats = $cache->getStats(CATEGORY_ACTIONS); // Just actions
-     */
-    public function getStats(?string $category = null): array
-    {
-        if ($category !== null) {
-            return $this->readStatsBucket($category);
-        }
 
-        $out = [];
-        foreach (self::ALL_CATEGORIES as $cat) {
-            $out[$cat] = $this->readStatsBucket($cat);
-        }
-        return $out;
-    }
 
-    private function readStatsBucket(string $category): array
-    {
-        return [
-            'hit' => $this->getInt($this->statKey($category, 'hit'), 0),
-            'miss' => $this->getInt($this->statKey($category, 'miss'), 0),
-            'set' => $this->getInt($this->statKey($category, 'set'), 0),
-            'invalidate' => $this->getInt($this->statKey($category, 'invalidate'), 0),
-        ];
-    }
-
-    private function recordHit(string $category): void
-    {
-        $this->incr($this->statKey($category, 'hit'));
-    }
-    private function recordMiss(string $category): void
-    {
-        $this->incr($this->statKey($category, 'miss'));
-    }
-    private function recordSet(string $category): void
-    {
-        $this->incr($this->statKey($category, 'set'));
-    }
-    private function recordInvalidation(string $category): void
-    {
-        $this->incr($this->statKey($category, 'invalidate'));
-    }
 
     /* =========================
        Internal Implementation (generation-based cache keys & statistics)
@@ -474,11 +423,17 @@ class ReworkedCacheService
         return implode('-', $parts);
     }
 
+    /**
+     * Generate a tag for a list cache entry
+     */
     private function listTag(): string
     {
         return "list-{$this->category}";
     }
 
+    /**
+     * Generate tags for a user cache entry
+     */
     private function tagsFor(?int $userId): array
     {
         $tags = ["cat-{$this->category}"];
@@ -489,38 +444,51 @@ class ReworkedCacheService
         return $tags;
     }
 
+    /**
+     * Generate a tag for an item cache entry
+     */
     private function itemTag(string $key, ?int $userId = null): string
     {
         $base = "item-{$this->category}-" . $this->normalizeKey($key);
         return $userId === null ? $base : $base . "-u{$userId}";
     }
 
+    /**
+     * Normalize a key to a maximum length of 60 characters
+     */
     private function normalizeKey(string $k): string
     {
         return strlen($k) <= 60 ? $k : (substr($k, 20) ? substr($k, 0, 20) : $k) . ':' . md5($k);
     }
 
+    /**
+     * Generate a key for the category generation
+     */
     private function catGenKey(): string
     {
         return "{$this->prefix}-{$this->category}-gen";
     }
 
+    /**
+     * Generate a key for the user generation
+     */
     private function userGenKey(int $userId): string
     {
         return "{$this->prefix}-{$this->category}-user-{$userId}-gen";
     }
 
+    /**
+     * Generate a key for the global user generation
+     */
     private function globalUserGenKey(int $userId): string
     {
         return "{$this->prefix}-user-{$userId}-gen";
     }
 
-    private function statKey(string $category, string $metric): string
-    {
-        return "{$this->prefix}-stats-{$category}-{$metric}";
-    }
-
-    private function getInt(string $key, int $default): int
+    /**
+     * Get an integer value from the cache
+     */
+    protected function getInt(string $key, int $default): int
     {
         // CacheInterface::get callback runs on miss; we store the default.
         return (int) $this->cache->get($key, function (ItemInterface $item) use ($default) {
@@ -529,6 +497,9 @@ class ReworkedCacheService
         });
     }
 
+    /**
+     * Increment a value in the cache
+     */
     private function incr(string $key): void
     {
         $this->cache->get($key, function (ItemInterface $item) {
@@ -536,4 +507,45 @@ class ReworkedCacheService
             return $current + 1;
         });
     }
+
+        /**
+     * Record cache set for statistics
+     */
+    private function recordSet(string $category): void
+    {
+        $this->incr($this->statKey($category, 'set'));
+    }
+
+        /**
+     * Generate a key for the statistics
+     */
+    protected function statKey(string $category, string $metric): string
+    {
+        return "{$this->prefix}-stats-{$category}-{$metric}";
+    }
+
+        /**
+     * Record cache hit for statistics
+     */
+    private function recordHit(string $category): void
+    {
+        $this->incr($this->statKey($category, 'hit'));
+    }
+
+    /**
+     * Record cache miss for statistics
+     */
+    private function recordMiss(string $category): void
+    {
+        $this->incr($this->statKey($category, 'miss'));
+    }
+
+        /**
+     * Record cache invalidation for statistics
+     */
+    private function recordInvalidation(string $category): void
+    {
+        $this->incr($this->statKey($category, 'invalidate'));
+    }
+
 }

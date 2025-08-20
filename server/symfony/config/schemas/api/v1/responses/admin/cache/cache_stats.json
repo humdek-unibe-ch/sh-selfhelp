@@ -1,46 +1,92 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
   "title": "Cache Statistics Response",
   "description": "Response schema for cache statistics endpoint",
+  "allOf": [
+    { "$ref": "../../common/_response_envelope.json" }
+  ],
   "properties": {
-    "cache_stats": {
+    "data": {
       "type": "object",
       "properties": {
-        "global_stats": {
+        "cache_stats": {
           "type": "object",
           "properties": {
-            "hits": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Total number of cache hits"
+            "global_stats": {
+              "type": "object",
+              "properties": {
+                "hits": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Total number of cache hits"
+                },
+                "misses": {
+                  "type": "integer", 
+                  "minimum": 0,
+                  "description": "Total number of cache misses"
+                },
+                "sets": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Total number of cache sets"
+                },
+                "invalidations": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Total number of cache invalidations"
+                },
+                "hit_rate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "Cache hit rate percentage"
+                }
+              },
+              "required": ["hits", "misses", "sets", "invalidations", "hit_rate"],
+              "additionalProperties": false
             },
-            "misses": {
-              "type": "integer", 
-              "minimum": 0,
-              "description": "Total number of cache misses"
-            },
-            "sets": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Total number of cache sets"
-            },
-            "invalidations": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Total number of cache invalidations"
-            },
-            "hit_rate": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "Cache hit rate percentage"
+            "category_stats": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-z_]+$": {
+                  "type": "object",
+                  "properties": {
+                    "hits": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "misses": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "sets": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "invalidations": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["hits", "misses", "sets", "invalidations"],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
             }
           },
-          "required": ["hits", "misses", "sets", "invalidations", "hit_rate"],
+          "required": ["global_stats", "category_stats"],
           "additionalProperties": false
         },
-        "category_stats": {
+        "cache_categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+$"
+          },
+          "description": "List of available cache categories"
+        },
+        "top_performing_categories": {
           "type": "object",
           "patternProperties": {
             "^[a-z_]+$": {
@@ -61,58 +107,39 @@
                 "invalidations": {
                   "type": "integer",
                   "minimum": 0
+                },
+                "hit_rate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "total_operations": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "last_activity": {
+                  "type": "string",
+                  "format": "date-time"
                 }
               },
-              "required": ["hits", "misses", "sets", "invalidations"],
+              "required": ["hits", "misses", "sets", "invalidations", "hit_rate", "total_operations", "last_activity"],
               "additionalProperties": false
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Top performing cache categories by hit rate"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when statistics were generated"
         }
       },
-      "required": ["global_stats", "category_stats"],
+      "required": ["cache_stats", "cache_categories", "top_performing_categories", "timestamp"],
       "additionalProperties": false
-    },
-    "cache_categories": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^[a-z_]+$"
-      },
-      "description": "List of available cache categories"
-    },
-    "cache_pools": {
-      "type": "object",
-      "patternProperties": {
-        "^[a-z_]+$": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Human-readable name of the cache pool"
-            },
-            "description": {
-              "type": "string",
-              "description": "Description of the cache pool purpose"
-            },
-            "default_ttl": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Default TTL in seconds"
-            }
-          },
-          "required": ["name", "description", "default_ttl"],
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "timestamp": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when statistics were generated"
     }
   },
-  "required": ["cache_stats", "cache_categories", "cache_pools", "timestamp"],
-  "additionalProperties": false
+  "required": [
+    "data" 
+  ]
 }

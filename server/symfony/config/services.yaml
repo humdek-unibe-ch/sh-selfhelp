@@ -61,13 +61,6 @@ services:
             $adminCache: '@cache.admin'
             $lookupsCache: '@cache.lookups'
             $permissionsCache: '@cache.permissions'
-        calls:
-            - [setStatsService, ['@App\Service\Cache\Core\CacheStatsService']]
-    
-    # Cache Statistics Service
-    App\Service\Cache\Core\CacheStatsService:
-        arguments:
-            $cacheService: '@App\Service\Cache\Core\CacheService'
     
     # Services that use CacheableServiceTrait
     # Frontend Services

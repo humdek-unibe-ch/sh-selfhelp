@@ -80,8 +80,6 @@ class CacheService
     private CacheItemPoolInterface $permissionsCache;
     private CacheItemPoolInterface $appCache;
 
-    private ?CacheStatsService $statsService = null;
-
     public function __construct(
         #[Autowire(service: 'cache.global')] CacheItemPoolInterface $globalCache,
         #[Autowire(service: 'cache.user_frontend')] CacheItemPoolInterface $userFrontendCache,
@@ -97,14 +95,6 @@ class CacheService
         $this->lookupsCache = $lookupsCache;
         $this->permissionsCache = $permissionsCache;
         $this->appCache = $appCache;
-    }
-
-    /**
-     * Set the stats service for recording statistics
-     */
-    public function setStatsService(CacheStatsService $statsService): void
-    {
-        $this->statsService = $statsService;
     }
 
     /**
@@ -646,30 +636,22 @@ class CacheService
     // Simplified stats recording (delegates to CacheStatsService if available)
     private function recordHit(string $category): void
     {
-        if ($this->statsService) {
-            $this->statsService->recordHit($category);
-        }
+
     }
 
     private function recordMiss(string $category): void
     {
-        if ($this->statsService) {
-            $this->statsService->recordMiss($category);
-        }
+
     }
 
     private function recordSet(string $category): void
     {
-        if ($this->statsService) {
-            $this->statsService->recordSet($category);
-        }
+
     }
 
     private function recordInvalidation(string $category, string $type = 'item'): void
     {
-        if ($this->statsService) {
-            $this->statsService->recordInvalidation($category, $type);
-        }
+
     }
 
     private function log(string $level, string $message, array $context = []): void
