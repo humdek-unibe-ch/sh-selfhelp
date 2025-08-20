@@ -82,7 +82,7 @@ class ReworkedCacheService
 
     /** @var string Current cache category for this service instance */
     private string $category = self::CATEGORY_DEFAULT;
-    
+
     /** @var string Cache key prefix for namespacing */
     private string $prefix = 'cms';
 
@@ -99,7 +99,7 @@ class ReworkedCacheService
     /* =========================
        Builder-style config
        ========================= */
-    
+
     /**
      * Create a new service instance with a specific cache category
      * 
@@ -175,6 +175,7 @@ class ReworkedCacheService
             }
             $tags = array_merge($this->tagsFor($userId), [$this->itemTag($key, $userId), $this->listTag()]);
             $item->tag($tags);
+            $this->recordSet($this->category);
 
             $val = $compute();
             return $val;
@@ -246,6 +247,7 @@ class ReworkedCacheService
     public function setItem(string $key, ?int $userId, mixed $value, ?int $ttlSeconds = null): void
     {
         $cacheKey = $this->getCacheKey('item', $key, $userId);
+        $this->cache->delete($cacheKey); // ensure callback runs
         $this->cache->get($cacheKey, function (ItemInterface $item) use ($value, $ttlSeconds, $userId, $key) {
             if ($ttlSeconds) {
                 $item->expiresAfter($ttlSeconds);
@@ -407,12 +409,12 @@ class ReworkedCacheService
      */
     private function getCacheKey(string $type, string $plainKey, ?int $userId = null): string
     {
-        $catGen = $this->getInt($this->catGenKey(), 1);
+        $catGen = $this->getInt($this->catGenKey());
         $parts = [$this->prefix, $this->category, 'g' . $catGen];
 
         if ($userId !== null) {
-            $userGen = $this->getInt($this->userGenKey($userId), 1);
-            $global = $this->getInt($this->globalUserGenKey($userId), 1); // global kill switch
+            $userGen = $this->getInt($this->userGenKey($userId));
+            $global = $this->getInt($this->globalUserGenKey($userId)); // global kill switch
             $parts[] = 'u' . $userId;
             $parts[] = 'g' . max($userGen, $global);
         }
@@ -488,11 +490,12 @@ class ReworkedCacheService
     /**
      * Get an integer value from the cache
      */
-    protected function getInt(string $key, int $default): int
+    protected function getInt(string $key, int $default = 0): int
     {
         // CacheInterface::get callback runs on miss; we store the default.
         return (int) $this->cache->get($key, function (ItemInterface $item) use ($default) {
             // No expiry for namespace tokens & stats
+            $item->expiresAfter(null); // never expire namespace tokens & stats
             return $default;
         });
     }
@@ -504,11 +507,12 @@ class ReworkedCacheService
     {
         $this->cache->get($key, function (ItemInterface $item) {
             $current = (int) $item->get();
+            $item->expiresAfter(null);
             return $current + 1;
         });
     }
 
-        /**
+    /**
      * Record cache set for statistics
      */
     private function recordSet(string $category): void
@@ -516,7 +520,7 @@ class ReworkedCacheService
         $this->incr($this->statKey($category, 'set'));
     }
 
-        /**
+    /**
      * Generate a key for the statistics
      */
     protected function statKey(string $category, string $metric): string
@@ -524,7 +528,7 @@ class ReworkedCacheService
         return "{$this->prefix}-stats-{$category}-{$metric}";
     }
 
-        /**
+    /**
      * Record cache hit for statistics
      */
     private function recordHit(string $category): void
@@ -540,12 +544,13 @@ class ReworkedCacheService
         $this->incr($this->statKey($category, 'miss'));
     }
 
-        /**
+    /**
      * Record cache invalidation for statistics
      */
     private function recordInvalidation(string $category): void
     {
         $this->incr($this->statKey($category, 'invalidate'));
     }
+
 
 }
