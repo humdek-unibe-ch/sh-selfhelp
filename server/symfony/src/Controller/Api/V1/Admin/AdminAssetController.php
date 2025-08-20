@@ -62,7 +62,7 @@ class AdminAssetController extends AbstractController
     {
         try {
             $asset = $this->adminAssetService->getAssetById($assetId);
-            return $this->responseFormatter->formatSuccess($asset, 'responses/admin/assets/asset');
+            return $this->responseFormatter->formatSuccess($asset, 'responses/admin/assets/asset_envelope');
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
                 $e->getMessage(),
@@ -110,7 +110,7 @@ class AdminAssetController extends AbstractController
                 $asset = $this->adminAssetService->createAsset($files[0], $data, $overwrite);
                 return $this->responseFormatter->formatSuccess(
                     $asset,
-                    'responses/admin/assets/asset',
+                    'responses/admin/assets/asset_envelope',
                     Response::HTTP_CREATED
                 );
             } else {
@@ -123,7 +123,7 @@ class AdminAssetController extends AbstractController
                 
                 return $this->responseFormatter->formatSuccess(
                     $result,
-                    'responses/admin/assets/assets_upload',
+                    'responses/admin/assets/assets_upload_envelope',
                     $statusCode
                 );
             }

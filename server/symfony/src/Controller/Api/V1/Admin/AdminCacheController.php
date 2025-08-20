@@ -170,6 +170,8 @@ class AdminCacheController extends AbstractController
                 $this->cacheService->withCategory($category)->invalidateUser($userId);
             }
 
+            $this->cacheService->invalidateUserGlobally($userId);
+
             $user = $this->getUser();
             $adminUserId = $user && method_exists($user, 'getId') ? $user->getId() : null;
             $this->log('warning', 'User cache cleared by admin', [

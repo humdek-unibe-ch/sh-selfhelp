@@ -17,8 +17,6 @@ use App\Exception\ServiceException;
 
 class AdminActionService extends BaseService
 {
-    use CacheableServiceTrait;
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,

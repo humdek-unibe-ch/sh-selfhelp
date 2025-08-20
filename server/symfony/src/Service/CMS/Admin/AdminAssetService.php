@@ -4,10 +4,10 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\Asset;
 use App\Repository\AssetRepository;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\CacheableServiceTrait;
 use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,17 +16,34 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminAssetService extends BaseService
 {
-    use CacheableServiceTrait;
-    
     private const UPLOAD_DIR = 'uploads/assets/';
     private const ALLOWED_EXTENSIONS = [
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', // Images
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'svg', // Images
         'pdf', // Documents
-        'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', // Videos
-        'css', 'js', // Web files
-        'zip', 'rar', '7z', // Archives
+        'mp4',
+        'avi',
+        'mov',
+        'wmv',
+        'flv',
+        'webm', // Videos
+        'css',
+        'js', // Web files
+        'zip',
+        'rar',
+        '7z', // Archives
         'json', // JSON files
-        'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx' // Office files
+        'txt',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'ppt',
+        'pptx' // Office files
     ];
 
     public function __construct(
@@ -34,6 +51,7 @@ class AdminAssetService extends BaseService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly LookupService $lookupService,
+        private readonly ReworkedCacheService $cache,
         private readonly string $projectDir
     ) {
     }
@@ -51,21 +69,19 @@ class AdminAssetService extends BaseService
     {
         // Create cache key based on parameters
         $cacheKey = "assets_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($folder ?? ''));
-        
-        return $this->getCache(
-            CacheService::CATEGORY_ASSETS,
-            $cacheKey,
-            function() use ($page, $pageSize, $search, $folder) {
-                return $this->fetchAssetsFromDatabase($page, $pageSize, $search, $folder);
-            },
-null
-        );
+
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->getList(
+                $cacheKey,
+                fn() => $this->fetchAssetsFromDatabase($page, $pageSize, $search, $folder)
+            );
     }
-    
+
     private function fetchAssetsFromDatabase(int $page, int $pageSize, ?string $search, ?string $folder): array
     {
         $result = $this->assetRepository->findAssetsWithPagination($page, $pageSize, $search, $folder);
-        
+
         $assets = array_map(function (Asset $asset) {
             return [
                 'id' => $asset->getId(),
@@ -96,20 +112,33 @@ null
      */
     public function getAssetById(int $id): array
     {
-        $asset = $this->assetRepository->findOneBy(['id' => $id]);
-        
-        if (!$asset) {
-            throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "asset_id_{$id}";
 
-        return [
-            'id' => $asset->getId(),
-            'asset_type' => $asset->getAssetType()->getLookupValue(),
-            'folder' => $asset->getFolder(),
-            'file_name' => $asset->getFileName(),
-            'file_path' => $asset->getFilePath(),
-            'url' => '/' . $asset->getFilePath()
-        ];
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->getItem(
+                $cacheKey,
+                function () use ($id) {
+                    // get the asset from the DB
+        
+                    $asset = $this->assetRepository->findOneBy(['id' => $id]);
+
+                    if (!$asset) {
+                        throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
+                    }
+
+                    $asset = [
+                        'id' => $asset->getId(),
+                        'asset_type' => $asset->getAssetType()->getLookupValue(),
+                        'folder' => $asset->getFolder(),
+                        'file_name' => $asset->getFileName(),
+                        'file_path' => $asset->getFilePath(),
+                        'url' => '/' . $asset->getFilePath()
+                    ];
+
+                    return $asset;
+                }
+            );
     }
 
     /**
@@ -123,7 +152,7 @@ null
     public function createAsset(UploadedFile $file, array $data, bool $overwrite = false): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             // Validate file is properly uploaded
             if (!$file->isValid()) {
@@ -144,13 +173,13 @@ null
                 LookupService::ASSET_TYPES,
                 in_array($extension, ['css']) ? LookupService::ASSET_TYPES_CSS : LookupService::ASSET_TYPES_ASSET
             );
-            
+
             // Get folder from data or use default
             $folder = $data['folder'] ?? 'general';
-            
+
             // Create filename - preserve original name if no custom name provided
             $fileName = !empty($data['file_name']) ? $data['file_name'] : $file->getClientOriginalName();
-            
+
             // Check if file already exists
             $existingAsset = $this->assetRepository->findByFileName($fileName);
             if ($existingAsset && !$overwrite) {
@@ -166,7 +195,7 @@ null
             // Move uploaded file FIRST to avoid file size errors on temp files
             $filePath = self::UPLOAD_DIR . $folder . '/' . $fileName;
             $fullUploadPath = $uploadPath . '/' . $fileName;
-            
+
             // Move the file immediately
             $file->move($uploadPath, $fileName);
 
@@ -201,15 +230,19 @@ null
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+                ->invalidateAllListsInCategory();
+
             return $this->getAssetById($asset->getId());
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             // Clean up uploaded file if it was moved
             if (isset($fullUploadPath) && file_exists($fullUploadPath)) {
                 unlink($fullUploadPath);
             }
-            
+
             throw $e;
         }
     }
@@ -226,7 +259,7 @@ null
     {
         $results = [];
         $errors = [];
-        
+
         foreach ($files as $index => $file) {
             try {
                 $fileData = $data;
@@ -234,7 +267,7 @@ null
                 if (isset($data['file_names'][$index])) {
                     $fileData['file_name'] = $data['file_names'][$index];
                 }
-                
+
                 $result = $this->createAsset($file, $fileData, $overwrite);
                 $results[] = $result;
             } catch (\Exception $e) {
@@ -244,6 +277,10 @@ null
                 ];
             }
         }
+
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->invalidateAllListsInCategory();
 
         return [
             'uploaded' => $results,
@@ -263,10 +300,10 @@ null
     public function deleteAsset(int $id): bool
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $asset = $this->assetRepository->find($id);
-            
+
             if (!$asset) {
                 throw new ServiceException('Asset not found', Response::HTTP_NOT_FOUND);
             }
@@ -295,10 +332,14 @@ null
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+                ->invalidateItemAndLists("asset_id_{$id}");
+
             return true;
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;
         }
     }
-} 
+}

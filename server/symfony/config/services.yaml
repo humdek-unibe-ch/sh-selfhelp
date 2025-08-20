@@ -50,8 +50,6 @@ services:
     App\Service\CMS\Admin\AdminAssetService:
         arguments:
             $projectDir: '%kernel.project_dir%'
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
     
     # Cache Service Configuration
     App\Service\Cache\Core\CacheService:
@@ -95,14 +93,6 @@ services:
             - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
     
     App\Service\CMS\Admin\AdminGenderService:
-        calls:
-            - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
-    
-
-    
-
-    
-    App\Service\CMS\Admin\AdminActionService:
         calls:
             - [setCacheService, ['@App\Service\Cache\Core\CacheService']]
     

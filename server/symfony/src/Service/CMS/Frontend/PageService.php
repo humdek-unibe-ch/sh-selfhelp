@@ -7,14 +7,12 @@ use App\Repository\SectionRepository;
 use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
 use App\Repository\PagesFieldsTranslationRepository;
-use App\Service\Core\ServiceException;
 use App\Service\Core\UserContextAwareService;
 use App\Service\ACL\ACLService as ACLACLService;
 use App\Service\Auth\UserContextService as AuthUserContextService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\Cache\Core\CacheableServiceTrait;
-use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PageService extends UserContextAwareService

@@ -1,24 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
   "title": "Assets List Response Envelope",
   "description": "Standard API response envelope for assets list",
+  "allOf": [
+    { "$ref": "../../common/_response_envelope.json" }
+  ],
   "properties": {
-    "status": { "type": "integer", "description": "HTTP status code" },
-    "message": { "type": "string", "description": "Response message" },
-    "error": { "type": "null", "description": "Should be null for successful responses" },
-    "logged_in": { "type": "boolean", "description": "Whether user is logged in" },
-    "meta": {
-      "type": "object",
-      "properties": {
-        "version": { "type": "string", "description": "API version" },
-        "timestamp": { "type": "string", "format": "date-time", "description": "Response timestamp" }
-      },
-      "required": ["version", "timestamp"],
-      "additionalProperties": false
-    },
     "data": { "$ref": "assets.json" }
   },
-  "required": ["status", "message", "error", "logged_in", "meta", "data"],
-  "additionalProperties": false
+  "required": [
+    "data"
+  ]
 }

@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Single Asset Upload Success Response",
+  "description": "Schema for a successful single asset upload response.",
+  "allOf": [
+    { "$ref": "../../common/_response_envelope.json" }
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": { 
+          "type": "integer", 
+          "description": "Asset ID" 
+        },
+        "asset_type": { 
+          "type": "string", 
+          "description": "Asset type" 
+        },
+        "folder": { 
+          "type": ["string", "null"], 
+          "description": "Asset folder" 
+        },
+        "file_name": { 
+          "type": ["string", "null"], 
+          "description": "File name" 
+        },
+        "file_path": { 
+          "type": "string", 
+          "description": "File path" 
+        },
+        "url": { 
+          "type": "string", 
+          "description": "Asset URL" 
+        }
+      },
+      "required": ["id", "asset_type", "folder", "file_name", "file_path", "url"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "data"
+  ]
+}
