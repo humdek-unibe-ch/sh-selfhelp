@@ -4,10 +4,9 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\Auth\JWTService;
-use App\Service\Cache\Specialized\UserCacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\ApiResponseFormatter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -23,8 +22,8 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly JWTService $jwtService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly UserCacheService $userCacheService,
-        private readonly ApiResponseFormatter $responseFormatter
+        private readonly ApiResponseFormatter $responseFormatter,
+        private readonly ReworkedCacheService $cache
     ) {
     }
 
@@ -74,13 +73,15 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
         // Assuming your JWT payload contains 'username' or 'email' as the user identifier
         // Adjust 'email' to whatever claim you use (e.g., 'sub', 'id', 'user_identifier')
-        $userIdentifier = $payload['email'] ?? ($payload['username'] ?? ($payload['sub'] ?? null));
+        $userIdentifier = $payload['id_users'] ?? null;
 
         if (null === $userIdentifier) {
             throw new CustomUserMessageAuthenticationException('User identifier not found in token payload.');
         }
 
-        $user = $this->userCacheService->getUserByEmail($userIdentifier);
+        $user = $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->getItem("user_id_{$userIdentifier}", fn() => $this->entityManager->getRepository(User::class)->findOneBy(['id' => $userIdentifier]));
 
         if (null === $user) {
             throw new CustomUserMessageAuthenticationException(sprintf('User "%s" not found.', $userIdentifier));
