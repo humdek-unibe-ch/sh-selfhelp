@@ -7,6 +7,7 @@ use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Cache\Core\ReworkedCacheService;
 
 abstract class UserContextAwareService extends BaseService
 {
@@ -15,8 +16,12 @@ abstract class UserContextAwareService extends BaseService
     protected ?PageRepository $pageRepository;
     protected ?SectionRepository $sectionRepository;
 
-    public function __construct(UserContextService $userContextService, ?ACLService $aclService = null, ?PageRepository $pageRepository = null, ?SectionRepository $sectionRepository = null)
-    {
+    public function __construct(        
+        UserContextService $userContextService,
+        ?ACLService $aclService = null,
+        ?PageRepository $pageRepository = null,
+        ?SectionRepository $sectionRepository = null        
+    ) {
         $this->userContextService = $userContextService;
         $this->aclService = $aclService;
         $this->pageRepository = $pageRepository;
@@ -52,6 +57,16 @@ abstract class UserContextAwareService extends BaseService
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
+        $page = $this->userContextService->getCache()
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->getItem("page_{$page_keyword}", function () use ($page_keyword) {
+                $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+                if (!$page) {
+                    $this->throwNotFound('Page not found');
+                }
+
+                return $page;
+            });
         $user = $this->getCurrentUser();
         $userId = 1; // guest user
         if ($user) {
@@ -83,10 +98,10 @@ abstract class UserContextAwareService extends BaseService
         // Fetch all sections (flat) for this page
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
         // Extract all section IDs
-        $sectionIds = array_map(function($section) {
-            return is_array($section) && isset($section['id']) ? (string)$section['id'] : null;
+        $sectionIds = array_map(function ($section) {
+            return is_array($section) && isset($section['id']) ? (string) $section['id'] : null;
         }, $flatSections);
-        if (!in_array((string)$section_id, $sectionIds, true)) {
+        if (!in_array((string) $section_id, $sectionIds, true)) {
             $this->throwForbidden('Access denied: Section does not belong to page');
         }
     }

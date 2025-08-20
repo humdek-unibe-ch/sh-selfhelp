@@ -38,15 +38,14 @@ class JWTService
     {
         // Create payload with minimal claims - no roles/permissions for security
         $payload = [
-            'id_users' => $user->getId(),
-            'email' => $user->getEmail(),
-            'user_name' => $user->getName()
+            'id_users' => $user->getId()
         ];
         
         // Note: Token TTL is configured in lexik_jwt_authentication.yaml
         // using the JWT_TOKEN_TTL environment variable
         
         // Create token with minimal payload
+        $user->setUserName($user->getEmail());
         return $this->jwtManager->createFromPayload($user, $payload);
     }
 

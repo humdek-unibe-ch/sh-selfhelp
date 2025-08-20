@@ -31,29 +31,29 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
     {
         $pathInfo = $request->getPathInfo();
         $isApiRoute = str_starts_with($pathInfo, '/cms-api/v1/');
-        
+
         if (!$isApiRoute) {
             return false;
         }
-        
+
         // Check for Authorization header in multiple ways (for Apache compatibility)
         $hasAuth = $request->headers->has('Authorization') && str_starts_with($request->headers->get('Authorization', ''), 'Bearer ');
         $hasHttpAuth = $request->server->has('HTTP_AUTHORIZATION') && str_starts_with($request->server->get('HTTP_AUTHORIZATION', ''), 'Bearer ');
         $hasRedirectAuth = $request->server->has('REDIRECT_HTTP_AUTHORIZATION') && str_starts_with($request->server->get('REDIRECT_HTTP_AUTHORIZATION', ''), 'Bearer ');
-        
+
         $hasToken = $hasAuth || $hasHttpAuth || $hasRedirectAuth;
-        
+
         // Only log when there are authentication issues or in debug mode
         if (!$hasToken && $isApiRoute) {
             error_log(sprintf(
                 '[JWTTokenAuthenticator] Missing token for API route: %s, HasAuth: %s, HasHttpAuth: %s, HasRedirectAuth: %s',
                 $pathInfo,
                 $hasAuth ? 'yes' : 'no',
-                $hasHttpAuth ? 'yes' : 'no', 
+                $hasHttpAuth ? 'yes' : 'no',
                 $hasRedirectAuth ? 'yes' : 'no'
             ));
         }
-        
+
         return $hasToken;
     }
 
@@ -81,7 +81,9 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
         $user = $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->getItem("user_id_{$userIdentifier}", fn() => $this->entityManager->getRepository(User::class)->findOneBy(['id' => $userIdentifier]));
+            ->withUser($userIdentifier)
+            ->getItem("user_profile", fn() => $this->entityManager->getRepository(User::class)->findOneBy(['id' => $userIdentifier]));
+
 
         if (null === $user) {
             throw new CustomUserMessageAuthenticationException(sprintf('User "%s" not found.', $userIdentifier));
@@ -94,7 +96,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
             // For simplicity with SelfValidatingPassport, providing the user directly to UserBadge is often done
             // or by ensuring the UserProvider can load by the identifier in UserBadge.
             // Let's assume UserBadge with identifier is sufficient for UserProvider configured in security.yaml
-            return $user; 
+            return $user;
         }));
     }
 

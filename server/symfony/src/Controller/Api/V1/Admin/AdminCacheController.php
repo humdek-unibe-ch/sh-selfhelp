@@ -9,7 +9,6 @@ use App\Controller\Trait\RequestValidatorTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Psr\Log\LoggerInterface;
 
 /**
  * Admin Cache Management Controller
@@ -28,7 +27,6 @@ class AdminCacheController extends AbstractController
         private ReworkedCacheService $cacheService,
         private CacheStatsService $statsService,
         private ApiResponseFormatter $responseFormatter,
-        private ?LoggerInterface $logger = null
     ) {
     }
 
@@ -45,7 +43,6 @@ class AdminCacheController extends AbstractController
             $monitoringData = $stats;
             $monitoringData['top_performing_categories'] = $this->statsService->getTopPerformingCategories(5);
 
-            $this->log('info', 'Cache statistics retrieved');
 
             return $this->responseFormatter->formatSuccess(
                 $monitoringData,
@@ -54,7 +51,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to get cache statistics', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to retrieve cache statistics',
@@ -69,7 +65,7 @@ class AdminCacheController extends AbstractController
     public function clearAllCaches(Request $request): Response
     {
         try {
-            
+
             foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
                 $this->cacheService->withCategory($category)->invalidateCategory();
             }
@@ -77,7 +73,6 @@ class AdminCacheController extends AbstractController
 
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
-            $this->log('warning', 'All caches cleared by admin', ['user_id' => $userId]);
 
             return $this->responseFormatter->formatSuccess(
                 ['cleared' => true, 'timestamp' => date('c')],
@@ -86,7 +81,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to clear all caches', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to clear all caches',
@@ -124,10 +118,6 @@ class AdminCacheController extends AbstractController
 
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
-            $this->log('warning', 'Cache category cleared by admin', [
-                'category' => $category,
-                'user_id' => $userId
-            ]);
 
             return $this->responseFormatter->formatSuccess(
                 [
@@ -140,7 +130,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to clear cache category', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to clear cache category',
@@ -166,18 +155,10 @@ class AdminCacheController extends AbstractController
 
             $userId = $requestData['user_id'];
 
-            foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
-                $this->cacheService->withCategory($category)->invalidateUser($userId);
-            }
-
-            $this->cacheService->invalidateUserGlobally($userId);
-
-            $user = $this->getUser();
-            $adminUserId = $user && method_exists($user, 'getId') ? $user->getId() : null;
-            $this->log('warning', 'User cache cleared by admin', [
-                'target_user_id' => $userId,
-                'admin_user_id' => $adminUserId
-            ]);
+            // foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
+            //     $this->cacheService->withCategory($category)->withUser($userId)->invalidateUserGlobally();
+            // }
+            $this->cacheService->withCategory(ReworkedCacheService::CATEGORY_USERS)->withUser($userId)->invalidateUserGlobally();
 
             return $this->responseFormatter->formatSuccess(
                 [
@@ -190,7 +171,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to clear user cache', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to clear user cache',
@@ -208,12 +188,6 @@ class AdminCacheController extends AbstractController
         try {
             $this->cacheService->withCategory(ReworkedCacheService::CATEGORY_API_ROUTES)->invalidateCategory();
 
-            $user = $this->getUser();
-            $adminUserId = $user && method_exists($user, 'getId') ? $user->getId() : null;
-            $this->log('info', 'API routes cache cleared by admin', [
-                'admin_user_id' => $adminUserId
-            ]);
-
             return $this->responseFormatter->formatSuccess(
                 [
                     'cleared' => true,
@@ -226,7 +200,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to clear API routes cache', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to clear API routes cache',
@@ -243,8 +216,6 @@ class AdminCacheController extends AbstractController
         try {
             $categoryStats = $this->statsService->getCategoryStatistics($category);
 
-            $this->log('info', 'Category cache statistics retrieved', ['category' => $category]);
-
             return $this->responseFormatter->formatSuccess(
                 $categoryStats,
                 null,
@@ -257,10 +228,6 @@ class AdminCacheController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to get category cache statistics', [
-                'category' => $category,
-                'error' => $e->getMessage()
-            ]);
 
             return $this->responseFormatter->formatError(
                 'Failed to retrieve category cache statistics',
@@ -279,7 +246,6 @@ class AdminCacheController extends AbstractController
 
             $user = $this->getUser();
             $userId = $user && method_exists($user, 'getId') ? $user->getId() : null;
-            $this->log('info', 'Cache statistics reset by admin', ['user_id' => $userId]);
 
             return $this->responseFormatter->formatSuccess(
                 ['reset' => true, 'timestamp' => date('c')],
@@ -288,7 +254,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to reset cache statistics', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to reset cache statistics',
@@ -305,8 +270,6 @@ class AdminCacheController extends AbstractController
         try {
             $health = $this->statsService->getCacheHealth();
 
-            $this->log('info', 'Cache health status retrieved');
-
             return $this->responseFormatter->formatSuccess(
                 $health,
                 null,
@@ -314,7 +277,6 @@ class AdminCacheController extends AbstractController
             );
 
         } catch (\Exception $e) {
-            $this->log('error', 'Failed to get cache health status', ['error' => $e->getMessage()]);
 
             return $this->responseFormatter->formatError(
                 'Failed to retrieve cache health status',
@@ -369,13 +331,4 @@ class AdminCacheController extends AbstractController
         return $recommendations;
     }
 
-    /**
-     * Log cache operations
-     */
-    private function log(string $level, string $message, array $context = []): void
-    {
-        if ($this->logger) {
-            $this->logger->log($level, "[AdminCache] {$message}", $context);
-        }
-    }
 }
