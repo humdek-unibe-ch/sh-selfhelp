@@ -2,10 +2,14 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\PagesSection;
 use App\Entity\Section;
+use App\Entity\SectionsFieldsTranslation;
+use App\Entity\SectionsHierarchy;
 use App\Repository\SectionRepository;
 use App\Service\Core\BaseService;
 use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -109,8 +113,8 @@ class AdminSectionUtilityService extends BaseService
             
             // Log the transaction
             $this->transactionService->logTransaction(
-                \App\Service\Core\LookupService::TRANSACTION_TYPES_DELETE,
-                \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_USER,
                 'sections',
                 $section->getId(),
                 (object) ["deleted_section" => $originalSection],
@@ -121,7 +125,11 @@ class AdminSectionUtilityService extends BaseService
             
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateItemAndLists("section_{$sectionId}");
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
+            
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateAllListsInCategory();
             
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -161,8 +169,8 @@ class AdminSectionUtilityService extends BaseService
                     
                     // Log the transaction
                     $this->transactionService->logTransaction(
-                        \App\Service\Core\LookupService::TRANSACTION_TYPES_DELETE,
-                        \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                        LookupService::TRANSACTION_TYPES_DELETE,
+                        LookupService::TRANSACTION_BY_BY_USER,
                         'sections',
                         $section->getId(),
                         (object) ["deleted_section" => $originalSection],
@@ -178,8 +186,8 @@ class AdminSectionUtilityService extends BaseService
             // Log bulk operation
             if ($deletedCount > 0) {
                 $this->transactionService->logTransaction(
-                    \App\Service\Core\LookupService::TRANSACTION_TYPES_DELETE,
-                    \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                    LookupService::TRANSACTION_TYPES_DELETE,
+                    LookupService::TRANSACTION_BY_BY_USER,
                     'sections',
                     null,
                     (object) ["deleted_count" => $deletedCount],
@@ -246,32 +254,35 @@ class AdminSectionUtilityService extends BaseService
     private function removeAllSectionRelationships(Section $section): void
     {
         // Remove from sections hierarchy (as child)
-        $childHierarchies = $this->entityManager->getRepository('App\Entity\SectionsHierarchy')
+        $childHierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['childSection' => $section]);
         foreach ($childHierarchies as $hierarchy) {
             $this->entityManager->remove($hierarchy);
         }
         
         // Remove from sections hierarchy (as parent)
-        $parentHierarchies = $this->entityManager->getRepository('App\Entity\SectionsHierarchy')
+        $parentHierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['parentSection' => $section]);
         foreach ($parentHierarchies as $hierarchy) {
             $this->entityManager->remove($hierarchy);
         }
         
         // Remove from pages_sections
-        $pageSections = $this->entityManager->getRepository('App\Entity\PagesSection')
+        $pageSections = $this->entityManager->getRepository(PagesSection::class)
             ->findBy(['section' => $section]);
         foreach ($pageSections as $pageSection) {
             $this->entityManager->remove($pageSection);
         }
         
         // Remove field translations
-        $fieldTranslations = $this->entityManager->getRepository('App\Entity\SectionsFieldsTranslation')
+        $fieldTranslations = $this->entityManager->getRepository(SectionsFieldsTranslation::class)
             ->findBy(['section' => $section]);
         foreach ($fieldTranslations as $translation) {
             $this->entityManager->remove($translation);
         }
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
     }
 
 

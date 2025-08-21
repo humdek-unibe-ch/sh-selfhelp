@@ -2,7 +2,6 @@
 
 namespace App\Service\Auth;
 
-use App\Entity\Lookup;
 use App\Entity\ScheduledJob;
 use App\Entity\User;
 use App\Service\Core\BaseService;
@@ -48,7 +47,7 @@ class UserValidationService extends BaseService
             $user->setToken($token);
             
             // Set user status to invited and block the user until validation (unless already set)
-            $status = $this->entityManager->getRepository(Lookup::class)->findOneBy(['typeCode' => LookupService::USER_STATUS, 'lookupValue' => LookupService::USER_STATUS_INVITED]);
+            $status = $this->lookupService->findByTypeAndCode(LookupService::USER_STATUS, LookupService::USER_STATUS_INVITED);
             $user->setStatus($status);
             // Only set blocked if not already explicitly set
             if ($user->isBlocked() === null) {
@@ -137,16 +136,16 @@ class UserValidationService extends BaseService
             // Log the validation
             $this->transactionService->logTransaction(
                 'update',
-                JobSchedulerService::TRANSACTION_BY_USER,
-                $userId,
+                LookupService::TRANSACTION_BY_BY_USER,
                 'users',
                 $userId,
-                [
+                false,
+                json_encode([ 
                     'action' => 'account_validated',
                     'token' => $token,
                     'email' => $user->getEmail(),
                     'welcome_job_id' => $welcomeJobId
-                ]
+                ])
             );
 
             $this->entityManager->commit();

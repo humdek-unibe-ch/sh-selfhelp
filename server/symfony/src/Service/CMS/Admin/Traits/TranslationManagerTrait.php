@@ -2,7 +2,11 @@
 
 namespace App\Service\CMS\Admin\Traits;
 
+use App\Entity\Field;
+use App\Entity\Language;
+use App\Entity\Page;
 use App\Entity\PagesFieldsTranslation;
+use App\Entity\Section;
 use App\Entity\SectionsFieldsTranslation;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -26,9 +30,9 @@ trait TranslationManagerTrait
             $content = $fieldData['content'];
 
             // Check if translation exists
-            $page = $entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
-            $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
-            $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+            $page = $entityManager->getRepository(Page::class)->find($pageId);
+            $field = $entityManager->getRepository(Field::class)->find($fieldId);
+            $language = $entityManager->getRepository(Language::class)->find($languageId);
             
             $existingTranslation = $entityManager->getRepository(PagesFieldsTranslation::class)
                 ->findOneBy([
@@ -78,17 +82,17 @@ trait TranslationManagerTrait
         $newTranslation->setContent($content);
 
         // Set entity relationships
-        $page = $entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
+        $page = $entityManager->getRepository(Page::class)->find($pageId);
         if ($page) {
             $newTranslation->setPage($page);
         }
 
-        $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+        $field = $entityManager->getRepository(Field::class)->find($fieldId);
         if ($field) {
             $newTranslation->setField($field);
         }
 
-        $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+        $language = $entityManager->getRepository(Language::class)->find($languageId);
         if ($language) {
             $newTranslation->setLanguage($language);
         }
@@ -102,9 +106,9 @@ trait TranslationManagerTrait
     private function updateSectionFieldTranslation(int $sectionId, int $fieldId, int $languageId, string $content, EntityManagerInterface $entityManager): void
     {
         // Check if translation exists
-        $section = $entityManager->getRepository(\App\Entity\Section::class)->find($sectionId);
-        $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
-        $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+        $section = $entityManager->getRepository(Section::class)->find($sectionId);
+        $field = $entityManager->getRepository(Field::class)->find($fieldId);
+        $language = $entityManager->getRepository(Language::class)->find($languageId);
         
         $existingTranslation = $entityManager->getRepository(SectionsFieldsTranslation::class)
             ->findOneBy([
@@ -131,17 +135,17 @@ trait TranslationManagerTrait
         $newTranslation->setContent($content);
 
         // Set entity relationships
-        $section = $entityManager->getRepository(\App\Entity\Section::class)->find($sectionId);
+        $section = $entityManager->getRepository(Section::class)->find($sectionId);
         if ($section) {
             $newTranslation->setSection($section);
         }
 
-        $field = $entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
+        $field = $entityManager->getRepository(Field::class)->find($fieldId);
         if ($field) {
             $newTranslation->setField($field);
         }
 
-        $language = $entityManager->getRepository(\App\Entity\Language::class)->find($languageId);
+        $language = $entityManager->getRepository(Language::class)->find($languageId);
         if ($language) {
             $newTranslation->setLanguage($language);
         }

@@ -3,6 +3,7 @@
 namespace App\Service\CMS\Admin;
 
 use App\Entity\Field;
+use App\Entity\Language;
 use App\Entity\Page;
 use App\Entity\PagesSection;
 use App\Entity\Section;
@@ -12,6 +13,7 @@ use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
 use App\Repository\StyleRepository;
 use App\Repository\PageRepository;
+use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\BaseService;
 use App\Service\Cache\Core\ReworkedCacheService;
@@ -196,6 +198,7 @@ class AdminSectionService extends BaseService
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $child_section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
         
         // Invalidate all section lists in category
         $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -218,6 +221,7 @@ class AdminSectionService extends BaseService
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $child_section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
         
         // Invalidate all section lists in category
         $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -238,6 +242,7 @@ class AdminSectionService extends BaseService
         
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
         
         // Invalidate all section lists in category
         $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -256,12 +261,8 @@ class AdminSectionService extends BaseService
     public function forceDeleteSection(string $page_keyword, int $section_id): void
     {
         $this->sectionRelationshipService->forceDeleteSection($page_keyword, $section_id);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
     }
 
     /**
@@ -276,12 +277,7 @@ class AdminSectionService extends BaseService
     public function createPageSection(string $page_keyword, int $styleId, ?int $position): array
     {
         $result = $this->sectionCreationService->createPageSection($page_keyword, $styleId, $position);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateAllListsInCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
         return $result;
     }
 
@@ -298,12 +294,8 @@ class AdminSectionService extends BaseService
     public function createChildSection(?string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
     {
         $result = $this->sectionCreationService->createChildSection($page_keyword, $parent_section_id, $styleId, $position);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         return $result;
     }
 
@@ -352,8 +344,8 @@ class AdminSectionService extends BaseService
 
             // Log the transaction
             $this->transactionService->logTransaction(
-                \App\Service\Core\LookupService::TRANSACTION_TYPES_UPDATE,
-                \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
                 'sections',
                 $section->getId(),
                 (object) array("old_section" => $originalSection, "new_section" => $section),
@@ -364,9 +356,7 @@ class AdminSectionService extends BaseService
             
             // Invalidate cache for this specific section
             $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
-            
-            // Invalidate all section lists in category
-            $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
             
             return $section;
         } catch (\Throwable $e) {
@@ -626,6 +616,8 @@ class AdminSectionService extends BaseService
             // Commit transaction
             $this->entityManager->commit();
 
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+
             return $importedSections;
         } catch (\Throwable $e) {
             // Rollback transaction
@@ -673,6 +665,9 @@ class AdminSectionService extends BaseService
             // Commit transaction
             $this->entityManager->commit();
 
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
+
             return $importedSections;
         } catch (\Throwable $e) {
             // Rollback transaction
@@ -718,8 +713,8 @@ class AdminSectionService extends BaseService
                 } else {
                     // Log warning but continue with import
                     $this->transactionService->logTransaction(
-                        \App\Service\Core\LookupService::TRANSACTION_TYPES_UPDATE, // Using update type for warnings
-                        \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
+                        LookupService::TRANSACTION_TYPES_UPDATE, // Using update type for warnings
+                        LookupService::TRANSACTION_BY_BY_USER,
                         'sections',
                         0,
                         (object) ['message' => "Style not found: {$styleName}", 'warning' => true],
@@ -835,7 +830,7 @@ class AdminSectionService extends BaseService
             // Process each locale
             foreach ($localeData as $locale => $translationData) {
                 // Find language by locale
-                $language = $this->entityManager->getRepository(\App\Entity\Language::class)
+                $language = $this->entityManager->getRepository(Language::class)
                     ->findOneBy(['locale' => $locale]);
 
                 if (!$language) {

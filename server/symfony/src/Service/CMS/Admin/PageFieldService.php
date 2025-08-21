@@ -10,7 +10,6 @@ use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
-use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
@@ -82,7 +81,7 @@ class PageFieldService extends BaseService
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('ptf', 'f', 'ft')
-            ->from('App\Entity\PageTypeField', 'ptf')
+            ->from(PageTypeField::class, 'ptf')
             ->innerJoin('ptf.field', 'f')
             ->innerJoin('f.type', 'ft')
             ->where('ptf.pageType = :pageTypeId')
@@ -198,6 +197,9 @@ class PageFieldService extends BaseService
         // Invalidate page cache after updates
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateAllListsInCategory();
     }
 } 

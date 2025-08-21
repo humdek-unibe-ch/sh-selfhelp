@@ -10,7 +10,6 @@ use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Exception\ServiceException;

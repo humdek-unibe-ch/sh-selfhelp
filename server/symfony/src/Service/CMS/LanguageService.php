@@ -9,7 +9,6 @@ use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\CacheService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -38,7 +37,7 @@ class LanguageService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-            ->getItem($cacheKey, function () {
+            ->getList($cacheKey, function () {
                 $languages = $this->languageRepository->findAllLanguages();
                 return array_map(function (Language $language) {
                     return EntityUtil::convertEntityToArray($language);
@@ -58,7 +57,7 @@ class LanguageService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-            ->getItem(
+            ->getList(
                 $cacheKey,
                 function () {
                     // Clear any cached entities to avoid proxy objects
@@ -123,15 +122,18 @@ class LanguageService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-            ->getItem($cacheKey, function () use ($id) {
-                $language = $this->languageRepository->find($id);
-                if (!$language) {
-                    throw new NotFoundHttpException('Language not found');
-                }
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id)
+            ->getItem(
+                $cacheKey,
+                function () use ($id) {
+                    $language = $this->languageRepository->find($id);
+                    if (!$language) {
+                        throw new NotFoundHttpException('Language not found');
+                    }
 
-                return EntityUtil::convertEntityToArray($language);
-            }
-        );
+                    return EntityUtil::convertEntityToArray($language);
+                }
+            );
     }
 
     /**
@@ -236,10 +238,11 @@ class LanguageService extends BaseService
 
             $this->entityManager->commit();
 
-            // Invalidate language cache using new method
+            // Invalidate entity-scoped cache for this specific language
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-                ->invalidateItemAndLists("language_{$id}");
+                ->invalidateAllListsInCategory();
 
             return EntityUtil::convertEntityToArray($language);
         } catch (Throwable $e) {
@@ -292,10 +295,11 @@ class LanguageService extends BaseService
 
             $this->entityManager->commit();
 
-            // Invalidate language cache using new method
+            // Invalidate entity-scoped cache for this specific language
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-                ->invalidateItemAndLists("language_{$id}");
+                ->invalidateAllListsInCategory();
 
             return $deletedLanguage;
         } catch (Throwable $e) {

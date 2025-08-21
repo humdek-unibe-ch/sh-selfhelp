@@ -175,6 +175,10 @@ class JobSchedulerService extends BaseService
                 ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateItemAndLists("scheduledJob_{$jobId}");
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
+
             $this->em->commit();
             return $job;
 
@@ -221,6 +225,10 @@ class JobSchedulerService extends BaseService
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateItemAndLists("scheduledJob_{$jobId}");
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
 
             $this->em->commit();
             return true;
@@ -428,6 +436,7 @@ class JobSchedulerService extends BaseService
             $this->em->persist($scheduledJobUser);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $job->getId())
                 ->withUser($userId)
                 ->invalidateUserInCategory();
         }

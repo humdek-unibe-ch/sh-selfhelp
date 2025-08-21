@@ -65,6 +65,9 @@ class ReworkedCacheService
     /** @var string Cache category for API routes */
     public const CATEGORY_API_ROUTES = 'api_routes';
 
+    /** @var string Cache category for data tables */
+    public const CATEGORY_DATA_TABLES = 'data_tables';
+
     /** @var string Cache category for API routes */
     public const CATEGORY_DEFAULT = 'default';
 
@@ -83,6 +86,7 @@ class ReworkedCacheService
         self::CATEGORY_SCHEDULED_JOBS,
         self::CATEGORY_ACTIONS,
         self::CATEGORY_API_ROUTES,
+        self::CATEGORY_DATA_TABLES,
         self::CATEGORY_DEFAULT,
     ];
 
@@ -583,6 +587,7 @@ class ReworkedCacheService
     public const ENTITY_SCOPE_LOOKUP = 'lookup_id';
     public const ENTITY_SCOPE_PERMISSION = 'permission_id';
     public const ENTITY_SCOPE_CMS_PREFERENCE = 'cms_preference_id';
+    public const ENTITY_SCOPE_DATA_TABLE = 'data_table_id';
 
     /**
      * Array of all supported entity scope types for validation
@@ -602,6 +607,7 @@ class ReworkedCacheService
         self::ENTITY_SCOPE_LOOKUP,
         self::ENTITY_SCOPE_PERMISSION,
         self::ENTITY_SCOPE_CMS_PREFERENCE,
+        self::ENTITY_SCOPE_DATA_TABLE,
     ];
 
     /**
@@ -893,6 +899,7 @@ class ReworkedCacheService
             self::CATEGORY_LANGUAGES => 3600, // 1h
             self::CATEGORY_ROLES => 1800, // 30m
             self::CATEGORY_GROUPS => 1800, // 30m
+            self::CATEGORY_DATA_TABLES => 1800, // 30m
             default => 3600, // 1h
         };
     }

@@ -6,9 +6,7 @@ use App\Entity\Page;
 use App\Entity\Section;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
-use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Trait for managing entity relationships in admin services

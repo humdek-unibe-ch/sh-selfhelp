@@ -92,8 +92,10 @@ class PageService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
             ->withUser($userId)
-            ->getItem($cacheKey, function () use ($mode, $admin, $languageId, $userId) {
+            ->getList($cacheKey, function () use ($mode, $admin, $languageId, $userId) {
                 // Get all pages with ACL for the user using the ACLService (cached)
                 $allPages = $this->aclService->getAllUserAcls($userId);
 
@@ -188,9 +190,6 @@ class PageService extends BaseService
                 // Cache the result for this user
                 return $nestedPages;
             });
-
-
-
     }
 
     /**
@@ -256,9 +255,9 @@ class PageService extends BaseService
         // Get current user for caching
         $user = $this->userContextAwareService->getCurrentUser();
         $userId = $user ? $user->getId() : 1; // guest user
-        
+
         $cacheKey = "page_sections_{$page_id}_{$languageId}";
-        
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
             ->withUser($userId)
@@ -276,7 +275,7 @@ class PageService extends BaseService
                 // Get default language ID for fallback translations
                 $defaultLanguageId = null;
                 try {
-                    $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+                    $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
                     if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                         $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
                     }

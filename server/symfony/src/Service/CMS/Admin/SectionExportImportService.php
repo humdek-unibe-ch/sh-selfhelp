@@ -152,7 +152,7 @@ class SectionExportImportService extends BaseService
             // Invalidate page and sections cache after import
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
@@ -204,7 +204,10 @@ class SectionExportImportService extends BaseService
             // Invalidate sections cache after import
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateItem("section_fields_{$parentSection->getId()}");
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();

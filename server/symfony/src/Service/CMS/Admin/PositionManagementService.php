@@ -2,6 +2,7 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Page;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
 use App\Service\Cache\Core\ReworkedCacheService;
@@ -30,7 +31,7 @@ class PositionManagementService
     public function normalizePageSectionPositions(int $pageId, bool $flush = false): void
     {
         // Get all page sections ordered by position
-        $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
+        $page = $this->entityManager->getRepository(Page::class)->find($pageId);
         $pageSections = $this->entityManager->getRepository(PagesSection::class)->findBy(
             ['page' => $page],
             ['position' => 'ASC']
@@ -53,11 +54,14 @@ class PositionManagementService
             $this->entityManager->flush();
             
             // Invalidate page cache when positions are normalized
-            $page = $this->entityManager->getRepository(\App\Entity\Page::class)->find($pageId);
+            $page = $this->entityManager->getRepository(Page::class)->find($pageId);
             if ($page) {
                 $this->cache
                     ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->invalidateAllListsInCategory();
             }
         }
     }
@@ -97,7 +101,11 @@ class PositionManagementService
             if ($parentSection) {
                 $this->cache
                     ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                    ->invalidateItem("section_fields_{$parentSection->getId()}");
+                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
+
+                $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->invalidateAllListsInCategory();
             }
         }
     }
@@ -122,7 +130,7 @@ class PositionManagementService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('p')
-            ->from('App\\Entity\\Page', 'p');
+            ->from(Page::class, 'p');
 
         if ($parentId !== null) {
             $qb->andWhere('p.parentPage = :parentId')
@@ -156,6 +164,9 @@ class PositionManagementService
         }
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $parentId);
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateAllListsInCategory();
     }
 }

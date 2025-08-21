@@ -12,7 +12,6 @@ use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleService extends BaseService
@@ -303,9 +302,11 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific role
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-                ->invalidateItemAndLists("role_permissions_{$roleId}");
+                ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {
@@ -352,9 +353,11 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific role
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-                ->invalidateItemAndLists("role_permissions_{$roleId}");
+                ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {
@@ -390,9 +393,11 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific role
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-                ->invalidateItemAndLists("role_permissions_{$roleId}");
+                ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {

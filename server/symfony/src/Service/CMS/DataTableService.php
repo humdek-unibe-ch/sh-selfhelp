@@ -2,8 +2,10 @@
 
 namespace App\Service\CMS;
 
+use App\Entity\DataRow;
 use App\Entity\DataTable;
 use App\Entity\Section;
+use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
 use App\Service\CMS\Common\StyleNames;
 use App\Repository\DataTableRepository;
@@ -80,6 +82,11 @@ class DataTableService extends BaseService
 
             $this->entityManager->commit();
             
+            // Invalidate cache after creating data table
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateAllListsInCategory();
+            
             return $dataTable;
             
         } catch (\Throwable $e) {
@@ -131,6 +138,15 @@ class DataTableService extends BaseService
             $this->entityManager->flush();
             $this->entityManager->commit();
             
+            // Invalidate cache after updating data table
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateAllListsInCategory();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+
             return true;
             
         } catch (\Throwable $e) {
@@ -190,7 +206,7 @@ class DataTableService extends BaseService
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sft')
-           ->from('App\Entity\SectionsFieldsTranslation', 'sft')
+           ->from(SectionsFieldsTranslation::class, 'sft')
            ->join('sft.field', 'f')
            ->where('sft.section = :section')
            ->andWhere('f.name = :fieldName')
@@ -245,6 +261,15 @@ class DataTableService extends BaseService
             $this->entityManager->flush();
             $this->entityManager->commit();
             
+            // Invalidate cache after deleting data table
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateAllListsInCategory();
+
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+
             return true;
             
         } catch (\Throwable $e) {
@@ -285,7 +310,7 @@ class DataTableService extends BaseService
         
         // Count total rows
         $totalRows = $qb->select('COUNT(dr.id)')
-            ->from('App\Entity\DataRow', 'dr')
+            ->from(DataRow::class, 'dr')
             ->where('dr.dataTable = :dataTable')
             ->setParameter('dataTable', $dataTable)
             ->getQuery()

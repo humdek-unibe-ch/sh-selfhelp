@@ -2,6 +2,7 @@
 
 namespace App\Service\ACL;
 
+use App\Entity\AclGroup;
 use App\Entity\AclUser;
 use App\Entity\Group;
 use App\Entity\Page;
@@ -118,7 +119,7 @@ class ACLService
      */
     public function addGroupAcl(Page $page, Group $group, bool $select, bool $insert, bool $update, bool $delete, EntityManagerInterface $em): void
     {
-        $aclGroup = new \App\Entity\AclGroup();
+        $aclGroup = new AclGroup();
         $aclGroup->setGroup($group)
             ->setPage($page)
             ->setAclSelect($select)
@@ -126,6 +127,12 @@ class ACLService
             ->setAclUpdate($update)
             ->setAclDelete($delete);
         $em->persist($aclGroup);
+        
+        // Invalidate entity scopes for affected entities
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $group->getId());
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        
+        // Invalidate permission lists
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
             ->invalidateAllListsInCategory();
@@ -144,6 +151,12 @@ class ACLService
             ->setAclUpdate($update)
             ->setAclDelete($delete);
         $em->persist($aclUser);
+        
+        // Invalidate entity scopes for affected entities
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $user->getId());
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        
+        // Invalidate permission lists
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
             ->invalidateAllListsInCategory();

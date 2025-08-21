@@ -2,6 +2,7 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Field;
 use App\Entity\Section;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
@@ -44,13 +45,13 @@ class SectionFieldService extends BaseService
     {
         // Try to get from cache first
         $cacheKey = "section_fields_{$section->getId()}";
-        
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId())
             ->getItem(
                 $cacheKey,
-                function() use ($section) {
+                function () use ($section) {
                     return $this->fetchSectionFieldsFromDatabase($section);
                 }
             );
@@ -58,7 +59,7 @@ class SectionFieldService extends BaseService
 
     private function fetchSectionFieldsFromDatabase(Section $section): array
     {
-        
+
         // Get style and its fields
         $style = $section->getStyle();
         if (!$style) {
@@ -207,17 +208,26 @@ class SectionFieldService extends BaseService
      */
     private function getGroups(): array
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('g.id, g.name')
-            ->from('App\Entity\Group', 'g')
-            ->orderBy('g.name', 'ASC');
+        $cacheKey = "groups";
 
-        $groups = $qb->getQuery()->getResult();
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->getList(
+                $cacheKey,
+                function () {
+                    $qb = $this->entityManager->createQueryBuilder();
+                    $qb->select('g.id, g.name')
+                        ->from('App\Entity\Group', 'g')
+                        ->orderBy('g.name', 'ASC');
 
-        return array_map(fn($group) => [
-            'value' => (string) $group['id'],
-            'text' => $group['name']
-        ], $groups);
+                    $groups = $qb->getQuery()->getResult();
+
+                    return array_map(fn($group) => [
+                        'value' => (string) $group['id'],
+                        'text' => $group['name']
+                    ], $groups);
+                }
+            );
     }
 
     /**
@@ -227,17 +237,25 @@ class SectionFieldService extends BaseService
      */
     private function getDataTables(): array
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('dt.id, dt.name')
-            ->from('App\Entity\DataTable', 'dt')
-            ->orderBy('dt.name', 'ASC');
+        $cacheKey = "data_tables";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+            ->getList(
+                $cacheKey,
+                function () {
+                    $qb = $this->entityManager->createQueryBuilder();
+                    $qb->select('dt.id, dt.name')
+                        ->from('App\Entity\DataTable', 'dt')
+                        ->orderBy('dt.name', 'ASC');
 
-        $dataTables = $qb->getQuery()->getResult();
+                    $dataTables = $qb->getQuery()->getResult();
 
-        return array_map(fn($table) => [
-            'value' => (string) $table['id'],
-            'text' => $table['name']
-        ], $dataTables);
+                    return array_map(fn($table) => [
+                        'value' => (string) $table['id'],
+                        'text' => $table['name']
+                    ], $dataTables);
+                }
+            );
     }
 
     /**
@@ -247,18 +265,26 @@ class SectionFieldService extends BaseService
      */
     private function getPageKeywords(): array
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('p.id, p.keyword')
-            ->from('App\Entity\Page', 'p')
-            ->where('p.keyword IS NOT NULL')
-            ->orderBy('p.keyword', 'ASC');
+        $cacheKey = "page_keywords";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->getList(
+                $cacheKey,
+                function () {
+                    $qb = $this->entityManager->createQueryBuilder();
+                    $qb->select('p.id, p.keyword')
+                        ->from('App\Entity\Page', 'p')
+                        ->where('p.keyword IS NOT NULL')
+                        ->orderBy('p.keyword', 'ASC');
 
-        $pages = $qb->getQuery()->getResult();
+                    $pages = $qb->getQuery()->getResult();
 
-        return array_map(fn($page) => [
-            'value' => (string) $page['id'],
-            'text' => $page['keyword']
-        ], $pages);
+                    return array_map(fn($page) => [
+                        'value' => (string) $page['id'],
+                        'text' => $page['keyword']
+                    ], $pages);
+                }
+            );
     }
 
     /**
@@ -294,9 +320,11 @@ class SectionFieldService extends BaseService
         if ($isFormSection && $displayNameUpdate !== null) {
             $this->dataTableService->updateDataTableDisplayName($section, $displayNameUpdate);
         }
-        
+
         // Invalidate section cache after updates
-        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
             ->invalidateAllListsInCategory();
@@ -314,8 +342,8 @@ class SectionFieldService extends BaseService
         foreach ($propertyFields as $fieldUpdate) {
             // Find the field entity to check its name
             $fieldId = $fieldUpdate['fieldId'];
-            $field = $this->entityManager->getRepository(\App\Entity\Field::class)->find($fieldId);
-            
+            $field = $this->entityManager->getRepository(Field::class)->find($fieldId);
+
             if ($field && $field->getName() === 'name') {
                 // Get the first translation content (assuming language_id = 1 for displayName)
                 $content = $fieldUpdate['value'] ?? null;
@@ -324,7 +352,7 @@ class SectionFieldService extends BaseService
                 }
             }
         }
-        
+
         return null;
     }
 }

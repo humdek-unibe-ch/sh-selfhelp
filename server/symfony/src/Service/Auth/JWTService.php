@@ -5,6 +5,7 @@ namespace App\Service\Auth;
 use App\Entity\RefreshToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Psr\Log\LoggerInterface;
@@ -105,7 +106,7 @@ class JWTService
             }
             $this->logger->debug('[JWTService] Token decoded successfully.');
             return $payload;
-        } catch (\Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException $e) {
+        } catch (JWTDecodeFailureException $e) {
             $this->logger->error('[JWTService] JWTDecodeFailureException during token decoding.', ['exception_message' => $e->getReason()]);
             throw new AuthenticationException('Invalid token: ' . $e->getReason(), 0, $e);
         } catch (\Exception $e) {

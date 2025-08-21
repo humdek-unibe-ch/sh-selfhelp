@@ -2,6 +2,8 @@
 
 namespace App\Service\CMS\Admin\Traits;
 
+use App\Entity\PageTypeField;
+use App\Entity\StylesField;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +28,7 @@ trait FieldValidatorTrait
         }
 
         // Get all valid field IDs for this page type
-        $validFieldIds = $entityManager->getRepository(\App\Entity\PageTypeField::class)
+        $validFieldIds = $entityManager->getRepository(PageTypeField::class)
             ->createQueryBuilder('ptf')
             ->select('f.id')
             ->leftJoin('ptf.field', 'f')
@@ -67,7 +69,7 @@ trait FieldValidatorTrait
             return;
         }
 
-        $validFieldIds = $entityManager->getRepository(\App\Entity\StylesField::class)
+        $validFieldIds = $entityManager->getRepository(StylesField::class)
             ->createQueryBuilder('sf')
             ->select('IDENTITY(sf.field)')
             ->where('sf.style = :styleId')

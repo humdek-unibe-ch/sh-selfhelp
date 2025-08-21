@@ -14,6 +14,8 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Core\UserContextAwareService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +36,8 @@ class DataService extends BaseService
         private readonly LookupService $lookupService,
         private readonly ACLService $aclService,
         private readonly UserContextService $userContextService,
+        private readonly UserContextAwareService $userContextAwareService,
+        private readonly ReworkedCacheService $cache,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository
     ) {
@@ -79,6 +83,12 @@ class DataService extends BaseService
                 if ($existingRecord) {
                     $recordId = $this->updateExistingRecord($existingRecord['record_id'], $data, $transactionBy);
                     $this->entityManager->commit();
+                    
+                    // Invalidate data table cache after updating record
+                    $this->cache
+                        ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                        ->invalidateAllListsInCategory();
+                    
                     return $recordId;
                 } elseif (count($updateBasedOn) > 0) {
                     // Trying to update non-existent record
@@ -91,6 +101,12 @@ class DataService extends BaseService
             $recordId = $this->createNewRecord($dataTable, $data, $transactionBy);
 
             $this->entityManager->commit();
+            
+            // Invalidate data table cache after creating new record
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateAllListsInCategory();
+            
             return $recordId;
 
         } catch (\Throwable $e) {
@@ -143,6 +159,11 @@ class DataService extends BaseService
 
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            // Invalidate data table cache after deleting record
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->invalidateAllListsInCategory();
 
             return true;
 

@@ -2,10 +2,12 @@
 
 namespace App\Service\Auth;
 
+use App\Entity\Language;
 use App\Entity\User;
-use App\Service\Cache\Core\CacheService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\CMS\UserPermissionService;
 use Doctrine\ORM\EntityManagerInterface;
+use Proxies\__CG__\App\Entity\CmsPreference;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -17,7 +19,7 @@ class UserDataService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPermissionService $userPermissionService,
-        private readonly CacheService $cacheService,
+        private readonly ReworkedCacheService $cache,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -28,39 +30,24 @@ class UserDataService
     public function getUserData(User $user): array
     {
         $cacheKey = 'user_data_' . $user->getId();
-        
-        // Try to get from cache first
-        $cachedData = $this->cacheService->get(CacheService::CATEGORY_USERS, $cacheKey, $user->getId());
-        
-        if ($cachedData !== null) {
-            $this->logger->debug('User data cache hit for user {userId}', [
-                'userId' => $user->getId()
-            ]);
-            return $cachedData;
-        }
 
-        $this->logger->debug('User data cache miss for user {userId}', [
-            'userId' => $user->getId()
-        ]);
-
-        // Build comprehensive user data
-        $userData = [
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'name' => $user->getName(),
-            'user_name' => $user->getUserName(),
-            'blocked' => $user->isBlocked(),
-            'language' => $this->getUserLanguageInfo($user),
-            'roles' => $this->getUserRoles($user),
-            'permissions' => $this->getUserPermissions($user),
-            'groups' => $this->getUserGroups($user)
-        ];
-
-        // Cache the result
-        $ttl = $this->cacheService->getCacheTTL(CacheService::CATEGORY_USERS);
-        $this->cacheService->set(CacheService::CATEGORY_USERS, $cacheKey, $userData, $ttl, $user->getId());
-
-        return $userData;
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->withUser($user->getId())
+            ->getItem($cacheKey, function () use ($user) {
+                $user = $this->entityManager->getRepository(User::class)->find($user->getId());
+                return [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'name' => $user->getName(),
+                    'user_name' => $user->getUserName(),
+                    'blocked' => $user->isBlocked(),
+                    'language' => $this->getUserLanguageInfo($user),
+                    'roles' => $this->getUserRoles($user),
+                    'permissions' => $this->getUserPermissions($user),
+                    'groups' => $this->getUserGroups($user)
+                ];
+            });
     }
 
     /**
@@ -71,7 +58,7 @@ class UserDataService
         $userLanguageId = null;
         $userLanguageLocale = null;
         $userLanguageName = null;
-        
+
         if ($user->getLanguage()) {
             // User has a language set
             $userLanguageId = $user->getLanguage()->getId();
@@ -80,7 +67,7 @@ class UserDataService
         } else {
             // User doesn't have language set, use CMS default
             try {
-                $cmsPreference = $this->entityManager->getRepository('App\Entity\CmsPreference')->findOneBy([]);
+                $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
                 if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                     $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
                     $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
@@ -88,7 +75,7 @@ class UserDataService
                 } else {
                     // No CMS default language set, use fallback
                     $userLanguageId = 2;
-                    $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                    $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
                     if ($fallbackLanguage) {
                         $userLanguageLocale = $fallbackLanguage->getLocale();
                         $userLanguageName = $fallbackLanguage->getLanguage();
@@ -97,14 +84,14 @@ class UserDataService
             } catch (\Exception $e) {
                 // If there's an error getting the default language, use fallback
                 $userLanguageId = 2;
-                $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
                 if ($fallbackLanguage) {
                     $userLanguageLocale = $fallbackLanguage->getLocale();
                     $userLanguageName = $fallbackLanguage->getLanguage();
                 }
             }
         }
-        
+
         return [
             'id' => $userLanguageId,
             'locale' => $userLanguageLocale,
@@ -117,7 +104,7 @@ class UserDataService
      */
     private function getUserRoles(User $user): array
     {
-        return array_map(function($role) {
+        return array_map(function ($role) {
             return [
                 'id' => $role->getId(),
                 'name' => $role->getName(),
@@ -139,25 +126,12 @@ class UserDataService
      */
     private function getUserGroups(User $user): array
     {
-        return array_map(function($group) {
+        return array_map(function ($group) {
             return [
                 'id' => $group->getId(),
                 'name' => $group->getName(),
                 'description' => $group->getDescription()
             ];
         }, $user->getGroups()->toArray());
-    }
-
-    /**
-     * Clear user data cache
-     */
-    public function clearUserDataCache(User $user): void
-    {
-        $cacheKey = 'user_data_' . $user->getId();
-        $this->cacheService->delete(CacheService::CATEGORY_USERS, $cacheKey);
-        
-        $this->logger->debug('Cleared user data cache for user {userId}', [
-            'userId' => $user->getId()
-        ]);
     }
 }
