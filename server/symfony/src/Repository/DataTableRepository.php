@@ -20,10 +20,13 @@ class DataTableRepository extends ServiceEntityRepository
      */
     public function getDataTableWithFilter(int $tableId, int $userId, string $filter, bool $excludeDeleted): array
     {
-        return $this->cache
+        $cache = $this->cache
             ->withCategory(CacheService::CATEGORY_DATA_TABLES)
-            ->withEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $tableId)
-            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $tableId);
+        if ($userId > 0) {
+            $cache->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
+        }
+        return $cache
             ->getList("data_table_with_filter_{$tableId}_{$userId}_{$filter}_{$excludeDeleted}", function () use ($tableId, $userId, $filter, $excludeDeleted) {
                 $conn = $this->getEntityManager()->getConnection();
                 $sql = 'CALL get_dataTable_with_filter(:tableId, :userId, :filter, :excludeDeleted)';
