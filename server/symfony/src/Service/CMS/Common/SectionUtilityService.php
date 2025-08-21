@@ -4,7 +4,7 @@ namespace App\Service\CMS\Common;
 
 use App\Repository\StylesFieldRepository;
 use App\Service\CMS\DataService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 
 /**
  * Utility service for section-related operations
@@ -15,7 +15,7 @@ class SectionUtilityService
     public function __construct(
         private readonly DataService $dataService,
         private readonly StylesFieldRepository $stylesFieldRepository,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
     

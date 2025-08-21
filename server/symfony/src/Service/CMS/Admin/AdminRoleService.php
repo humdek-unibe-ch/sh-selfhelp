@@ -8,7 +8,7 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +22,7 @@ class AdminRoleService extends BaseService
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly EntityManagerInterface $entityManager
     ) {
     }
@@ -53,7 +53,7 @@ class AdminRoleService extends BaseService
         $cacheKey = "roles_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->withCategory(CacheService::CATEGORY_ROLES)
             ->getList(
                 $cacheKey,
                 function () use ($page, $pageSize, $search, $sort, $sortDirection) {
@@ -105,8 +105,8 @@ class AdminRoleService extends BaseService
     {
         $cacheKey = "role_{$roleId}";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId)
+            ->withCategory(CacheService::CATEGORY_ROLES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId)
             ->getItem($cacheKey, function () use ($roleId) {
                 $role = $this->entityManager->getRepository(Role::class)->find($roleId);
                 if (!$role) {
@@ -153,7 +153,7 @@ class AdminRoleService extends BaseService
 
             // Invalidate cache after create
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
 
             return $this->formatRoleForDetail($role);
@@ -200,9 +200,9 @@ class AdminRoleService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific role
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
 
             return $this->formatRoleForDetail($role);
@@ -246,9 +246,9 @@ class AdminRoleService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific role
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -263,8 +263,8 @@ class AdminRoleService extends BaseService
     {
         $cacheKey = "role_permissions_{$roleId}";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId)
+            ->withCategory(CacheService::CATEGORY_ROLES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId)
             ->getItem($cacheKey, function () use ($roleId) {
                 $role = $this->entityManager->getRepository(Role::class)->find($roleId);
                 if (!$role) {
@@ -303,9 +303,9 @@ class AdminRoleService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific role
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
@@ -354,9 +354,9 @@ class AdminRoleService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific role
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
@@ -394,9 +394,9 @@ class AdminRoleService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific role
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ROLE, $roleId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->withCategory(CacheService::CATEGORY_ROLES)
                 ->invalidateAllListsInCategory();
 
             return $this->getRolePermissions($roleId);
@@ -413,7 +413,7 @@ class AdminRoleService extends BaseService
     {
         $cacheKey = "all_permissions";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->withCategory(CacheService::CATEGORY_ROLES)
             ->getList($cacheKey, function () {
                 $permissions = $this->entityManager->getRepository(Permission::class)
                     ->createQueryBuilder('p')

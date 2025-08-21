@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\V1\Admin;
 
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Cache\Core\CacheStatsService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Controller\Trait\RequestValidatorTrait;
@@ -24,7 +24,7 @@ class AdminCacheController extends AbstractController
     use RequestValidatorTrait;
 
     public function __construct(
-        private ReworkedCacheService $cacheService,
+        private CacheService $cacheService,
         private CacheStatsService $statsService,
         private ApiResponseFormatter $responseFormatter,
     ) {
@@ -66,7 +66,7 @@ class AdminCacheController extends AbstractController
     {
         try {
 
-            foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
+            foreach (CacheService::ALL_CATEGORIES as $category) {
                 $this->cacheService->withCategory($category)->invalidateCategory();
             }
             $this->statsService->resetStats();
@@ -107,7 +107,7 @@ class AdminCacheController extends AbstractController
             $category = $requestData['category'];
 
             // Validate category exists
-            if (!in_array($category, ReworkedCacheService::ALL_CATEGORIES)) {
+            if (!in_array($category, CacheService::ALL_CATEGORIES)) {
                 return $this->responseFormatter->formatError(
                     'Invalid cache category',
                     Response::HTTP_BAD_REQUEST
@@ -158,7 +158,7 @@ class AdminCacheController extends AbstractController
             // foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
             //     $this->cacheService->withCategory($category)->withUser($userId)->invalidateUserGlobally();
             // }
-            $this->cacheService->withCategory(ReworkedCacheService::CATEGORY_USERS)->withUser($userId)->invalidateUserGlobally();
+            $this->cacheService->withCategory(CacheService::CATEGORY_USERS)->withUser($userId)->invalidateUserGlobally();
 
             return $this->responseFormatter->formatSuccess(
                 [
@@ -186,7 +186,7 @@ class AdminCacheController extends AbstractController
     public function clearApiRoutesCache(Request $request): Response
     {
         try {
-            $this->cacheService->withCategory(ReworkedCacheService::CATEGORY_API_ROUTES)->invalidateCategory();
+            $this->cacheService->withCategory(CacheService::CATEGORY_API_ROUTES)->invalidateCategory();
 
             return $this->responseFormatter->formatSuccess(
                 [

@@ -5,7 +5,7 @@ namespace App\Service\CMS;
 use App\Entity\CmsPreference;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
@@ -22,7 +22,7 @@ class LanguageService extends BaseService
         private readonly LanguageRepository $languageRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -36,7 +36,7 @@ class LanguageService extends BaseService
         $cacheKey = 'all_languages';
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
+            ->withCategory(CacheService::CATEGORY_LANGUAGES)
             ->getList($cacheKey, function () {
                 $languages = $this->languageRepository->findAllLanguages();
                 return array_map(function (Language $language) {
@@ -56,7 +56,7 @@ class LanguageService extends BaseService
         $cacheKey = 'non_internal_languages';
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
+            ->withCategory(CacheService::CATEGORY_LANGUAGES)
             ->getList(
                 $cacheKey,
                 function () {
@@ -121,8 +121,8 @@ class LanguageService extends BaseService
         $cacheKey = "language_{$id}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id)
+            ->withCategory(CacheService::CATEGORY_LANGUAGES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $id)
             ->getItem(
                 $cacheKey,
                 function () use ($id) {
@@ -174,7 +174,7 @@ class LanguageService extends BaseService
 
             // Invalidate language cache using new method
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
+                ->withCategory(CacheService::CATEGORY_LANGUAGES)
                 ->invalidateAllListsInCategory();
 
             return EntityUtil::convertEntityToArray($language);
@@ -239,9 +239,9 @@ class LanguageService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific language
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $id);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
+                ->withCategory(CacheService::CATEGORY_LANGUAGES)
                 ->invalidateAllListsInCategory();
 
             return EntityUtil::convertEntityToArray($language);
@@ -296,9 +296,9 @@ class LanguageService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific language
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $id);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $id);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LANGUAGES)
+                ->withCategory(CacheService::CATEGORY_LANGUAGES)
                 ->invalidateAllListsInCategory();
 
             return $deletedLanguage;

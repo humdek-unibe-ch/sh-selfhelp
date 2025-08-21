@@ -6,7 +6,7 @@ use App\Entity\Transaction;
 use App\Entity\User;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,7 +24,7 @@ class TransactionService
         private readonly UserContextService $userContextService,
         private readonly RequestStack $requestStack,
         private readonly LookupService $lookupService,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {}
 
     /**

@@ -7,7 +7,7 @@ use App\Entity\AclUser;
 use App\Entity\Group;
 use App\Entity\Page;
 use App\Entity\User;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\DBAL\Connection;
 use App\Repository\AclRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,7 +25,7 @@ class ACLService
     public function __construct(
         private readonly Connection $connection,
         private readonly AclRepository $aclRepository,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
     ) {
     }
 
@@ -42,7 +42,7 @@ class ACLService
 
         $cacheKey = "user_acl_{$pageId}";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->withUser($userId)
             ->getItem($cacheKey, function () use ($userId, $pageId, $accessType) {
                 // Handle null or non-integer userId
@@ -67,7 +67,7 @@ class ACLService
 
                 // Get ACL for specific page using repository (cached)
                 $results = $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+                    ->withCategory(CacheService::CATEGORY_PERMISSIONS)
                     ->getItem("user_acl_{$userId}_{$pageId}", fn() => $this->aclRepository->getUserAcl($userId, $pageId));
 
                 // If no results or empty array, deny access
@@ -110,7 +110,7 @@ class ACLService
 
         // Use the repository to get all ACLs (cached)
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->getItem("user_acl_{$userId}", fn() => $this->aclRepository->getUserAcl($userId));
     }
 
@@ -129,12 +129,12 @@ class ACLService
         $em->persist($aclGroup);
         
         // Invalidate entity scopes for affected entities
-        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $group->getId());
-        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_GROUP, $group->getId());
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
         
         // Invalidate permission lists
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->invalidateAllListsInCategory();
     }
 
@@ -153,12 +153,12 @@ class ACLService
         $em->persist($aclUser);
         
         // Invalidate entity scopes for affected entities
-        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $user->getId());
-        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $user->getId());
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
         
         // Invalidate permission lists
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->invalidateAllListsInCategory();
     }
 }

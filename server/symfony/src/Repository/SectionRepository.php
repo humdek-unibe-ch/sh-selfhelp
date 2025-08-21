@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Section;
@@ -12,7 +12,7 @@ use App\Entity\Section;
  */
 class SectionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private readonly ReworkedCacheService $cache)
+    public function __construct(ManagerRegistry $registry, private readonly CacheService $cache)
     {
         parent::__construct($registry, Section::class);
     }
@@ -26,8 +26,8 @@ class SectionRepository extends ServiceEntityRepository
     public function fetchSectionsHierarchicalByPageId(int $pageId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId)
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId)
             ->getList("page_sections_hierarchical_{$pageId}", function () use ($pageId) {
                 $conn = $this->getEntityManager()->getConnection();
                 $sql = 'CALL get_page_sections_hierarchical(:page_id)';

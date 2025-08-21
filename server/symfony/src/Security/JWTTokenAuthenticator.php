@@ -4,7 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\Auth\JWTService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\ApiResponseFormatter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +23,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
         private readonly JWTService $jwtService,
         private readonly EntityManagerInterface $entityManager,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -80,7 +80,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
         }
 
         $user = $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->withCategory(CacheService::CATEGORY_USERS)
             ->withUser($userIdentifier)
             ->getItem("user_profile", fn() => $this->entityManager->getRepository(User::class)->findOneBy(['id' => $userIdentifier]));
 

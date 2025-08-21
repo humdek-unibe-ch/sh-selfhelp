@@ -7,7 +7,7 @@ use App\Repository\GenderRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +18,7 @@ class AdminGenderService extends BaseService
         private readonly GenderRepository $genderRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
     ) {
     }
 
@@ -30,7 +30,7 @@ class AdminGenderService extends BaseService
     public function getAllGenders(): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(CacheService::CATEGORY_LOOKUPS)
             ->getList(
                 'genders_all',
                 function() {
@@ -56,7 +56,7 @@ class AdminGenderService extends BaseService
     public function getGenderById(int $genderId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(CacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "gender_{$genderId}",
                 function() use ($genderId) {
@@ -107,7 +107,7 @@ class AdminGenderService extends BaseService
 
             // Invalidate cache after create (CREATE = lists only)
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+                ->withCategory(CacheService::CATEGORY_LOOKUPS)
                 ->invalidateAllListsInCategory();
 
             return [
@@ -160,7 +160,7 @@ class AdminGenderService extends BaseService
 
             // UPDATE = entity scope + lists (no entity scope for genders, so just lists)
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+                ->withCategory(CacheService::CATEGORY_LOOKUPS)
                 ->invalidateItemAndLists("gender_{$genderId}");
 
             return [
@@ -207,7 +207,7 @@ class AdminGenderService extends BaseService
 
             // DELETE = entity scope + lists (no entity scope for genders, so just lists)
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+                ->withCategory(CacheService::CATEGORY_LOOKUPS)
                 ->invalidateItemAndLists("gender_{$genderId}");
 
             return true;

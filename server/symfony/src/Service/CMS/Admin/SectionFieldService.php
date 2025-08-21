@@ -11,7 +11,7 @@ use App\Service\CMS\DataTableService;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +27,7 @@ class SectionFieldService extends BaseService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly DataTableService $dataTableService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly ACLService $aclService,
         private readonly UserContextService $userContextService,
         private readonly PageRepository $pageRepository,
@@ -47,8 +47,8 @@ class SectionFieldService extends BaseService
         $cacheKey = "section_fields_{$section->getId()}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId())
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId())
             ->getItem(
                 $cacheKey,
                 function () use ($section) {
@@ -211,7 +211,7 @@ class SectionFieldService extends BaseService
         $cacheKey = "groups";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->withCategory(CacheService::CATEGORY_GROUPS)
             ->getList(
                 $cacheKey,
                 function () {
@@ -239,7 +239,7 @@ class SectionFieldService extends BaseService
     {
         $cacheKey = "data_tables";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
             ->getList(
                 $cacheKey,
                 function () {
@@ -267,7 +267,7 @@ class SectionFieldService extends BaseService
     {
         $cacheKey = "page_keywords";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->getList(
                 $cacheKey,
                 function () {
@@ -323,10 +323,10 @@ class SectionFieldService extends BaseService
 
         // Invalidate section cache after updates
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId());
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
             ->invalidateAllListsInCategory();
     }
 

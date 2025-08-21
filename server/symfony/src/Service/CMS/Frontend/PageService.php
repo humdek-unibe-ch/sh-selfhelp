@@ -9,7 +9,7 @@ use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
 use App\Repository\PagesFieldsTranslationRepository;
 use App\Service\ACL\ACLService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;
 use App\Service\Core\BaseService;
@@ -31,7 +31,7 @@ class PageService extends BaseService
         private readonly StylesFieldRepository $stylesFieldRepository,
         private readonly SectionUtilityService $sectionUtilityService,
         private readonly PagesFieldsTranslationRepository $pagesFieldsTranslationRepository,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly UserContextAwareService $userContextAwareService
     ) {
     }
@@ -91,9 +91,9 @@ class PageService extends BaseService
         $cacheKey = "pages_{$mode}_{$admin}_{$languageId}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
+            ->withCategory(CacheService::CATEGORY_PAGES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
             ->withUser($userId)
             ->getList($cacheKey, function () use ($mode, $admin, $languageId, $userId) {
                 // Get all pages with ACL for the user using the ACLService (cached)
@@ -219,9 +219,9 @@ class PageService extends BaseService
         }
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->withUser($userId)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId())
+            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
             ->getItem($cacheKey, function () use ($page_keyword, $languageId, $page) {
                 // Check if user has access to the page
                 $this->userContextAwareService->checkAccess($page_keyword, 'select');
@@ -259,9 +259,9 @@ class PageService extends BaseService
         $cacheKey = "page_sections_{$page_id}_{$languageId}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
             ->withUser($userId)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_id)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id)
             ->getList($cacheKey, function () use ($page_id, $languageId) {
                 // Get flat sections with hierarchical information
                 $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
@@ -335,7 +335,7 @@ class PageService extends BaseService
         // Otherwise use default language from CMS preferences
         try {
             $cmsPreference = $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
+                ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
                 ->getItem("cms_preferences", fn() => $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]));
             if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                 return $cmsPreference->getDefaultLanguage()->getId();

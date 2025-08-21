@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Page;
@@ -16,7 +16,7 @@ class AclRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
         parent::__construct($registry, Page::class);
     }
@@ -33,7 +33,7 @@ class AclRepository extends ServiceEntityRepository
     public function getUserAcl(int $userId, ?int $pageId = -1): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->withUser($userId)
             ->getItem("user_acl_{$pageId}", function () use ($userId, $pageId) {
                 $conn = $this->getEntityManager()->getConnection();

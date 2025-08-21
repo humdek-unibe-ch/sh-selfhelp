@@ -4,7 +4,7 @@ namespace App\Service\Auth;
 
 use App\Entity\Language;
 use App\Entity\User;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\UserPermissionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Proxies\__CG__\App\Entity\CmsPreference;
@@ -19,7 +19,7 @@ class UserDataService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPermissionService $userPermissionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -32,7 +32,7 @@ class UserDataService
         $cacheKey = 'user_data_' . $user->getId();
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->withCategory(CacheService::CATEGORY_USERS)
             ->withUser($user->getId())
             ->getItem($cacheKey, function () use ($user) {
                 $user = $this->entityManager->getRepository(User::class)->find($user->getId());

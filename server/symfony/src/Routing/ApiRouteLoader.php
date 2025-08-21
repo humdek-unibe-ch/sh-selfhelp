@@ -4,7 +4,7 @@ namespace App\Routing;
 
 use App\Entity\Permission;
 use App\Repository\ApiRouteRepository;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -19,7 +19,7 @@ class ApiRouteLoader extends Loader
     
     public function __construct(
         private ApiRouteRepository $apiRouteRepository,
-        private ReworkedCacheService $cache,
+        private CacheService $cache,
         protected ?string $env
     ) {
         // The parent Loader doesn't need any arguments
@@ -39,7 +39,7 @@ class ApiRouteLoader extends Loader
 
         if ($useCache) {
             $routes = $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_API_ROUTES)
+                ->withCategory(CacheService::CATEGORY_API_ROUTES)
                 ->getList($cacheKey, fn() => $this->buildRouteCollection());
         } else {
             $routes = $this->buildRouteCollection();

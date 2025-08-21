@@ -10,7 +10,7 @@ use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Service\Core\UserContextAwareService;
@@ -26,7 +26,7 @@ class PageFieldService extends BaseService
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly ACLService $aclService,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
@@ -47,7 +47,7 @@ class PageFieldService extends BaseService
         $cacheKey = "page_with_fields_{$pageKeyword}";
         
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->getItem(
                 $cacheKey,
                 function() use ($pageKeyword) {
@@ -56,8 +56,8 @@ class PageFieldService extends BaseService
                     // Add entity scope for the specific page
                     if (isset($result['id'])) {
                         $this->cache
-                            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $result['id'])
+                            ->withCategory(CacheService::CATEGORY_PAGES)
+                            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $result['id'])
                             ->setItem("page_with_fields_scoped_{$pageKeyword}", null, $result);
                     }
                     
@@ -196,10 +196,10 @@ class PageFieldService extends BaseService
         
         // Invalidate page cache after updates
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+            ->withCategory(CacheService::CATEGORY_PAGES)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();
     }
 } 

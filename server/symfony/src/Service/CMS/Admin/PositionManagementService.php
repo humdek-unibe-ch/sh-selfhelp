@@ -5,7 +5,7 @@ namespace App\Service\CMS\Admin;
 use App\Entity\Page;
 use App\Entity\PagesSection;
 use App\Entity\SectionsHierarchy;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -18,7 +18,7 @@ class PositionManagementService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -57,10 +57,10 @@ class PositionManagementService
             $page = $this->entityManager->getRepository(Page::class)->find($pageId);
             if ($page) {
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                    ->withCategory(CacheService::CATEGORY_PAGES)
+                    ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->withCategory(CacheService::CATEGORY_PAGES)
                     ->invalidateAllListsInCategory();
             }
         }
@@ -100,11 +100,11 @@ class PositionManagementService
             $parentSection = $this->entityManager->getRepository(\App\Entity\Section::class)->find($parentSectionId);
             if ($parentSection) {
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
+                    ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
 
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
                     ->invalidateAllListsInCategory();
             }
         }
@@ -163,10 +163,10 @@ class PositionManagementService
             $this->entityManager->flush();
         }
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $parentId);
+            ->withCategory(CacheService::CATEGORY_PAGES)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $parentId);
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();
     }
 }

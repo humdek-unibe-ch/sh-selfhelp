@@ -7,7 +7,7 @@ use App\Repository\LanguageRepository;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ class AdminCmsPreferenceService extends BaseService
         private readonly LanguageRepository $languageRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
     ) {
     }
 
@@ -31,7 +31,7 @@ class AdminCmsPreferenceService extends BaseService
     public function getCmsPreferences(): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
+            ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
             ->getItem(
                 'cms_preferences',
                 function() {
@@ -43,8 +43,8 @@ class AdminCmsPreferenceService extends BaseService
 
                     // Add entity scope for the CMS preference instance
                     $this->cache
-                        ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
-                        ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId())
+                        ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
+                        ->withEntityScope(CacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId())
                         ->setItem('cms_preferences_scoped', null, [
                             'id' => $preferences->getId(),
                             'callback_api_key' => $preferences->getCallbackApiKey(),
@@ -134,9 +134,9 @@ class AdminCmsPreferenceService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for CMS preferences
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId());
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
+                ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
                 ->invalidateAllListsInCategory();
 
             return $this->getCmsPreferences();

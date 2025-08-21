@@ -13,7 +13,7 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Auth\UserContextService;
 use App\Service\Auth\UserValidationService;
 use App\Exception\ServiceException;
@@ -40,7 +40,7 @@ class AdminUserService extends BaseService
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly TransactionService $transactionService,
         private readonly UserValidationService $userValidationService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly EntityManagerInterface $entityManager
     ) {
     }
@@ -60,7 +60,7 @@ class AdminUserService extends BaseService
         $cacheKey = $this->buildCacheKey('users_list', $page, $pageSize, $search, $sort, $sortDirection);
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->withCategory(CacheService::CATEGORY_USERS)
             ->getList(
                 $cacheKey,
                 fn() => $this->fetchUsersFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
@@ -73,8 +73,8 @@ class AdminUserService extends BaseService
     public function getUserById(int $userId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->getItem(
                 "user_{$userId}",
                 fn() => $this->formatUserForDetail($this->findUserOrThrow($userId))
@@ -156,14 +156,14 @@ class AdminUserService extends BaseService
             
             // Only invalidate related caches if the relationships were actually updated
             if (isset($userData['group_ids']) && is_array($userData['group_ids']) && !empty($userData['group_ids'])) {
-                $groupCache = $this->cache->withCategory(ReworkedCacheService::CATEGORY_GROUPS);
-                $groupCache->invalidateEntityScopes(ReworkedCacheService::ENTITY_SCOPE_GROUP, $userData['group_ids']);
+                $groupCache = $this->cache->withCategory(CacheService::CATEGORY_GROUPS);
+                $groupCache->invalidateEntityScopes(CacheService::ENTITY_SCOPE_GROUP, $userData['group_ids']);
                 $groupCache->invalidateAllListsInCategory();
             }
 
             if (isset($userData['role_ids']) && is_array($userData['role_ids']) && !empty($userData['role_ids'])) {
-                $roleCache = $this->cache->withCategory(ReworkedCacheService::CATEGORY_ROLES);
-                $roleCache->invalidateEntityScopes(ReworkedCacheService::ENTITY_SCOPE_ROLE, $userData['role_ids']);
+                $roleCache = $this->cache->withCategory(CacheService::CATEGORY_ROLES);
+                $roleCache->invalidateEntityScopes(CacheService::ENTITY_SCOPE_ROLE, $userData['role_ids']);
                 $roleCache->invalidateAllListsInCategory();
             }
 
@@ -235,8 +235,8 @@ class AdminUserService extends BaseService
     public function getUserGroups(int $userId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->getItem(
                 "user_groups_{$userId}",
                 fn() => $this->fetchUserGroups($userId)
@@ -249,8 +249,8 @@ class AdminUserService extends BaseService
     public function getUserRoles(int $userId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->getItem(
                 "user_roles_{$userId}",
                 fn() => $this->fetchUserRoles($userId)
@@ -401,7 +401,7 @@ class AdminUserService extends BaseService
 
             // Invalidate user list caches
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+                ->withCategory(CacheService::CATEGORY_USERS)
                 ->invalidateAllListsInCategory();
 
             return [
@@ -1204,13 +1204,13 @@ class AdminUserService extends BaseService
     private function invalidateUserCaches(int $userId): void
     {
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
+            ->withCategory(CacheService::CATEGORY_USERS)
             ->invalidateAllListsInCategory();
 
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
-            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId);
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
     }
 
     /**
@@ -1219,13 +1219,13 @@ class AdminUserService extends BaseService
     private function invalidateUserGroupCaches(int $userId, array $groupIds): void
     {
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->invalidateItemAndLists("user_groups_{$userId}");
 
         if (!empty($groupIds)) {
-            $groupCache = $this->cache->withCategory(ReworkedCacheService::CATEGORY_GROUPS);
-            $groupCache->invalidateEntityScopes(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupIds);
+            $groupCache = $this->cache->withCategory(CacheService::CATEGORY_GROUPS);
+            $groupCache->invalidateEntityScopes(CacheService::ENTITY_SCOPE_GROUP, $groupIds);
             $groupCache->invalidateAllListsInCategory();
         }
     }
@@ -1236,13 +1236,13 @@ class AdminUserService extends BaseService
     private function invalidateUserRoleCaches(int $userId, array $roleIds): void
     {
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_USERS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->invalidateItemAndLists("user_roles_{$userId}");
 
         if (!empty($roleIds)) {
-            $roleCache = $this->cache->withCategory(ReworkedCacheService::CATEGORY_ROLES);
-            $roleCache->invalidateEntityScopes(ReworkedCacheService::ENTITY_SCOPE_ROLE, $roleIds);
+            $roleCache = $this->cache->withCategory(CacheService::CATEGORY_ROLES);
+            $roleCache->invalidateEntityScopes(CacheService::ENTITY_SCOPE_ROLE, $roleIds);
             $roleCache->invalidateAllListsInCategory();
         }
     }

@@ -13,7 +13,7 @@ use App\Service\Core\TransactionService;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +33,7 @@ class DataTableService extends BaseService
         private readonly UserContextService $userContextService,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -84,7 +84,7 @@ class DataTableService extends BaseService
             
             // Invalidate cache after creating data table
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
             
             return $dataTable;
@@ -140,12 +140,12 @@ class DataTableService extends BaseService
             
             // Invalidate cache after updating data table
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
 
             return true;
             
@@ -263,12 +263,12 @@ class DataTableService extends BaseService
             
             // Invalidate cache after deleting data table
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
 
             return true;
             

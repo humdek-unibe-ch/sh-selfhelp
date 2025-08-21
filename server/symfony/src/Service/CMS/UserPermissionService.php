@@ -3,7 +3,7 @@
 namespace App\Service\CMS;
 
 use App\Entity\User;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Psr\Log\LoggerInterface;
@@ -19,7 +19,7 @@ class UserPermissionService
     public function __construct(
         private EntityManagerInterface $entityManager,
         private RouterInterface $router,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -32,7 +32,7 @@ class UserPermissionService
 
         $cacheKey = 'user_permissions_' . $user->getId();
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->withUser($user->getId())
             ->getItem($cacheKey, function() use ($user) {
                 return $this->fetchUserPermissionsFromDatabase($user->getId());
@@ -46,7 +46,7 @@ class UserPermissionService
     public function getRoutePermissions(string $routeName): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
             ->getItem("route_permissions_{$routeName}", function() use ($routeName) {
                 return $this->fetchRoutePermissionsFromRouter($routeName);
             });

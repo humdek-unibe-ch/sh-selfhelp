@@ -8,7 +8,7 @@ use App\Entity\SectionsFieldsTranslation;
 use App\Entity\SectionsHierarchy;
 use App\Repository\SectionRepository;
 use App\Service\Core\BaseService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Exception\ServiceException;
@@ -24,7 +24,7 @@ class AdminSectionUtilityService extends BaseService
         private readonly EntityManagerInterface $entityManager,
         private readonly SectionRepository $sectionRepository,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
     ) {
     }
 
@@ -36,7 +36,7 @@ class AdminSectionUtilityService extends BaseService
     public function getUnusedSections(): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
             ->getList(
                 'unused_sections',
                 function() {
@@ -64,7 +64,7 @@ class AdminSectionUtilityService extends BaseService
     public function getRefContainers(): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
             ->getList(
                 'ref_containers',
                 function() {
@@ -124,11 +124,11 @@ class AdminSectionUtilityService extends BaseService
             $this->entityManager->commit();
             
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $sectionId);
             
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
         } catch (\Throwable $e) {
@@ -198,7 +198,7 @@ class AdminSectionUtilityService extends BaseService
             $this->entityManager->commit();
             
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             return $deletedCount;
@@ -281,8 +281,8 @@ class AdminSectionUtilityService extends BaseService
             $this->entityManager->remove($translation);
         }
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+            ->withCategory(CacheService::CATEGORY_SECTIONS)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId());
     }
 
 

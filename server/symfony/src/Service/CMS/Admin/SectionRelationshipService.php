@@ -10,7 +10,7 @@ use App\Service\CMS\Admin\Traits\RelationshipManagerTrait;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
 use App\Service\ACL\ACLService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Service\Core\UserContextAwareService;
@@ -28,7 +28,7 @@ class SectionRelationshipService extends BaseService
         private readonly EntityManagerInterface $entityManager,
         private readonly PositionManagementService $positionManagementService,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly ACLService $aclService,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
@@ -76,13 +76,13 @@ class SectionRelationshipService extends BaseService
             
             // Invalidate page and section caches
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $parentPage->getId());
+                ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $parentPage->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             $this->entityManager->commit();
@@ -149,16 +149,16 @@ class SectionRelationshipService extends BaseService
             
             // Invalidate section caches
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             $this->entityManager->commit();
@@ -201,7 +201,7 @@ class SectionRelationshipService extends BaseService
                 
                 // Invalidate page cache
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->withCategory(CacheService::CATEGORY_PAGES)
                     ->invalidateItem("page_with_fields_{$page->getKeyword()}");
             } else {
                 // Not directly associated - check if it's a child section in the page hierarchy
@@ -222,13 +222,13 @@ class SectionRelationshipService extends BaseService
                 
                 // Invalidate page and section caches
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                    ->withCategory(CacheService::CATEGORY_PAGES)
+                    ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                    ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
+                    ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId());
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
                     ->invalidateAllListsInCategory();
             }
 
@@ -270,28 +270,28 @@ class SectionRelationshipService extends BaseService
             $childSection = $this->sectionRepository->find($childSectionId);
             if ($parentSection) {
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
                     ->invalidateItem("section_fields_{$parentSection->getId()}");
             }
             if ($childSection) {
                 $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                    ->withCategory(CacheService::CATEGORY_SECTIONS)
                     ->invalidateItem("section_fields_{$childSection->getId()}");
             }
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             $this->entityManager->commit();
@@ -354,13 +354,13 @@ class SectionRelationshipService extends BaseService
             
             // Invalidate page and section caches
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             $this->entityManager->commit();
@@ -420,13 +420,13 @@ class SectionRelationshipService extends BaseService
             
             // Invalidate page and section caches
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section->getId());
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
             
             $this->entityManager->commit();

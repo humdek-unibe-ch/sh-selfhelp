@@ -12,7 +12,7 @@ use App\Entity\MailQueue;
 use App\Entity\Notification;
 use App\Entity\Task;
 use App\Entity\User;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\LookupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +34,7 @@ class JobSchedulerService extends BaseService
         private readonly TransactionService $transactionService,
         private readonly LookupService $lookupService,
         private readonly LoggerInterface $logger,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -82,7 +82,7 @@ class JobSchedulerService extends BaseService
             );
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateAllListsInCategory();
 
             return $job;
@@ -172,12 +172,12 @@ class JobSchedulerService extends BaseService
             );
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateItemAndLists("scheduledJob_{$jobId}");
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
 
             $this->em->commit();
             return $job;
@@ -223,12 +223,12 @@ class JobSchedulerService extends BaseService
             );
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateItemAndLists("scheduledJob_{$jobId}");
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
-                ->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId);
 
             $this->em->commit();
             return true;
@@ -295,7 +295,7 @@ class JobSchedulerService extends BaseService
             $this->em->flush();
 
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
                 ->invalidateAllListsInCategory();
 
             return $scheduledJob;
@@ -435,8 +435,8 @@ class JobSchedulerService extends BaseService
 
             $this->em->persist($scheduledJobUser);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
-                ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $job->getId())
+                ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
+                ->withEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $job->getId())
                 ->withUser($userId)
                 ->invalidateUserInCategory();
         }

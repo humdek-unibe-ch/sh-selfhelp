@@ -8,7 +8,7 @@ use App\Repository\ScheduledJobRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Repository\TransactionRepository;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\LookupService;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
@@ -32,7 +32,7 @@ class AdminScheduledJobService extends BaseService
         private readonly LookupService $lookupService,
         private readonly TransactionService $transactionService,
         private readonly JobSchedulerService $jobSchedulerService,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 
@@ -59,7 +59,7 @@ class AdminScheduledJobService extends BaseService
             $sortDirection = 'asc';
         $cacheKey = "scheduled_jobs_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($status ?? '') . ($jobType ?? '') . ($dateFrom ?? '') . ($dateTo ?? '') . ($dateType ?? '') . ($sort ?? '') . $sortDirection);
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
             ->getList(
                 $cacheKey,
                 function () use ($page, $pageSize, $search, $status, $jobType, $dateFrom, $dateTo, $dateType, $sort, $sortDirection) {
@@ -102,8 +102,8 @@ class AdminScheduledJobService extends BaseService
     {
         $cacheKey = "scheduled_job_{$jobId}";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
+            ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
             ->getItem($cacheKey, function () use ($jobId) {
                 $job = $this->scheduledJobRepository->findScheduledJobById($jobId);
 
@@ -139,8 +139,8 @@ class AdminScheduledJobService extends BaseService
     {
         $cacheKey = "scheduled_job_transactions_{$jobId}";
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
+            ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
             ->getItem($cacheKey, function () use ($jobId) {
                 $job = $this->scheduledJobRepository->find($jobId);
 

@@ -6,7 +6,7 @@ use App\Entity\Action;
 use App\Entity\Lookup;
 use App\Repository\ActionRepository;
 use App\Repository\LookupRepository;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
@@ -21,7 +21,7 @@ class AdminActionService extends BaseService
         private readonly TransactionService $transactionService,
         private readonly ActionRepository $actionRepository,
         private readonly LookupRepository $lookupRepository,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
     ) {
     }
 
@@ -34,7 +34,7 @@ class AdminActionService extends BaseService
         $cacheKey = "actions_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->withCategory(CacheService::CATEGORY_ACTIONS)
             ->getList(
                 $cacheKey,
                 fn() =>
@@ -48,8 +48,8 @@ class AdminActionService extends BaseService
     public function getActionById(int $actionId): array
     {
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId)
+            ->withCategory(CacheService::CATEGORY_ACTIONS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_ACTION, $actionId)
             ->getItem(
                 "action_{$actionId}",
                 function () use ($actionId) {
@@ -119,9 +119,9 @@ class AdminActionService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific action
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ACTION, $actionId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->withCategory(CacheService::CATEGORY_ACTIONS)
                 ->invalidateAllListsInCategory();
 
             return $this->formatAction($action);
@@ -189,7 +189,7 @@ class AdminActionService extends BaseService
 
             // Invalidate all action lists since a new action was created
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->withCategory(CacheService::CATEGORY_ACTIONS)
                 ->invalidateAllListsInCategory();
 
             return $this->formatAction($action);
@@ -230,9 +230,9 @@ class AdminActionService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific action
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ACTION, $actionId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+                ->withCategory(CacheService::CATEGORY_ACTIONS)
                 ->invalidateAllListsInCategory();
 
             return true;

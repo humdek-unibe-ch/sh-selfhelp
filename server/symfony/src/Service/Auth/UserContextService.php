@@ -2,7 +2,7 @@
 
 namespace App\Service\Auth;
 
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\User;
 
@@ -11,7 +11,7 @@ class UserContextService
     private ?User $cachedUser = null;
     private bool $userResolved = false;
 
-    public function __construct(private Security $security, private ReworkedCacheService $cache) {}
+    public function __construct(private Security $security, private CacheService $cache) {}
 
     /**
      * Returns the current authenticated User entity or null if not authenticated.
@@ -31,7 +31,7 @@ class UserContextService
         return $this->cachedUser;
     }
 
-    public function getCache(): ReworkedCacheService
+    public function getCache(): CacheService
     {
         return $this->cache;
     }

@@ -4,7 +4,7 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\Asset;
 use App\Repository\AssetRepository;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
@@ -51,7 +51,7 @@ class AdminAssetService extends BaseService
         private readonly EntityManagerInterface $entityManager,
         private readonly TransactionService $transactionService,
         private readonly LookupService $lookupService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly string $projectDir
     ) {
     }
@@ -71,7 +71,7 @@ class AdminAssetService extends BaseService
         $cacheKey = "assets_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($folder ?? ''));
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->withCategory(CacheService::CATEGORY_ASSETS)
             ->getList(
                 $cacheKey,
                 fn() => $this->fetchAssetsFromDatabase($page, $pageSize, $search, $folder)
@@ -115,8 +115,8 @@ class AdminAssetService extends BaseService
         $cacheKey = "asset_id_{$id}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ASSET, $id)
+            ->withCategory(CacheService::CATEGORY_ASSETS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_ASSET, $id)
             ->getItem(
                 $cacheKey,
                 function () use ($id) {
@@ -233,7 +233,7 @@ class AdminAssetService extends BaseService
 
             // Invalidate all asset lists since a new asset was created/updated
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+                ->withCategory(CacheService::CATEGORY_ASSETS)
                 ->invalidateAllListsInCategory();
 
             return $this->getAssetById($asset->getId());
@@ -281,7 +281,7 @@ class AdminAssetService extends BaseService
         }
 
         $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->withCategory(CacheService::CATEGORY_ASSETS)
             ->invalidateAllListsInCategory();
 
         return [
@@ -335,9 +335,9 @@ class AdminAssetService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific asset
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ASSET, $id);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_ASSET, $id);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+                ->withCategory(CacheService::CATEGORY_ASSETS)
                 ->invalidateAllListsInCategory();
 
             return true;

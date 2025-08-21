@@ -14,7 +14,7 @@ use App\Service\Core\BaseService;
 use App\Service\Core\LookupService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Core\UserContextAwareService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
@@ -37,7 +37,7 @@ class DataService extends BaseService
         private readonly ACLService $aclService,
         private readonly UserContextService $userContextService,
         private readonly UserContextAwareService $userContextAwareService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository
     ) {
@@ -86,7 +86,7 @@ class DataService extends BaseService
                     
                     // Invalidate data table cache after updating record
                     $this->cache
-                        ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                         ->invalidateAllListsInCategory();
                     
                     return $recordId;
@@ -104,7 +104,7 @@ class DataService extends BaseService
             
             // Invalidate data table cache after creating new record
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
             
             return $recordId;
@@ -162,7 +162,7 @@ class DataService extends BaseService
 
             // Invalidate data table cache after deleting record
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_DATA_TABLES)
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
 
             return true;

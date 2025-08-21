@@ -9,7 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Service\Auth\UserContextService;
 use App\Exception\ServiceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,7 +24,7 @@ class AdminGroupService extends BaseService
         private readonly EntityManagerInterface $entityManagerInterface,
         private readonly UserRepository $userRepository,
         private readonly TransactionService $transactionService,
-        private readonly ReworkedCacheService $cache,
+        private readonly CacheService $cache,
         private readonly EntityManagerInterface $entityManager
     ) {
     }
@@ -50,7 +50,7 @@ class AdminGroupService extends BaseService
         $cacheKey = "groups_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->withCategory(CacheService::CATEGORY_GROUPS)
             ->getList(
                 $cacheKey,
                 fn() => $this->fetchGroupsFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
@@ -108,8 +108,8 @@ class AdminGroupService extends BaseService
         $cacheKey = "group_{$groupId}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId)
+            ->withCategory(CacheService::CATEGORY_GROUPS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId)
             ->getItem($cacheKey, function () use ($groupId) {
                 $group = $this->entityManager->getRepository(Group::class)->find($groupId);
                 if (!$group) {
@@ -160,7 +160,7 @@ class AdminGroupService extends BaseService
 
             // Invalidate cache after create
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->withCategory(CacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
 
             return $this->formatGroupForDetail($group);
@@ -213,9 +213,9 @@ class AdminGroupService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific group
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->withCategory(CacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
 
             return $this->formatGroupForDetail($group);
@@ -259,9 +259,9 @@ class AdminGroupService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific group
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->withCategory(CacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -277,8 +277,8 @@ class AdminGroupService extends BaseService
         $cacheKey = "group_acls_{$groupId}";
 
         return $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId)
+            ->withCategory(CacheService::CATEGORY_GROUPS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId)
             ->getItem($cacheKey, function () use ($groupId) {
                 $group = $this->entityManager->getRepository(Group::class)->find($groupId);
                 if (!$group) {
@@ -327,9 +327,9 @@ class AdminGroupService extends BaseService
             $this->entityManager->commit();
 
             // Invalidate entity-scoped cache for this specific group
-            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->withCategory(CacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
 
             return $this->getGroupAcls($groupId);

@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
  * - Top performing categories analysis
  * - Statistics reset functionality
  */
-class CacheStatsService extends ReworkedCacheService
+class CacheStatsService extends CacheService
 {
 
     public function __construct(

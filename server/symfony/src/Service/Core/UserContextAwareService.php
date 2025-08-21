@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Repository\PageRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 
 class UserContextAwareService extends BaseService
 {
@@ -47,7 +47,7 @@ class UserContextAwareService extends BaseService
             $this->throwNotFound('Page not found');
         }
         $page = $this->userContextService->getCache()
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->withCategory(CacheService::CATEGORY_PAGES)
             ->getItem("page_{$page_keyword}", function () use ($page_keyword) {
                 $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
                 if (!$page) {

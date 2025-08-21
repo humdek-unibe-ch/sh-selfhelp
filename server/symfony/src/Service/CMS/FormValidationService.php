@@ -7,7 +7,7 @@ use App\Service\CMS\Common\StyleNames;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use App\Repository\DataTableRepository;
@@ -31,7 +31,7 @@ class FormValidationService extends BaseService
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
         private readonly UserContextAwareService $userContextAwareService,
-        private readonly ReworkedCacheService $cache
+        private readonly CacheService $cache
     ) {
     }
 

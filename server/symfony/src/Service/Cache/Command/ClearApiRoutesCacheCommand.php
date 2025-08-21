@@ -2,7 +2,7 @@
 
 namespace App\Service\Cache\Command;
 
-use App\Service\Cache\Core\ReworkedCacheService;
+use App\Service\Cache\Core\CacheService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ClearApiRoutesCacheCommand extends Command
 {
     public function __construct(
-        private ReworkedCacheService $cacheService
+        private CacheService $cacheService
     ) {
         parent::__construct();
     }
@@ -29,7 +29,7 @@ class ClearApiRoutesCacheCommand extends Command
 
         try {
             $this->cacheService
-                ->withCategory(ReworkedCacheService::CATEGORY_API_ROUTES)
+                ->withCategory(CacheService::CATEGORY_API_ROUTES)
                 ->invalidateAllListsInCategory();
 
             $io->success('API routes cache cleared successfully!');
