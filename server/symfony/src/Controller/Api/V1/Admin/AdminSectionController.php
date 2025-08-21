@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api\V1\Admin;
 
-use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\Admin\AdminSectionService;
 use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\Core\ApiResponseFormatter;
@@ -21,7 +20,6 @@ class AdminSectionController extends AbstractController
         private readonly ApiResponseFormatter $apiResponseFormatter,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
         private readonly SectionUtilityService $sectionUtilityService,
-        private readonly CacheService $cacheService
     ) {}
 
     /**

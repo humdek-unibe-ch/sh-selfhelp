@@ -9,7 +9,6 @@ use App\Repository\SectionsFieldsTranslationRepository;
 use App\Repository\StylesFieldRepository;
 use App\Repository\PagesFieldsTranslationRepository;
 use App\Service\ACL\ACLService;
-use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\LookupService;
 use App\Service\CMS\Common\SectionUtilityService;

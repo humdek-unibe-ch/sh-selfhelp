@@ -79,19 +79,6 @@ class AdminSectionUtilityService extends BaseService
     }
 
     /**
-     * Invalidate utility caches
-     */
-    public function invalidateUtilityCache(): void
-    {
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateItem('unused_sections');
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateItem('ref_containers');
-    }
-
-    /**
      * Delete a single unused section by ID
      * 
      * @param int $sectionId
@@ -132,8 +119,9 @@ class AdminSectionUtilityService extends BaseService
             
             $this->entityManager->commit();
             
-            // Invalidate utility cache
-            $this->invalidateUtilityCache();
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateItemAndLists("section_{$sectionId}");
             
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -201,8 +189,9 @@ class AdminSectionUtilityService extends BaseService
             
             $this->entityManager->commit();
             
-            // Invalidate utility cache
-            $this->invalidateUtilityCache();
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+                ->invalidateAllListsInCategory();
             
             return $deletedCount;
             

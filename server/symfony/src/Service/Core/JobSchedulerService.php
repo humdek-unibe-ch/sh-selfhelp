@@ -81,6 +81,10 @@ class JobSchedulerService extends BaseService
                 'Job scheduled: ' . ($jobData['description'] ?? $jobData['type'])
             );
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+                ->invalidateAllListsInCategory();
+
             return $job;
 
         } catch (\Exception $e) {

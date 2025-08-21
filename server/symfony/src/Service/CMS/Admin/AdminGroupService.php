@@ -39,13 +39,16 @@ class AdminGroupService extends BaseService
         ?string $sort = null,
         ?string $sortDirection = 'asc'
     ): array {
-        if ($page < 1) $page = 1;
-        if ($pageSize < 1 || $pageSize > 100) $pageSize = 20;
-        if (!in_array($sortDirection, ['asc', 'desc'])) $sortDirection = 'asc';
+        if ($page < 1)
+            $page = 1;
+        if ($pageSize < 1 || $pageSize > 100)
+            $pageSize = 20;
+        if (!in_array($sortDirection, ['asc', 'desc']))
+            $sortDirection = 'asc';
 
         // Create cache key based on parameters
         $cacheKey = "groups_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
-        
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
             ->getList(
@@ -53,16 +56,17 @@ class AdminGroupService extends BaseService
                 fn() => $this->fetchGroupsFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
             );
     }
-    
+
 
     private function fetchGroupsFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
     {
-        $qb = $this->createGroupQueryBuilder();
-        
+        $qb = $this->entityManager->getRepository(Group::class)
+        ->createQueryBuilder('g');
+
         // Apply search filter
         if ($search) {
             $qb->andWhere('(g.name LIKE :search OR g.description LIKE :search)')
-               ->setParameter('search', '%' . $search . '%');
+                ->setParameter('search', '%' . $search . '%');
         }
 
         // Apply sorting
@@ -79,7 +83,7 @@ class AdminGroupService extends BaseService
 
         // Apply pagination
         $qb->setFirstResult(($page - 1) * $pageSize)
-           ->setMaxResults($pageSize);
+            ->setMaxResults($pageSize);
 
         $groups = $qb->getQuery()->getResult();
 
@@ -88,8 +92,8 @@ class AdminGroupService extends BaseService
             'pagination' => [
                 'page' => $page,
                 'pageSize' => $pageSize,
-                'totalCount' => (int)$totalCount,
-                'totalPages' => (int)ceil($totalCount / $pageSize),
+                'totalCount' => (int) $totalCount,
+                'totalPages' => (int) ceil($totalCount / $pageSize),
                 'hasNext' => $page < ceil($totalCount / $pageSize),
                 'hasPrevious' => $page > 1
             ]
@@ -101,12 +105,17 @@ class AdminGroupService extends BaseService
      */
     public function getGroupById(int $groupId): array
     {
-        $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-        if (!$group) {
-            throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "group_{$groupId}";
 
-        return $this->formatGroupForDetail($group);
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->getItem($cacheKey, function () use ($groupId) {
+                $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+                if (!$group) {
+                    throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
+                }
+                return $this->formatGroupForDetail($group);
+            });
     }
 
     /**
@@ -115,7 +124,7 @@ class AdminGroupService extends BaseService
     public function createGroup(array $groupData): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $this->validateGroupData($groupData);
 
@@ -123,7 +132,7 @@ class AdminGroupService extends BaseService
             $group->setName($groupData['name']);
             $group->setDescription($groupData['description'] ?? '');
             $group->setRequires2fa($groupData['requires_2fa'] ?? false);
-            
+
             if (isset($groupData['id_group_types'])) {
                 $group->setIdGroupTypes($groupData['id_group_types']);
             }
@@ -166,7 +175,7 @@ class AdminGroupService extends BaseService
     public function updateGroup(int $groupId, array $groupData): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $group = $this->entityManager->getRepository(Group::class)->find($groupId);
             if (!$group) {
@@ -205,7 +214,10 @@ class AdminGroupService extends BaseService
             // Invalidate cache after update
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-                ->invalidateAllListsInCategory();
+                ->invalidateItemAndLists("group_{$groupId}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->invalidateItemAndLists("group_acls_{$groupId}");
 
             return $this->formatGroupForDetail($group);
         } catch (\Exception $e) {
@@ -220,7 +232,7 @@ class AdminGroupService extends BaseService
     public function deleteGroup(int $groupId): void
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $group = $this->entityManager->getRepository(Group::class)->find($groupId);
             if (!$group) {
@@ -262,22 +274,28 @@ class AdminGroupService extends BaseService
      */
     public function getGroupAcls(int $groupId): array
     {
-        $group = $this->entityManager->getRepository(Group::class)->find($groupId);
-        if (!$group) {
-            throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "group_acls_{$groupId}";
 
-        $acls = $this->entityManager->getRepository(AclGroup::class)
-            ->createQueryBuilder('ag')
-            ->select('ag, p')
-            ->leftJoin('ag.page', 'p')
-            ->where('ag.group = :group')
-            ->setParameter('group', $group)
-            ->orderBy('p.keyword', 'asc')
-            ->getQuery()
-            ->getResult();
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->getItem($cacheKey, function () use ($groupId) {
+                $group = $this->entityManager->getRepository(Group::class)->find($groupId);
+                if (!$group) {
+                    throw new ServiceException('Group not found', Response::HTTP_NOT_FOUND);
+                }
 
-        return array_map([$this, 'formatAclForResponse'], $acls);
+                $acls = $this->entityManager->getRepository(AclGroup::class)
+                    ->createQueryBuilder('ag')
+                    ->select('ag, p')
+                    ->leftJoin('ag.page', 'p')
+                    ->where('ag.group = :group')
+                    ->setParameter('group', $group)
+                    ->orderBy('p.keyword', 'asc')
+                    ->getQuery()
+                    ->getResult();
+
+                return array_map([$this, 'formatAclForResponse'], $acls);
+            });
     }
 
     /**
@@ -286,7 +304,7 @@ class AdminGroupService extends BaseService
     public function updateGroupAcls(int $groupId, array $aclsData): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $group = $this->entityManager->getRepository(Group::class)->find($groupId);
             if (!$group) {
@@ -307,20 +325,18 @@ class AdminGroupService extends BaseService
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->invalidateItemAndLists("group_acls_{$groupId}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+                ->invalidateItemAndLists("group_{$groupId}");
+
             return $this->getGroupAcls($groupId);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * Create query builder for groups
-     */
-    private function createGroupQueryBuilder(): QueryBuilder
-    {
-        return $this->entityManager->getRepository(Group::class)
-            ->createQueryBuilder('g');
     }
 
     /**
@@ -344,7 +360,7 @@ class AdminGroupService extends BaseService
     private function formatGroupForDetail(Group $group): array
     {
         $acls = $this->getGroupAcls($group->getId());
-        
+
         return [
             'id' => $group->getId(),
             'name' => $group->getName(),
@@ -352,7 +368,7 @@ class AdminGroupService extends BaseService
             'id_group_types' => $group->getIdGroupTypes(),
             'requires_2fa' => $group->isRequires2fa(),
             'users_count' => $group->getUsersGroups()->count(),
-            'users' => array_map(function($ug) {
+            'users' => array_map(function ($ug) {
                 $user = $ug->getUser();
                 return [
                     'id' => $user->getId(),
@@ -417,11 +433,11 @@ class AdminGroupService extends BaseService
         // First, remove all existing ACL permissions for this group
         $existingAcls = $this->entityManager->getRepository(AclGroup::class)
             ->findBy(['group' => $group]);
-        
+
         foreach ($existingAcls as $existingAcl) {
             $this->entityManager->remove($existingAcl);
         }
-        
+
         // Flush the deletions first to avoid constraint violations
         $this->entityManager->flush();
 
@@ -440,7 +456,7 @@ class AdminGroupService extends BaseService
                 ->setParameter('pageIds', $pageIds)
                 ->getQuery()
                 ->getResult();
-            
+
             // Create a map for quick lookup
             $pageMap = [];
             foreach ($pages as $page) {
@@ -462,7 +478,7 @@ class AdminGroupService extends BaseService
                 $acl->setAclInsert($aclData['acl_insert'] ?? false);
                 $acl->setAclUpdate($aclData['acl_update'] ?? false);
                 $acl->setAclDelete($aclData['acl_delete'] ?? false);
-                
+
                 $this->entityManager->persist($acl);
             }
         }
@@ -470,4 +486,4 @@ class AdminGroupService extends BaseService
         // Flush the insertions
         $this->entityManager->flush();
     }
-} 
+}

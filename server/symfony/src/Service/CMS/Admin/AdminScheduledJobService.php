@@ -8,6 +8,7 @@ use App\Repository\ScheduledJobRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Repository\TransactionRepository;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\Core\LookupService;
 use App\Service\Core\BaseService;
 use App\Service\Core\TransactionService;
@@ -20,7 +21,7 @@ use App\Service\Core\JobSchedulerService;
 
 class AdminScheduledJobService extends BaseService
 {
-    
+
     public function __construct(
         private readonly UserContextService $userContextService,
         private readonly EntityManagerInterface $entityManager,
@@ -30,7 +31,8 @@ class AdminScheduledJobService extends BaseService
         private readonly TransactionRepository $transactionRepository,
         private readonly LookupService $lookupService,
         private readonly TransactionService $transactionService,
-        private readonly JobSchedulerService $jobSchedulerService
+        private readonly JobSchedulerService $jobSchedulerService,
+        private readonly ReworkedCacheService $cache
     ) {
     }
 
@@ -49,38 +51,48 @@ class AdminScheduledJobService extends BaseService
         ?string $sort = null,
         string $sortDirection = 'asc'
     ): array {
-        if ($page < 1) $page = 1;
-        if ($pageSize < 1 || $pageSize > 100) $pageSize = 20;
-        if (!in_array($sortDirection, ['asc', 'desc'])) $sortDirection = 'asc';
+        if ($page < 1)
+            $page = 1;
+        if ($pageSize < 1 || $pageSize > 100)
+            $pageSize = 20;
+        if (!in_array($sortDirection, ['asc', 'desc']))
+            $sortDirection = 'asc';
+        $cacheKey = "scheduled_jobs_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($status ?? '') . ($jobType ?? '') . ($dateFrom ?? '') . ($dateTo ?? '') . ($dateType ?? '') . ($sort ?? '') . $sortDirection);
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->getList(
+                $cacheKey,
+                function () use ($page, $pageSize, $search, $status, $jobType, $dateFrom, $dateTo, $dateType, $sort, $sortDirection) {
+                    $result = $this->scheduledJobRepository->findScheduledJobsWithPagination(
+                        $page,
+                        $pageSize,
+                        $search,
+                        $status,
+                        $jobType,
+                        $dateFrom,
+                        $dateTo,
+                        $dateType,
+                        $sort,
+                        $sortDirection
+                    );
 
-        $result = $this->scheduledJobRepository->findScheduledJobsWithPagination(
-            $page,
-            $pageSize,
-            $search,
-            $status,
-            $jobType,
-            $dateFrom,
-            $dateTo,
-            $dateType,
-            $sort,
-            $sortDirection
-        );
+                    $formattedJobs = [];
+                    foreach ($result['scheduledJobs'] as $job) {
+                        $formattedJob = $this->formatScheduledJobForList($job);
+                        // Add transactions for each job
+                        $formattedJob['transactions'] = $this->getJobTransactions($job->getId());
+                        $formattedJobs[] = $formattedJob;
+                    }
 
-        $formattedJobs = [];
-        foreach ($result['scheduledJobs'] as $job) {
-            $formattedJob = $this->formatScheduledJobForList($job);
-            // Add transactions for each job
-            $formattedJob['transactions'] = $this->getJobTransactions($job->getId());
-            $formattedJobs[] = $formattedJob;
-        }
-
-        return [
-            'scheduledJobs' => $formattedJobs,
-            'totalCount' => $result['totalCount'],
-            'page' => $result['page'],
-            'pageSize' => $result['pageSize'],
-            'totalPages' => (int)$result['totalPages']
-        ];
+                    return [
+                        'scheduledJobs' => $formattedJobs,
+                        'totalCount' => $result['totalCount'],
+                        'page' => $result['page'],
+                        'pageSize' => $result['pageSize'],
+                        'totalPages' => (int) $result['totalPages']
+                    ];
+                }
+            );
     }
 
     /**
@@ -88,13 +100,18 @@ class AdminScheduledJobService extends BaseService
      */
     public function getScheduledJobById(int $jobId): array
     {
-        $job = $this->scheduledJobRepository->findScheduledJobById($jobId);
-        
-        if (!$job) {
-            throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "scheduled_job_{$jobId}";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->getItem($cacheKey, function () use ($jobId) {
+                $job = $this->scheduledJobRepository->findScheduledJobById($jobId);
 
-        return $this->formatScheduledJobForDetail($job);
+                if (!$job) {
+                    throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
+                }
+
+                return $this->formatScheduledJobForDetail($job);
+            });
     }
 
     /**
@@ -102,7 +119,7 @@ class AdminScheduledJobService extends BaseService
      */
     public function executeScheduledJob(int $jobId): array|false
     {
-        $job = $this->jobSchedulerService->executeJob($jobId, LookupService::TRANSACTION_BY_BY_USER);   
+        $job = $this->jobSchedulerService->executeJob($jobId, LookupService::TRANSACTION_BY_BY_USER);
         return $job ? $this->formatScheduledJobForDetail($job) : false;
     }
 
@@ -111,7 +128,7 @@ class AdminScheduledJobService extends BaseService
      */
     public function deleteScheduledJob(int $jobId): bool
     {
-        return $this->jobSchedulerService->deleteJob($jobId, LookupService::TRANSACTION_BY_BY_USER);        
+        return $this->jobSchedulerService->deleteJob($jobId, LookupService::TRANSACTION_BY_BY_USER);
     }
 
     /**
@@ -119,33 +136,38 @@ class AdminScheduledJobService extends BaseService
      */
     public function getJobTransactions(int $jobId): array
     {
-        $job = $this->scheduledJobRepository->find($jobId);
-        
-        if (!$job) {
-            throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "scheduled_job_transactions_{$jobId}";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->getItem($cacheKey, function () use ($jobId) {
+                $job = $this->scheduledJobRepository->find($jobId);
 
-        $transactions = $this->transactionRepository->createQueryBuilder('t')
-            ->where('t.tableName = :tableName')
-            ->andWhere('t.idTableName = :idTableName')
-            ->setParameter('tableName', 'scheduledJobs')
-            ->setParameter('idTableName', $jobId)
-            ->orderBy('t.transactionTime', 'desc')
-            ->getQuery()
-            ->getResult();
+                if (!$job) {
+                    throw new ServiceException('Scheduled job not found', Response::HTTP_NOT_FOUND);
+                }
 
-        $formattedTransactions = [];
-        foreach ($transactions as $transaction) {
-            $formattedTransactions[] = [
-                'transaction_id' => $transaction->getId(),
-                'transaction_time' => $transaction->getTransactionTime()->format('Y-m-d H:i:s'),
-                'transaction_type' => $transaction->getTransactionType()?->getLookupValue(),
-                'transaction_verbal_log' => $transaction->getTransactionLog(),
-                'user' => $transaction->getUser()?->getName()
-            ];
-        }
+                $transactions = $this->transactionRepository->createQueryBuilder('t')
+                    ->where('t.tableName = :tableName')
+                    ->andWhere('t.idTableName = :idTableName')
+                    ->setParameter('tableName', 'scheduledJobs')
+                    ->setParameter('idTableName', $jobId)
+                    ->orderBy('t.transactionTime', 'desc')
+                    ->getQuery()
+                    ->getResult();
 
-        return $formattedTransactions;
+                $formattedTransactions = [];
+                foreach ($transactions as $transaction) {
+                    $formattedTransactions[] = [
+                        'transaction_id' => $transaction->getId(),
+                        'transaction_time' => $transaction->getTransactionTime()->format('Y-m-d H:i:s'),
+                        'transaction_type' => $transaction->getTransactionType()?->getLookupValue(),
+                        'transaction_verbal_log' => $transaction->getTransactionLog(),
+                        'user' => $transaction->getUser()?->getName()
+                    ];
+                }
+
+                return $formattedTransactions;
+            });
     }
 
     /**
@@ -220,4 +242,4 @@ class AdminScheduledJobService extends BaseService
         ];
     }
 
-} 
+}

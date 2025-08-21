@@ -49,12 +49,3 @@ services:
     App\Service\CMS\Admin\AdminAssetService:
         arguments:
             $projectDir: '%kernel.project_dir%'
-    
-    # Cache Service Configuration
-    App\Service\Cache\Core\CacheService:
-        arguments:
-            $globalCache: '@cache.global'
-            $userFrontendCache: '@cache.user_frontend'
-            $adminCache: '@cache.admin'
-            $lookupsCache: '@cache.lookups'
-            $permissionsCache: '@cache.permissions'

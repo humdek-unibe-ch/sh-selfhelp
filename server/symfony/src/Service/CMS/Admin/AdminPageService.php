@@ -10,6 +10,7 @@ use App\Repository\PageTypeRepository;
 use App\Repository\SectionRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Service\CMS\Admin\PositionManagementService;
 use App\Service\CMS\Admin\PageFieldService;
 use App\Service\CMS\Admin\SectionRelationshipService;
@@ -55,7 +56,8 @@ class AdminPageService extends BaseService
         private readonly PageRepository $pageRepository,
         private readonly SectionRepository $sectionRepository,
         private readonly UserContextService $userContextService,
-        private readonly UserContextAwareService $userContextAwareService
+        private readonly UserContextAwareService $userContextAwareService,
+        private readonly ReworkedCacheService $cache
     ) {
     }
 
@@ -80,18 +82,23 @@ class AdminPageService extends BaseService
      */
     public function getPageSections(string $pageKeyword): array
     {
-       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+        $cacheKey = "page_sections_{$pageKeyword}";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->getItem($cacheKey, function () use ($pageKeyword) {
+                $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-        if (!$page) {
-            $this->throwNotFound('Page not found');
-        }
-        // Check if user has access to the page
-       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+                $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+                if (!$page) {
+                    $this->throwNotFound('Page not found');
+                }
+                // Check if user has access to the page
+                $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
-        // Call stored procedure for hierarchical sections
-        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-        return $this->sectionUtilityService->buildNestedSections($flatSections, false);
+                // Call stored procedure for hierarchical sections
+                $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+                return $this->sectionUtilityService->buildNestedSections($flatSections, false);
+            });
     }
 
     /** Private methods */
@@ -192,7 +199,7 @@ class AdminPageService extends BaseService
             $this->aclService->addGroupAcl($page, $therapistGroup, true, false, false, false, $this->entityManager);
 
             // ACL for creating user (full access)
-            $currentUser = $this->getCurrentUser();
+            $currentUser = $this->userContextAwareService->getCurrentUser();
             if (!$currentUser) {
                 throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
             }
@@ -218,8 +225,11 @@ class AdminPageService extends BaseService
                 true,
                 'Page created with keyword: ' . $keyword
             );
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateAllListsInCategory();
 
-            $this->entityManager->commit();            
+            $this->entityManager->commit();
 
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -266,7 +276,7 @@ class AdminPageService extends BaseService
             }
 
             // Check if user has update access to the page
-           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+            $this->userContextAwareService->checkAccess($pageKeyword, 'update');
 
             // Store original page for transaction logging
             $originalPage = clone $page;
@@ -328,7 +338,7 @@ class AdminPageService extends BaseService
                             Response::HTTP_BAD_REQUEST
                         );
                     }
-                    
+
                     $page->setPageAccessType($pageAccessType);
                 }
             }
@@ -396,6 +406,10 @@ class AdminPageService extends BaseService
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateItemAndLists("page_with_fields_{$pageKeyword}");
+
             return $page;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -427,7 +441,7 @@ class AdminPageService extends BaseService
             }
 
             // Check if user has delete access to the page
-           $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
+            $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
 
             // Check if the page has children
             $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);
@@ -466,7 +480,13 @@ class AdminPageService extends BaseService
                 'Page deleted with keyword: ' . $pageKeywordForLog
             );
 
-            $this->entityManager->commit();            
+            $this->entityManager->commit();
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateCategory();
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                ->invalidateCategory();
 
             return $deleted_page;
         } catch (\Throwable $e) {
@@ -478,7 +498,7 @@ class AdminPageService extends BaseService
             );
         }
     }
-    
+
     /**
      * Add a section to a page
      * 
@@ -492,7 +512,12 @@ class AdminPageService extends BaseService
     public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
         $result = $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
-        $this->adminSectionUtilityService->invalidateUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateAllListsInCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateAllListsInCategory();
         return $result;
     }
 
@@ -508,6 +533,11 @@ class AdminPageService extends BaseService
     public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
     {
         $this->sectionRelationshipService->removeSectionFromPage($pageKeyword, $sectionId);
-        $this->adminSectionUtilityService->invalidateUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateAllListsInCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateAllListsInCategory();
     }
 }

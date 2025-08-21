@@ -38,60 +38,65 @@ class AdminRoleService extends BaseService
         ?string $sort = null,
         ?string $sortDirection = 'asc'
     ): array {
-        if ($page < 1) $page = 1;
-        if ($pageSize < 1 || $pageSize > 100) $pageSize = 20;
-        if (!in_array($sortDirection, ['asc', 'desc'])) $sortDirection = 'asc';
+        if ($page < 1)
+            $page = 1;
+        if ($pageSize < 1 || $pageSize > 100)
+            $pageSize = 20;
+        if (!in_array($sortDirection, ['asc', 'desc']))
+            $sortDirection = 'asc';
 
+        return $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection);
+    }
+
+    private function fetchRolesFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
+    {
         // Create cache key based on parameters
         $cacheKey = "roles_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($sort ?? '') . $sortDirection);
-        
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
             ->getList(
                 $cacheKey,
-                fn() => $this->fetchRolesFromDatabase($page, $pageSize, $search, $sort, $sortDirection)
+                function () use ($page, $pageSize, $search, $sort, $sortDirection) {
+                    $qb = $this->entityManager->getRepository(Role::class)->createQueryBuilder('r');
+
+                    // Apply search filter
+                    if ($search) {
+                        $qb->andWhere('(r.name LIKE :search OR r.description LIKE :search)')
+                            ->setParameter('search', '%' . $search . '%');
+                    }
+
+                    // Apply sorting
+                    $allowedSortFields = ['name', 'description'];
+                    if ($sort && in_array($sort, $allowedSortFields)) {
+                        $qb->orderBy('r.' . $sort, $sortDirection);
+                    } else {
+                        $qb->orderBy('r.name', 'asc');
+                    }
+
+                    // Get total count for pagination
+                    $countQb = clone $qb;
+                    $totalCount = $countQb->select('COUNT(r.id)')->getQuery()->getSingleScalarResult();
+
+                    // Apply pagination
+                    $qb->setFirstResult(($page - 1) * $pageSize)
+                        ->setMaxResults($pageSize);
+
+                    $roles = $qb->getQuery()->getResult();
+
+                    return [
+                        'roles' => array_map([$this, 'formatRoleForList'], $roles),
+                        'pagination' => [
+                            'page' => $page,
+                            'pageSize' => $pageSize,
+                            'totalCount' => (int) $totalCount,
+                            'totalPages' => (int) ceil($totalCount / $pageSize),
+                            'hasNext' => $page < ceil($totalCount / $pageSize),
+                            'hasPrevious' => $page > 1
+                        ]
+                    ];
+                }
             );
-    }
-    
-    private function fetchRolesFromDatabase(int $page, int $pageSize, ?string $search, ?string $sort, string $sortDirection): array
-    {
-        $qb = $this->createRoleQueryBuilder();
-        
-        // Apply search filter
-        if ($search) {
-            $qb->andWhere('(r.name LIKE :search OR r.description LIKE :search)')
-               ->setParameter('search', '%' . $search . '%');
-        }
-
-        // Apply sorting
-        $allowedSortFields = ['name', 'description'];
-        if ($sort && in_array($sort, $allowedSortFields)) {
-            $qb->orderBy('r.' . $sort, $sortDirection);
-        } else {
-            $qb->orderBy('r.name', 'asc');
-        }
-
-        // Get total count for pagination
-        $countQb = clone $qb;
-        $totalCount = $countQb->select('COUNT(r.id)')->getQuery()->getSingleScalarResult();
-
-        // Apply pagination
-        $qb->setFirstResult(($page - 1) * $pageSize)
-           ->setMaxResults($pageSize);
-
-        $roles = $qb->getQuery()->getResult();
-
-        return [
-            'roles' => array_map([$this, 'formatRoleForList'], $roles),
-            'pagination' => [
-                'page' => $page,
-                'pageSize' => $pageSize,
-                'totalCount' => (int)$totalCount,
-                'totalPages' => (int)ceil($totalCount / $pageSize),
-                'hasNext' => $page < ceil($totalCount / $pageSize),
-                'hasPrevious' => $page > 1
-            ]
-        ];
     }
 
     /**
@@ -99,12 +104,17 @@ class AdminRoleService extends BaseService
      */
     public function getRoleById(int $roleId): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "role_{$roleId}";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->getItem($cacheKey, function () use ($roleId) {
+                $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+                if (!$role) {
+                    throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
+                }
 
-        return $this->formatRoleForDetail($role);
+                return $this->formatRoleForDetail($role);
+            });
     }
 
     /**
@@ -113,7 +123,7 @@ class AdminRoleService extends BaseService
     public function createRole(array $roleData): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $this->validateRoleData($roleData);
 
@@ -159,7 +169,7 @@ class AdminRoleService extends BaseService
     public function updateRole(int $roleId, array $roleData): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
@@ -192,7 +202,10 @@ class AdminRoleService extends BaseService
             // Invalidate cache after update
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-                ->invalidateAllListsInCategory();
+                ->invalidateItemAndLists("role_{$roleId}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateItemAndLists("role_permissions_{$roleId}");
 
             return $this->formatRoleForDetail($role);
         } catch (\Exception $e) {
@@ -207,7 +220,7 @@ class AdminRoleService extends BaseService
     public function deleteRole(int $roleId): void
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
@@ -237,7 +250,10 @@ class AdminRoleService extends BaseService
             // Invalidate cache after delete
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
-                ->invalidateAllListsInCategory();
+                ->invalidateItemAndLists("role_{$roleId}");
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateItemAndLists("role_permissions_{$roleId}");
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;
@@ -249,12 +265,17 @@ class AdminRoleService extends BaseService
      */
     public function getRolePermissions(int $roleId): array
     {
-        $role = $this->entityManager->getRepository(Role::class)->find($roleId);
-        if (!$role) {
-            throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
-        }
+        $cacheKey = "role_permissions_{$roleId}";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->getItem($cacheKey, function () use ($roleId) {
+                $role = $this->entityManager->getRepository(Role::class)->find($roleId);
+                if (!$role) {
+                    throw new ServiceException('Role not found', Response::HTTP_NOT_FOUND);
+                }
 
-        return array_map([$this, 'formatPermissionForResponse'], $role->getPermissions()->toArray());
+                return array_map([$this, 'formatPermissionForResponse'], $role->getPermissions()->toArray());
+            });
     }
 
     /**
@@ -263,7 +284,7 @@ class AdminRoleService extends BaseService
     public function addPermissionsToRole(int $roleId, array $permissionIds): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
@@ -284,6 +305,10 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateItemAndLists("role_permissions_{$roleId}");
+
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -297,7 +322,7 @@ class AdminRoleService extends BaseService
     public function removePermissionsFromRole(int $roleId, array $permissionIds): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
@@ -329,6 +354,10 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateItemAndLists("role_permissions_{$roleId}");
+
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -342,7 +371,7 @@ class AdminRoleService extends BaseService
     public function updateRolePermissions(int $roleId, array $permissionIds): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $role = $this->entityManager->getRepository(Role::class)->find($roleId);
             if (!$role) {
@@ -363,6 +392,10 @@ class AdminRoleService extends BaseService
 
             $this->entityManager->commit();
 
+            $this->cache
+                ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+                ->invalidateItemAndLists("role_permissions_{$roleId}");
+
             return $this->getRolePermissions($roleId);
         } catch (\Exception $e) {
             $this->entityManager->rollback();
@@ -375,22 +408,18 @@ class AdminRoleService extends BaseService
      */
     public function getAllPermissions(): array
     {
-        $permissions = $this->entityManager->getRepository(Permission::class)
-            ->createQueryBuilder('p')
-            ->orderBy('p.name', 'asc')
-            ->getQuery()
-            ->getResult();
+        $cacheKey = "all_permissions";
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_ROLES)
+            ->getList($cacheKey, function () {
+                $permissions = $this->entityManager->getRepository(Permission::class)
+                    ->createQueryBuilder('p')
+                    ->orderBy('p.name', 'asc')
+                    ->getQuery()
+                    ->getResult();
 
-        return array_map([$this, 'formatPermissionForResponse'], $permissions);
-    }
-
-    /**
-     * Create query builder for roles
-     */
-    private function createRoleQueryBuilder(): QueryBuilder
-    {
-        return $this->entityManager->getRepository(Role::class)
-            ->createQueryBuilder('r');
+                return array_map([$this, 'formatPermissionForResponse'], $permissions);
+            });
     }
 
     /**
@@ -419,7 +448,7 @@ class AdminRoleService extends BaseService
             'permissions_count' => $role->getPermissions()->count(),
             'users_count' => $role->getUsers()->count(),
             'permissions' => array_map([$this, 'formatPermissionForResponse'], $role->getPermissions()->toArray()),
-            'users' => array_map(function($user) {
+            'users' => array_map(function ($user) {
                 return [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
@@ -501,4 +530,4 @@ class AdminRoleService extends BaseService
 
         $this->entityManager->flush();
     }
-} 
+}

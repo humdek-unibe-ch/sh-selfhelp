@@ -62,7 +62,7 @@ class DataService extends BaseService
         try {
             // Ensure user ID is set
             if (!isset($data['id_users'])) {
-                $currentUser = $this->getCurrentUser();
+                $currentUser = $this->userContextAwareService->getCurrentUser();
                 $data['id_users'] = $currentUser ? $currentUser->getId() : 1; // Guest user fallback
             }
 

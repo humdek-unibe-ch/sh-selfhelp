@@ -191,7 +191,12 @@ class AdminSectionService extends BaseService
     public function addSectionToSection(string $page_keyword, int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
         $result = $this->sectionRelationshipService->addSectionToSection($page_keyword, $parent_section_id, $child_section_id, $position, $oldParentPageKeyword, $oldParentSectionId);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
         return $result;
     }
 
@@ -206,7 +211,12 @@ class AdminSectionService extends BaseService
     public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): void
     {
         $this->sectionRelationshipService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
     }
 
     /**
@@ -221,7 +231,12 @@ class AdminSectionService extends BaseService
     public function deleteSection(?string $page_keyword, int $section_id): void
     {
         $this->sectionRelationshipService->deleteSection($page_keyword, $section_id);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
     }
 
     /**
@@ -237,7 +252,12 @@ class AdminSectionService extends BaseService
     public function forceDeleteSection(string $page_keyword, int $section_id): void
     {
         $this->sectionRelationshipService->forceDeleteSection($page_keyword, $section_id);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
     }
 
     /**
@@ -252,7 +272,12 @@ class AdminSectionService extends BaseService
     public function createPageSection(string $page_keyword, int $styleId, ?int $position): array
     {
         $result = $this->sectionCreationService->createPageSection($page_keyword, $styleId, $position);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateAllListsInCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
         return $result;
     }
 
@@ -269,7 +294,12 @@ class AdminSectionService extends BaseService
     public function createChildSection(?string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
     {
         $result = $this->sectionCreationService->createChildSection($page_keyword, $parent_section_id, $styleId, $position);
-        $this->invalidateSectionUtilityCache();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->invalidateCategory();
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
         return $result;
     }
 
@@ -838,11 +868,4 @@ class AdminSectionService extends BaseService
         $this->entityManager->flush();
     }
 
-    /**
-     * Invalidate section utility cache when sections are modified
-     */
-    private function invalidateSectionUtilityCache(): void
-    {
-        $this->adminSectionUtilityService->invalidateUtilityCache();
-    }
 }

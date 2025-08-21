@@ -5,7 +5,6 @@ namespace App\Controller\Api\V1\Admin;
 use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\CMS\Admin\AdminSectionUtilityService;
 use App\Service\Core\ApiResponseFormatter;
-use App\Service\Cache\Core\CacheService;
 use App\Service\JSON\JsonSchemaValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +21,6 @@ class AdminSectionUtilityController extends AbstractController
         private readonly AdminSectionUtilityService $adminSectionUtilityService,
         private readonly ApiResponseFormatter $apiResponseFormatter,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly CacheService $cacheService
     ) {}
 
     /**
@@ -62,10 +60,6 @@ class AdminSectionUtilityController extends AbstractController
         try {
             $this->adminSectionUtilityService->deleteUnusedSection($section_id);
 
-            // Invalidate all sections and pages cache since we can't get specific entities after deletion
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-
             return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
         } catch (\App\Exception\ServiceException $e) {
             return $this->apiResponseFormatter->formatException($e);
@@ -87,10 +81,6 @@ class AdminSectionUtilityController extends AbstractController
     {
         try {
             $deletedCount = $this->adminSectionUtilityService->deleteAllUnusedSections();
-
-            // Invalidate all sections and pages cache since we can't get specific entities after deletion
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
             return $this->apiResponseFormatter->formatSuccess(
                 ['deleted_count' => $deletedCount],

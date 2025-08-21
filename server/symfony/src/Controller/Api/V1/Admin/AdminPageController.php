@@ -9,7 +9,6 @@ use App\Service\CMS\Frontend\PageService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
-use App\Service\Cache\Core\CacheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +31,6 @@ class AdminPageController extends AbstractController
         private readonly ApiResponseFormatter $responseFormatter,
         private readonly PageService $pageService,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly CacheService $cacheService
     ) {
     }
 

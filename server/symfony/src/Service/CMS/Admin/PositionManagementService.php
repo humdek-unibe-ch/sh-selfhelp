@@ -153,13 +153,9 @@ class PositionManagementService
         // Only flush if requested (allows caller to control transaction)
         if ($flush) {
             $this->entityManager->flush();
-            
-            // Invalidate page caches when positions are reordered
-            foreach ($pages as $page) {
-                $this->cache
-                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
-            }
         }
+        $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+            ->invalidateCategory();
     }
 }
