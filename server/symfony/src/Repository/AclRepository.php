@@ -34,6 +34,8 @@ class AclRepository extends ServiceEntityRepository
     {
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PERMISSIONS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId)
             ->withUser($userId)
             ->getItem("user_acl_{$pageId}", function () use ($userId, $pageId) {
                 $conn = $this->getEntityManager()->getConnection();
