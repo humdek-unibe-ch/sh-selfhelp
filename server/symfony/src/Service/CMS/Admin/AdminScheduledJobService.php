@@ -96,13 +96,14 @@ class AdminScheduledJobService extends BaseService
     }
 
     /**
-     * Get scheduled job by ID with all related data
+     * Get scheduled job by ID with all related data and entity scope caching
      */
     public function getScheduledJobById(int $jobId): array
     {
         $cacheKey = "scheduled_job_{$jobId}";
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
             ->getItem($cacheKey, function () use ($jobId) {
                 $job = $this->scheduledJobRepository->findScheduledJobById($jobId);
 
@@ -132,13 +133,14 @@ class AdminScheduledJobService extends BaseService
     }
 
     /**
-     * Get transactions related to a scheduled job
+     * Get transactions related to a scheduled job with entity scope caching
      */
     public function getJobTransactions(int $jobId): array
     {
         $cacheKey = "scheduled_job_transactions_{$jobId}";
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SCHEDULED_JOBS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SCHEDULED_JOB, $jobId)
             ->getItem($cacheKey, function () use ($jobId) {
                 $job = $this->scheduledJobRepository->find($jobId);
 

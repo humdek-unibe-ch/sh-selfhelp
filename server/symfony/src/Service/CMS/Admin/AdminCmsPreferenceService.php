@@ -24,7 +24,7 @@ class AdminCmsPreferenceService extends BaseService
     }
 
     /**
-     * Get CMS preferences
+     * Get CMS preferences with entity scope caching
      * 
      * @return array
      */
@@ -40,6 +40,23 @@ class AdminCmsPreferenceService extends BaseService
                     if (!$preferences) {
                         throw new ServiceException('CMS preferences not found', Response::HTTP_NOT_FOUND);
                     }
+
+                    // Add entity scope for the CMS preference instance
+                    $this->cache
+                        ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
+                        ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId())
+                        ->setItem('cms_preferences_scoped', null, [
+                            'id' => $preferences->getId(),
+                            'callback_api_key' => $preferences->getCallbackApiKey(),
+                            'default_language_id' => $preferences->getDefaultLanguage()?->getId(),
+                            'default_language' => $preferences->getDefaultLanguage() ? [
+                                'id' => $preferences->getDefaultLanguage()->getId(),
+                                'locale' => $preferences->getDefaultLanguage()->getLocale(),
+                                'language' => $preferences->getDefaultLanguage()->getLanguage()
+                            ] : null,
+                            'anonymous_users' => $preferences->getAnonymousUsers(),
+                            'firebase_config' => $preferences->getFirebaseConfig()
+                        ]);
 
                     return [
                         'id' => $preferences->getId(),
@@ -116,10 +133,11 @@ class AdminCmsPreferenceService extends BaseService
 
             $this->entityManager->commit();
 
-            // Invalidate cache after update
+            // Invalidate entity-scoped cache for CMS preferences
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId());
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_CMS_PREFERENCES)
-                ->invalidateItem('cms_preferences');
+                ->invalidateAllListsInCategory();
 
             return $this->getCmsPreferences();
         } catch (\Exception $e) {

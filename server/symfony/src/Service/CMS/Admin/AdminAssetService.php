@@ -105,7 +105,7 @@ class AdminAssetService extends BaseService
     }
 
     /**
-     * Get asset by ID
+     * Get asset by ID with entity scope caching
      * 
      * @param int $id
      * @return array
@@ -116,6 +116,7 @@ class AdminAssetService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ASSET, $id)
             ->getItem(
                 $cacheKey,
                 function () use ($id) {
@@ -230,6 +231,7 @@ class AdminAssetService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate all asset lists since a new asset was created/updated
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
                 ->invalidateAllListsInCategory();
@@ -332,9 +334,11 @@ class AdminAssetService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific asset
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ASSET, $id);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ASSETS)
-                ->invalidateItemAndLists("asset_id_{$id}");
+                ->invalidateAllListsInCategory();
 
             return true;
         } catch (\Exception $e) {

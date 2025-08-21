@@ -44,13 +44,13 @@ class AdminActionService extends BaseService
     }
 
     /**
-     * Get a single action by ID
+     * Get a single action by ID with entity scope caching
      */
     public function getActionById(int $actionId): array
     {
-
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId)
             ->getItem(
                 "action_{$actionId}",
                 function () use ($actionId) {
@@ -119,9 +119,11 @@ class AdminActionService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific action
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
-                ->invalidateItemAndLists("action_{$actionId}");
+                ->invalidateAllListsInCategory();
 
             return $this->formatAction($action);
         } catch (\Throwable $e) {
@@ -186,6 +188,7 @@ class AdminActionService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate all action lists since a new action was created
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
                 ->invalidateAllListsInCategory();
@@ -227,9 +230,11 @@ class AdminActionService extends BaseService
             $this->entityManager->flush();
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific action
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_ACTION, $actionId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_ACTIONS)
-                ->invalidateItemAndLists("action_{$actionId}");
+                ->invalidateAllListsInCategory();
 
             return true;
         } catch (\Throwable $e) {

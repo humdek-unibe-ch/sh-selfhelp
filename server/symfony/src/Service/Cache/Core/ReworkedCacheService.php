@@ -472,6 +472,403 @@ class ReworkedCacheService
         $this->invalidateUser($effectiveUserId);
     }
 
+    /* =========================
+       Entity-Scoped Cache Operations (NEW)
+       ========================= */
+
+    /**
+     * ENTITY SCOPE INVALIDATION SYSTEM
+     * 
+     * This system allows cache invalidation based on specific entity primary keys.
+     * When an entity changes (e.g., a page, section, user, group), you can invalidate
+     * ALL cache entries that depend on that entity across all categories.
+     * 
+     * Key Benefits:
+     * 1. O(1) Invalidation: Uses generation counters, no scanning of cache entries
+     * 2. Cross-Category: One entity change can invalidate cache across multiple categories
+     * 3. Precise Targeting: Only invalidates cache that actually depends on the changed entity
+     * 4. Automatic Integration: Works seamlessly with existing cache operations
+     * 
+     * How It Works:
+     * - Each entity type (page, section, user, etc.) has its own generation counter
+     * - Cache keys include the generation number of all entities they depend on
+     * - When an entity changes, we increment its generation counter
+     * - All cache entries with the old generation become invalid automatically
+     * 
+     * Usage Examples:
+     * 
+     * 1. Caching with entity dependencies:
+     *    $cache->withCategory(CATEGORY_PAGES)
+     *          ->withEntityScope('page_id', $pageId)
+     *          ->withEntityScope('section_id', $sectionId)
+     *          ->getItem('page_content', $callback);
+     * 
+     * 2. Invalidating when entity changes:
+     *    $cache->invalidateEntityScope('page_id', $pageId); // Invalidates ALL cache depending on this page
+     *    $cache->invalidateEntityScope('section_id', $sectionId); // Invalidates ALL cache depending on this section
+     * 
+     * 3. Chaining multiple entity scopes:
+     *    $cache->withCategory(CATEGORY_SECTIONS)
+     *          ->withEntityScope('page_id', $pageId)     // This section depends on a page
+     *          ->withEntityScope('user_id', $userId)     // And on a user's permissions
+     *          ->withEntityScope('group_id', $groupId)   // And on a group's settings
+     *          ->getList('filtered_sections', $callback);
+     * 
+     * Supported Entity Types (can be extended):
+     * - page_id: For page-dependent cache entries
+     * - section_id: For section-dependent cache entries  
+     * - user_id: For user-dependent cache entries (different from user-scoped cache)
+     * - group_id: For group-dependent cache entries
+     * - role_id: For role-dependent cache entries
+     * - language_id: For language-dependent cache entries
+     * - asset_id: For asset-dependent cache entries
+     * - action_id: For action-dependent cache entries
+     * - scheduled_job_id: For scheduled job-dependent cache entries
+     * - field_id: For field-dependent cache entries
+     * - lookup_id: For lookup-dependent cache entries
+     * 
+     * Real-World Examples:
+     * 
+     * 1. Page Content Cache:
+     *    When caching rendered page content, it might depend on:
+     *    - The page itself (page_id)
+     *    - Sections within the page (section_id)
+     *    - User permissions (user_id)
+     *    - Language settings (language_id)
+     * 
+     * 2. Navigation Menu Cache:
+     *    When caching navigation menus, it might depend on:
+     *    - User permissions (user_id)
+     *    - Group memberships (group_id)
+     *    - Language settings (language_id)
+     *    - Page visibility (multiple page_ids)
+     * 
+     * 3. Form Field Cache:
+     *    When caching form field configurations, it might depend on:
+     *    - The specific field (field_id)
+     *    - User permissions (user_id)
+     *    - Group settings (group_id)
+     *    - Language translations (language_id)
+     * 
+     * Performance Notes:
+     * - Entity scope generation counters are cached permanently (no TTL)
+     * - Cache key generation is very fast (just string concatenation)
+     * - Invalidation is O(1) regardless of how many cache entries are affected
+     * - Works alongside existing user-scoped and category-based invalidation
+     */
+
+    /** @var array<string, int> Current entity scopes for this service instance */
+    private array $entityScopes = [];
+
+    /**
+     * SUPPORTED ENTITY SCOPE TYPES
+     * 
+     * These constants define the entity types that can be used for scoped caching.
+     * Each represents a primary key from a database entity that cache entries can depend on.
+     * 
+     * When you add new entity types to your system, add corresponding constants here
+     * to enable scoped caching for those entities.
+     */
+    public const ENTITY_SCOPE_PAGE = 'page_id';
+    public const ENTITY_SCOPE_PAGE_KEYWORD = 'page_keyword';
+    public const ENTITY_SCOPE_SECTION = 'section_id';
+    public const ENTITY_SCOPE_USER = 'user_id';
+    public const ENTITY_SCOPE_GROUP = 'group_id';
+    public const ENTITY_SCOPE_ROLE = 'role_id';
+    public const ENTITY_SCOPE_LANGUAGE = 'language_id';
+    public const ENTITY_SCOPE_ASSET = 'asset_id';
+    public const ENTITY_SCOPE_ACTION = 'action_id';
+    public const ENTITY_SCOPE_SCHEDULED_JOB = 'scheduled_job_id';
+    public const ENTITY_SCOPE_FIELD = 'field_id';
+    public const ENTITY_SCOPE_LOOKUP = 'lookup_id';
+    public const ENTITY_SCOPE_PERMISSION = 'permission_id';
+    public const ENTITY_SCOPE_CMS_PREFERENCE = 'cms_preference_id';
+
+    /**
+     * Array of all supported entity scope types for validation
+     */
+    public const ALL_ENTITY_SCOPES = [
+        self::ENTITY_SCOPE_PAGE,
+        self::ENTITY_SCOPE_PAGE_KEYWORD,
+        self::ENTITY_SCOPE_SECTION,
+        self::ENTITY_SCOPE_USER,
+        self::ENTITY_SCOPE_GROUP,
+        self::ENTITY_SCOPE_ROLE,
+        self::ENTITY_SCOPE_LANGUAGE,
+        self::ENTITY_SCOPE_ASSET,
+        self::ENTITY_SCOPE_ACTION,
+        self::ENTITY_SCOPE_SCHEDULED_JOB,
+        self::ENTITY_SCOPE_FIELD,
+        self::ENTITY_SCOPE_LOOKUP,
+        self::ENTITY_SCOPE_PERMISSION,
+        self::ENTITY_SCOPE_CMS_PREFERENCE,
+    ];
+
+    /**
+     * Create a new service instance with an additional entity scope dependency
+     * 
+     * BUILDER PATTERN - ENTITY SCOPING
+     * 
+     * This method allows you to specify that cache entries depend on specific entities.
+     * When those entities change, all cache entries that declared a dependency on them
+     * will be automatically invalidated through generation-based cache keys.
+     * 
+     * Uses immutable builder pattern - returns a new instance without modifying current one.
+     * This allows for clean, chainable cache operations with multiple entity dependencies.
+     * 
+     * HOW ENTITY SCOPING WORKS:
+     * 
+     * 1. Declaration: You declare that your cache entry depends on specific entities
+     * 2. Key Generation: The cache key includes generation numbers for all dependent entities
+     * 3. Invalidation: When an entity changes, increment its generation counter
+     * 4. Automatic Cleanup: All cache entries with old generation numbers become invalid
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants (e.g., ENTITY_SCOPE_PAGE, ENTITY_SCOPE_SECTION)
+     * @param int $entityId The primary key value of the entity this cache depends on
+     * @return self New service instance configured with the additional entity scope
+     * 
+     * @throws \InvalidArgumentException If entityType is not supported
+     * 
+     * @example Single entity dependency:
+     * $cache->withCategory(CATEGORY_PAGES)
+     *       ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId)
+     *       ->getItem('page_content', $callback);
+     * 
+     * @example Multiple entity dependencies (chainable):
+     * $cache->withCategory(CATEGORY_SECTIONS)
+     *       ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId)
+     *       ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+     *       ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
+     *       ->getList('localized_page_sections', $callback);
+     * 
+     * @example Real-world navigation cache:
+     * $navigationCache = $cache->withCategory(CATEGORY_FRONTEND_USER)
+     *                          ->withEntityScope(ENTITY_SCOPE_USER, $userId)      // User permissions
+     *                          ->withEntityScope(ENTITY_SCOPE_GROUP, $groupId)    // Group access
+     *                          ->withEntityScope(ENTITY_SCOPE_LANGUAGE, $langId)  // Language
+     *                          ->getItem('user_navigation_menu', function() {
+     *                              return $this->buildNavigationForUser();
+     *                          });
+     */
+    public function withEntityScope(string $entityType, int $entityId): self
+    {
+        // Validate entity type is supported
+        if (!in_array($entityType, self::ALL_ENTITY_SCOPES, true)) {
+            throw new \InvalidArgumentException(
+                "Unsupported entity scope type: {$entityType}. " .
+                "Supported types: " . implode(', ', self::ALL_ENTITY_SCOPES)
+            );
+        }
+
+        // Validate entity ID is positive
+        if ($entityId <= 0) {
+            throw new \InvalidArgumentException("Entity ID must be positive, got: {$entityId}");
+        }
+
+        // Clone and add the entity scope
+        $clone = clone $this;
+        $clone->entityScopes[$entityType] = $entityId;
+        return $clone;
+    }
+
+    /**
+     * GLOBAL ENTITY INVALIDATION - The Power Method
+     * 
+     * This is the main invalidation method for entity-scoped caching.
+     * When an entity changes (create, update, delete), call this method to invalidate
+     * ALL cache entries across ALL categories that depend on this specific entity.
+     * 
+     * PERFORMANCE: This is an O(1) operation regardless of how many cache entries
+     * are affected. It simply increments a generation counter.
+     * 
+     * SCOPE: This invalidation works across:
+     * - All cache categories (CATEGORY_PAGES, CATEGORY_USERS, etc.)
+     * - All cache types (lists and items)
+     * - All user-scoped and non-user-scoped entries
+     * - Any cache entry that declared a dependency on this entity
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants
+     * @param int $entityId The primary key value of the entity that changed
+     * 
+     * @throws \InvalidArgumentException If entityType is not supported
+     * 
+     * @example When a page is updated:
+     * $cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId);
+     * // This invalidates ALL cache entries that depend on this page:
+     * // - Page content cache
+     * // - Navigation menus that include this page
+     * // - Breadcrumb caches
+     * // - SEO metadata cache
+     * // - Any other cache that declared dependency on this page
+     * 
+     * @example When a user's permissions change:
+     * $cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId);
+     * // This invalidates ALL cache entries that depend on this user:
+     * // - User-specific page content
+     * // - Permission-based navigation
+     * // - User dashboard data
+     * // - Access-controlled content cache
+     * 
+     * @example When a section is modified:
+     * $cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
+     * // This invalidates ALL cache entries that depend on this section:
+     * // - Pages containing this section
+     * // - Section hierarchy caches
+     * // - Form field configurations using this section
+     * // - Any computed data based on this section
+     * 
+     * @example Integration with service methods:
+     * public function updatePage(int $pageId, array $data): Page
+     * {
+     *     $page = $this->pageRepository->find($pageId);
+     *     // ... update page logic ...
+     *     $this->entityManager->flush();
+     *     
+     *     // Invalidate ALL cache that depends on this page
+     *     $this->cache->invalidateEntityScope(
+     *         ReworkedCacheService::ENTITY_SCOPE_PAGE, 
+     *         $pageId
+     *     );
+     *     
+     *     return $page;
+     * }
+     */
+    public function invalidateEntityScope(string $entityType, int $entityId): void
+    {
+        // Validate entity type is supported
+        if (!in_array($entityType, self::ALL_ENTITY_SCOPES, true)) {
+            throw new \InvalidArgumentException(
+                "Unsupported entity scope type: {$entityType}. " .
+                "Supported types: " . implode(', ', self::ALL_ENTITY_SCOPES)
+            );
+        }
+
+        // Validate entity ID is positive
+        if ($entityId <= 0) {
+            throw new \InvalidArgumentException("Entity ID must be positive, got: {$entityId}");
+        }
+
+        // Increment the generation counter for this entity
+        // This makes all cache entries depending on this entity invalid
+        $this->incr($this->entityScopeGenKey($entityType, $entityId));
+
+        // Log the invalidation for debugging and monitoring
+        if ($this->logger) {
+            $this->logger->info('Entity scope invalidated', [
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'generation_key' => $this->entityScopeGenKey($entityType, $entityId)
+            ]);
+        }
+    }
+
+    /**
+     * BULK ENTITY INVALIDATION - For Mass Updates
+     * 
+     * When you need to invalidate multiple entities of the same type at once,
+     * this method provides an efficient way to do so. Useful for bulk operations
+     * like batch updates, imports, or cascading changes.
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants
+     * @param array $entityIds Array of entity IDs to invalidate
+     * 
+     * @throws \InvalidArgumentException If entityType is not supported or entityIds is empty
+     * 
+     * @example Bulk page invalidation after import:
+     * $cache->invalidateEntityScopes(
+     *     ReworkedCacheService::ENTITY_SCOPE_PAGE, 
+     *     [101, 102, 103, 104, 105]
+     * );
+     * 
+     * @example Invalidate all sections in a page:
+     * $sectionIds = $this->sectionRepository->findIdsByPageId($pageId);
+     * $cache->invalidateEntityScopes(
+     *     ReworkedCacheService::ENTITY_SCOPE_SECTION,
+     *     $sectionIds
+     * );
+     */
+    public function invalidateEntityScopes(string $entityType, array $entityIds): void
+    {
+        if (empty($entityIds)) {
+            throw new \InvalidArgumentException('Entity IDs array cannot be empty');
+        }
+
+        foreach ($entityIds as $entityId) {
+            $this->invalidateEntityScope($entityType, $entityId);
+        }
+
+        if ($this->logger) {
+            $this->logger->info('Bulk entity scope invalidation completed', [
+                'entity_type' => $entityType,
+                'count' => count($entityIds),
+                'entity_ids' => $entityIds
+            ]);
+        }
+    }
+
+    /**
+     * GET CURRENT ENTITY SCOPES - For Debugging and Monitoring
+     * 
+     * Returns the current entity scopes configured for this service instance.
+     * Useful for debugging cache key generation and understanding dependencies.
+     * 
+     * @return array<string, int> Array of entity_type => entity_id mappings
+     * 
+     * @example Debugging cache dependencies:
+     * $scopes = $cache->withCategory(CATEGORY_PAGES)
+     *                 ->withEntityScope(ENTITY_SCOPE_PAGE, 123)
+     *                 ->withEntityScope(ENTITY_SCOPE_USER, 456)
+     *                 ->getCurrentEntityScopes();
+     * // Returns: ['page_id' => 123, 'user_id' => 456]
+     */
+    public function getCurrentEntityScopes(): array
+    {
+        return $this->entityScopes;
+    }
+
+    /**
+     * CHECK IF ENTITY SCOPE IS SET - For Conditional Logic
+     * 
+     * Check if a specific entity scope is currently configured.
+     * Useful for conditional cache operations or validation.
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants
+     * @return bool True if the entity scope is set
+     * 
+     * @example Conditional caching:
+     * if ($cache->hasEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER)) {
+     *     // Use user-specific cache key
+     * } else {
+     *     // Use global cache key
+     * }
+     */
+    public function hasEntityScope(string $entityType): bool
+    {
+        return isset($this->entityScopes[$entityType]);
+    }
+
+    /**
+     * GET SPECIFIC ENTITY SCOPE ID - For Dynamic Operations
+     * 
+     * Get the entity ID for a specific entity type if it's configured.
+     * Returns null if the entity scope is not set.
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants
+     * @return int|null The entity ID, or null if not set
+     * 
+     * @example Dynamic cache key generation:
+     * $userId = $cache->getEntityScopeId(ReworkedCacheService::ENTITY_SCOPE_USER);
+     * if ($userId) {
+     *     $cacheKey = "user_specific_{$userId}";
+     * } else {
+     *     $cacheKey = "global";
+     * }
+     */
+    public function getEntityScopeId(string $entityType): ?int
+    {
+        return $this->entityScopes[$entityType] ?? null;
+    }
+
 
     /* =========================
        TTL Configuration
@@ -511,9 +908,26 @@ class ReworkedCacheService
     /**
      * Generate a cache key with generation-based invalidation support
      * 
+     * ENHANCED WITH ENTITY SCOPE SUPPORT
+     * 
      * Creates cache keys that include generation counters for O(1) invalidation.
-     * The key format includes category generation, user generation, and global user generation
-     * to support selective invalidation without scanning existing cache entries.
+     * The key format includes category generation, user generation, global user generation,
+     * and entity scope generations to support selective invalidation without scanning existing cache entries.
+     * 
+     * Entity Scope Integration:
+     * - If entity scopes are configured via withEntityScope(), their generation numbers are included
+     * - Each entity scope adds its generation counter to the cache key
+     * - When any entity changes, its generation counter increments, invalidating all dependent cache
+     * - Entity scopes are sorted by type for consistent key generation
+     * 
+     * Cache Key Format:
+     * prefix-category-g{catGen}[-u{userId}-g{userGen}][-e{entityType}_{entityId}_g{entityGen}...][-type-normalizedKey]
+     * 
+     * Examples:
+     * - Basic: cms-pages-g1-item-page_content
+     * - With user: cms-pages-g1-u123-g2-item-user_page_content  
+     * - With entity scopes: cms-pages-g1-epage_id_456_g3-esection_id_789_g1-item-page_content
+     * - Complex: cms-pages-g1-u123-g2-epage_id_456_g3-euser_id_123_g5-item-complex_content
      * 
      * @param string $type Cache entry type ('list' or 'item')
      * @param string $plainKey The base key identifier
@@ -522,9 +936,11 @@ class ReworkedCacheService
      */
     private function getCacheKey(string $type, string $plainKey, ?int $userId = null): string
     {
+        // Start with basic category generation
         $catGen = $this->getInt($this->catGenKey());
         $parts = [$this->prefix, $this->category, 'g' . $catGen];
 
+        // Add user-scoped generation if applicable
         if ($userId !== null) {
             $userGen = $this->getInt($this->userGenKey($userId));
             $global = $this->getInt($this->globalUserGenKey($userId)); // global kill switch
@@ -532,6 +948,19 @@ class ReworkedCacheService
             $parts[] = 'g' . max($userGen, $global);
         }
 
+        // Add entity scope generations if configured
+        // Sort by entity type for consistent key generation regardless of withEntityScope() call order
+        if (!empty($this->entityScopes)) {
+            $sortedScopes = $this->entityScopes;
+            ksort($sortedScopes); // Sort by entity type for consistency
+            
+            foreach ($sortedScopes as $entityType => $entityId) {
+                $entityGen = $this->getInt($this->entityScopeGenKey($entityType, $entityId));
+                $parts[] = 'e' . $entityType . '_' . $entityId . '_g' . $entityGen;
+            }
+        }
+
+        // Add cache type and normalized key
         $parts[] = $type;
         $parts[] = $this->normalizeKey($plainKey);
 
@@ -601,6 +1030,38 @@ class ReworkedCacheService
     }
 
     /**
+     * Generate a key for entity scope generation counter
+     * 
+     * ENTITY SCOPE GENERATION KEY FORMAT
+     * 
+     * Creates generation keys for specific entity instances that can be used
+     * for O(1) cache invalidation. Each entity type + entity ID combination
+     * gets its own generation counter.
+     * 
+     * Key Format: {prefix}-entity-{entityType}-{entityId}-gen
+     * 
+     * Examples:
+     * - Page entity: cms-entity-page_id-123-gen
+     * - Section entity: cms-entity-section_id-456-gen  
+     * - User entity: cms-entity-user_id-789-gen
+     * - Group entity: cms-entity-group_id-101-gen
+     * 
+     * When an entity changes:
+     * 1. This generation key gets incremented
+     * 2. All cache keys containing the old generation become invalid
+     * 3. New cache operations use the new generation number
+     * 4. Old cache entries are effectively invisible (O(1) invalidation)
+     * 
+     * @param string $entityType One of the ENTITY_SCOPE_* constants
+     * @param int $entityId The primary key value of the entity
+     * @return string The generation key for this specific entity instance
+     */
+    private function entityScopeGenKey(string $entityType, int $entityId): string
+    {
+        return "{$this->prefix}-entity-{$entityType}-{$entityId}-gen";
+    }
+
+    /**
      * Get an integer value from the cache
      */
     protected function getInt(string $key, int $default = 0): int
@@ -615,20 +1076,27 @@ class ReworkedCacheService
 
     /**
      * Increment a value in the cache
+     * // DO NOT CHANGE THIS CODE
      */
     private function incr(string $key): void
     {
-        $item = $this->cache->getItem($key);  // ✅ fetch cache item
+         // DO NOT CHANGE THIS CODE
+         $item = $this->cache->getItem($key);  // ✅ fetch cache item
 
-        if ($item->isHit()) {
-            $current = (int) $item->get();
-        } else {
-            $current = -1; // so first store becomes 0
-        }
+         if(str_contains($key, 'entity')){
+            $r = '';
+         }
 
-        $item->set($current + 1);
-        $item->expiresAfter(null); // keep forever
-        $this->cache->save($item);
+         if ($item->isHit()) {
+             $current = (int) $item->get();
+         } else {
+             $current = -1; // so first store becomes 0
+         }
+ 
+         $item->set($current + 1);
+         $item->expiresAfter(null); // keep forever
+         $this->cache->save($item);
+         // DO NOT CHANGE THIS CODE
     }
 
     /**
@@ -671,5 +1139,285 @@ class ReworkedCacheService
         $this->incr($this->statKey($category, 'invalidate'));
     }
 
+    /* =========================
+       ENTITY SCOPE USAGE EXAMPLES AND INTEGRATION GUIDE
+       ========================= */
+
+    /**
+     * COMPREHENSIVE USAGE EXAMPLES FOR ENTITY SCOPE SYSTEM
+     * 
+     * This section provides real-world examples of how to use the entity scope system
+     * in your Symfony services. Copy and adapt these patterns for your use cases.
+     * 
+     * ================================
+     * EXAMPLE 1: PAGE SERVICE CACHING
+     * ================================
+     * 
+     * When caching page content that depends on multiple entities:
+     * 
+     * ```php
+     * class PageService {
+     *     public function getPageContent(int $pageId, int $userId, int $languageId): array
+     *     {
+     *         return $this->cache
+     *             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
+     *             ->getItem("page_content_{$pageId}", function() use ($pageId, $userId, $languageId) {
+     *                 return $this->buildPageContent($pageId, $userId, $languageId);
+     *             });
+     *     }
+     * 
+     *     public function updatePage(int $pageId, array $data): void
+     *     {
+     *         // Update page in database
+     *         $this->pageRepository->update($pageId, $data);
+     *         
+     *         // Invalidate ALL cache entries that depend on this page
+     *         // This automatically invalidates cache across all categories and users
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_PAGE, 
+     *             $pageId
+     *         );
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * EXAMPLE 2: SECTION SERVICE CACHING
+     * ================================
+     * 
+     * When caching section data that depends on page and user permissions:
+     * 
+     * ```php
+     * class SectionService {
+     *     public function getSectionHierarchy(int $pageId, int $userId): array
+     *     {
+     *         return $this->cache
+     *             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageId)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+     *             ->getList("section_hierarchy_{$pageId}", function() use ($pageId, $userId) {
+     *                 return $this->buildSectionHierarchy($pageId, $userId);
+     *             });
+     *     }
+     * 
+     *     public function updateSection(int $sectionId, array $data): void
+     *     {
+     *         // Update section in database
+     *         $this->sectionRepository->update($sectionId, $data);
+     *         
+     *         // Get the page this section belongs to
+     *         $pageId = $this->sectionRepository->getPageId($sectionId);
+     *         
+     *         // Invalidate section-specific cache
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_SECTION, 
+     *             $sectionId
+     *         );
+     *         
+     *         // Also invalidate page cache since page content includes sections
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_PAGE, 
+     *             $pageId
+     *         );
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * EXAMPLE 3: USER PERMISSION CACHING
+     * ================================
+     * 
+     * When caching user-specific data that depends on group and role:
+     * 
+     * ```php
+     * class UserService {
+     *     public function getUserPermissions(int $userId): array
+     *     {
+     *         $user = $this->userRepository->find($userId);
+     *         
+     *         return $this->cache
+     *             ->withCategory(ReworkedCacheService::CATEGORY_PERMISSIONS)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $user->getGroup()->getId())
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_ROLE, $user->getRole()->getId())
+     *             ->getItem("user_permissions_{$userId}", function() use ($userId) {
+     *                 return $this->calculateUserPermissions($userId);
+     *             });
+     *     }
+     * 
+     *     public function updateUserRole(int $userId, int $newRoleId): void
+     *     {
+     *         // Update user role in database
+     *         $this->userRepository->updateRole($userId, $newRoleId);
+     *         
+     *         // Invalidate all cache that depends on this user
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_USER, 
+     *             $userId
+     *         );
+     *         
+     *         // Also invalidate role-based cache
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_ROLE, 
+     *             $newRoleId
+     *         );
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * EXAMPLE 4: NAVIGATION MENU CACHING
+     * ================================
+     * 
+     * Complex navigation that depends on multiple entities:
+     * 
+     * ```php
+     * class NavigationService {
+     *     public function getNavigationMenu(int $userId, int $languageId): array
+     *     {
+     *         $user = $this->userRepository->find($userId);
+     *         
+     *         return $this->cache
+     *             ->withCategory(ReworkedCacheService::CATEGORY_FRONTEND_USER)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER, $userId)
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $user->getGroup()->getId())
+     *             ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
+     *             ->getItem("navigation_menu_{$userId}_{$languageId}", function() use ($userId, $languageId) {
+     *                 return $this->buildNavigationMenu($userId, $languageId);
+     *             });
+     *     }
+     * 
+     *     public function invalidateNavigationForLanguage(int $languageId): void
+     *     {
+     *         // When language translations change, invalidate all navigation using that language
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_LANGUAGE, 
+     *             $languageId
+     *         );
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * EXAMPLE 5: BULK OPERATIONS
+     * ================================
+     * 
+     * When performing bulk operations that affect multiple entities:
+     * 
+     * ```php
+     * class BulkOperationService {
+     *     public function importPages(array $pagesData): void
+     *     {
+     *         $affectedPageIds = [];
+     *         
+     *         foreach ($pagesData as $pageData) {
+     *             $pageId = $this->pageRepository->createOrUpdate($pageData);
+     *             $affectedPageIds[] = $pageId;
+     *         }
+     *         
+     *         // Bulk invalidation for all affected pages
+     *         $this->cache->invalidateEntityScopes(
+     *             ReworkedCacheService::ENTITY_SCOPE_PAGE,
+     *             $affectedPageIds
+     *         );
+     *     }
+     * 
+     *     public function reorganizeSections(int $pageId, array $newSectionOrder): void
+     *     {
+     *         $affectedSectionIds = [];
+     *         
+     *         foreach ($newSectionOrder as $position => $sectionId) {
+     *             $this->sectionRepository->updatePosition($sectionId, $position);
+     *             $affectedSectionIds[] = $sectionId;
+     *         }
+     *         
+     *         // Invalidate the page and all affected sections
+     *         $this->cache->invalidateEntityScope(
+     *             ReworkedCacheService::ENTITY_SCOPE_PAGE,
+     *             $pageId
+     *         );
+     *         
+     *         $this->cache->invalidateEntityScopes(
+     *             ReworkedCacheService::ENTITY_SCOPE_SECTION,
+     *             $affectedSectionIds
+     *         );
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * INTEGRATION WITH DOCTRINE EVENTS
+     * ================================
+     * 
+     * Automatic cache invalidation using Doctrine lifecycle events:
+     * 
+     * ```php
+     * class CacheInvalidationListener {
+     *     public function __construct(private ReworkedCacheService $cache) {}
+     * 
+     *     public function postUpdate(LifecycleEventArgs $args): void
+     *     {
+     *         $entity = $args->getObject();
+     *         
+     *         match (true) {
+     *             $entity instanceof Page => $this->cache->invalidateEntityScope(
+     *                 ReworkedCacheService::ENTITY_SCOPE_PAGE, 
+     *                 $entity->getId()
+     *             ),
+     *             $entity instanceof Section => $this->cache->invalidateEntityScope(
+     *                 ReworkedCacheService::ENTITY_SCOPE_SECTION, 
+     *                 $entity->getId()
+     *             ),
+     *             $entity instanceof User => $this->cache->invalidateEntityScope(
+     *                 ReworkedCacheService::ENTITY_SCOPE_USER, 
+     *                 $entity->getId()
+     *             ),
+     *             default => null
+     *         };
+     *     }
+     * }
+     * ```
+     * 
+     * ================================
+     * PERFORMANCE CONSIDERATIONS
+     * ================================
+     * 
+     * 1. Entity Scope Ordering:
+     *    - Entity scopes are automatically sorted for consistent keys
+     *    - Order of withEntityScope() calls doesn't matter for performance
+     * 
+     * 2. Memory Usage:
+     *    - Each entity scope adds minimal overhead to cache keys
+     *    - Generation counters are stored permanently but are very small
+     * 
+     * 3. Cache Key Length:
+     *    - Complex entity scopes create longer cache keys
+     *    - Keys are automatically normalized if they exceed limits
+     * 
+     * 4. Invalidation Performance:
+     *    - All invalidations are O(1) regardless of cache size
+     *    - Bulk invalidations process each entity individually but efficiently
+     * 
+     * ================================
+     * DEBUGGING AND MONITORING
+     * ================================
+     * 
+     * Use these methods to debug entity scope configurations:
+     * 
+     * ```php
+     * // Check current entity scopes
+     * $scopes = $cache->withCategory(CATEGORY_PAGES)
+     *                 ->withEntityScope(ENTITY_SCOPE_PAGE, 123)
+     *                 ->getCurrentEntityScopes();
+     * 
+     * // Check if specific scope is set
+     * if ($cache->hasEntityScope(ReworkedCacheService::ENTITY_SCOPE_USER)) {
+     *     $userId = $cache->getEntityScopeId(ReworkedCacheService::ENTITY_SCOPE_USER);
+     * }
+     * ```
+     */
 
 }

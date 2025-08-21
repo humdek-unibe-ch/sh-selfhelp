@@ -213,15 +213,17 @@ class PageService extends BaseService
         // Try to get from cache first
         $cacheKey = "page_{$page_keyword}_{$languageId}";
 
+        // First get the page to get its ID for entity scope
+        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
             ->withUser($userId)
-            ->getItem($cacheKey, function () use ($page_keyword, $languageId) {
-                $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
-                if (!$page) {
-                    $this->throwNotFound('Page not found');
-                }
-
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId())
+            ->getItem($cacheKey, function () use ($page_keyword, $languageId, $page) {
                 // Check if user has access to the page
                 $this->userContextAwareService->checkAccess($page_keyword, 'select');
 
@@ -251,53 +253,65 @@ class PageService extends BaseService
      */
     public function getPageSections(int $page_id, int $languageId): array
     {
-        // Get flat sections with hierarchical information
-        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
+        // Get current user for caching
+        $user = $this->userContextAwareService->getCurrentUser();
+        $userId = $user ? $user->getId() : 1; // guest user
+        
+        $cacheKey = "page_sections_{$page_id}_{$languageId}";
+        
+        return $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withUser($userId)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page_id)
+            ->getList($cacheKey, function () use ($page_id, $languageId) {
+                // Get flat sections with hierarchical information
+                $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page_id);
 
-        // Build nested hierarchical structure
-        $sections = $this->sectionUtilityService->buildNestedSections($flatSections, true);
+                // Build nested hierarchical structure
+                $sections = $this->sectionUtilityService->buildNestedSections($flatSections, true);
 
-        // Extract all section IDs from the hierarchical structure
-        $sectionIds = $this->sectionUtilityService->extractSectionIds($sections);
+                // Extract all section IDs from the hierarchical structure
+                $sectionIds = $this->sectionUtilityService->extractSectionIds($sections);
 
-        // Get default language ID for fallback translations
-        $defaultLanguageId = null;
-        try {
-            $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
-            if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
-                $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
-            }
-        } catch (\Exception $e) {
-            // If there's an error getting the default language, continue without fallback
-        }
+                // Get default language ID for fallback translations
+                $defaultLanguageId = null;
+                try {
+                    $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+                    if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
+                        $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
+                    }
+                } catch (\Exception $e) {
+                    // If there's an error getting the default language, continue without fallback
+                }
 
-        // Fetch all translations for these sections in one query
-        $translations = $this->translationRepository->fetchTranslationsForSections(
-            $sectionIds,
-            $languageId
-        );
+                // Fetch all translations for these sections in one query
+                $translations = $this->translationRepository->fetchTranslationsForSections(
+                    $sectionIds,
+                    $languageId
+                );
 
-        // If requested language is not the default language, fetch default language translations for fallback
-        $defaultTranslations = [];
-        if ($defaultLanguageId !== null && $languageId !== $defaultLanguageId) {
-            $defaultTranslations = $this->translationRepository->fetchTranslationsForSections(
-                $sectionIds,
-                $defaultLanguageId
-            );
-        }
+                // If requested language is not the default language, fetch default language translations for fallback
+                $defaultTranslations = [];
+                if ($defaultLanguageId !== null && $languageId !== $defaultLanguageId) {
+                    $defaultTranslations = $this->translationRepository->fetchTranslationsForSections(
+                        $sectionIds,
+                        $defaultLanguageId
+                    );
+                }
 
-        // Fetch property translations (language ID 1) for fields of type 1
-        $propertyTranslations = $this->translationRepository->fetchTranslationsForSections(
-            $sectionIds,
-            self::PROPERTY_LANGUAGE_ID
-        );
+                // Fetch property translations (language ID 1) for fields of type 1
+                $propertyTranslations = $this->translationRepository->fetchTranslationsForSections(
+                    $sectionIds,
+                    self::PROPERTY_LANGUAGE_ID
+                );
 
-        // Apply translations to the sections recursively with fallback
-        $this->sectionUtilityService->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
+                // Apply translations to the sections recursively with fallback
+                $this->sectionUtilityService->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
 
-        $this->sectionUtilityService->applySectionsData($sections);
+                $this->sectionUtilityService->applySectionsData($sections);
 
-        return $sections;
+                return $sections;
+            });
     }
 
     /**

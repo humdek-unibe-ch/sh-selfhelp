@@ -22,23 +22,14 @@ use Psr\Log\LoggerInterface;
  */
 class UserValidationService extends BaseService
 {
-    private EntityManagerInterface $entityManager;
-    private JobSchedulerService $jobSchedulerService;
-    private TransactionService $transactionService;
-    private LoggerInterface $logger;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
-        JobSchedulerService $jobSchedulerService,
-        TransactionService $transactionService,
-        LoggerInterface $logger,
-        LookupService $lookupService
+        private readonly EntityManagerInterface $entityManager,
+        private readonly JobSchedulerService $jobSchedulerService,
+        private readonly TransactionService $transactionService,
+        private readonly LoggerInterface $logger,
+        private readonly LookupService $lookupService
     ) {
-        $this->entityManager = $entityManager;
-        $this->jobSchedulerService = $jobSchedulerService;
-        $this->transactionService = $transactionService;
-        $this->logger = $logger;
-        $this->lookupService = $lookupService;
     }
 
     /**

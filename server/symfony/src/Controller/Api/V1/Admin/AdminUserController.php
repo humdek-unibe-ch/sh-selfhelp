@@ -116,9 +116,6 @@ class AdminUserController extends AbstractController
             
             $user = $this->adminUserService->updateUser($userId, $data);
             
-            // Invalidate user cache
-            // User cache is automatically invalidated by the service
-            
             return $this->responseFormatter->formatSuccess($user);
         } catch (\Exception $e) {
             return $this->responseFormatter->formatError(
@@ -138,9 +135,6 @@ class AdminUserController extends AbstractController
     {
         try {
             $this->adminUserService->deleteUser($userId);
-            
-            // Invalidate user cache
-            // User cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['deleted' => true]);
         } catch (\Exception $e) {
@@ -164,9 +158,6 @@ class AdminUserController extends AbstractController
             $blocked = $data['blocked'] ?? true;
             
             $user = $this->adminUserService->toggleUserBlock($userId, $blocked);
-            
-            // Invalidate user cache
-            // User cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess($user);
         } catch (\Exception $e) {
@@ -235,10 +226,6 @@ class AdminUserController extends AbstractController
             }
             
             $groups = $this->adminUserService->addGroupsToUser($userId, $groupIds);
-            
-            // Invalidate user and permissions cache
-            // User cache is automatically invalidated by the service
-            // Permissions cache is automatically invalidated by the service
             
             return $this->responseFormatter->formatSuccess(['groups' => $groups]);
         } catch (\Exception $e) {

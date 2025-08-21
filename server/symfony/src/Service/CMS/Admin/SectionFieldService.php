@@ -47,6 +47,7 @@ class SectionFieldService extends BaseService
         
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId())
             ->getItem(
                 $cacheKey,
                 function() use ($section) {
@@ -295,9 +296,10 @@ class SectionFieldService extends BaseService
         }
         
         // Invalidate section cache after updates
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section->getId());
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateItem("section_fields_{$section->getId()}");
+            ->invalidateAllListsInCategory();
     }
 
     /**

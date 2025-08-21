@@ -3,8 +3,10 @@
 namespace App\Service\Core;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Service\Auth\UserContextService;
 use App\Service\Core\LookupService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Util\EntityUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,7 +23,8 @@ class TransactionService
         private readonly EntityManagerInterface $entityManager,
         private readonly UserContextService $userContextService,
         private readonly RequestStack $requestStack,
-        private readonly LookupService $lookupService
+        private readonly LookupService $lookupService,
+        private readonly ReworkedCacheService $cache
     ) {}
 
     /**
@@ -103,7 +106,7 @@ class TransactionService
         
         // Set user if available
         if ($userId) {
-            $user = $this->entityManager->getReference('App\Entity\User', $userId);
+            $user = $this->entityManager->getReference(User::class, $userId);
             $transaction->setUser($user);
         }
         

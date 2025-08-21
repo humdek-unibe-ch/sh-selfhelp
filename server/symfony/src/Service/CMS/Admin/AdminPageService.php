@@ -74,7 +74,7 @@ class AdminPageService extends BaseService
     }
 
     /**
-     * Get page sections
+     * Get page sections with entity scope caching
      * 
      * @param string $pageKeyword The page keyword
      * @return array The page sections in a hierarchical structure
@@ -95,9 +95,17 @@ class AdminPageService extends BaseService
                 // Check if user has access to the page
                 $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
-                // Call stored procedure for hierarchical sections
-                $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
-                return $this->sectionUtilityService->buildNestedSections($flatSections, false);
+                // Cache with entity scope for this specific page
+                $result = $this->cache
+                    ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                    ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId())
+                    ->getItem("page_sections_scoped_{$pageKeyword}", function () use ($page) {
+                        // Call stored procedure for hierarchical sections
+                        $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
+                        return $this->sectionUtilityService->buildNestedSections($flatSections, false);
+                    });
+
+                return $result;
             });
     }
 
@@ -225,6 +233,7 @@ class AdminPageService extends BaseService
                 true,
                 'Page created with keyword: ' . $keyword
             );
+            // Invalidate all page lists since a new page was created
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
                 ->invalidateAllListsInCategory();
@@ -406,9 +415,11 @@ class AdminPageService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific page
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateItemAndLists("page_with_fields_{$pageKeyword}");
+                ->invalidateAllListsInCategory();
 
             return $page;
         } catch (\Throwable $e) {
@@ -481,12 +492,12 @@ class AdminPageService extends BaseService
             );
 
             $this->entityManager->commit();
+            
+            // Invalidate entity-scoped cache for this specific page
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $pageIdForLog);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateCategory();
-            $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-                ->invalidateCategory();
+                ->invalidateAllListsInCategory();
 
             return $deleted_page;
         } catch (\Throwable $e) {
@@ -512,12 +523,20 @@ class AdminPageService extends BaseService
     public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
         $result = $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
+        
+        // Get page ID for entity scope invalidation
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        if ($page) {
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        }
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
             ->invalidateAllListsInCategory();
+        
         return $result;
     }
 
@@ -533,6 +552,13 @@ class AdminPageService extends BaseService
     public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
     {
         $this->sectionRelationshipService->removeSectionFromPage($pageKeyword, $sectionId);
+        
+        // Get page ID for entity scope invalidation
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        if ($page) {
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $page->getId());
+        }
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
         $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();

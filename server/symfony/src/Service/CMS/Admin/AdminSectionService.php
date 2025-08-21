@@ -63,6 +63,7 @@ class AdminSectionService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section_id)
             ->getItem(
                 $cacheKey,
                 fn() => $this->fetchSectionFromDatabase($page_keyword, $section_id)
@@ -191,12 +192,14 @@ class AdminSectionService extends BaseService
     public function addSectionToSection(string $page_keyword, int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
         $result = $this->sectionRelationshipService->addSectionToSection($page_keyword, $parent_section_id, $child_section_id, $position, $oldParentPageKeyword, $oldParentSectionId);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        
+        // Invalidate section-specific cache
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $child_section_id);
+        
+        // Invalidate all section lists in category
+        $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
+        
         return $result;
     }
 
@@ -211,12 +214,13 @@ class AdminSectionService extends BaseService
     public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): void
     {
         $this->sectionRelationshipService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        
+        // Invalidate section-specific cache
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $child_section_id);
+        
+        // Invalidate all section lists in category
+        $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
     }
 
     /**
@@ -231,12 +235,12 @@ class AdminSectionService extends BaseService
     public function deleteSection(?string $page_keyword, int $section_id): void
     {
         $this->sectionRelationshipService->deleteSection($page_keyword, $section_id);
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)
-            ->invalidateCategory();
-        $this->cache
-            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
-            ->invalidateCategory();
+        
+        // Invalidate section-specific cache
+        $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $section_id);
+        
+        // Invalidate all section lists in category
+        $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
     }
 
     /**
@@ -357,6 +361,13 @@ class AdminSectionService extends BaseService
             );
 
             $this->entityManager->commit();
+            
+            // Invalidate cache for this specific section
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_SECTION, $sectionId);
+            
+            // Invalidate all section lists in category
+            $this->cache->withCategory(ReworkedCacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
+            
             return $section;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();

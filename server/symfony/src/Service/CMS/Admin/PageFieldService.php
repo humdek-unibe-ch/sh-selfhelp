@@ -52,7 +52,17 @@ class PageFieldService extends BaseService
             ->getItem(
                 $cacheKey,
                 function() use ($pageKeyword) {
-                    return $this->fetchPageWithFieldsFromDatabase($pageKeyword);
+                    $result = $this->fetchPageWithFieldsFromDatabase($pageKeyword);
+                    
+                    // Add entity scope for the specific page
+                    if (isset($result['id'])) {
+                        $this->cache
+                            ->withCategory(ReworkedCacheService::CATEGORY_PAGES)
+                            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_PAGE, $result['id'])
+                            ->setItem("page_with_fields_scoped_{$pageKeyword}", null, $result);
+                    }
+                    
+                    return $result;
                 }
             );
     }

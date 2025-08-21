@@ -141,7 +141,8 @@ final class LookupService
     public function __construct(
         private readonly LookupRepository $lookupRepository,
         private readonly ReworkedCacheService $cache
-    ) {}
+    ) {
+    }
 
     /**
      * Find a lookup by type and value
@@ -152,14 +153,15 @@ final class LookupService
      */
     public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
     {
-        return $this->cache
+        $lookup_id = $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
-                "lookup_{$typeCode}_{$lookupValue}",
-            function() use ($typeCode, $lookupValue) {
-                return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue);
-            }
-        );
+                "lookup-id_{$typeCode}_{$lookupValue}",
+                function () use ($typeCode, $lookupValue) {
+                    return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue)->getId();
+                }
+            );
+        return $this->findById($lookup_id);
     }
 
     /**
@@ -181,13 +183,13 @@ final class LookupService
     public function getLookups(string $typeCode): array
     {
         return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "lookups_{$typeCode}",
-            function() use ($typeCode) {
-                return $this->lookupRepository->getLookups($typeCode);
-            }
-        );
+                function () use ($typeCode) {
+                    return $this->lookupRepository->getLookups($typeCode);
+                }
+            );
     }
 
     /**
@@ -200,13 +202,13 @@ final class LookupService
     public function getLookupIdByValue(string $typeCode, string $lookupValue): ?int
     {
         return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "lookup_id_by_value_{$typeCode}_{$lookupValue}",
-            function() use ($typeCode, $lookupValue) {
-                return $this->lookupRepository->getLookupIdByValue($typeCode, $lookupValue);
-            }
-        );
+                function () use ($typeCode, $lookupValue) {
+                    return $this->lookupRepository->getLookupIdByValue($typeCode, $lookupValue);
+                }
+            );
     }
 
     /**
@@ -219,13 +221,13 @@ final class LookupService
     public function getLookupIdByCode(string $typeCode, string $lookupCode): ?int
     {
         return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "lookup_id_by_code_{$typeCode}_{$lookupCode}",
-            function() use ($typeCode, $lookupCode) {
-                return $this->lookupRepository->getLookupIdByCode($typeCode, $lookupCode);
-            }
-        );
+                function () use ($typeCode, $lookupCode) {
+                    return $this->lookupRepository->getLookupIdByCode($typeCode, $lookupCode);
+                }
+            );
     }
 
     /**
@@ -236,13 +238,13 @@ final class LookupService
     public function getAllLookups(): array
     {
         return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "all_lookups",
-            function() {
-                return $this->lookupRepository->getAllLookups();
-            }
-        );
+                function () {
+                    return $this->lookupRepository->getAllLookups();
+                }
+            );
     }
 
     /**
@@ -254,20 +256,21 @@ final class LookupService
      */
     public function findByTypeAndCode(string $typeCode, string $lookupCode): ?Lookup
     {
-        return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+        $lookup_id = $this->cache
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
-                "lookup_by_type_and_code_{$typeCode}_{$lookupCode}",
-            function() use ($typeCode, $lookupCode) {
-                return $this->lookupRepository->createQueryBuilder('l')
-            ->where('l.typeCode = :typeCode')
-            ->andWhere('l.lookupCode = :lookupCode')
-            ->setParameter('typeCode', $typeCode)
-            ->setParameter('lookupCode', $lookupCode)
-                ->getQuery()
-                ->getOneOrNullResult();
-            }
-        );
+                "lookup-id_by_type_and_code_{$typeCode}_{$lookupCode}",
+                function () use ($typeCode, $lookupCode) {
+                    return $this->lookupRepository->createQueryBuilder('l')
+                        ->where('l.typeCode = :typeCode')
+                        ->andWhere('l.lookupCode = :lookupCode')
+                        ->setParameter('typeCode', $typeCode)
+                        ->setParameter('lookupCode', $lookupCode)
+                        ->getQuery()
+                        ->getOneOrNullResult()->getId();
+                }
+            );
+        return $this->findById($lookup_id);
     }
 
     /**
@@ -278,14 +281,7 @@ final class LookupService
      */
     public function findById(int $id): ?Lookup
     {
-        return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
-            ->getItem(
-                "lookup_by_id_{$id}",
-            function() use ($id) {
-                return $this->lookupRepository->find($id);
-            }
-        );
+        return $this->lookupRepository->find($id);
     }
 
     /**
@@ -297,13 +293,13 @@ final class LookupService
     public function getLookupCodeById(int $id): ?string
     {
         return $this->cache
-        ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
+            ->withCategory(ReworkedCacheService::CATEGORY_LOOKUPS)
             ->getItem(
                 "lookup_code_by_id_{$id}",
-            function() use ($id) {
-                return $this->lookupRepository->find($id);
-            }
-        )->getLookupCode();
+                function () use ($id) {
+                    return $this->lookupRepository->find($id);
+                }
+            )->getLookupCode();
     }
 
 }

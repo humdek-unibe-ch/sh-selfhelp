@@ -101,7 +101,7 @@ class AdminGroupService extends BaseService
     }
 
     /**
-     * Get single group by ID with full details including ACLs
+     * Get single group by ID with full details including ACLs and entity scope caching
      */
     public function getGroupById(int $groupId): array
     {
@@ -109,6 +109,7 @@ class AdminGroupService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId)
             ->getItem($cacheKey, function () use ($groupId) {
                 $group = $this->entityManager->getRepository(Group::class)->find($groupId);
                 if (!$group) {
@@ -211,13 +212,11 @@ class AdminGroupService extends BaseService
 
             $this->entityManager->commit();
 
-            // Invalidate cache after update
+            // Invalidate entity-scoped cache for this specific group
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-                ->invalidateItemAndLists("group_{$groupId}");
-            $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-                ->invalidateItemAndLists("group_acls_{$groupId}");
+                ->invalidateAllListsInCategory();
 
             return $this->formatGroupForDetail($group);
         } catch (\Exception $e) {
@@ -259,7 +258,8 @@ class AdminGroupService extends BaseService
 
             $this->entityManager->commit();
 
-            // Invalidate cache after delete
+            // Invalidate entity-scoped cache for this specific group
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
@@ -270,7 +270,7 @@ class AdminGroupService extends BaseService
     }
 
     /**
-     * Get group ACLs
+     * Get group ACLs with entity scope caching
      */
     public function getGroupAcls(int $groupId): array
     {
@@ -278,6 +278,7 @@ class AdminGroupService extends BaseService
 
         return $this->cache
             ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
+            ->withEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId)
             ->getItem($cacheKey, function () use ($groupId) {
                 $group = $this->entityManager->getRepository(Group::class)->find($groupId);
                 if (!$group) {
@@ -325,12 +326,11 @@ class AdminGroupService extends BaseService
 
             $this->entityManager->commit();
 
+            // Invalidate entity-scoped cache for this specific group
+            $this->cache->invalidateEntityScope(ReworkedCacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
                 ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-                ->invalidateItemAndLists("group_acls_{$groupId}");
-            $this->cache
-                ->withCategory(ReworkedCacheService::CATEGORY_GROUPS)
-                ->invalidateItemAndLists("group_{$groupId}");
+                ->invalidateAllListsInCategory();
 
             return $this->getGroupAcls($groupId);
         } catch (\Exception $e) {

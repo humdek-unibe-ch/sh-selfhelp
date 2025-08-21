@@ -11,6 +11,7 @@ use App\Service\Core\TransactionService;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
+use App\Service\Cache\Core\ReworkedCacheService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,7 +30,8 @@ class DataTableService extends BaseService
         private readonly ACLService $aclService,
         private readonly UserContextService $userContextService,
         private readonly PageRepository $pageRepository,
-        private readonly SectionRepository $sectionRepository
+        private readonly SectionRepository $sectionRepository,
+        private readonly ReworkedCacheService $cache
     ) {
     }
 

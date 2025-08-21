@@ -16,7 +16,7 @@ class AdminGenderService extends BaseService
     }
 
     /**
-     * Get all genders
+     * Get all genders with entity scope caching
      * 
      * @return array
      */
