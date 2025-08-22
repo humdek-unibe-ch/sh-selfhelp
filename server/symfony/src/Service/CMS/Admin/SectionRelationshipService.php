@@ -39,25 +39,25 @@ class SectionRelationshipService extends BaseService
     /**
      * Add a section to a page
      * 
-     * @param string $pageKeyword The keyword of the page
+     * @param int $pageId The ID of the page
      * @param int $sectionId The ID of the section to add
      * @param int|null $position The position of the section on the page
      * @param int|null $oldParentSectionId The ID of the old parent section if moving from a section hierarchy
      * @return PagesSection The created or updated page section relationship
      * @throws ServiceException If page or section not found or access denied
      */
-    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
+    public function addSectionToPage(int $pageId, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
         $this->entityManager->beginTransaction();
         try {
             // Find the page
-            $parentPage = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $parentPage = $this->pageRepository->find($pageId);
             if (!$parentPage) {
                 $this->throwNotFound('Page not found');
             }
             
             // Check if user has update access to the page
-           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+           $this->userContextAwareService->checkAccessById($pageId, 'update');
             
             // Find the section
             $childSection = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -98,20 +98,20 @@ class SectionRelationshipService extends BaseService
     /**
      * Add a section to another section
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @param int $parentSectionId The ID of the parent section
      * @param int $childSectionId The ID of the child section
      * @param int|null $position The desired position
-     * @param string|null $oldParentPageKeyword The keyword of the old parent page to remove the relationship from (optional)
+     * @param int|null $oldParentPageId The ID of the old parent page to remove the relationship from (optional)
      * @param int|null $oldParentSectionId The ID of the old parent section to remove the relationship from (optional)
      * @return SectionsHierarchy The new section hierarchy relationship
      * @throws ServiceException If the relationship already exists or entities are not found
      */
-    public function addSectionToSection(string $pageKeyword, int $parentSectionId, int $childSectionId, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
+    public function addSectionToSection(int $pageId, int $parentSectionId, int $childSectionId, ?int $position, ?int $oldParentPageId = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-        $this->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
+        $this->checkSectionInPage($pageId, $parentSectionId);
         
         $this->entityManager->beginTransaction();
         try {
@@ -123,16 +123,6 @@ class SectionRelationshipService extends BaseService
             $childSection = $this->sectionRepository->find($childSectionId);
             if (!$childSection) {
                 $this->throwNotFound('Child section not found');
-            }
-
-            // Convert page keyword to page ID if provided
-            $oldParentPageId = null;
-            if ($oldParentPageKeyword !== null) {
-                $oldParentPage = $this->pageRepository->findOneBy(['keyword' => $oldParentPageKeyword]);
-                if (!$oldParentPage) {
-                    $this->throwNotFound("Old parent page with keyword '{$oldParentPageKeyword}' not found");
-                }
-                $oldParentPageId = $oldParentPage->getId();
             }
 
             // Remove old parent relationships
@@ -156,7 +146,7 @@ class SectionRelationshipService extends BaseService
                 ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $childSection->getId());
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
@@ -174,21 +164,21 @@ class SectionRelationshipService extends BaseService
     /**
      * Remove a section from a page
      * 
-     * @param string $pageKeyword The keyword of the page
+     * @param int $pageId The ID of the page
      * @param int $sectionId The ID of the section to remove
      * @throws ServiceException If the relationship does not exist
      */
-    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
+    public function removeSectionFromPage(int $pageId, int $sectionId): void
     {
         $this->entityManager->beginTransaction();
         try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $page = $this->pageRepository->find($pageId);
             if (!$page) {
                 $this->throwNotFound('Page not found');
             }
 
             // Check if user has update access to the page
-           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+           $this->userContextAwareService->checkAccessById($pageId, 'update');
 
             // First, check if the section is directly associated with the page
             $pageSection = $this->entityManager->getRepository(PagesSection::class)->findOneBy(['page' => $page, 'section' => $sectionId]);
@@ -202,7 +192,10 @@ class SectionRelationshipService extends BaseService
                 // Invalidate page cache
                 $this->cache
                     ->withCategory(CacheService::CATEGORY_PAGES)
-                    ->invalidateItem("page_with_fields_{$page->getKeyword()}");
+                    ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
+                $this->cache
+                    ->withCategory(CacheService::CATEGORY_PAGES)
+                    ->invalidateAllListsInCategory();
             } else {
                 // Not directly associated - check if it's a child section in the page hierarchy
                 $section = $this->entityManager->getRepository(Section::class)->find($sectionId);
@@ -242,16 +235,16 @@ class SectionRelationshipService extends BaseService
     /**
      * Remove a section from another section
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @param int $parentSectionId The ID of the parent section
      * @param int $childSectionId The ID of the child section
      * @throws ServiceException If the relationship does not exist
      */
-    public function removeSectionFromSection(string $pageKeyword, int $parentSectionId, int $childSectionId): void
+    public function removeSectionFromSection(int $pageId, int $parentSectionId, int $childSectionId): void
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-        $this->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
+        $this->checkSectionInPage($pageId, $parentSectionId);
         
         $this->entityManager->beginTransaction();
         try {
@@ -281,7 +274,7 @@ class SectionRelationshipService extends BaseService
 
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
 
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SECTIONS)
@@ -304,45 +297,45 @@ class SectionRelationshipService extends BaseService
     /**
      * Delete a section permanently
      * 
-     * @param string|null $pageKeyword The page keyword
+     * @param int|null $pageId The page ID
      * @param int $sectionId The ID of the section to delete
      * @throws ServiceException If the section is not found
      */
-    public function deleteSection(?string $pageKeyword, int $sectionId): void
+    public function deleteSection(?int $pageId, int $sectionId): void
     {
         $section = $this->sectionRepository->find($sectionId);
         if (!$section) {
             $this->throwNotFound('Section not found');
         }
         
-        // If page_keyword is not provided, find it from the section
-        if ($pageKeyword === null) {
+        // If page_id is not provided, find it from the section
+        if ($pageId === null) {
             $pageSection = $this->entityManager->getRepository(PagesSection::class)
                 ->findOneBy(['section' => $sectionId]);
             
             if ($pageSection) {
                 $page = $pageSection->getPage();
                 if ($page) {
-                    $pageKeyword = $page->getKeyword();
+                    $pageId = $page->getId();
                 }
             }
             
-            if (!$pageKeyword) {
+            if (!$pageId) {
                 $this->throwNotFound('Page not found for this section');
             }
         }
         
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
         
         // Check if section belongs to page hierarchy
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
         
         if (!$this->sectionBelongsToPageHierarchy($page, $sectionId, $this->entityManager, $this->sectionRepository)) {
-            $this->throwForbidden("Section $sectionId is not associated with page {$page->getKeyword()}");
+            $this->throwForbidden("Section $sectionId is not associated with page {$page->getId()}");
         }
         
         $this->entityManager->beginTransaction();
@@ -374,11 +367,11 @@ class SectionRelationshipService extends BaseService
      * Force delete a section permanently (always delete, never just remove from page)
      * This is different from deleteSection which might just remove from page for direct associations
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @param int $sectionId The ID of the section to delete
      * @throws ServiceException If the section is not found or access denied
      */
-    public function forceDeleteSection(string $pageKeyword, int $sectionId): void
+    public function forceDeleteSection(int $pageId, int $sectionId): void
     {
         $section = $this->sectionRepository->find($sectionId);
         if (!$section) {
@@ -386,16 +379,16 @@ class SectionRelationshipService extends BaseService
         }
         
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
+       $this->userContextAwareService->checkAccessById($pageId, 'delete');
         
         // Check if section belongs to page hierarchy
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
         
         if (!$this->sectionBelongsToPageHierarchy($page, $sectionId, $this->entityManager, $this->sectionRepository)) {
-            $this->throwForbidden("Section $sectionId is not associated with page {$page->getKeyword()}");
+            $this->throwForbidden("Section $sectionId is not associated with page {$page->getId()}");
         }
         
         $this->entityManager->beginTransaction();
@@ -414,8 +407,8 @@ class SectionRelationshipService extends BaseService
                 \App\Service\Core\LookupService::TRANSACTION_BY_BY_USER,
                 'sections',
                 $section->getId(),
-                (object) ["deleted_section" => $originalSection, "page_keyword" => $pageKeyword],
-                'Section force deleted from page: ' . $section->getName() . ' (ID: ' . $section->getId() . ') from page: ' . $pageKeyword
+                (object) ["deleted_section" => $originalSection, "page_id" => $pageId],
+                'Section force deleted from page: ' . $section->getName() . ' (ID: ' . $section->getId() . ') from page: ' . $pageId
             );
             
             // Invalidate page and section caches
@@ -441,15 +434,15 @@ class SectionRelationshipService extends BaseService
     /**
      * Check if the section is in the page
      * 
-     * IMportant check for api calls in order to manipulate sections. 
+     * Important check for api calls in order to manipulate sections. 
      * 
-     * @param string $page_keyword The page keyword
-     * @param string $section_id The section ID
+     * @param int $pageId The page ID
+     * @param int $sectionId The section ID
      * @throws ServiceException If the section is not found or access denied
      */
-    public function checkSectionInPage(string $page_keyword, string $section_id): void
+    public function checkSectionInPage(int $pageId, int $sectionId): void
     {
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -457,9 +450,9 @@ class SectionRelationshipService extends BaseService
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
         // Extract all section IDs
         $sectionIds = array_map(function ($section) {
-            return is_array($section) && isset($section['id']) ? (string) $section['id'] : null;
+            return is_array($section) && isset($section['id']) ? (int) $section['id'] : null;
         }, $flatSections);
-        if (!in_array((string) $section_id, $sectionIds, true)) {
+        if (!in_array($sectionId, $sectionIds, true)) {
             $this->throwForbidden('Access denied: Section does not belong to page');
         }
     }

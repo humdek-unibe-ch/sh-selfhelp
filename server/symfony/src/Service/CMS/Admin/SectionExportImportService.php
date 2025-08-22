@@ -46,17 +46,17 @@ class SectionExportImportService extends BaseService
     /**
      * Export all sections of a given page (including all nested sections) as JSON
      * 
-     * @param string $pageKeyword The keyword of the page to export sections from
+     * @param int $pageId The ID of the page to export sections from
      * @return array JSON-serializable array with all page sections
      * @throws ServiceException If page not found or access denied
      */
-    public function exportPageSections(string $pageKeyword): array
+    public function exportPageSections(int $pageId): array
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+       $this->userContextAwareService->checkAccessById($pageId, 'select');
         
         // Get the page
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -80,16 +80,16 @@ class SectionExportImportService extends BaseService
     /**
      * Export a selected section (and all of its nested children) as JSON
      * 
-     * @param string $pageKeyword The keyword of the page containing the section
+     * @param int $pageId The ID of the page containing the section
      * @param int $sectionId The ID of the section to export
      * @return array JSON-serializable array with the section and its children
      * @throws ServiceException If section not found or access denied
      */
-    public function exportSection(string $pageKeyword, int $sectionId): array
+    public function exportSection(int $pageId, int $sectionId): array
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
-        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $sectionId);
+       $this->userContextAwareService->checkAccessById($pageId, 'select');
+        $this->sectionRelationshipService->checkSectionInPage($pageId, $sectionId);
         
         // Get the section
         $section = $this->sectionRepository->find($sectionId);
@@ -98,7 +98,7 @@ class SectionExportImportService extends BaseService
         }
         
         // Get the page to use existing hierarchical method
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -126,19 +126,19 @@ class SectionExportImportService extends BaseService
     /**
      * Import sections from JSON into a target page
      * 
-     * @param string $pageKeyword The keyword of the target page
+     * @param int $pageId The ID of the target page
      * @param array $sectionsData The sections data to import
      * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If page not found or access denied
      */
-    public function importSectionsToPage(string $pageKeyword, array $sectionsData, ?int $position = null): array
+    public function importSectionsToPage(int $pageId, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
         
         // Get the page
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -176,18 +176,18 @@ class SectionExportImportService extends BaseService
     /**
      * Import sections from JSON into a specific section
      * 
-     * @param string $pageKeyword The keyword of the target page
+     * @param int $pageId The ID of the target page
      * @param int $parentSectionId The ID of the parent section to import into
      * @param array $sectionsData The sections data to import
      * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If section not found or access denied
      */
-    public function importSectionsToSection(string $pageKeyword, int $parentSectionId, array $sectionsData, ?int $position = null): array
+    public function importSectionsToSection(int $pageId, int $parentSectionId, array $sectionsData, ?int $position = null): array
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
+        $this->sectionRelationshipService->checkSectionInPage($pageId, $parentSectionId);
         
         // Get the parent section
         $parentSection = $this->sectionRepository->find($parentSectionId);
@@ -207,7 +207,7 @@ class SectionExportImportService extends BaseService
                 ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();

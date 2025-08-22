@@ -3,6 +3,7 @@
 namespace App\Service\Core;
 
 use App\Entity\User;
+use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
@@ -67,6 +68,31 @@ class UserContextAwareService extends BaseService
                 $this->throwForbidden('Access denied');
             }
         }
-    }    
+    }
+
+    /**
+     * Check if the current user has access to page by ID
+     * 
+     * @param int $pageId The page ID
+     * @param string $permission The permission to check
+     * @throws ServiceException If the page is not found or access denied
+     */
+    public function checkAccessById(int $pageId, string $permission = 'select'): void
+    {
+        $page = $this->pageRepository->find($pageId);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
+        $user = $this->getCurrentUser();
+        $userId = 1; // guest user
+        if ($user) {
+            $userId = $user->getId();
+        }
+
+        if (!$this->aclService->hasAccess($userId, $pageId, $permission)) {
+            $this->throwForbidden('Access denied');
+        }
+    }
 
 }

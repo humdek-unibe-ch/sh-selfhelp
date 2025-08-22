@@ -40,17 +40,17 @@ class SectionCreationService extends BaseService
     /**
      * Creates a new section with the specified style and adds it to a page
      *
-     * @param string $pageKeyword The keyword of the page to add the section to
+     * @param int $pageId The ID of the page to add the section to
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the section on the page
      * @return array The ID and position of the new section
      * @throws ServiceException If the page or style is not found
      */
-    public function createPageSection(string $pageKeyword, int $styleId, ?int $position): array
+    public function createPageSection(int $pageId, int $styleId, ?int $position): array
     {
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -109,22 +109,22 @@ class SectionCreationService extends BaseService
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      *
-     * @param string|null $pageKeyword The page keyword.
+     * @param int|null $pageId The page ID.
      * @param int $parentSectionId The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
      * @return array The ID and position of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(?string $pageKeyword, int $parentSectionId, int $styleId, ?int $position): array
+    public function createChildSection(?int $pageId, int $parentSectionId, int $styleId, ?int $position): array
     {
         $parentSection = $this->sectionRepository->find($parentSectionId);
         if (!$parentSection) {
             $this->throwNotFound('Parent section not found');
         }
         
-        // If page_keyword is not provided, find it from the parent section
-        if ($pageKeyword === null) {
+        // If page_id is not provided, find it from the parent section
+        if ($pageId === null) {
             // Get the page from the parent section by finding which page this section belongs to
             $pageSection = $this->entityManager->getRepository(PagesSection::class)
                 ->findOneBy(['section' => $parentSectionId]);
@@ -132,18 +132,18 @@ class SectionCreationService extends BaseService
             if ($pageSection) {
                 $page = $pageSection->getPage();
                 if ($page) {
-                    $pageKeyword = $page->getKeyword();
+                    $pageId = $page->getId();
                 }
             }
             
-            if (!$pageKeyword) {
+            if (!$pageId) {
                 $this->throwNotFound('Page not found for parent section');
             }
         }
         
         // Permission check
-       $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-        $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $parentSectionId);
+       $this->userContextAwareService->checkAccessById($pageId, 'update');
+        $this->sectionRelationshipService->checkSectionInPage($pageId, $parentSectionId);
         
         $this->entityManager->beginTransaction();
         try {
@@ -180,7 +180,7 @@ class SectionCreationService extends BaseService
                 ->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parentSection->getId());
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
-                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SECTIONS)
                 ->invalidateAllListsInCategory();
