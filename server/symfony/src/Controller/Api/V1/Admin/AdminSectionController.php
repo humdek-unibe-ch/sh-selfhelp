@@ -64,20 +64,12 @@ class AdminSectionController extends AbstractController
     {
         $this->adminSectionService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
 
-        // Invalidate all sections and pages cache since we can't get specific entities after deletion
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
     public function deleteSection(string $page_keyword, int $section_id): Response
     {
         $this->adminSectionService->deleteSection($page_keyword, $section_id);
-
-        // Invalidate all sections and pages cache since we can't get specific entities after deletion
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
@@ -86,10 +78,6 @@ class AdminSectionController extends AbstractController
     {
         try {
             $this->adminSectionService->forceDeleteSection($page_keyword, $section_id);
-
-            // Invalidate all sections and pages cache since we can't get specific entities after deletion
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
             return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
         } catch (\App\Exception\ServiceException $e) {
@@ -115,10 +103,6 @@ class AdminSectionController extends AbstractController
             $data['position'] ?? null
         );
 
-        // Invalidate sections and pages cache
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-
         return $this->apiResponseFormatter->formatSuccess(
             [
                 'id' => $result['id'],
@@ -142,10 +126,6 @@ class AdminSectionController extends AbstractController
             $data['styleId'],
             $data['position'] ?? null
         );
-
-        // Invalidate sections and pages cache
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
 
         return $this->apiResponseFormatter->formatSuccess(
             [
@@ -272,10 +252,6 @@ class AdminSectionController extends AbstractController
                 $data['position'] ?? null
             );
             
-            // Invalidate sections and pages cache after import
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-            
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],
                 null,
@@ -312,10 +288,6 @@ class AdminSectionController extends AbstractController
                 $data['sections'], 
                 $data['position'] ?? null
             );
-            
-            // Invalidate sections and pages cache after import
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['importedSections' => $result],

@@ -43,32 +43,27 @@ class PageFieldService extends BaseService
      */
     public function getPageWithFields(string $pageKeyword): array
     {
+        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
         // Try to get from cache first
-        $cacheKey = "page_with_fields_{$pageKeyword}";
-        
+        $cacheKey = "page_with_fields_{$page->getId()}";
+
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
             ->getItem(
                 $cacheKey,
-                function() use ($pageKeyword) {
-                    $result = $this->fetchPageWithFieldsFromDatabase($pageKeyword);
-                    
-                    // Add entity scope for the specific page
-                    if (isset($result['id'])) {
-                        $this->cache
-                            ->withCategory(CacheService::CATEGORY_PAGES)
-                            ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $result['id'])
-                            ->setItem("page_with_fields_scoped_{$pageKeyword}", null, $result);
-                    }
-                    
-                    return $result;
+                function () use ($pageKeyword) {
+                    return $this->fetchPageWithFieldsFromDatabase($pageKeyword);
                 }
             );
     }
 
     private function fetchPageWithFieldsFromDatabase(string $pageKeyword): array
     {
-        
+
         $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
 
         if (!$page) {
@@ -76,7 +71,7 @@ class PageFieldService extends BaseService
         }
 
         // Check if user has access to the page
-       $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+        $this->userContextAwareService->checkAccess($pageKeyword, 'select');
 
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();
@@ -161,7 +156,29 @@ class PageFieldService extends BaseService
 
         // Return page data with fields and their translations
         return [
-            'page' => $page,
+            'page' => [
+                "id" => $page->getId(),
+                "keyword" => $page->getKeyword(),
+                "url" => $page->getUrl(),
+                "parentPage" => null,
+                "pageType" => [
+                    "id" => $page->getPageType()->getId(),
+                    "name" => $page->getPageType()->getName()
+                ],
+                "idType" => $page->getIdType(),
+                "pageAccessType" => [
+                    "id" => $page->getPageAccessType()->getId(),
+                    "typeCode" => "pageAccessTypes",
+                    "lookupCode" => $page->getPageAccessType()->getLookupCode(),
+                    "lookupValue" => $page->getPageAccessType()->getLookupValue(),
+                    "lookupDescription" => $page->getPageAccessType()->getLookupDescription()
+                ],
+                "headless" => $page->isHeadless(),
+                "navPosition" => $page->getNavPosition(),
+                "footerPosition" => $page->getFooterPosition(),
+                "openAccess" => $page->isOpenAccess(),
+                "system" => $page->isSystem()
+            ],
             'fields' => $formattedFields
         ];
     }
@@ -193,7 +210,7 @@ class PageFieldService extends BaseService
 
         // Update field translations using trait method
         $this->updatePageFieldTranslations($page->getId(), $fields, $this->entityManager);
-        
+
         // Invalidate page cache after updates
         $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
@@ -202,4 +219,4 @@ class PageFieldService extends BaseService
             ->withCategory(CacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();
     }
-} 
+}

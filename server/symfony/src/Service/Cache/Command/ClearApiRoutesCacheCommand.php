@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ClearApiRoutesCacheCommand extends Command
 {
     public function __construct(
-        private CacheService $cacheService
+        private CacheService $cache
     ) {
         parent::__construct();
     }
@@ -28,7 +28,7 @@ class ClearApiRoutesCacheCommand extends Command
         $io->title('Clearing API Routes Cache');
 
         try {
-            $this->cacheService
+            $this->cache
                 ->withCategory(CacheService::CATEGORY_API_ROUTES)
                 ->invalidateAllListsInCategory();
 

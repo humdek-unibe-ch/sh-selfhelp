@@ -574,7 +574,6 @@ class CacheService
      * to enable scoped caching for those entities.
      */
     public const ENTITY_SCOPE_PAGE = 'page_id';
-    public const ENTITY_SCOPE_PAGE_KEYWORD = 'page_keyword';
     public const ENTITY_SCOPE_SECTION = 'section_id';
     public const ENTITY_SCOPE_USER = 'user_id';
     public const ENTITY_SCOPE_GROUP = 'group_id';
@@ -594,7 +593,6 @@ class CacheService
      */
     public const ALL_ENTITY_SCOPES = [
         self::ENTITY_SCOPE_PAGE,
-        self::ENTITY_SCOPE_PAGE_KEYWORD,
         self::ENTITY_SCOPE_SECTION,
         self::ENTITY_SCOPE_USER,
         self::ENTITY_SCOPE_GROUP,

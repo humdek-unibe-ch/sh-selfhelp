@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Service\Cache\Core\CacheService;
 
 /**
  * ApiRequestLoggerService
@@ -42,7 +41,6 @@ class ApiRequestLoggerService
     public function __construct(
         EntityManagerInterface $entityManager,
         TokenStorageInterface $tokenStorage,
-        private readonly CacheService $cache
     ) {
         $this->entityManager = $entityManager;
         $this->tokenStorage = $tokenStorage;

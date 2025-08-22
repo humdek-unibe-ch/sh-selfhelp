@@ -71,7 +71,6 @@ class AdminPageController extends AbstractController
     {
         try {
             $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
-
             return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
@@ -161,11 +160,6 @@ class AdminPageController extends AbstractController
         try {
             $page = $this->adminPageService->deletePage($page_keyword);
 
-            // Invalidate pages and sections cache
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-            $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-            // Page cache is automatically invalidated by the service
-
             return $this->responseFormatter->formatSuccess(
                 $page,
                 'responses/admin/pages/page'
@@ -229,10 +223,6 @@ class AdminPageController extends AbstractController
             $data['oldParentSectionId'] ?? null,
         );
 
-        // Invalidate pages and sections cache
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
-
         return $this->responseFormatter->formatSuccess(
             ['id' => $result->getSection()->getId(), 'position' => $result->getPosition()],
             null,
@@ -243,10 +233,6 @@ class AdminPageController extends AbstractController
     public function removeSectionFromPage(string $page_keyword, int $section_id): Response
     {
         $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
-
-        // Invalidate pages and sections cache
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_PAGES);
-        $this->cacheService->invalidateCategory(CacheService::CATEGORY_SECTIONS);
 
         return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
