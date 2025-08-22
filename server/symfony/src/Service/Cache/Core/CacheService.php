@@ -1009,7 +1009,7 @@ class CacheService
      */
     private function normalizeKey(string $k): string
     {
-        return strlen($k) <= 60 ? $k : (substr($k, 20) ? substr($k, 0, 20) : $k) . ':' . md5($k);
+        return strlen($k) <= 60 ? $k : (substr($k, 20) ? substr($k, 0, 20) : $k) . '_' . md5($k);
     }
 
     /**
