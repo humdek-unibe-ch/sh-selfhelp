@@ -237,6 +237,9 @@ class AdminPageService extends BaseService
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
                 ->invalidateAllListsInCategory();
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_PERMISSIONS)
+                ->invalidateAllListsInCategory();
 
             $this->entityManager->commit();
 
@@ -419,6 +422,10 @@ class AdminPageService extends BaseService
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
+                ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
+                ->invalidateAllListsInCategory();
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_PERMISSIONS)
                 ->invalidateAllListsInCategory();
 
             return $page;
@@ -497,6 +504,9 @@ class AdminPageService extends BaseService
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageIdForLog);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_PAGES)
+                ->invalidateAllListsInCategory();
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_PERMISSIONS)
                 ->invalidateAllListsInCategory();
 
             return $deleted_page;

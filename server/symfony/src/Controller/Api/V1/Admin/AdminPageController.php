@@ -189,8 +189,7 @@ class AdminPageController extends AbstractController
             // This will throw an exception if validation fails
             $data = $this->validateRequest($request, 'requests/admin/update_page', $this->jsonSchemaValidationService);
 
-            // Update the page
-            $page = $this->adminPageService->updatePage(
+            $this->adminPageService->updatePage(
                 $page_keyword,
                 $data['pageData'],
                 $data['fields']

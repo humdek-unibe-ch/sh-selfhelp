@@ -128,7 +128,7 @@ class PageService extends BaseService
                 // Get default language ID for fallback translations
                 $defaultLanguageId = null;
                 try {
-                    $cmsPreference = $this->entityManager->getRepository('App\\Entity\\CmsPreference')->findOneBy([]);
+                    $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
                     if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                         $defaultLanguageId = $cmsPreference->getDefaultLanguage()->getId();
                     }

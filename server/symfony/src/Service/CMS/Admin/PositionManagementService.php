@@ -162,9 +162,11 @@ class PositionManagementService
         if ($flush) {
             $this->entityManager->flush();
         }
+        if ($parentId !== null) {
         $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
             ->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $parentId);
+        }
         $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
             ->invalidateAllListsInCategory();

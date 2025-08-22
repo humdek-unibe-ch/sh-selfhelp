@@ -111,7 +111,7 @@ class ACLService
         // Use the repository to get all ACLs (cached)
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PERMISSIONS)
-            ->getItem("user_acl_{$userId}", fn() => $this->aclRepository->getUserAcl($userId));
+            ->getList("user_acl_{$userId}", fn() => $this->aclRepository->getUserAcl($userId));
     }
 
     /**
