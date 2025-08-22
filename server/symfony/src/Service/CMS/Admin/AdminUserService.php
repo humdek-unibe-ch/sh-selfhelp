@@ -1221,7 +1221,11 @@ class AdminUserService extends BaseService
         $this->cache
             ->withCategory(CacheService::CATEGORY_USERS)
             ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
-            ->invalidateItemAndLists("user_groups_{$userId}");
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
+        
+        $this->cache
+            ->withCategory(CacheService::CATEGORY_PERMISSIONS)
+            ->invalidateAllListsInCategory();
 
         if (!empty($groupIds)) {
             $groupCache = $this->cache->withCategory(CacheService::CATEGORY_GROUPS);
@@ -1239,6 +1243,10 @@ class AdminUserService extends BaseService
             ->withCategory(CacheService::CATEGORY_USERS)
             ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->invalidateItemAndLists("user_roles_{$userId}");
+
+        $this->cache
+            ->withCategory(CacheService::CATEGORY_ROLES)
+            ->invalidateAllListsInCategory();
 
         if (!empty($roleIds)) {
             $roleCache = $this->cache->withCategory(CacheService::CATEGORY_ROLES);

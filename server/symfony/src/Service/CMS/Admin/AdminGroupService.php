@@ -217,6 +217,10 @@ class AdminGroupService extends BaseService
             $this->cache
                 ->withCategory(CacheService::CATEGORY_GROUPS)
                 ->invalidateAllListsInCategory();
+            
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_PERMISSIONS)
+                ->invalidateAllListsInCategory();
 
             return $this->formatGroupForDetail($group);
         } catch (\Exception $e) {
@@ -330,6 +334,10 @@ class AdminGroupService extends BaseService
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_GROUP, $groupId);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_GROUPS)
+                ->invalidateAllListsInCategory();
+
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_PERMISSIONS)
                 ->invalidateAllListsInCategory();
 
             return $this->getGroupAcls($groupId);

@@ -40,7 +40,7 @@ class AclRepository extends ServiceEntityRepository
         }
         return $aclCache
             ->withUser($userId)
-            ->getItem("user_acl_{$pageId}", function () use ($userId, $pageId) {
+            ->getList("user_acl_{$pageId}", function () use ($userId, $pageId) {
                 $conn = $this->getEntityManager()->getConnection();
 
                 // Call the stored procedure directly
