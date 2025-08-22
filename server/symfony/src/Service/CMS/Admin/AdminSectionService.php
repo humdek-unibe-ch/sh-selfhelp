@@ -54,25 +54,25 @@ class AdminSectionService extends BaseService
 
     /**
      * Get a section by its ID with its fields and translations
-     * @param string|null $page_keyword
+     * @param int|null $page_id
      * @param int $section_id
      * @return array
      * @throws ServiceException If section not found or access denied
      */
-    public function getSection(?string $page_keyword, int $section_id): array
+    public function getSection(?int $page_id, int $section_id): array
     {
-        $cacheKey = "section_{$section_id}_" . ($page_keyword ?? 'auto');
+        $cacheKey = "section_{$section_id}_" . ($page_id ?? 'auto');
 
         return $this->cache
             ->withCategory(CacheService::CATEGORY_SECTIONS)
             ->withEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section_id)
             ->getItem(
                 $cacheKey,
-                fn() => $this->fetchSectionFromDatabase($page_keyword, $section_id)
+                fn() => $this->fetchSectionFromDatabase($page_id, $section_id)
             );
     }
 
-    private function fetchSectionFromDatabase(?string $page_keyword, int $section_id): array
+    private function fetchSectionFromDatabase(?int $page_id, int $section_id): array
     {
         // Fetch section
         $section = $this->sectionRepository->find($section_id);
@@ -80,8 +80,8 @@ class AdminSectionService extends BaseService
             $this->throwNotFound('Section not found');
         }
 
-        // If page_keyword is not provided, find it from the section
-        if ($page_keyword === null) {
+        // If page_id is not provided, find it from the section
+        if ($page_id === null) {
             // Get the page from the section by finding which page this section belongs to
             $pageSection = $this->entityManager->getRepository(PagesSection::class)
                 ->findOneBy(['section' => $section_id]);
@@ -89,18 +89,24 @@ class AdminSectionService extends BaseService
             if ($pageSection) {
                 $page = $pageSection->getPage();
                 if ($page) {
-                    $page_keyword = $page->getKeyword();
+                    $page_id = $page->getId();
                 }
             }
 
-            if (!$page_keyword) {
+            if (!$page_id) {
                 $this->throwNotFound('Page not found for this section');
             }
         }
 
+        // Get page entity for permission check
+        $page = $this->pageRepository->find($page_id);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
         // Permission check
-       $this->userContextAwareService->checkAccess($page_keyword, 'select');
-        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $section_id);
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_id, $section_id);
 
         // Get fields using the dedicated service
         $formattedFields = $this->sectionFieldService->getSectionFields($section);
@@ -129,13 +135,20 @@ class AdminSectionService extends BaseService
 
     /**
      * Get all children sections for a parent section
+     * @param int $page_id
      * @param int $parent_section_id
      * @return array
      */
-    public function getChildrenSections(string $page_keyword, int $parent_section_id): array
+    public function getChildrenSections(int $page_id, int $parent_section_id): array
     {
-        $this->userContextAwareService->checkAccess($page_keyword, 'select');
-        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $parent_section_id);
+        // Get page entity for permission check
+        $page = $this->pageRepository->find($page_id);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_id, $parent_section_id);
         $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
             ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
         $sections = [];
@@ -182,23 +195,23 @@ class AdminSectionService extends BaseService
     /**
      * Adds a child section to a parent section.
      * 
-     * @param string $page_keyword The page keyword.
+     * @param int $page_id The page ID.
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @param int|null $position The desired position.
-     * @param string|null $oldParentPageKeyword The keyword of the old parent page to remove the relationship from (optional).
+     * @param int|null $oldParentPageId The ID of the old parent page to remove the relationship from (optional).
      * @param int|null $oldParentSectionId The ID of the old parent section to remove the relationship from (optional).
      * @return SectionsHierarchy The new section hierarchy relationship.
      * @throws ServiceException If the relationship already exists or entities are not found.
      */
-    public function addSectionToSection(string $page_keyword, int $parent_section_id, int $child_section_id, ?int $position, ?string $oldParentPageKeyword = null, ?int $oldParentSectionId = null): SectionsHierarchy
+    public function addSectionToSection(int $page_id, int $parent_section_id, int $child_section_id, ?int $position, ?int $oldParentPageId = null, ?int $oldParentSectionId = null): SectionsHierarchy
     {
-        $result = $this->sectionRelationshipService->addSectionToSection($page_keyword, $parent_section_id, $child_section_id, $position, $oldParentPageKeyword, $oldParentSectionId);
+        $result = $this->sectionRelationshipService->addSectionToSection($page_id, $parent_section_id, $child_section_id, $position, $oldParentPageId, $oldParentSectionId);
         
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $child_section_id);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
         
         // Invalidate all section lists in category
         $this->cache->withCategory(CacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -209,19 +222,19 @@ class AdminSectionService extends BaseService
     /**
      * Removes a child section from a parent section and returns the removed Section entity.
      * 
-     * @param string $page_keyword The page keyword.
+     * @param int $page_id The page ID.
      * @param int $parent_section_id The ID of the parent section.
      * @param int $child_section_id The ID of the child section.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): void
+    public function removeSectionFromSection(int $page_id, int $parent_section_id, int $child_section_id): void
     {
-        $this->sectionRelationshipService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
+        $this->sectionRelationshipService->removeSectionFromSection($page_id, $parent_section_id, $child_section_id);
         
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $child_section_id);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
         
         // Invalidate all section lists in category
         $this->cache->withCategory(CacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -232,17 +245,19 @@ class AdminSectionService extends BaseService
      *
      * This will remove the section and all its relationships (parent, child, and page attachments).
      *
-     * @param string|null $page_keyword The page keyword.
+     * @param int|null $page_id The page ID.
      * @param int $section_id The ID of the section to delete.
      * @throws ServiceException If the section is not found.
      */
-    public function deleteSection(?string $page_keyword, int $section_id): void
+    public function deleteSection(?int $page_id, int $section_id): void
     {
-        $this->sectionRelationshipService->deleteSection($page_keyword, $section_id);
+        $this->sectionRelationshipService->deleteSection($page_id, $section_id);
         
         // Invalidate section-specific cache
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section_id);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        if ($page_id) {
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
+        }
         
         // Invalidate all section lists in category
         $this->cache->withCategory(CacheService::CATEGORY_SECTIONS)->invalidateAllListsInCategory();
@@ -254,47 +269,49 @@ class AdminSectionService extends BaseService
      * This will always completely delete the section and all its relationships,
      * unlike deleteSection which might just remove from page for direct associations.
      *
-     * @param string $page_keyword The page keyword.
+     * @param int $page_id The page ID.
      * @param int $section_id The ID of the section to force delete.
      * @throws ServiceException If the section is not found or access denied.
      */
-    public function forceDeleteSection(string $page_keyword, int $section_id): void
+    public function forceDeleteSection(int $page_id, int $section_id): void
     {
-        $this->sectionRelationshipService->forceDeleteSection($page_keyword, $section_id);
+        $this->sectionRelationshipService->forceDeleteSection($page_id, $section_id);
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $section_id);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
     }
 
     /**
      * Creates a new section with the specified style and adds it to a page
      *
-     * @param string $page_keyword The keyword of the page to add the section to
+     * @param int $page_id The ID of the page to add the section to
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the section on the page
      * @return array The ID and position of the new section
      * @throws ServiceException If the page or style is not found
      */
-    public function createPageSection(string $page_keyword, int $styleId, ?int $position): array
+    public function createPageSection(int $page_id, int $styleId, ?int $position): array
     {
-        $result = $this->sectionCreationService->createPageSection($page_keyword, $styleId, $position);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $result = $this->sectionCreationService->createPageSection($page_id, $styleId, $position);
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
         return $result;
     }
 
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      *
-     * @param string|null $page_keyword The page keyword.
+     * @param int|null $page_id The page ID.
      * @param int $parent_section_id The ID of the parent section
      * @param int $styleId The ID of the style to use for the section
      * @param int|null $position The position of the child section
      * @return array The ID and position of the new section
      * @throws ServiceException If the parent section or style is not found
      */
-    public function createChildSection(?string $page_keyword, int $parent_section_id, int $styleId, ?int $position): array
+    public function createChildSection(?int $page_id, int $parent_section_id, int $styleId, ?int $position): array
     {
-        $result = $this->sectionCreationService->createChildSection($page_keyword, $parent_section_id, $styleId, $position);
-        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+        $result = $this->sectionCreationService->createChildSection($page_id, $parent_section_id, $styleId, $position);
+        if ($page_id) {
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
+        }
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
         return $result;
     }
@@ -302,7 +319,7 @@ class AdminSectionService extends BaseService
     /**
      * Update an existing section and its field translations
      * 
-     * @param string $pageKeyword The keyword of the page the section belongs to
+     * @param int $pageId The ID of the page the section belongs to
      * @param int $sectionId The ID of the section to update
      * @param string $sectionName The new name for the section
      * @param array $contentFields The content fields to update (display=1 fields)
@@ -310,7 +327,7 @@ class AdminSectionService extends BaseService
      * @return Section The updated section
      * @throws ServiceException If section not found or access denied
      */
-    public function updateSection(string $pageKeyword, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields): Section
+    public function updateSection(int $pageId, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields): Section
     {
         $this->entityManager->beginTransaction();
 
@@ -321,9 +338,15 @@ class AdminSectionService extends BaseService
                 $this->throwNotFound('Section not found');
             }
 
+            // Get page entity for permission check
+            $page = $this->pageRepository->find($pageId);
+            if (!$page) {
+                $this->throwNotFound('Page not found');
+            }
+
             // Check if user has update access to the page
-           $this->userContextAwareService->checkAccess($pageKeyword, 'update');
-            $this->sectionRelationshipService->checkSectionInPage($pageKeyword, $sectionId);
+            $this->userContextAwareService->checkAccess($page->getKeyword(), 'update');
+            $this->sectionRelationshipService->checkSectionInPage($pageId, $sectionId);
 
             // Store original section for transaction logging
             $originalSection = clone $section;
@@ -356,7 +379,7 @@ class AdminSectionService extends BaseService
             
             // Invalidate cache for this specific section
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $sectionId);
-            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageKeyword);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
             
             return $section;
         } catch (\Throwable $e) {
@@ -372,20 +395,20 @@ class AdminSectionService extends BaseService
     /**
      * Export all sections of a given page (including all nested sections) as JSON
      * 
-     * @param string $page_keyword The keyword of the page to export sections from
+     * @param int $page_id The ID of the page to export sections from
      * @return array JSON-serializable array with all page sections
      * @throws ServiceException If page not found or access denied
      */
-    public function exportPageSections(string $page_keyword): array
+    public function exportPageSections(int $page_id): array
     {
-        // Permission check
-       $this->userContextAwareService->checkAccess($page_keyword, 'select');
-
         // Get the page
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        $page = $this->pageRepository->find($page_id);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
+        
+        // Permission check
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
 
         // Use existing hierarchical fetching method
         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
@@ -406,27 +429,27 @@ class AdminSectionService extends BaseService
     /**
      * Export a selected section (and all of its nested children) as JSON
      * 
-     * @param string $page_keyword The keyword of the page containing the section
+     * @param int $page_id The ID of the page containing the section
      * @param int $section_id The ID of the section to export
      * @return array JSON-serializable array with the section and its children
      * @throws ServiceException If section not found or access denied
      */
-    public function exportSection(string $page_keyword, int $section_id): array
+    public function exportSection(int $page_id, int $section_id): array
     {
+        // Get the page
+        $page = $this->pageRepository->find($page_id);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
         // Permission check
-       $this->userContextAwareService->checkAccess($page_keyword, 'select');
-        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $section_id);
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
+        $this->sectionRelationshipService->checkSectionInPage($page_id, $section_id);
 
         // Get the section
         $section = $this->sectionRepository->find($section_id);
         if (!$section) {
             $this->throwNotFound('Section not found');
-        }
-
-        // Get the page to use existing hierarchical method
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
-        if (!$page) {
-            $this->throwNotFound('Page not found');
         }
 
         // Get all sections for the page using existing method
@@ -587,22 +610,22 @@ class AdminSectionService extends BaseService
     /**
      * Import sections from JSON into a target page
      * 
-     * @param string $page_keyword The keyword of the target page
+     * @param int $page_id The ID of the target page
      * @param array $sectionsData The sections data to import
      * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If page not found or access denied
      */
-    public function importSectionsToPage(string $page_keyword, array $sectionsData, ?int $position = null): array
+    public function importSectionsToPage(int $page_id, array $sectionsData, ?int $position = null): array
     {
-        // Permission check
-       $this->userContextAwareService->checkAccess($page_keyword, 'update');
-
         // Get the page
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        $page = $this->pageRepository->find($page_id);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
+        
+        // Permission check
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'update');
 
         // Start transaction
         $this->entityManager->beginTransaction();
@@ -634,18 +657,24 @@ class AdminSectionService extends BaseService
     /**
      * Import sections from JSON into a specific section
      * 
-     * @param string $page_keyword The keyword of the target page
+     * @param int $page_id The ID of the target page
      * @param int $parent_section_id The ID of the parent section to import into
      * @param array $sectionsData The sections data to import
      * @param int|null $position The position where the sections should be inserted
      * @return array Result of the import operation
      * @throws ServiceException If section not found or access denied
      */
-    public function importSectionsToSection(string $page_keyword, int $parent_section_id, array $sectionsData, ?int $position = null): array
+    public function importSectionsToSection(int $page_id, int $parent_section_id, array $sectionsData, ?int $position = null): array
     {
+        // Get the page
+        $page = $this->pageRepository->find($page_id);
+        if (!$page) {
+            $this->throwNotFound('Page not found');
+        }
+        
         // Permission check
-       $this->userContextAwareService->checkAccess($page_keyword, 'update');
-        $this->sectionRelationshipService->checkSectionInPage($page_keyword, $parent_section_id);
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'update');
+        $this->sectionRelationshipService->checkSectionInPage($page_id, $parent_section_id);
 
         // Get the parent section
         $parentSection = $this->sectionRepository->find($parent_section_id);
@@ -665,7 +694,7 @@ class AdminSectionService extends BaseService
             // Commit transaction
             $this->entityManager->commit();
 
-            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_keyword);
+            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id);
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $parent_section_id);
 
             return $importedSections;

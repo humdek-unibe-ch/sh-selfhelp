@@ -25,9 +25,9 @@ class AdminSectionController extends AbstractController
     /**
      * Get a section by ID
      */
-    public function getSection(string $page_keyword, int $section_id): Response
+    public function getSection(int $page_id, int $section_id): Response
     {
-        $section = $this->adminSectionService->getSection($page_keyword, $section_id);
+        $section = $this->adminSectionService->getSection($page_id, $section_id);
         return $this->apiResponseFormatter->formatSuccess(
             [
                 'section' => $section['section'] ?? $section,
@@ -38,16 +38,29 @@ class AdminSectionController extends AbstractController
             Response::HTTP_OK
         );
     }
-    public function addSectionToSection(Request $request, string $page_keyword, int $parent_section_id): Response
+
+    /**
+     * Get all children sections for a parent section
+     */
+    public function getChildrenSections(int $page_id, int $parent_section_id): Response
+    {
+        $sections = $this->adminSectionService->getChildrenSections($page_id, $parent_section_id);
+        return $this->apiResponseFormatter->formatSuccess(
+            ['sections' => $sections],
+            null,
+            Response::HTTP_OK
+        );
+    }
+    public function addSectionToSection(Request $request, int $page_id, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/add_section_to_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->addSectionToSection(
-            page_keyword: $page_keyword,
+            page_id: $page_id,
             parent_section_id: $parent_section_id,
             child_section_id: $data['childSectionId'],
             position: $data['position'],
-            oldParentPageKeyword: $data['oldParentPageId'] ?? null,
+            oldParentPageId: $data['oldParentPageId'] ?? null,
             oldParentSectionId: $data['oldParentSectionId'] ?? null
         );
 
@@ -60,24 +73,24 @@ class AdminSectionController extends AbstractController
         );
     }
 
-    public function removeSectionFromSection(string $page_keyword, int $parent_section_id, int $child_section_id): Response
+    public function removeSectionFromSection(int $page_id, int $parent_section_id, int $child_section_id): Response
     {
-        $this->adminSectionService->removeSectionFromSection($page_keyword, $parent_section_id, $child_section_id);
+        $this->adminSectionService->removeSectionFromSection($page_id, $parent_section_id, $child_section_id);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
-    public function deleteSection(string $page_keyword, int $section_id): Response
+    public function deleteSection(int $page_id, int $section_id): Response
     {
-        $this->adminSectionService->deleteSection($page_keyword, $section_id);
+        $this->adminSectionService->deleteSection($page_id, $section_id);
 
         return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }
 
-    public function forceDeleteSection(string $page_keyword, int $section_id): Response
+    public function forceDeleteSection(int $page_id, int $section_id): Response
     {
         try {
-            $this->adminSectionService->forceDeleteSection($page_keyword, $section_id);
+            $this->adminSectionService->forceDeleteSection($page_id, $section_id);
 
             return $this->apiResponseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
         } catch (\App\Exception\ServiceException $e) {
@@ -93,12 +106,12 @@ class AdminSectionController extends AbstractController
     /**
      * Creates a new section with the specified style and adds it to a page
      */
-    public function createPageSection(Request $request, string $page_keyword): Response
+    public function createPageSection(Request $request, int $page_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/create_page_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->createPageSection(
-            $page_keyword,
+            $page_id,
             $data['styleId'],
             $data['position'] ?? null
         );
@@ -116,12 +129,12 @@ class AdminSectionController extends AbstractController
     /**
      * Creates a new section with the specified style and adds it as a child to another section
      */
-    public function createChildSection(Request $request, string $page_keyword, int $parent_section_id): Response
+    public function createChildSection(Request $request, int $page_id, int $parent_section_id): Response
     {
         $data = $this->validateRequest($request, 'requests/section/create_child_section', $this->jsonSchemaValidationService);
 
         $result = $this->adminSectionService->createChildSection(
-            $page_keyword,
+            $page_id,
             $parent_section_id,
             $data['styleId'],
             $data['position'] ?? null
@@ -140,7 +153,7 @@ class AdminSectionController extends AbstractController
     /**
      * Update a section
      */
-    public function updateSection(Request $request, string $page_keyword, int $section_id): Response
+    public function updateSection(Request $request, int $page_id, int $section_id): Response
     {
         try {
             // Validate request against JSON schema
@@ -148,7 +161,7 @@ class AdminSectionController extends AbstractController
             
             // Update the section
             $section = $this->adminSectionService->updateSection(
-                $page_keyword,
+                $page_id,
                 $section_id,
                 isset($data['sectionName']) ? $data['sectionName'] : null,
                 $data['contentFields'],
@@ -158,7 +171,7 @@ class AdminSectionController extends AbstractController
             // Section cache is automatically invalidated by the service
             
             // Return updated section with fields
-            $sectionWithFields = $this->adminSectionService->getSection($page_keyword, $section->getId());
+            $sectionWithFields = $this->adminSectionService->getSection($page_id, $section->getId());
             
             return $this->apiResponseFormatter->formatSuccess(
                 [
@@ -182,13 +195,13 @@ class AdminSectionController extends AbstractController
     /**
      * Export all sections of a given page (including all nested sections) as JSON
      * 
-     * @param string $page_keyword The keyword of the page to export sections from
+     * @param int $page_id The ID of the page to export sections from
      * @return Response JSON response with all page sections
      */
-    public function exportPageSections(string $page_keyword): Response
+    public function exportPageSections(int $page_id): Response
     {
         try {
-            $sectionsData = $this->adminSectionService->exportPageSections($page_keyword);
+            $sectionsData = $this->adminSectionService->exportPageSections($page_id);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['sectionsData' => $sectionsData],
@@ -208,14 +221,14 @@ class AdminSectionController extends AbstractController
     /**
      * Export a selected section (and all of its nested children) as JSON
      * 
-     * @param string $page_keyword The keyword of the page containing the section
+     * @param int $page_id The ID of the page containing the section
      * @param int $section_id The ID of the section to export
      * @return Response JSON response with the section and its children
      */
-    public function exportSection(string $page_keyword, int $section_id): Response
+    public function exportSection(int $page_id, int $section_id): Response
     {
         try {
-            $sectionData = $this->adminSectionService->exportSection($page_keyword, $section_id);
+            $sectionData = $this->adminSectionService->exportSection($page_id, $section_id);
             
             return $this->apiResponseFormatter->formatSuccess(
                 ['sectionsData' => $sectionData],
@@ -236,10 +249,10 @@ class AdminSectionController extends AbstractController
      * Import sections from JSON into a target page
      * 
      * @param Request $request The request containing the sections JSON data
-     * @param string $page_keyword The keyword of the target page
+     * @param int $page_id The ID of the target page
      * @return Response JSON response with the result of the import operation
      */
-    public function importSectionsToPage(Request $request, string $page_keyword): Response
+    public function importSectionsToPage(Request $request, int $page_id): Response
     {
         try {
             // Validate request against JSON schema
@@ -247,7 +260,7 @@ class AdminSectionController extends AbstractController
             
             // Import the sections
             $result = $this->adminSectionService->importSectionsToPage(
-                $page_keyword, 
+                $page_id, 
                 $data['sections'], 
                 $data['position'] ?? null
             );
@@ -271,11 +284,11 @@ class AdminSectionController extends AbstractController
      * Import sections from JSON into a specific section
      * 
      * @param Request $request The request containing the sections JSON data
-     * @param string $page_keyword The keyword of the target page
+     * @param int $page_id The ID of the target page
      * @param int $parent_section_id The ID of the parent section to import into
      * @return Response JSON response with the result of the import operation
      */
-    public function importSectionsToSection(Request $request, string $page_keyword, int $parent_section_id): Response
+    public function importSectionsToSection(Request $request, int $page_id, int $parent_section_id): Response
     {
         try {
             // Validate request against JSON schema
@@ -283,7 +296,7 @@ class AdminSectionController extends AbstractController
             
             // Import the sections
             $result = $this->adminSectionService->importSectionsToSection(
-                $page_keyword, 
+                $page_id, 
                 $parent_section_id, 
                 $data['sections'], 
                 $data['position'] ?? null

@@ -132,11 +132,11 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 -- Admin routes
 ('admin_lookups', 'v1', '/admin/lookups', 'App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups', 'GET', NULL, NULL),
 ('admin_pages_get_all', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', NULL, NULL),
-('admin_pages_get_all_with_language', 'v1', '/admin/pages/{language_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', JSON_OBJECT(
+('admin_pages_get_all_with_language', 'v1', '/admin/pages/language/{language_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPages', 'GET', JSON_OBJECT(
     'language_id', '[0-9]+'
 ), NULL),
-('admin_pages_get_one', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPage', 'GET', JSON_OBJECT(
-    'page_keyword', '[A-Za-z0-9_-]+'
+('admin_pages_get_one', 'v1', '/admin/pages/{page_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPage', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), NULL),
 ('admin_pages_create', 'v1', '/admin/pages', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::createPage', 'POST', NULL, JSON_OBJECT(
     'keyword', JSON_OBJECT('in', 'body', 'required', true),
@@ -148,17 +148,17 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'footerPosition', JSON_OBJECT('in', 'body', 'required', false),
     'parent', JSON_OBJECT('in', 'body', 'required', false)
 )),
-('admin_pages_update', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updatePage', 'PUT', JSON_OBJECT(
-    'page_keyword', '[A-Za-z0-9_-]+'
+('admin_pages_update', 'v1', '/admin/pages/{page_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::updatePage', 'PUT', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), JSON_OBJECT(
     'pageData', JSON_OBJECT('in', 'body', 'required', true, 'type', 'object'),
     'fields', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
 )),
-('admin_pages_delete', 'v1', '/admin/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage', 'DELETE', JSON_OBJECT(
-    'page_keyword', '[A-Za-z0-9_-]+'
+('admin_pages_delete', 'v1', '/admin/pages/{page_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::deletePage', 'DELETE', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), NULL),
-('admin_pages_sections_get', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections', 'GET', JSON_OBJECT(
-    'page_keyword', '[A-Za-z0-9_-]+'
+('admin_pages_sections_get', 'v1', '/admin/pages/{page_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::getPageSections', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), NULL),
 
 ('admin_languages_get_all', 'v1', '/admin/languages', 'App\\Controller\\Api\\V1\\Admin\\AdminLanguageController::getAllLanguages', 'GET', NULL, NULL),
@@ -185,33 +185,33 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('admin_styles_get', 'v1', '/admin/styles', 'App\\Controller\\Api\\V1\\Admin\\AdminStyleController::getStyles', 'GET', NULL, NULL),
 
 -- Admin Page Sections 
-('admin_pages_create_section', 'v1', '/admin/pages/{page_keyword}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createPageSection', 'POST', JSON_OBJECT(
-    'page_keyword', '[\\w-]+'
+('admin_pages_create_section', 'v1', '/admin/pages/{page_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createPageSection', 'POST', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), JSON_OBJECT(
     'styleId', JSON_OBJECT('in', 'body', 'required', true),
     'position', JSON_OBJECT('in', 'body', 'required', true)
 )),
-('admin_pages_add_section', 'v1', '/admin/pages/{page_keyword}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'PUT', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+'
+('admin_pages_add_section', 'v1', '/admin/pages/{page_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::addSectionToPage', 'PUT', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), JSON_OBJECT(
     'sectionId', JSON_OBJECT('in', 'body', 'required', true, 'type', 'integer'),
     'position', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer'),
     'oldParentSectionId', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
 )),
-('admin_pages_remove_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_pages_remove_section', 'v1', '/admin/pages/{page_id}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminPageController::removeSectionFromPage', 'DELETE', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'section_id', '[0-9]+'
 ), NULL),
 
 -- Admin Section in Section 
-('admin_sections_create_child', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT(
+('admin_sections_create_child', 'v1', '/admin/pages/{page_id}/sections/{parent_section_id}/sections/create', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::createChildSection', 'POST', JSON_OBJECT(
     'parent_section_id', '\\d+'
 ), JSON_OBJECT(
     'styleId', JSON_OBJECT('in', 'body', 'required', true),
     'position', JSON_OBJECT('in', 'body', 'required', true)
 )),
-('admin_sections_add', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'PUT', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_add', 'v1', '/admin/pages/{page_id}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::addSectionToSection', 'PUT', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'parent_section_id', '[0-9]+'
 ), JSON_OBJECT(
     'childSectionId', JSON_OBJECT('in', 'body', 'required', true, 'type', 'integer'),
@@ -219,15 +219,15 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'oldParentPageId', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer'),
     'oldParentSectionId', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
 )),
-('admin_sections_remove', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_remove', 'v1', '/admin/pages/{page_id}/sections/{parent_section_id}/sections/{child_section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::removeSectionFromSection', 'DELETE', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'parent_section_id', '[0-9]+',
     'child_section_id', '[0-9]+'
 ), NULL),
 
 -- Admin Section
-('admin_sections_update', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_update', 'v1', '/admin/pages/{page_id}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::updateSection', 'PUT', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'section_id', '[0-9]+'
 ), JSON_OBJECT(
     'sectionId', JSON_OBJECT('in', 'body', 'required', true, 'type', 'integer'),
@@ -235,35 +235,35 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'contentFields', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
     'propertyFields', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array')
 )),
-('admin_sections_delete', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_delete', 'v1', '/admin/pages/{page_id}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::deleteSection', 'DELETE', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'section_id', '[0-9]+'
 ), NULL),
-('admin_sections_get', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_get', 'v1', '/admin/pages/{page_id}/sections/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getSection', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'section_id', '[0-9]+'
 ), NULL),
-('admin_sections_get_children_sections', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getChildrenSections', 'GET', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_get_children_sections', 'v1', '/admin/pages/{page_id}/sections/{parent_section_id}/sections', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::getChildrenSections', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'parent_section_id', '[0-9]+'
 ), NULL),
 
 -- Section Export/Import routes
-('admin_sections_export_page', 'v1', '/admin/pages/{page_keyword}/sections/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportPageSections', 'GET', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+'
+('admin_sections_export_page', 'v1', '/admin/pages/{page_id}/sections/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportPageSections', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), NULL),
-('admin_sections_export_section', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportSection', 'GET', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_export_section', 'v1', '/admin/pages/{page_id}/sections/{section_id}/export', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::exportSection', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'section_id', '[0-9]+'
 ), NULL),
-('admin_sections_import_to_page', 'v1', '/admin/pages/{page_keyword}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+'
+('admin_sections_import_to_page', 'v1', '/admin/pages/{page_id}/sections/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToPage', 'POST', JSON_OBJECT(
+    'page_id', '[0-9]+'
 ), JSON_OBJECT(
     'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
     'position', JSON_OBJECT('in', 'body', 'required', false, 'type', 'integer')
 )),
-('admin_sections_import_to_section', 'v1', '/admin/pages/{page_keyword}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
-    'page_keyword', '[a-zA-Z0-9_-]+',
+('admin_sections_import_to_section', 'v1', '/admin/pages/{page_id}/sections/{parent_section_id}/import', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::importSectionsToSection', 'POST', JSON_OBJECT(
+    'page_id', '[0-9]+',
     'parent_section_id', '[0-9]+'
 ), JSON_OBJECT(
     'sections', JSON_OBJECT('in', 'body', 'required', true, 'type', 'array'),
@@ -272,10 +272,12 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 
 -- Public pages route
 ('pages_get_all', 'v1', '/pages', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', NULL, NULL),
-('pages_get_all_with_language', 'v1', '/pages/{language_id}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', JSON_OBJECT(
+('pages_get_all_with_language', 'v1', '/pages/language/{language_id}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPages', 'GET', JSON_OBJECT(
     'language_id', '[0-9]+'
 ), NULL),
-('pages_get_one', 'v1', '/pages/{page_keyword}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', NULL, NULL),
+('pages_get_one', 'v1', '/pages/{page_id}', 'App\\Controller\\Api\\V1\\Frontend\\PageController::getPage', 'GET', JSON_OBJECT(
+    'page_id', '[0-9]+'
+), NULL),
 ('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL),
 
 -- Form submission routes (public access)
@@ -1039,7 +1041,7 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ('admin_sections_ref_containers_get_v1', 'v1', '/admin/sections/ref-containers', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::getRefContainers', 'GET', NULL, NULL),
 ('admin_sections_unused_delete_v1', 'v1', '/admin/sections/unused/{section_id}', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::deleteUnusedSection', 'DELETE', JSON_OBJECT('section_id', '[0-9]+'), NULL),
 ('admin_sections_unused_delete_all_v1', 'v1', '/admin/sections/unused', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionUtilityController::deleteAllUnusedSections', 'DELETE', NULL, NULL),
-('admin_sections_force_delete_v1', 'v1', '/admin/pages/{page_keyword}/sections/{section_id}/force-delete', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::forceDeleteSection', 'DELETE', JSON_OBJECT('page_keyword', '[a-zA-Z0-9_-]+', 'section_id', '[0-9]+'), NULL);
+('admin_sections_force_delete_v1', 'v1', '/admin/pages/{page_id}/sections/{section_id}/force-delete', 'App\\Controller\\Api\\V1\\Admin\\AdminSectionController::forceDeleteSection', 'DELETE', JSON_OBJECT('page_id', '[0-9]+', 'section_id', '[0-9]+'), NULL);
 
 -- Add admin.section.delete permission
 INSERT IGNORE INTO `permissions` (`name`, `description`) VALUES

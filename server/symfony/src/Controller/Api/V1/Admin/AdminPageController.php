@@ -64,13 +64,13 @@ class AdminPageController extends AbstractController
     /**
      * Get page with page fields
      * 
-     * @route /admin/pages/{page_keyword}
+     * @route /admin/pages/{page_id}
      * @method GET
      */
-    public function getPage(string $page_keyword): JsonResponse
+    public function getPage(int $page_id): JsonResponse
     {
         try {
-            $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
+            $pageWithFields = $this->adminPageService->getPageWithFields($page_id);
             return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
             return $this->responseFormatter->formatException($e);
@@ -85,15 +85,15 @@ class AdminPageController extends AbstractController
     /**
      * Get page sections
      * 
-     * @route /admin/pages/{page_keyword}/sections
+     * @route /admin/pages/{page_id}/sections
      * @method GET
      */
-    public function getPageSections(string $page_keyword): JsonResponse
+    public function getPageSections(int $page_id): JsonResponse
     {
         try {
-            $sections = $this->adminPageService->getPageSections($page_keyword);
+            $sections = $this->adminPageService->getPageSections($page_id);
             return $this->responseFormatter->formatSuccess([
-                'pageKeyword' => $page_keyword,
+                'pageId' => $page_id,
                 'sections' => $sections
             ], 'responses/admin/pages/page_sections');
         } catch (ServiceException $e) {
@@ -152,13 +152,13 @@ class AdminPageController extends AbstractController
     /**
      * Delete page
      * 
-     * @route /admin/pages/{page_keyword}
+     * @route /admin/pages/{page_id}
      * @method DELETE
      */
-    public function deletePage(string $page_keyword): JsonResponse
+    public function deletePage(int $page_id): JsonResponse
     {
         try {
-            $page = $this->adminPageService->deletePage($page_keyword);
+            $page = $this->adminPageService->deletePage($page_id);
 
             return $this->responseFormatter->formatSuccess(
                 $page,
@@ -177,12 +177,12 @@ class AdminPageController extends AbstractController
     /**
      * Update a page and its field translations
      * 
-     * @Route("/page/{page_keyword}", methods={"PUT"})
+     * @Route("/page/{page_id}", methods={"PUT"})
      * @param Request $request
-     * @param string $page_keyword Page keyword
+     * @param int $page_id Page ID
      * @return JsonResponse
      */
-    public function updatePage(Request $request, string $page_keyword): JsonResponse
+    public function updatePage(Request $request, int $page_id): JsonResponse
     {
         try {
             // Validate request against JSON schema
@@ -190,7 +190,7 @@ class AdminPageController extends AbstractController
             $data = $this->validateRequest($request, 'requests/admin/update_page', $this->jsonSchemaValidationService);
 
             $this->adminPageService->updatePage(
-                $page_keyword,
+                $page_id,
                 $data['pageData'],
                 $data['fields']
             );
@@ -198,7 +198,7 @@ class AdminPageController extends AbstractController
             // Page cache is automatically invalidated by the service
 
             // Return updated page with fields
-            $pageWithFields = $this->adminPageService->getPageWithFields($page_keyword);
+            $pageWithFields = $this->adminPageService->getPageWithFields($page_id);
 
             return $this->responseFormatter->formatSuccess($pageWithFields);
         } catch (ServiceException $e) {
@@ -211,12 +211,12 @@ class AdminPageController extends AbstractController
         }
     }
 
-    public function addSectionToPage(Request $request, string $page_keyword): Response
+    public function addSectionToPage(Request $request, int $page_id): Response
     {
         $data = $this->validateRequest($request, 'requests/page/add_section_to_page', $this->jsonSchemaValidationService);
 
         $result = $this->adminPageService->addSectionToPage(
-            $page_keyword,
+            $page_id,
             $data['sectionId'],
             $data['position'],
             $data['oldParentSectionId'] ?? null,
@@ -229,9 +229,9 @@ class AdminPageController extends AbstractController
         );
     }
 
-    public function removeSectionFromPage(string $page_keyword, int $section_id): Response
+    public function removeSectionFromPage(int $page_id, int $section_id): Response
     {
-        $this->adminPageService->removeSectionFromPage($page_keyword, $section_id);
+        $this->adminPageService->removeSectionFromPage($page_id, $section_id);
 
         return $this->responseFormatter->formatSuccess(null, null, Response::HTTP_NO_CONTENT);
     }

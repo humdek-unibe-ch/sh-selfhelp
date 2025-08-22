@@ -64,42 +64,40 @@ class AdminPageService extends BaseService
     /**
      * Get page with its fields and translations
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @return array The page with its fields and translations
      * @throws ServiceException If page not found or access denied
      */
-    public function getPageWithFields(string $pageKeyword): array
+    public function getPageWithFields(int $pageId): array
     {
-        return $this->pageFieldService->getPageWithFields($pageKeyword);
+        return $this->pageFieldService->getPageWithFields($pageId);
     }
 
     /**
      * Get page sections with entity scope caching
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @return array The page sections in a hierarchical structure
      * @throws \Exception If page not found
      */
-    public function getPageSections(string $pageKeyword): array
+    public function getPageSections(int $pageId): array
     {
-        $cacheKey = "page_sections_{$pageKeyword}";
+        $cacheKey = "page_sections_{$pageId}";
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
-            ->getItem($cacheKey, function () use ($pageKeyword) {
-                $this->userContextAwareService->checkAccess($pageKeyword, 'select');
-
-                $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            ->getItem($cacheKey, function () use ($pageId) {
+                $page = $this->pageRepository->find($pageId);
                 if (!$page) {
                     $this->throwNotFound('Page not found');
                 }
-                // Check if user has access to the page
-                $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+                
+                $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
 
                 // Cache with entity scope for this specific page
                 $result = $this->cache
                     ->withCategory(CacheService::CATEGORY_PAGES)
                     ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
-                    ->getItem("page_sections_scoped_{$pageKeyword}", function () use ($page) {
+                    ->getItem("page_sections_scoped_{$pageId}", function () use ($page) {
                         // Call stored procedure for hierarchical sections
                         $flatSections = $this->sectionRepository->fetchSectionsHierarchicalByPageId($page->getId());
                         return $this->sectionUtilityService->buildNestedSections($flatSections, false);
@@ -270,25 +268,25 @@ class AdminPageService extends BaseService
     /**
      * Update an existing page and its field translations
      * 
-     * @param string $pageKeyword The keyword of the page to update
+     * @param int $pageId The ID of the page to update
      * @param array $pageData The page data to update
      * @param array $fields The fields to update
      * @return Page The updated page
      * @throws ServiceException If page not found or access denied
      */
-    public function updatePage(string $pageKeyword, array $pageData, array $fields): Page
+    public function updatePage(int $pageId, array $pageData, array $fields): Page
     {
         $this->entityManager->beginTransaction();
 
         try {
             // Find the page
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $page = $this->pageRepository->find($pageId);
             if (!$page) {
                 $this->throwNotFound('Page not found');
             }
 
             // Check if user has update access to the page
-            $this->userContextAwareService->checkAccess($pageKeyword, 'update');
+            $this->userContextAwareService->checkAccess($page->getKeyword(), 'update');
 
             // Store original page for transaction logging
             $originalPage = clone $page;
@@ -440,18 +438,18 @@ class AdminPageService extends BaseService
     }
 
     /**
-     * Delete a page by its keyword
+     * Delete a page by its ID
      * 
-     * @param string $pageKeyword The keyword of the page to delete
+     * @param int $pageId The ID of the page to delete
      * @return Page
      * @throws ServiceException If page not found or access denied
      */
-    public function deletePage(string $pageKeyword): Page
+    public function deletePage(int $pageId): Page
     {
         $this->entityManager->beginTransaction();
 
         try {
-            $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+            $page = $this->pageRepository->find($pageId);
             $deleted_page = clone $page;
 
             if (!$page) {
@@ -459,7 +457,7 @@ class AdminPageService extends BaseService
             }
 
             // Check if user has delete access to the page
-            $this->userContextAwareService->checkAccess($pageKeyword, 'delete');
+            $this->userContextAwareService->checkAccess($page->getKeyword(), 'delete');
 
             // Check if the page has children
             $children = $this->pageRepository->findBy(['parentPage' => $page->getId()]);
@@ -523,22 +521,19 @@ class AdminPageService extends BaseService
     /**
      * Add a section to a page
      * 
-     * @param string $pageKeyword The keyword of the page
+     * @param int $pageId The ID of the page
      * @param int $sectionId The ID of the section to add
      * @param int|null $position The position of the section on the page
      * @param int|null $oldParentSectionId The ID of the old parent section if moving from a section hierarchy
      * @return PagesSection The created or updated page section relationship
      * @throws ServiceException If page or section not found or access denied
      */
-    public function addSectionToPage(string $pageKeyword, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
+    public function addSectionToPage(int $pageId, int $sectionId, ?int $position = null, ?int $oldParentSectionId = null): PagesSection
     {
-        $result = $this->sectionRelationshipService->addSectionToPage($pageKeyword, $sectionId, $position, $oldParentSectionId);
+        $result = $this->sectionRelationshipService->addSectionToPage($pageId, $sectionId, $position, $oldParentSectionId);
         
-        // Get page ID for entity scope invalidation
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-        if ($page) {
-            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
-        }
+        // Invalidate cache for this specific page
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $sectionId);
         $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
@@ -555,19 +550,16 @@ class AdminPageService extends BaseService
      * If the section is directly associated with the page, it removes the association.
      * If the section is a child section in the page hierarchy, it deletes the section completely.
      *
-     * @param string $pageKeyword The keyword of the page.
+     * @param int $pageId The ID of the page.
      * @param int $sectionId The ID of the section to remove.
      * @throws ServiceException If the relationship does not exist.
      */
-    public function removeSectionFromPage(string $pageKeyword, int $sectionId): void
+    public function removeSectionFromPage(int $pageId, int $sectionId): void
     {
-        $this->sectionRelationshipService->removeSectionFromPage($pageKeyword, $sectionId);
+        $this->sectionRelationshipService->removeSectionFromPage($pageId, $sectionId);
         
-        // Get page ID for entity scope invalidation
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
-        if ($page) {
-            $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId());
-        }
+        // Invalidate cache for this specific page
+        $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
         $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $sectionId);
         $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)

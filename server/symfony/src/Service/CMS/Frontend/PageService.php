@@ -193,14 +193,14 @@ class PageService extends BaseService
     }
 
     /**
-     * Get page by keyword with translated sections
+     * Get page by ID with translated sections
      * 
-     * @param string $page_keyword The page keyword
+     * @param int $page_id The page ID
      * @param int|null $language_id Optional language ID for translations
      * @return array The page object with translated sections
      * @throws \App\Exception\ServiceException If page not found or access denied
      */
-    public function getPage(string $page_keyword, ?int $language_id = null): array
+    public function getPage(int $page_id, ?int $language_id = null): array
     {
         // Determine which language ID to use for translations
         $languageId = $this->determineLanguageId($language_id);
@@ -210,10 +210,10 @@ class PageService extends BaseService
         $userId = $user ? $user->getId() : 1; // guest user
 
         // Try to get from cache first
-        $cacheKey = "page_{$page_keyword}_{$languageId}";
+        $cacheKey = "page_{$page_id}_{$languageId}";
 
         // First get the page to get its ID for entity scope
-        $page = $this->pageRepository->findOneBy(['keyword' => $page_keyword]);
+        $page = $this->pageRepository->find($page_id);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -222,9 +222,9 @@ class PageService extends BaseService
             ->withCategory(CacheService::CATEGORY_PAGES)
             ->withUser($userId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
-            ->getItem($cacheKey, function () use ($page_keyword, $languageId, $page) {
+            ->getItem($cacheKey, function () use ($page_id, $languageId, $page) {
                 // Check if user has access to the page
-                $this->userContextAwareService->checkAccess($page_keyword, 'select');
+                $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
 
                 $pageData = [
                     'page' => [

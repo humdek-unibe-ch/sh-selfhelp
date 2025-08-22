@@ -51,15 +51,15 @@ class PageController extends AbstractController
     }
 
     /**
-     * @Route("/cms-api/v1/pages/{page_keyword}", name="get_page", methods={"GET"})
+     * @Route("/cms-api/v1/pages/{page_id}", name="get_page", methods={"GET"})
      */
-    public function getPage(Request $request, string $page_keyword): JsonResponse
+    public function getPage(Request $request, int $page_id): JsonResponse
     {
         try {
             // Get language_id from query parameter
             $language_id = $request->query->get('language_id') ? (int) $request->query->get('language_id') : null;
             
-            $page = $this->pageService->getPage($page_keyword, $language_id);
+            $page = $this->pageService->getPage($page_id, $language_id);
             return $this->responseFormatter->formatSuccess(
                 $page,
                 'responses/frontend/get_page',

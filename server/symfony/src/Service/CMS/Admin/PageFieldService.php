@@ -37,13 +37,13 @@ class PageFieldService extends BaseService
     /**
      * Get page with its fields and translations
      * 
-     * @param string $pageKeyword The page keyword
+     * @param int $pageId The page ID
      * @return array The page with its fields and translations
      * @throws ServiceException If page not found or access denied
      */
-    public function getPageWithFields(string $pageKeyword): array
+    public function getPageWithFields(int $pageId): array
     {
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
@@ -55,23 +55,23 @@ class PageFieldService extends BaseService
             ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
             ->getItem(
                 $cacheKey,
-                function () use ($pageKeyword) {
-                    return $this->fetchPageWithFieldsFromDatabase($pageKeyword);
+                function () use ($pageId) {
+                    return $this->fetchPageWithFieldsFromDatabase($pageId);
                 }
             );
     }
 
-    private function fetchPageWithFieldsFromDatabase(string $pageKeyword): array
+    private function fetchPageWithFieldsFromDatabase(int $pageId): array
     {
 
-        $page = $this->pageRepository->findOneBy(['keyword' => $pageKeyword]);
+        $page = $this->pageRepository->find($pageId);
 
         if (!$page) {
             $this->throwNotFound('Page not found');
         }
 
         // Check if user has access to the page
-        $this->userContextAwareService->checkAccess($pageKeyword, 'select');
+        $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
 
         // Get page type fields based on the page's type
         $qb = $this->entityManager->createQueryBuilder();
