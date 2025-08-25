@@ -2,8 +2,10 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\Group;
 use App\Entity\Page;
 use App\Entity\PagesSection;
+use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\PageRepository;
 use App\Repository\PageTypeRepository;
@@ -187,7 +189,7 @@ class AdminPageService extends BaseService
             $this->entityManager->flush(); // To get the page ID
 
             // Fetch groups by name
-            $groupRepo = $this->entityManager->getRepository(\App\Entity\Group::class);
+            $groupRepo = $this->entityManager->getRepository(Group::class);
             $adminGroup = $groupRepo->findOneBy(['name' => self::GROUP_ADMIN]);
             $subjectGroup = $groupRepo->findOneBy(['name' => self::GROUP_SUBJECT]);
             $therapistGroup = $groupRepo->findOneBy(['name' => self::GROUP_THERAPIST]);
@@ -209,7 +211,14 @@ class AdminPageService extends BaseService
             if (!$currentUser) {
                 throw new ServiceException('Current user not found.', Response::HTTP_UNAUTHORIZED);
             }
-            $this->aclService->addUserAcl($page, $currentUser, true, true, true, true, $this->entityManager);
+            
+            // Ensure the user is managed by the current EntityManager
+            $managedUser = $this->entityManager->find(User::class, $currentUser->getId());
+            if (!$managedUser) {
+                throw new ServiceException('Current user not found in database.', Response::HTTP_UNAUTHORIZED);
+            }
+            
+            $this->aclService->addUserAcl($page, $managedUser, true, true, true, true, $this->entityManager);
 
             // Reorder page positions if needed
             if ($navPosition !== null) {

@@ -13,6 +13,11 @@ class AclUser
     #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
     public function setUser(User $user): static
     {
         $this->user = $user;
