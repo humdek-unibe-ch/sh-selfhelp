@@ -4281,6 +4281,10 @@ CALL rename_index('actions', 'idx_3128fb5ee2e6a7c3', 'IDX_548F1EFE2E6A7C3');
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0b8030ba52', 'IDX_862DD4F88030BA52');
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0bf3854f45',  'IDX_862DD4F8F3854F45');
 
+UPDATE pages
+SET nav_position = null
+WHERE keyword IN ('sh-global-css', 'sh-global-values');
+
 -- Section Management API Enhancement
 -- Added new section deletion capabilities:
 -- - DELETE /admin/sections/unused/{section_id} - Delete single unused section (requires admin.section.delete permission)
