@@ -9,6 +9,7 @@ use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
 use App\Service\CMS\Common\StyleNames;
 use App\Repository\DataTableRepository;
+use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
@@ -74,8 +75,8 @@ class DataTableService extends BaseService
 
             // Log transaction
             $this->transactionService->logTransaction(
-                'insert',
-                'transactionBy_by_system',
+                LookupService::TRANSACTION_TYPES_INSERT,
+                LookupService::TRANSACTION_BY_BY_USER,
                 'dataTables',
                 $dataTable->getId()
             );
