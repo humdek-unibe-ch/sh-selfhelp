@@ -57,7 +57,16 @@ class AdminScheduledJobService extends BaseService
             $pageSize = 20;
         if (!in_array($sortDirection, ['asc', 'desc']))
             $sortDirection = 'asc';
-        $cacheKey = "scheduled_jobs_list_{$page}_{$pageSize}_" . md5(($search ?? '') . ($status ?? '') . ($jobType ?? '') . ($dateFrom ?? '') . ($dateTo ?? '') . ($dateType ?? '') . ($sort ?? '') . $sortDirection);
+        $cacheKey = "scheduled_jobs_list_{$page}_{$pageSize}_" . md5(
+            ($search ?? '') .
+            ($status ?? '') .
+            ($jobType ?? '') .
+            ($dateFrom ? $dateFrom->format('Y-m-d H:i:s') : '') .
+            ($dateTo ? $dateTo->format('Y-m-d H:i:s') : '') .
+            ($dateType ?? '') .
+            ($sort ?? '') .
+            $sortDirection
+        );
         return $this->cache
             ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
             ->getList(
