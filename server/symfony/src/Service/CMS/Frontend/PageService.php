@@ -334,12 +334,9 @@ class PageService extends BaseService
 
         // Otherwise use default language from CMS preferences
         try {
-            $cmsPreference = $this->cache
+            return $this->cache
                 ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
-                ->getItem("cms_preferences", fn() => $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]));
-            if ($cmsPreference && $cmsPreference['default_language_id']) {
-                return $cmsPreference['default_language_id'];
-            }
+                ->getItem("cms_preferences_default_language_id", fn() => $this->entityManager->getRepository(CmsPreference::class)->findOneBy([])->getDefaultLanguage()->getId());
         } catch (\Exception $e) {
             // If there's an error getting the default language, use fallback
         }
