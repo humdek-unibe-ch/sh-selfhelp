@@ -186,9 +186,19 @@ class AdminSectionService extends BaseService
             ];
         }
 
+        // Add global fields structure
+        $globalFields = [
+            'condition' => $section->getCondition(),
+            'data_config' => $section->getDataConfig(),
+            'css' => $section->getCss(),
+            'css_mobile' => $section->getCssMobile(),
+            'debug' => $section->isDebug(),
+        ];
+
         // Merge with utility service normalization and add admin-specific fields
         return array_merge($normalizedSection, [
-            'style' => $styleData
+            'style' => $styleData,
+            'global_fields' => $globalFields
         ]);
     }
 
@@ -318,16 +328,17 @@ class AdminSectionService extends BaseService
 
     /**
      * Update an existing section and its field translations
-     * 
+     *
      * @param int $pageId The ID of the page the section belongs to
      * @param int $sectionId The ID of the section to update
      * @param string $sectionName The new name for the section
      * @param array $contentFields The content fields to update (display=1 fields)
      * @param array $propertyFields The property fields to update (display=0 fields)
+     * @param array $globalFields The global fields to update (condition, data_config, css, css_mobile, debug)
      * @return Section The updated section
      * @throws ServiceException If section not found or access denied
      */
-    public function updateSection(int $pageId, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields): Section
+    public function updateSection(int $pageId, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields, array $globalFields = []): Section
     {
         $this->entityManager->beginTransaction();
 
@@ -356,6 +367,25 @@ class AdminSectionService extends BaseService
                 $section->setName($sectionName);
             }
 
+            // Update global fields if provided
+            if (!empty($globalFields)) {
+                if (isset($globalFields['condition'])) {
+                    $section->setCondition($globalFields['condition']);
+                }
+                if (isset($globalFields['data_config'])) {
+                    $section->setDataConfig($globalFields['data_config']);
+                }
+                if (isset($globalFields['css'])) {
+                    $section->setCss($globalFields['css']);
+                }
+                if (isset($globalFields['css_mobile'])) {
+                    $section->setCssMobile($globalFields['css_mobile']);
+                }
+                if (isset($globalFields['debug'])) {
+                    $section->setDebug((bool)$globalFields['debug']);
+                }
+            }
+
             // Flush section changes first to ensure we have a valid section ID
             $this->entityManager->flush();
 
@@ -376,11 +406,11 @@ class AdminSectionService extends BaseService
             );
 
             $this->entityManager->commit();
-            
+
             // Invalidate cache for this specific section
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_SECTION, $sectionId);
             $this->cache->invalidateEntityScope(CacheService::ENTITY_SCOPE_PAGE, $pageId);
-            
+
             return $section;
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
@@ -556,7 +586,14 @@ class AdminSectionService extends BaseService
                 'name' => $section['name'] ?? '',
                 'style_name' => $section['style_name'] ?? null,
                 'children' => [],
-                'fields' => (object) []
+                'fields' => (object) [],
+                'global_fields' => [
+                    'condition' => $section['condition'] ?? null,
+                    'data_config' => $section['data_config'] ?? null,
+                    'css' => $section['css'] ?? null,
+                    'css_mobile' => $section['css_mobile'] ?? null,
+                    'debug' => $section['debug'] ?? false,
+                ]
             ];
 
             // Get all translations for this section
@@ -749,6 +786,27 @@ class AdminSectionService extends BaseService
                         (object) ['message' => "Style not found: {$styleName}", 'warning' => true],
                         "Style not found during section import: {$styleName}"
                     );
+                }
+            }
+
+            // Import global fields if present
+            if (isset($sectionData['global_fields']) && is_array($sectionData['global_fields'])) {
+                $globalFields = $sectionData['global_fields'];
+
+                if (isset($globalFields['condition'])) {
+                    $section->setCondition($globalFields['condition']);
+                }
+                if (isset($globalFields['data_config'])) {
+                    $section->setDataConfig($globalFields['data_config']);
+                }
+                if (isset($globalFields['css'])) {
+                    $section->setCss($globalFields['css']);
+                }
+                if (isset($globalFields['css_mobile'])) {
+                    $section->setCssMobile($globalFields['css_mobile']);
+                }
+                if (isset($globalFields['debug'])) {
+                    $section->setDebug((bool)$globalFields['debug']);
                 }
             }
 

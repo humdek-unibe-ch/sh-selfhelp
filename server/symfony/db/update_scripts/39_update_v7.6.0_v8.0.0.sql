@@ -4327,6 +4327,53 @@ DELETE
 FROM `fieldType` 
 WHERE `id` NOT IN (SELECT DISTINCT `id_type` FROM `fields`);
 
+CALL add_table_column('sections', 'debug', 'TINYINT DEFAULT 0');
+CALL add_table_column('sections', 'condition', 'TEXT DEFAULT NULL');
+CALL add_table_column('sections', 'data_config', 'TEXT DEFAULT NULL');
+CALL add_table_column('sections', 'css', 'TEXT DEFAULT NULL');
+CALL add_table_column('sections', 'css_mobile', 'TEXT DEFAULT NULL');
+
+-- Update CSS
+UPDATE sections s
+JOIN sections_fields_translation sft 
+    ON sft.id_sections = s.id
+JOIN styles st 
+    ON st.id = s.id_styles
+SET s.css = sft.content
+WHERE sft.id_fields = get_field_id('css');
+
+-- Update DEBUG
+UPDATE sections s
+JOIN sections_fields_translation sft 
+    ON sft.id_sections = s.id
+JOIN styles st 
+    ON st.id = s.id_styles
+SET s.debug = CAST(sft.content AS UNSIGNED)
+WHERE sft.id_fields = get_field_id('debug');
+
+-- Update CONDITION
+UPDATE sections s
+JOIN sections_fields_translation sft 
+    ON sft.id_sections = s.id
+JOIN styles st 
+    ON st.id = s.id_styles
+SET s.`condition` = sft.content
+WHERE sft.id_fields = get_field_id('condition');
+
+-- Update DATA_CONFIG
+UPDATE sections s
+JOIN sections_fields_translation sft 
+    ON sft.id_sections = s.id
+JOIN styles st 
+    ON st.id = s.id_styles
+SET s.data_config = sft.content
+WHERE sft.id_fields = get_field_id('data_config');
+
+-- Remove not needed fields as they are now in the sections table
+DELETE
+FROM `fields` 
+WHERE `name` IN ('css', 'css_mobile', 'debug', 'condition', 'data_config');
+
 -- Section Management API Enhancement
 -- Added new section deletion capabilities:
 -- - DELETE /admin/sections/unused/{section_id} - Delete single unused section (requires admin.section.delete permission)

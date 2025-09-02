@@ -49,6 +49,33 @@
                             }
                         ]
                     },
+                    "global_fields": {
+                        "type": "object",
+                        "description": "Global section fields containing condition, data_config, css, and other section-level properties",
+                        "properties": {
+                            "condition": {
+                                "type": ["string", "null"],
+                                "description": "Condition logic for the section"
+                            },
+                            "data_config": {
+                                "type": ["string", "null"],
+                                "description": "Data configuration for the section"
+                            },
+                            "css": {
+                                "type": ["string", "null"],
+                                "description": "Custom CSS for the section"
+                            },
+                            "css_mobile": {
+                                "type": ["string", "null"],
+                                "description": "Mobile-specific CSS for the section"
+                            },
+                            "debug": {
+                                "type": "boolean",
+                                "description": "Debug flag for the section"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
                     "children": {
                         "type": "array",
                         "description": "Child sections to import",

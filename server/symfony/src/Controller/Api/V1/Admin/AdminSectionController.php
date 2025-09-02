@@ -165,7 +165,8 @@ class AdminSectionController extends AbstractController
                 $section_id,
                 isset($data['sectionName']) ? $data['sectionName'] : null,
                 $data['contentFields'],
-                $data['propertyFields']
+                $data['propertyFields'],
+                isset($data['globalFields']) ? $data['globalFields'] : []
             );
             
             // Section cache is automatically invalidated by the service

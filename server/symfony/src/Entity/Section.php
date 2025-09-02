@@ -19,6 +19,21 @@ class Section
     #[ORM\Column(name: 'name', type: 'string', length: 100)]
     private string $name;
 
+    #[ORM\Column(name: 'debug', type: 'boolean', nullable: false, options: ['default' => 0])]
+    private bool $debug = false;
+
+    #[ORM\Column(name: 'condition', type: 'text', nullable: true)]
+    private ?string $condition = null;
+
+    #[ORM\Column(name: 'data_config', type: 'text', nullable: true)]
+    private ?string $dataConfig = null;
+
+    #[ORM\Column(name: 'css', type: 'text', nullable: true)]
+    private ?string $css = null;
+
+    #[ORM\Column(name: 'css_mobile', type: 'text', nullable: true)]
+    private ?string $cssMobile = null;
+
     #[ORM\ManyToOne(targetEntity: Style::class)]
     #[ORM\JoinColumn(name: 'id_styles', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Style $style = null;
@@ -41,6 +56,66 @@ class Section
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function isDebug(): bool
+    {
+        return $this->debug;
+    }
+
+    public function setDebug(bool $debug): static
+    {
+        $this->debug = $debug;
+
+        return $this;
+    }
+
+    public function getCondition(): ?string
+    {
+        return $this->condition;
+    }
+
+    public function setCondition(?string $condition): static
+    {
+        $this->condition = $condition;
+
+        return $this;
+    }
+
+    public function getDataConfig(): ?string
+    {
+        return $this->dataConfig;
+    }
+
+    public function setDataConfig(?string $dataConfig): static
+    {
+        $this->dataConfig = $dataConfig;
+
+        return $this;
+    }
+
+    public function getCss(): ?string
+    {
+        return $this->css;
+    }
+
+    public function setCss(?string $css): static
+    {
+        $this->css = $css;
+
+        return $this;
+    }
+
+    public function getCssMobile(): ?string
+    {
+        return $this->cssMobile;
+    }
+
+    public function setCssMobile(?string $cssMobile): static
+    {
+        $this->cssMobile = $cssMobile;
 
         return $this;
     }
