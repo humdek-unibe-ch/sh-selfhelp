@@ -4285,6 +4285,35 @@ UPDATE pages
 SET nav_position = null
 WHERE keyword IN ('sh-global-css', 'sh-global-values');
 
+-- remove old styles
+DELETE FROM styles
+WHERE `name` IN (
+    'jumbotron',
+    'markdownInline',
+    'chat',
+    'card',
+    'form',
+    'quiz',
+    'rawText',
+    'accordionList',
+    'navigationContainer',
+    'navigationAccordion',
+    'nestedList',
+    'navigationNested',
+    'sortableList',
+    'formUserInput',
+    'conditionalContainer',
+    'json',
+    'userProgress',
+    'autocomplete',
+    'navigationBar',
+    'trigger',
+    'conditionFailed',
+    'conditionBuilder',
+    'dataConfigBuilder',
+    'actionConfigBuilder'
+);
+
 -- Section Management API Enhancement
 -- Added new section deletion capabilities:
 -- - DELETE /admin/sections/unused/{section_id} - Delete single unused section (requires admin.section.delete permission)
