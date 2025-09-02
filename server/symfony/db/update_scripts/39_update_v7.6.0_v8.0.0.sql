@@ -4314,6 +4314,19 @@ WHERE `name` IN (
     'actionConfigBuilder'
 );
 
+-- remove not needed fields
+DELETE
+FROM `fields` 
+WHERE `id` NOT IN (SELECT DISTINCT `id_fields` FROM `styles_fields`) 
+AND `id` NOT IN (SELECT DISTINCT `id_fields` FROM `pages_fields`)
+AND `id` NOT IN (SELECT DISTINCT `id_fields` FROM `sections_fields_translation`)
+AND `id` NOT IN (SELECT DISTINCT `id_fields` FROM `pages_fields_translation`);
+
+-- remove not needed field types
+DELETE
+FROM `fieldType` 
+WHERE `id` NOT IN (SELECT DISTINCT `id_type` FROM `fields`);
+
 -- Section Management API Enhancement
 -- Added new section deletion capabilities:
 -- - DELETE /admin/sections/unused/{section_id} - Delete single unused section (requires admin.section.delete permission)
