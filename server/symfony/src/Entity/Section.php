@@ -22,7 +22,7 @@ class Section
     #[ORM\Column(name: 'debug', type: 'boolean', nullable: false, options: ['default' => 0])]
     private bool $debug = false;
 
-    #[ORM\Column(name: 'condition', type: 'text', nullable: true)]
+    #[ORM\Column(name: '`condition`', type: 'text', nullable: true)]
     private ?string $condition = null;
 
     #[ORM\Column(name: 'data_config', type: 'text', nullable: true)]

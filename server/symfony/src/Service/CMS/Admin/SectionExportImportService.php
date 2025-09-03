@@ -267,13 +267,23 @@ class SectionExportImportService extends BaseService
             if (!$sectionId) {
                 continue;
             }
-            
+
+            // Fetch the Section entity to get global fields
+            $sectionEntity = $this->sectionRepository->find($sectionId);
+
             // Clean up section structure - keep only essential fields
             $cleanSection = [
                 'name' => $section['name'] ?? '',
                 'style_name' => $section['style_name'] ?? null,
                 'children' => [],
-                'fields' => (object)[]
+                'fields' => (object)[],
+                'global_fields' => [
+                    'condition' => $sectionEntity ? $sectionEntity->getCondition() : null,
+                    'data_config' => $sectionEntity ? $sectionEntity->getDataConfig() : null,
+                    'css' => $sectionEntity ? $sectionEntity->getCss() : null,
+                    'css_mobile' => $sectionEntity ? $sectionEntity->getCssMobile() : null,
+                    'debug' => $sectionEntity ? $sectionEntity->isDebug() : false,
+                ]
             ];
             
             // Get all translations for this section
@@ -365,7 +375,28 @@ class SectionExportImportService extends BaseService
                     );
                 }
             }
-            
+
+            // Import global fields if present
+            if (isset($sectionData['global_fields']) && is_array($sectionData['global_fields'])) {
+                $globalFields = $sectionData['global_fields'];
+
+                if (isset($globalFields['condition'])) {
+                    $section->setCondition($globalFields['condition']);
+                }
+                if (isset($globalFields['data_config'])) {
+                    $section->setDataConfig($globalFields['data_config']);
+                }
+                if (isset($globalFields['css'])) {
+                    $section->setCss($globalFields['css']);
+                }
+                if (isset($globalFields['css_mobile'])) {
+                    $section->setCssMobile($globalFields['css_mobile']);
+                }
+                if (isset($globalFields['debug'])) {
+                    $section->setDebug((bool)$globalFields['debug']);
+                }
+            }
+
             // Persist section
             $this->entityManager->persist($section);
             $this->entityManager->flush();
