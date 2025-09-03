@@ -22,7 +22,7 @@ class ApiResponseFormatter
      * 
      * @var bool
      */
-    private const VALIDATE_RESPONSE_SCHEMA = false;
+    private const VALIDATE_RESPONSE_SCHEMA = true;
     
     public function __construct(
         private readonly Security $security,
@@ -61,7 +61,7 @@ class ApiResponseFormatter
         ];
 
         // Only perform schema validation in non-production environments
-        if ($responseSchemaName !== null && $this->kernel->getEnvironment() !== 'prod' && self::VALIDATE_RESPONSE_SCHEMA) {
+        if (self::VALIDATE_RESPONSE_SCHEMA) {
             try {
                 // Deep convert arrays to objects for proper JSON Schema validation
                 $responseDataForValidation = $this->arrayToObject($responseData);

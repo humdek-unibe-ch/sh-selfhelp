@@ -1,0 +1,373 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Recursive Section Schema",
+    "description": "Schema for sections with hierarchical structure and all properties",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Unique identifier for the section"
+        },
+        "name": {
+            "type": "string",
+            "description": "Name of the section"
+        },
+        "id_styles": {
+            "type": "integer",
+            "description": "Identifier for the style associated with the section"
+        },
+        "style_name": {
+            "type": "string",
+            "description": "Name of the style (e.g., 'container', 'div', 'image', 'heading', etc.)"
+        },
+        "condition": {
+            "type": ["string", "null"],
+            "description": "CSS condition/classes for the section"
+        },
+        "css": {
+            "type": ["string", "null"],
+            "description": "Custom CSS for the section"
+        },
+        "css_mobile": {
+            "type": ["string", "null"],
+            "description": "Mobile-specific CSS for the section"
+        },
+        "debug": {
+            "type": ["integer", "null"],
+            "description": "Debug flag for the section"
+        },
+        "data_config": {
+            "type": ["integer", "string", "null"],
+            "description": "Data configuration for the section"
+        },
+        "can_have_children": {
+            "type": ["integer", "null"],
+            "description": "Whether the section can have children (0/1 or null)"
+        },
+        "position": {
+            "type": "integer",
+            "description": "Position/order of the section"
+        },
+        "level": {
+            "oneOf": [
+                {
+                    "type": "integer",
+                    "description": "Level as integer"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "type": "string",
+                            "description": "Level content as string"
+                        },
+                        "meta": {
+                            "type": ["string", "null"],
+                            "description": "Level metadata"
+                        }
+                    },
+                    "required": ["content"]
+                }
+            ],
+            "description": "Level/depth of the section in hierarchy"
+        },
+        "path": {
+            "type": "string",
+            "description": "Path string representing section hierarchy (e.g., '408,409')"
+        },
+        "children": {
+            "type": "array",
+            "description": "Child sections (recursive structure)",
+            "items": {
+                "$ref": "#"
+            }
+        },
+        "section_data": {
+            "type": "array",
+            "description": "Section-specific data",
+            "items": {
+                "type": "object"
+            }
+        },
+        "fields": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "description": "Section fields organized by field name",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object",
+                            "properties": {
+                                "content": {
+                                    "type": ["string", "integer", "null"],
+                                    "description": "Field content value"
+                                },
+                                "meta": {
+                                    "type": ["string", "object", "null"],
+                                    "description": "Field metadata"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "array",
+                    "description": "Empty array for sections with no fields",
+                    "items": false
+                }
+            ]
+        }
+    },
+    "required": ["id", "name", "id_styles", "style_name", "position", "level", "path", "children", "section_data", "fields"],
+    "allOf": [
+        {
+            "if": {
+                "properties": { "style_name": { "const": "image" } }
+            },
+            "then": {
+                "properties": {
+                    "img_src": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Image source URL"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Image metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "alt": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Alt text for the image"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Alt text metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "style_name": { "const": "heading" } }
+            },
+            "then": {
+                "properties": {
+                    "title": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Heading title content"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Title metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "style_name": { "const": "plaintext" } }
+            },
+            "then": {
+                "properties": {
+                    "text": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Plain text content"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Text metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "is_paragraph": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Whether to wrap in paragraph tags"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Paragraph setting metadata"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "style_name": { "const": "link" } }
+            },
+            "then": {
+                "properties": {
+                    "url": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Link URL"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "URL metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "label": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Link label/text"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Label metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "open_in_new_tab": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": ["string", "null"],
+                                "description": "Whether to open in new tab"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "New tab setting metadata"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "style_name": { "const": "button" } }
+            },
+            "then": {
+                "properties": {
+                    "url": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Button action URL"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "URL metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "type": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Button type (primary, secondary, etc.)"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Button type metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "label": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Button label/text"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Button label metadata"
+                            }
+                        },
+                        "required": ["content"]
+                    },
+                    "label_cancel": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Cancel button label"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Cancel label metadata"
+                            }
+                        }
+                    },
+                    "confirmation_title": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Confirmation dialog title"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Confirmation title metadata"
+                            }
+                        }
+                    },
+                    "confirmation_continue": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Confirmation continue button text"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Continue button metadata"
+                            }
+                        }
+                    },
+                    "confirmation_message": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "description": "Confirmation dialog message"
+                            },
+                            "meta": {
+                                "type": ["string", "null"],
+                                "description": "Confirmation message metadata"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Frontend Get Page Success Response",
-    "description": "Schema for the successful response of getting a single page for frontend users.",
+    "description": "Schema for the successful response of getting a single page for frontend users with detailed section hierarchy.",
     "allOf": [
         { "$ref": "../common/_response_envelope.json" }
     ],
@@ -12,17 +12,39 @@
                 "page": {
                     "type": "object",
                     "properties": {
-                        "id": { "type": "integer" },
-                        "keyword": { "type": "string" },
-                        "url": { "type": ["string", "null"] },
-                        "parent_page_id": { "type": ["integer", "null"] },
-                        "is_headless": { "type": "boolean" },
-                        "nav_position": { "type": ["integer", "null"] },
-                        "footer_position": { "type": ["integer", "null"] },
-                        "sections": { 
+                        "id": {
+                            "type": "integer",
+                            "description": "Unique identifier for the page"
+                        },
+                        "keyword": {
+                            "type": "string",
+                            "description": "Page keyword/identifier"
+                        },
+                        "url": {
+                            "type": ["string", "null"],
+                            "description": "Page URL path"
+                        },
+                        "parent_page_id": {
+                            "type": ["integer", "null"],
+                            "description": "ID of parent page if this is a child page"
+                        },
+                        "is_headless": {
+                            "type": "boolean",
+                            "description": "Whether this page is headless (no navigation)"
+                        },
+                        "nav_position": {
+                            "type": ["integer", "null"],
+                            "description": "Position in navigation menu"
+                        },
+                        "footer_position": {
+                            "type": ["integer", "null"],
+                            "description": "Position in footer"
+                        },
+                        "sections": {
                             "type": "array",
+                            "description": "Array of sections that make up the page content",
                             "items": {
-                                "type": "object"
+                                "$ref": "../../common/_section_recursive.json"
                             }
                         }
                     },

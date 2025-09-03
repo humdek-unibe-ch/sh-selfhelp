@@ -18,7 +18,7 @@ class SectionUtilityService
         private readonly CacheService $cache
     ) {
     }
-    
+
     /**
      * Build a nested hierarchical structure from flat sections array
      * 
@@ -34,7 +34,7 @@ class SectionUtilityService
         // First pass: index all sections by ID
         foreach ($sections as $section) {
             $section['children'] = [];
-            if($applyData) {
+            if ($applyData) {
                 $this->applySectionData($section);
             }
             $sectionsById[$section['id']] = $section;
@@ -51,7 +51,7 @@ class SectionUtilityService
                 // Find parent using the path
                 $pathParts = explode(',', $section['path']);
                 if (count($pathParts) >= 2) {
-                    $parentId = (int)$pathParts[count($pathParts) - 2];
+                    $parentId = (int) $pathParts[count($pathParts) - 2];
 
                     // If parent exists, add this as its child
                     if (isset($sectionsById[$parentId])) {
@@ -75,7 +75,7 @@ class SectionUtilityService
         $sortChildren($rootSections);
         return $rootSections;
     }
-    
+
     /**
      * Recursively extract all section IDs from a hierarchical sections structure
      * 
@@ -85,22 +85,22 @@ class SectionUtilityService
     public function extractSectionIds(array $sections): array
     {
         $ids = [];
-        
+
         foreach ($sections as $section) {
             if (isset($section['id'])) {
                 $ids[] = $section['id'];
             }
-            
+
             // Process children recursively
             if (!empty($section['children'])) {
                 $childIds = $this->extractSectionIds($section['children']);
                 $ids = array_merge($ids, $childIds);
             }
         }
-        
+
         return $ids;
     }
-    
+
     /**
      * Apply translations to sections recursively
      * 
@@ -111,14 +111,14 @@ class SectionUtilityService
      * @throws \LogicException If stylesFieldRepository is not set but style default values are needed
      */
     public function applySectionTranslations(
-        array &$sections, 
-        array $translations, 
-        array $defaultTranslations = [], 
+        array &$sections,
+        array $translations,
+        array $defaultTranslations = [],
         array $propertyTranslations = []
     ): void {
         // First pass: collect all unique style IDs to batch fetch default values
         $styleIds = $this->collectUniqueStyleIds($sections);
-        
+
         // Batch fetch default values for all styles in one query to avoid N+1
         $defaultValuesByStyle = [];
         if (!empty($styleIds) && $this->stylesFieldRepository !== null) {
@@ -126,17 +126,17 @@ class SectionUtilityService
         } elseif (!empty($styleIds) && $this->stylesFieldRepository === null) {
             throw new \LogicException('StylesFieldRepository is required for applying default style values');
         }
-        
+
         // Second pass: apply translations and default values
         $this->applySectionTranslationsRecursive(
-            $sections, 
-            $translations, 
-            $defaultTranslations, 
+            $sections,
+            $translations,
+            $defaultTranslations,
             $propertyTranslations,
             $defaultValuesByStyle
         );
     }
-    
+
     /**
      * Collect all unique style IDs from sections recursively
      * 
@@ -146,13 +146,13 @@ class SectionUtilityService
     private function collectUniqueStyleIds(array $sections): array
     {
         $styleIds = [];
-        
+
         foreach ($sections as $section) {
             $styleId = $section['id_styles'] ?? null;
             if ($styleId !== null) {
                 $styleIds[$styleId] = true; // Use array key to ensure uniqueness
             }
-            
+
             // Process children recursively
             if (isset($section['children']) && is_array($section['children'])) {
                 $childStyleIds = $this->collectUniqueStyleIds($section['children']);
@@ -161,10 +161,10 @@ class SectionUtilityService
                 }
             }
         }
-        
+
         return array_keys($styleIds);
     }
-    
+
     /**
      * Apply translations to sections recursively with pre-fetched default values
      * 
@@ -175,39 +175,39 @@ class SectionUtilityService
      * @param array $defaultValuesByStyle Pre-fetched default values organized by style ID
      */
     private function applySectionTranslationsRecursive(
-        array &$sections, 
-        array $translations, 
-        array $defaultTranslations = [], 
+        array &$sections,
+        array $translations,
+        array $defaultTranslations = [],
         array $propertyTranslations = [],
         array $defaultValuesByStyle = []
     ): void {
         foreach ($sections as &$section) {
             $sectionId = $section['id'] ?? null;
             $fields = [];
-            
+
             if ($sectionId) {
                 // Get the section's style ID to fetch default values if needed
                 $styleId = $section['id_styles'] ?? null;
-                
+
                 // First apply property translations (for fields of type 1)
                 if (isset($propertyTranslations[$sectionId])) {
                     $section = array_merge($section, $propertyTranslations[$sectionId]);
                 }
-                
+
                 // Then apply default language translations as fallback
                 if (isset($defaultTranslations[$sectionId])) {
                     $section = array_merge($section, $defaultTranslations[$sectionId]);
                 }
-                
+
                 // Finally apply requested language translations (overriding any fallbacks)
                 if (isset($translations[$sectionId])) {
                     $section = array_merge($section, $translations[$sectionId]);
                 }
-                
+
                 // For any fields that still don't have values, use pre-fetched default values
                 if ($styleId && isset($defaultValuesByStyle[$styleId])) {
                     $stylesFields = $defaultValuesByStyle[$styleId];
-                    
+
                     // Apply default values for fields that don't have translations
                     foreach ($stylesFields as $fieldName => $defaultValue) {
                         // Only apply default value if the field doesn't already have a value
@@ -220,22 +220,22 @@ class SectionUtilityService
                     }
                 }
             }
-            
+
             $section['fields'] = $fields;
-            
+
             // Process children recursively
             if (isset($section['children']) && is_array($section['children'])) {
                 $this->applySectionTranslationsRecursive(
-                    $section['children'], 
-                    $translations, 
-                    $defaultTranslations, 
+                    $section['children'],
+                    $translations,
+                    $defaultTranslations,
                     $propertyTranslations,
                     $defaultValuesByStyle
                 );
             }
         }
     }
-    
+
     /**
      * Normalize a Section entity for API response
      * 
@@ -261,7 +261,7 @@ class SectionUtilityService
                 'style_name' => $section['style_name'] ?? null,
             ], $section);
         }
-        
+
         // Fallback for unexpected input
         return [];
     }
@@ -273,7 +273,7 @@ class SectionUtilityService
      */
     public function applySectionsData(array &$sections): void
     {
-        foreach ($sections as $section) {
+        foreach ($sections as &$section) {
             $this->applySectionData($section);
         }
     }
@@ -284,10 +284,10 @@ class SectionUtilityService
      * @param array &$section The section to apply data to (passed by reference)
      */
     public function applySectionData(array &$section): void
-    {        
-         $section['section_data'] = [];
-         if($section['style_name'] == 'formUserInputRecord') {
+    {
+        $section['section_data'] = [];
+        if ($section['style_name'] == 'formUserInputRecord') {
             $section['section_data'] = $this->dataService->getFormUserInputRecordData($section['id']);
-         }
+        }
     }
 }
