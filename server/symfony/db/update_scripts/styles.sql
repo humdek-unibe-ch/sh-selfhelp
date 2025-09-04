@@ -4,14 +4,43 @@ WHERE id_fields = get_field_id('type') and id_styles = get_style_id('button');
 
 -- strucutre of the config field:
 -- export interface IFieldConfig {
+--     // Core select functionality
 --     multiSelect?: boolean;
 --     creatable?: boolean;
 --     separator?: string;
+--     clearable?: boolean;
+--     searchable?: boolean;
+--     allowDeselect?: boolean;
+
+--     // Display and behavior
+--     placeholder?: string;
+--     nothingFoundMessage?: string;
+--     description?: string;
+--     error?: string;
+--     required?: boolean;
+--     withAsterisk?: boolean;
+--     disabled?: boolean;
+
+--     // Dropdown configuration
+--     limit?: number;
+--     maxDropdownHeight?: number;
+--     hidePickedOptions?: boolean;
+--     maxValues?: number;
+
+--     // Styling and layout
+--     checkIconPosition?: 'left' | 'right';
+--     leftSection?: ReactNode;
+--     rightSection?: ReactNode;
+
+--     // Data and options
 --     options?: Array<{
 --         value: string;
 --         text: string;
+--         disabled?: boolean;
+--         [key: string]: any;
 --     }>;
 --     apiUrl?: string;
+
 -- }
 CALL add_table_column('fields', 'config', 'JSON DEFAULT NULL');
 
@@ -19,7 +48,7 @@ CALL add_table_column('fields', 'config', 'JSON DEFAULT NULL');
 INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select', '1');
 
 -- Add new field `mantine_variant` from type `select` based on the mantine button variant
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_variant', get_field_type_id('select'), 0, '{"clearable" : false, "options":[{
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_variant', get_field_type_id('select'), 0, '{"searchable" : false, "clearable" : false, "options":[{
 "value":"filled",
 "text":"Filled"
 },
