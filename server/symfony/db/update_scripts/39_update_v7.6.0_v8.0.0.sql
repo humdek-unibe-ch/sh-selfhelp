@@ -4269,10 +4269,10 @@ FROM `fieldType`
 WHERE `id` NOT IN (SELECT DISTINCT `id_type` FROM `fields`);
 
 CALL add_table_column('sections', 'debug', 'TINYINT DEFAULT 0');
-CALL add_table_column('sections', 'condition', 'TEXT DEFAULT NULL');
-CALL add_table_column('sections', 'data_config', 'TEXT DEFAULT NULL');
-CALL add_table_column('sections', 'css', 'TEXT DEFAULT NULL');
-CALL add_table_column('sections', 'css_mobile', 'TEXT DEFAULT NULL');
+CALL add_table_column('sections', 'condition', 'LONGTEXT DEFAULT NULL');
+CALL add_table_column('sections', 'data_config', 'LONGTEXT DEFAULT NULL');
+CALL add_table_column('sections', 'css', 'LONGTEXT DEFAULT NULL');
+CALL add_table_column('sections', 'css_mobile', 'LONGTEXT DEFAULT NULL');
 
 -- Update CSS
 UPDATE sections s

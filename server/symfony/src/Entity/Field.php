@@ -25,6 +25,9 @@ class Field
     #[ORM\Column(name: 'display', type: 'boolean')]
     private bool $display = true;
 
+    #[ORM\Column(name: 'config', type: 'json', nullable: true)]
+    private ?array $config = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +94,17 @@ class Field
     {
         $this->display = $display;
 
+        return $this;
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): static
+    {
+        $this->config = $config;
         return $this;
     }
 }

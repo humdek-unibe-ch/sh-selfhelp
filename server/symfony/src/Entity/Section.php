@@ -19,19 +19,19 @@ class Section
     #[ORM\Column(name: 'name', type: 'string', length: 100)]
     private string $name;
 
-    #[ORM\Column(name: 'debug', type: 'boolean', nullable: false, options: ['default' => 0])]
+    #[ORM\Column(name: 'debug', type: 'boolean', nullable: true, options: ['default' => 0])]
     private bool $debug = false;
 
-    #[ORM\Column(name: '`condition`', type: 'text', nullable: true)]
+    #[ORM\Column(name: '`condition`', type: 'text', nullable: true, options: ['default' => null])]
     private ?string $condition = null;
 
-    #[ORM\Column(name: 'data_config', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'data_config', type: 'text', nullable: true, options: ['default' => null])]
     private ?string $dataConfig = null;
 
-    #[ORM\Column(name: 'css', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'css', type: 'text', nullable: true, options: ['default' => null])]
     private ?string $css = null;
 
-    #[ORM\Column(name: 'css_mobile', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'css_mobile', type: 'text', nullable: true, options: ['default' => null])]
     private ?string $cssMobile = null;
 
     #[ORM\ManyToOne(targetEntity: Style::class)]

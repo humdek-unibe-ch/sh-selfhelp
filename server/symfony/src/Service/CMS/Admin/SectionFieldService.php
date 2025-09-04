@@ -4,6 +4,7 @@ namespace App\Service\CMS\Admin;
 
 use App\Entity\Field;
 use App\Entity\Section;
+use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
 use App\Service\CMS\Admin\Traits\TranslationManagerTrait;
 use App\Service\CMS\Admin\Traits\FieldValidatorTrait;
@@ -80,7 +81,7 @@ class SectionFieldService extends BaseService
         // Fetch all field translations for this section
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t, l, f, ft')
-            ->from('App\Entity\SectionsFieldsTranslation', 't')
+            ->from(SectionsFieldsTranslation::class, 't')
             ->leftJoin('t.language', 'l')
             ->leftJoin('t.field', 'f')
             ->leftJoin('f.type', 'ft')
@@ -124,6 +125,7 @@ class SectionFieldService extends BaseService
                 'disabled' => $stylesField->isDisabled(),
                 'hidden' => $stylesField->getHidden(),
                 'display' => $field->isDisplay(),
+                'config' => $field->getConfig(),
                 'translations' => [],
                 'fieldConfig' => $this->getFieldConfig($field->getType() ? $field->getType()->getName() : []),
             ];
