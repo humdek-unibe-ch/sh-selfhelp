@@ -19,7 +19,7 @@ CALL add_table_column('fields', 'config', 'JSON DEFAULT NULL');
 INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select', '1');
 
 -- Add new field `mantine_variant` from type `select` based on the mantine button variant
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_variant', get_field_type_id('select'), 0, '{"options":[{
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_variant', get_field_type_id('select'), 0, '{"clearable" : false, "options":[{
 "value":"filled",
 "text":"Filled"
 },
