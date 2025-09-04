@@ -158,7 +158,6 @@ class CacheService
      * 
      * @param string $key Unique identifier for this cache entry within the category
      * @param callable $compute Callback function to compute the value if not cached: fn() => mixed
-     * @param int|null $userId Optional user ID for user-scoped caching (overrides withUser() if provided)
      * @param int|null $ttlSeconds Optional TTL override (uses category default if null)
      * @return mixed The cached or computed value
      * 
@@ -174,7 +173,7 @@ class CacheService
      *     fn() => $this->repository->findActionsByUser($userId)
      * );
      */
-    public function getList(string $key, callable $compute, ?int $userId = null, ?int $ttlSeconds = null): mixed
+    public function getList(string $key, callable $compute, ?int $ttlSeconds = null): mixed
     {
         $cacheKey = $this->getCacheKey('list', $key);
         $miss = false;
@@ -209,7 +208,6 @@ class CacheService
      * 
      * @param string $key Unique identifier for this cache entry within the category
      * @param callable $compute Callback function to compute the value if not cached: fn() => mixed
-     * @param int|null $userId Optional user ID for user-scoped caching (overrides withUser() if provided)
      * @param int|null $ttlSeconds Optional TTL override (uses category default if null)
      * @return mixed The cached or computed value
      * 
@@ -259,7 +257,6 @@ class CacheService
      * or when updating cache after a database operation.
      * 
      * @param string $key Unique identifier for this cache entry within the category
-     * @param int|null $userId Optional user ID for user-scoped caching (overrides withUser() if provided)
      * @param mixed $value The value to store in cache
      * @param int|null $ttlSeconds Optional TTL override (uses category default if null)
      * 
@@ -288,7 +285,6 @@ class CacheService
      * Uses the item's unique tag for precise invalidation.
      * 
      * @param string $key The cache key of the item to invalidate
-     * @param int|null $userId Optional user ID if the item is user-scoped (overrides withUser() if provided)
      * 
      * @example $cache->withCategory(CATEGORY_ACTIONS)->invalidateItem("action_{$actionId}");
      * @example $cache->withCategory(CATEGORY_ACTIONS)->withUser($userId)->invalidateItem("user_action");
@@ -340,7 +336,6 @@ class CacheService
      * and all paginated action lists.
      * 
      * @param string $key The cache key of the item to invalidate
-     * @param int|null $userId Optional user ID if the item is user-scoped (overrides withUser() if provided)
      * 
      * @example $cache->withCategory(CATEGORY_ACTIONS)->invalidateItemAndLists("action_{$actionId}");
      * @example $cache->withCategory(CATEGORY_ACTIONS)->withUser($userId)->invalidateItemAndLists("user_action");
@@ -857,10 +852,9 @@ class CacheService
     /**
      * Generate a tag for an item cache entry
      */
-    private function itemTag(string $key, ?int $userId = null): string
+    private function itemTag(string $key): string
     {
-        $base = "item-{$this->category}-" . $this->normalizeKey($key);
-        return $userId === null ? $base : $base . "-u{$userId}";
+        return "item-{$this->category}-" . $this->normalizeKey($key);
     }
 
     /**
@@ -877,23 +871,7 @@ class CacheService
     private function catGenKey(): string
     {
         return "{$this->prefix}-{$this->category}-gen";
-    }
-
-    /**
-     * Generate a key for the user generation
-     */
-    private function userGenKey(int $userId): string
-    {
-        return "{$this->prefix}-{$this->category}-user-{$userId}-gen";
-    }
-
-    /**
-     * Generate a key for the global user generation
-     */
-    private function globalUserGenKey(int $userId): string
-    {
-        return "{$this->prefix}-user-{$userId}-gen";
-    }
+    }   
 
     /**
      * Generate a key for entity scope generation counter
