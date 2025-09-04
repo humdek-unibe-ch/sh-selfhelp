@@ -125,9 +125,8 @@ class SectionFieldService extends BaseService
                 'disabled' => $stylesField->isDisabled(),
                 'hidden' => $stylesField->getHidden(),
                 'display' => $field->isDisplay(),
-                'config' => $field->getConfig(),
+                'config' => $field->getConfig() ?? $this->getFieldConfig($field->getType() ? $field->getType()->getName() : []),
                 'translations' => [],
-                'fieldConfig' => $this->getFieldConfig($field->getType() ? $field->getType()->getName() : []),
             ];
 
             // Handle translations based on display flag
