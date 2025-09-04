@@ -12,6 +12,11 @@ BEGIN
             s.id_styles,
             st.`name` AS style_name,
             st.can_have_children,
+            s.`condition`,
+            s.css,
+            s.css_mobile,
+            s.debug,
+            s.data_config,
             ps.`position` AS position,      -- Start at 10
             0 AS `level`,
             CAST(s.id AS CHAR(200)) AS `path`
@@ -29,8 +34,13 @@ BEGIN
             s.id,
             s.`name`,
             s.id_styles,
-            st.`name` AS style_name,
+            st.`name` AS style_name,            
             st.can_have_children,
+            s.`condition`,
+            s.css,
+            s.css_mobile,
+            s.debug,
+            s.data_config,
             sh.position AS position,        -- Add 10 to each level
             h.`level` + 1,
             CONCAT(h.`path`, ',', s.id) AS `path`
@@ -45,8 +55,13 @@ BEGIN
         id,
         `name`,
         id_styles,
-        style_name,
+        style_name,        
         can_have_children,
+        `condition`,
+		css,
+		css_mobile,
+		debug,
+		data_config,
         position,
         `level`,
         `path`
