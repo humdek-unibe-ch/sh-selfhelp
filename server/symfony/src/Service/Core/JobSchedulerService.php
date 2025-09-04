@@ -437,7 +437,7 @@ class JobSchedulerService extends BaseService
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
                 ->withEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $job->getId())
-                ->withUser($userId)
+                ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
                 ->invalidateUserInCategory();
         }
         

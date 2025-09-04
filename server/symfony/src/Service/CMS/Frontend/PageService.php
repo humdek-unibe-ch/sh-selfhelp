@@ -94,7 +94,6 @@ class PageService extends BaseService
             ->withCategory(CacheService::CATEGORY_PAGES)
             ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
-            ->withUser($userId)
             ->getList($cacheKey, function () use ($mode, $admin, $languageId, $userId) {
                 // Get all pages with ACL for the user using the ACLService (cached)
                 $allPages = $this->aclService->getAllUserAcls($userId);
@@ -220,7 +219,7 @@ class PageService extends BaseService
 
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
-            ->withUser($userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
             ->getItem($cacheKey, function () use ($page_id, $languageId, $page) {
                 // Check if user has access to the page
@@ -260,7 +259,7 @@ class PageService extends BaseService
 
         return $this->cache
             ->withCategory(CacheService::CATEGORY_SECTIONS)
-            ->withUser($userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page_id)
             ->getList($cacheKey, function () use ($page_id, $languageId) {
                 // Get flat sections with hierarchical information

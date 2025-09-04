@@ -43,7 +43,7 @@ class ACLService
         $cacheKey = "user_acl_{$pageId}";
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PERMISSIONS)
-            ->withUser($userId)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->getItem($cacheKey, function () use ($userId, $pageId, $accessType) {
                 // Handle null or non-integer userId
                 if ($userId === null) {

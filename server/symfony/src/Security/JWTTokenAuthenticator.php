@@ -81,7 +81,7 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
 
         $user = $this->cache
             ->withCategory(CacheService::CATEGORY_USERS)
-            ->withUser($userIdentifier)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userIdentifier)
             ->getItem("user_profile", fn() => $this->entityManager->getRepository(User::class)->findOneBy(['id' => $userIdentifier]));
 
 

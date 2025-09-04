@@ -6,9 +6,12 @@ use App\Entity\Language;
 use App\Entity\User;
 use App\Service\Cache\Core\CacheService;
 use App\Service\CMS\UserPermissionService;
+use App\Service\Core\LookupService;
+use App\Service\Core\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Proxies\__CG__\App\Entity\CmsPreference;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Service for retrieving comprehensive user data including roles, permissions, and language
@@ -20,6 +23,7 @@ class UserDataService
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPermissionService $userPermissionService,
         private readonly CacheService $cache,
+        private readonly TransactionService $transactionService,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -33,7 +37,7 @@ class UserDataService
 
         return $this->cache
             ->withCategory(CacheService::CATEGORY_USERS)
-            ->withUser($user->getId())
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $user->getId())
             ->getItem($cacheKey, function () use ($user) {
                 $user = $this->entityManager->getRepository(User::class)->find($user->getId());
                 return [
@@ -53,7 +57,7 @@ class UserDataService
     /**
      * Get user language information with fallback to CMS preferences
      */
-    private function getUserLanguageInfo(User $user): array
+    public function getUserLanguageInfo(User $user): array
     {
         $userLanguageId = null;
         $userLanguageLocale = null;
@@ -134,4 +138,65 @@ class UserDataService
             ];
         }, $user->getGroups()->toArray());
     }
+
+    /**
+     * Set user language preference
+     *
+     * @param User $user
+     * @param int $languageId
+     * @return array Response data containing language information
+     * @throws \InvalidArgumentException When language is not found
+     */
+    public function setUserLanguage(User $user, int $languageId): array
+    {
+        $this->entityManager->beginTransaction();
+
+        try {
+            // Ensure we have a managed entity by fetching fresh from database
+            $user = $this->entityManager->find(User::class, $user->getId());
+            if (!$user) {
+                throw new \InvalidArgumentException('User not found');
+            }
+
+            // Validate that the language exists
+            $language = $this->entityManager->getRepository(Language::class)->find($languageId);
+            if (!$language) {
+                throw new \InvalidArgumentException('Invalid language ID');
+            }
+
+            // Update user's language
+            $user->setLanguage($language);
+            $this->entityManager->flush();
+
+            // Log the transaction
+            $this->transactionService->logTransaction(
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_USER,
+                'user',
+                $user->getId(),
+                $user,
+                'User language updated to: ' . $language->getLanguage() . ' (' . $language->getLocale() . ')'
+            );
+
+            $this->entityManager->commit();
+
+            $this->cache                
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $user->getId());
+
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_USERS)
+                ->invalidateAllListsInCategory();
+
+            return [
+                'message' => 'User language updated successfully',
+                'language_id' => $languageId,
+                'language_locale' => $language->getLocale(),
+                'language_name' => $language->getLanguage(),
+            ];
+        } catch (Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
+    }
+
 }

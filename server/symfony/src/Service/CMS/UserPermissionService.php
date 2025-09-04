@@ -33,7 +33,7 @@ class UserPermissionService
         $cacheKey = 'user_permissions_' . $user->getId();
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PERMISSIONS)
-            ->withUser($user->getId())
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $user->getId())
             ->getItem($cacheKey, function() use ($user) {
                 return $this->fetchUserPermissionsFromDatabase($user->getId());
             });

@@ -158,7 +158,10 @@ class AdminCacheController extends AbstractController
             // foreach (ReworkedCacheService::ALL_CATEGORIES as $category) {
             //     $this->cacheService->withCategory($category)->withUser($userId)->invalidateUserGlobally();
             // }
-            $this->cacheService->withCategory(CacheService::CATEGORY_USERS)->withUser($userId)->invalidateUserGlobally();
+            $this->cacheService
+            ->withCategory(CacheService::CATEGORY_USERS)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
+            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
 
             return $this->responseFormatter->formatSuccess(
                 [

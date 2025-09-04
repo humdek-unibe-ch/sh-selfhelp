@@ -3,13 +3,12 @@
 namespace App\Controller\Api\V1\Auth;
 
 use App\Controller\Trait\RequestValidatorTrait;
-use App\Entity\CmsPreference;
-use App\Entity\Language;
 use App\Entity\User;
 use App\Exception\RequestValidationException;
 use App\Repository\AuthRepository;
 use App\Service\Auth\JWTService;
 use App\Service\Auth\LoginService;
+use App\Service\Auth\UserDataService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,54 +39,11 @@ class AuthController extends AbstractController
         private readonly TokenStorageInterface $tokenStorage,
         private readonly AuthRepository $authRepository,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
+        private readonly UserDataService $userDataService,
         private readonly LoggerInterface $logger
     ) {
     }
 
-    /**
-     * Get user language information with fallback to CMS preferences
-     * 
-     * @param User $user
-     * @return array ['language_id' => int, 'language_locale' => string|null]
-     */
-    private function getUserLanguageInfo(User $user): array
-    {
-        $userLanguageId = null;
-        $userLanguageLocale = null;
-
-        if ($user->getLanguage()) {
-            $userLanguageId = $user->getLanguage()->getId();
-            $userLanguageLocale = $user->getLanguage()->getLocale();
-        } else {
-            // User doesn't have language set, use CMS default
-            try {
-                $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
-                if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
-                    $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
-                    $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
-                } else {
-                    // No CMS default language set, use fallback
-                    $userLanguageId = 2;
-                    $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
-                    if ($fallbackLanguage) {
-                        $userLanguageLocale = $fallbackLanguage->getLocale();
-                    }
-                }
-            } catch (\Exception $e) {
-                // If there's an error getting the default language, use fallback
-                $userLanguageId = 2;    
-                $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
-                if ($fallbackLanguage) {
-                    $userLanguageLocale = $fallbackLanguage->getLocale();
-                }
-            }
-        }
-
-        return [
-            'language_id' => $userLanguageId,
-            'language_locale' => $userLanguageLocale
-        ];
-    }
 
     /**
      * Login endpoint
@@ -127,7 +83,7 @@ class AuthController extends AbstractController
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
             // Get user language with fallback to CMS preferences
-            $userLanguageInfo = $this->getUserLanguageInfo($user);
+            $userLanguageInfo = $this->userDataService->getUserLanguageInfo($user);
 
             return $this->responseFormatter->formatSuccess([
                 'access_token' => $token,
@@ -195,7 +151,7 @@ class AuthController extends AbstractController
             $refreshToken = $this->jwtService->createRefreshToken($user);
 
             // Get user language with fallback to CMS preferences
-            $userLanguageInfo = $this->getUserLanguageInfo($user);
+            $userLanguageInfo = $this->userDataService->getUserLanguageInfo($user);
 
             return $this->responseFormatter->formatSuccess([
                 'access_token' => $token,
@@ -364,14 +320,14 @@ class AuthController extends AbstractController
         try {
             // Get the authenticated user
             $userInterface = $this->getUser();
-            if (!$userInterface) {
+            if (!$userInterface instanceof User) {
                 return $this->responseFormatter->formatError(
                     'User not authenticated',
                     Response::HTTP_UNAUTHORIZED
                 );
             }
 
-            $user = $this->entityManager->getRepository(User::class)->find($userInterface->getId());
+            $user = $userInterface;
             if (!$user) {
                 return $this->responseFormatter->formatError(
                     'User not found',
@@ -384,25 +340,16 @@ class AuthController extends AbstractController
 
             $languageId = (int) $data['language_id'];
 
-            // Validate that the language exists
-            $language = $this->entityManager->getRepository(Language::class)->find($languageId);
-            if (!$language) {
+            try {
+                $result = $this->userDataService->setUserLanguage($user, $languageId);
+
+                return $this->responseFormatter->formatSuccess($result, null, Response::HTTP_OK, true);
+            } catch (\InvalidArgumentException $e) {
                 return $this->responseFormatter->formatError(
-                    'Invalid language ID',
+                    $e->getMessage(),
                     Response::HTTP_BAD_REQUEST
                 );
             }
-
-            // Update user's language
-            $user->setLanguage($language);
-            $this->entityManager->flush();
-
-            return $this->responseFormatter->formatSuccess([
-                'message' => 'User language updated successfully',
-                'language_id' => $languageId,
-                'language_locale' => $language->getLocale(),
-                'language_name' => $language->getLanguage(),
-            ], null, Response::HTTP_OK, true);
 
         } catch (RequestValidationException $e) {
             // Let the ApiExceptionListener handle this

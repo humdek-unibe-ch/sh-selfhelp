@@ -95,10 +95,6 @@ class CacheService
 
     /** @var string Cache key prefix for namespacing */
     private string $prefix = 'cms';
-
-    /** @var int|null Current user ID for user-scoped operations */
-    private ?int $userId = null;
-
     /**
      * @param TagAwareCacheInterface $cache Tag-aware cache interface for advanced cache operations
      * @param LoggerInterface|null $logger Optional logger for debugging and monitoring
@@ -149,25 +145,6 @@ class CacheService
         return $cl;
     }
 
-    /**
-     * Create a new service instance with a specific user ID for user-scoped operations
-     * 
-     * Uses immutable builder pattern - returns a new instance without modifying current one.
-     * This allows for clean, chainable cache operations scoped to a specific user.
-     * When a user is set, all cache operations will automatically use this user ID.
-     * 
-     * @param int $userId The user ID to scope cache operations to
-     * @return self New service instance configured for the specified user
-     * 
-     * @example $cache->withCategory(CATEGORY_USERS)->withUser($userId)->getItem('profile', $callback)
-     */
-    public function withUser(int $userId): self
-    {
-        $cl = clone $this;
-        $cl->userId = $userId;
-        return $cl;
-    }
-
     /* =========================
        Public API (lists & items)
        ========================= */
@@ -199,21 +176,19 @@ class CacheService
      */
     public function getList(string $key, callable $compute, ?int $userId = null, ?int $ttlSeconds = null): mixed
     {
-        // Use provided userId parameter, or fall back to the instance's userId
-        $effectiveUserId = $userId ?? $this->userId;
-        $cacheKey = $this->getCacheKey('list', $key, $effectiveUserId);
+        $cacheKey = $this->getCacheKey('list', $key);
         $miss = false;
 
         if (!$ttlSeconds) {
             $ttlSeconds = $this->getCategoryTTL($this->category);
         }
 
-        $value = $this->cache->get($cacheKey, function (ItemInterface $item) use ($compute, $ttlSeconds, $effectiveUserId, $key, &$miss) {
+        $value = $this->cache->get($cacheKey, function (ItemInterface $item) use ($compute, $ttlSeconds, $key, &$miss) {
             $miss = true;
             if ($ttlSeconds) {
                 $item->expiresAfter($ttlSeconds);
             }
-            $tags = array_merge($this->tagsFor($effectiveUserId), [$this->itemTag($key, $effectiveUserId), $this->listTag()]);
+            $tags = array_merge($this->tagsFor(), array_map('strval', $this->entityScopes), [$this->itemTag($key), $this->listTag()]);
             $item->tag($tags);
             $this->recordSet($this->category);
 
@@ -250,23 +225,21 @@ class CacheService
      *     fn() => $this->repository->findOneBy(['id' => $userId])
      * );
      */
-    public function getItem(string $key, callable $compute, ?int $userId = null, ?int $ttlSeconds = null): mixed
+    public function getItem(string $key, callable $compute, ?int $ttlSeconds = null): mixed
     {
-        // Use provided userId parameter, or fall back to the instance's userId
-        $effectiveUserId = $userId ?? $this->userId;
-        $cacheKey = $this->getCacheKey('item', $key, $effectiveUserId);
+        $cacheKey = $this->getCacheKey('item', $key);
         $miss = false;
 
         if (!$ttlSeconds) {
             $ttlSeconds = $this->getCategoryTTL($this->category);
         }
 
-        $value = $this->cache->get($cacheKey, function (ItemInterface $item) use ($compute, $ttlSeconds, $effectiveUserId, $key, &$miss) {
+        $value = $this->cache->get($cacheKey, function (ItemInterface $item) use ($compute, $ttlSeconds, $key, &$miss) {
             $miss = true;
             if ($ttlSeconds) {
                 $item->expiresAfter($ttlSeconds);
             }
-            $tags = array_merge($this->tagsFor($effectiveUserId), [$this->itemTag($key, $effectiveUserId)]);
+            $tags = array_merge($this->tagsFor(), array_map('strval', $this->entityScopes), [$this->itemTag($key), $this->listTag()]);
             $item->tag($tags);
 
             $val = $compute();
@@ -293,17 +266,15 @@ class CacheService
      * @example $cache->withCategory(CATEGORY_ACTIONS)->setItem("action_{$id}", null, $formattedAction);
      * @example $cache->withCategory(CATEGORY_ACTIONS)->withUser($userId)->setItem("user_action", null, $formattedAction);
      */
-    public function setItem(string $key, ?int $userId, mixed $value, ?int $ttlSeconds = null): void
+    public function setItem(string $key, mixed $value, ?int $ttlSeconds = null): void
     {
-        // Use provided userId parameter, or fall back to the instance's userId
-        $effectiveUserId = $userId ?? $this->userId;
-        $cacheKey = $this->getCacheKey('item', $key, $effectiveUserId);
+        $cacheKey = $this->getCacheKey('item', $key);
         $this->cache->delete($cacheKey); // ensure callback runs
-        $this->cache->get($cacheKey, function (ItemInterface $item) use ($value, $ttlSeconds, $effectiveUserId, $key) {
+        $this->cache->get($cacheKey, function (ItemInterface $item) use ($value, $ttlSeconds, $key) {
             if ($ttlSeconds) {
                 $item->expiresAfter($ttlSeconds);
             }
-            $tags = array_merge($this->tagsFor($effectiveUserId), [$this->itemTag($key, $effectiveUserId)]);
+            $tags = array_merge($this->tagsFor(), array_map('strval', $this->entityScopes), [$this->itemTag($key), $this->listTag()]);
             $item->tag($tags);
             $this->recordSet($this->category);
             return $value;
@@ -322,11 +293,9 @@ class CacheService
      * @example $cache->withCategory(CATEGORY_ACTIONS)->invalidateItem("action_{$actionId}");
      * @example $cache->withCategory(CATEGORY_ACTIONS)->withUser($userId)->invalidateItem("user_action");
      */
-    public function invalidateItem(string $key, ?int $userId = null): void
+    public function invalidateItem(string $key): void
     {
-        // Use provided userId parameter, or fall back to the instance's userId
-        $effectiveUserId = $userId ?? $this->userId;
-        $this->cache->invalidateTags([$this->itemTag($key, $effectiveUserId)]);
+        $this->cache->invalidateTags([$this->itemTag($key)]);
         $this->recordInvalidation($this->category);
     }
 
@@ -347,61 +316,6 @@ class CacheService
     {
         $this->incr($this->catGenKey());
         $this->recordInvalidation($this->category);
-    }
-
-    /**
-     * Invalidate all cache entries for a specific user within this category
-     * 
-     * Uses generation-based invalidation to make all user-scoped cache entries
-     * in this category obsolete. This is an O(1) operation.
-     * 
-     * @param int $userId The user ID whose cache entries should be invalidated
-     * 
-     * @example $cache->withCategory(CATEGORY_USERS)->invalidateUser($userId);
-     */
-    public function invalidateUser(int $userId): void
-    {
-        $this->incr($this->userGenKey($userId));
-        $this->recordInvalidation($this->category);
-    }
-
-    /**
-     * Invalidate ALL cache entries for a user across ALL categories (global kill switch)
-     * 
-     * Uses the global user generation counter to invalidate user-scoped cache
-     * entries in every category. This is the nuclear option for user cache invalidation.
-     * 
-     * @param int|null $userId The user ID whose cache entries should be globally invalidated (uses withUser() userId if null)
-     * 
-     * @example $cache->invalidateUserGlobally($userId); // Clears user cache everywhere
-     * @example $cache->withUser($userId)->invalidateUserGlobally(); // Using builder pattern
-     */
-    public function invalidateUserGlobally(?int $userId = null): void
-    {
-        $effectiveUserId = $userId ?? $this->userId;
-        if ($effectiveUserId === null) {
-            throw new \LogicException('No user specified. Provide userId parameter or use withUser() first');
-        }
-        $this->incr($this->globalUserGenKey($effectiveUserId));
-        // Not tied to a category; record under a synthetic bucket if you like.
-    }
-
-    /**
-     * Invalidate all cache entries for the current user across ALL categories
-     * 
-     * Convenience method when using withUser() builder pattern.
-     * This is the nuclear option - clears all user cache across every category.
-     * 
-     * @throws \LogicException If no user is set via withUser()
-     * 
-     * @example $cache->withUser($userId)->invalidateCurrentUserGlobally();
-     */
-    public function invalidateCurrentUserGlobally(): void
-    {
-        if ($this->userId === null) {
-            throw new \LogicException('No user set. Use withUser() before calling invalidateCurrentUserGlobally()');
-        }
-        $this->invalidateUserGlobally($this->userId);
     }
 
     /**
@@ -431,49 +345,10 @@ class CacheService
      * @example $cache->withCategory(CATEGORY_ACTIONS)->invalidateItemAndLists("action_{$actionId}");
      * @example $cache->withCategory(CATEGORY_ACTIONS)->withUser($userId)->invalidateItemAndLists("user_action");
      */
-    public function invalidateItemAndLists(string $key, ?int $userId = null): void
+    public function invalidateItemAndLists(string $key): void
     {
-        // Use provided userId parameter, or fall back to the instance's userId
-        $effectiveUserId = $userId ?? $this->userId;
-        $this->invalidateItem($key, $effectiveUserId);
+        $this->invalidateItem($key);
         $this->invalidateAllListsInCategory(); // all lists in this category
-    }
-
-    /**
-     * Invalidate all cache entries for the current user in the current category
-     * 
-     * Convenience method when using withUser() builder pattern.
-     * Invalidates all cache entries scoped to the user set via withUser().
-     * 
-     * @throws \LogicException If no user is set via withUser()
-     * 
-     * @example $cache->withCategory(CATEGORY_USERS)->withUser($userId)->invalidateCurrentUser();
-     */
-    public function invalidateCurrentUser(): void
-    {
-        if ($this->userId === null) {
-            throw new \LogicException('No user set. Use withUser() before calling invalidateCurrentUser()');
-        }
-        $this->invalidateUser($this->userId);
-    }
-
-    /**
-     * Invalidate all cache entries for a specific user in the current category
-     * 
-     * Enhanced version that works with both the builder pattern and direct parameter passing.
-     * 
-     * @param int|null $userId User ID to invalidate (uses withUser() userId if null)
-     * 
-     * @example $cache->withCategory(CATEGORY_USERS)->invalidateUserInCategory($userId);
-     * @example $cache->withCategory(CATEGORY_USERS)->withUser($userId)->invalidateUserInCategory();
-     */
-    public function invalidateUserInCategory(?int $userId = null): void
-    {
-        $effectiveUserId = $userId ?? $this->userId;
-        if ($effectiveUserId === null) {
-            throw new \LogicException('No user specified. Provide userId parameter or use withUser() first');
-        }
-        $this->invalidateUser($effectiveUserId);
     }
 
     /* =========================
@@ -936,22 +811,13 @@ class CacheService
      * 
      * @param string $type Cache entry type ('list' or 'item')
      * @param string $plainKey The base key identifier
-     * @param int|null $userId Optional user ID for user-scoped caching
      * @return string Complete cache key with generation counters
      */
-    private function getCacheKey(string $type, string $plainKey, ?int $userId = null): string
+    private function getCacheKey(string $type, string $plainKey): string
     {
         // Start with basic category generation
         $catGen = $this->getInt($this->catGenKey());
         $parts = [$this->prefix, $this->category, 'g' . $catGen];
-
-        // Add user-scoped generation if applicable
-        if ($userId !== null) {
-            $userGen = $this->getInt($this->userGenKey($userId));
-            $global = $this->getInt($this->globalUserGenKey($userId)); // global kill switch
-            $parts[] = 'u' . $userId;
-            $parts[] = 'g' . max($userGen, $global);
-        }
 
         // Add entity scope generations if configured
         // Sort by entity type for consistent key generation regardless of withEntityScope() call order
@@ -983,14 +849,9 @@ class CacheService
     /**
      * Generate tags for a user cache entry
      */
-    private function tagsFor(?int $userId): array
+    private function tagsFor(): array
     {
-        $tags = ["cat-{$this->category}"];
-        if ($userId !== null) {
-            $tags[] = "user-{$userId}";
-            $tags[] = "cat-{$this->category}-user-{$userId}";
-        }
-        return $tags;
+        return ["cat-{$this->category}"];
     }
 
     /**
