@@ -34,9 +34,9 @@ class AdminCmsPreferenceService extends BaseService
             ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
             ->getItem(
                 'cms_preferences',
-                function() {
+                function () {
                     $preferences = $this->cmsPreferenceRepository->getCmsPreferences();
-                    
+
                     if (!$preferences) {
                         throw new ServiceException('CMS preferences not found', Response::HTTP_NOT_FOUND);
                     }
@@ -45,7 +45,7 @@ class AdminCmsPreferenceService extends BaseService
                     $this->cache
                         ->withCategory(CacheService::CATEGORY_CMS_PREFERENCES)
                         ->withEntityScope(CacheService::ENTITY_SCOPE_CMS_PREFERENCE, $preferences->getId())
-                        ->setItem('cms_preferences_scoped', null, [
+                        ->setItem('cms_preferences_scoped', [
                             'id' => $preferences->getId(),
                             'callback_api_key' => $preferences->getCallbackApiKey(),
                             'default_language_id' => $preferences->getDefaultLanguage()?->getId(),
@@ -83,10 +83,10 @@ class AdminCmsPreferenceService extends BaseService
     public function updateCmsPreferences(array $data): array
     {
         $this->entityManager->beginTransaction();
-        
+
         try {
             $preferences = $this->cmsPreferenceRepository->getCmsPreferences();
-            
+
             if (!$preferences) {
                 throw new ServiceException('CMS preferences not found', Response::HTTP_NOT_FOUND);
             }
@@ -111,7 +111,7 @@ class AdminCmsPreferenceService extends BaseService
 
             // Update anonymous users if provided
             if (array_key_exists('anonymous_users', $data)) {
-                $preferences->setAnonymousUsers((int)$data['anonymous_users']);
+                $preferences->setAnonymousUsers((int) $data['anonymous_users']);
             }
 
             // Update firebase config if provided
@@ -145,4 +145,4 @@ class AdminCmsPreferenceService extends BaseService
             throw $e;
         }
     }
-} 
+}

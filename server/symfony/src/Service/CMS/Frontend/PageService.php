@@ -219,6 +219,7 @@ class PageService extends BaseService
 
         return $this->cache
             ->withCategory(CacheService::CATEGORY_PAGES)
+            ->withEntityScope(CacheService::ENTITY_SCOPE_LANGUAGE, $languageId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
             ->withEntityScope(CacheService::ENTITY_SCOPE_PAGE, $page->getId())
             ->getItem($cacheKey, function () use ($page_id, $languageId, $page) {
@@ -282,20 +283,12 @@ class PageService extends BaseService
                     // If there's an error getting the default language, continue without fallback
                 }
 
-                // Fetch all translations for these sections in one query
-                $translations = $this->translationRepository->fetchTranslationsForSections(
+                // Fetch all translations for these sections with fallback to default language
+                $translations = $this->translationRepository->fetchTranslationsForSectionsWithFallback(
                     $sectionIds,
-                    $languageId
+                    $languageId,
+                    $defaultLanguageId
                 );
-
-                // If requested language is not the default language, fetch default language translations for fallback
-                $defaultTranslations = [];
-                if ($defaultLanguageId !== null && $languageId !== $defaultLanguageId) {
-                    $defaultTranslations = $this->translationRepository->fetchTranslationsForSections(
-                        $sectionIds,
-                        $defaultLanguageId
-                    );
-                }
 
                 // Fetch property translations (language ID 1) for fields of type 1
                 $propertyTranslations = $this->translationRepository->fetchTranslationsForSections(
@@ -303,8 +296,9 @@ class PageService extends BaseService
                     self::PROPERTY_LANGUAGE_ID
                 );
 
-                // Apply translations to the sections recursively with fallback
-                $this->sectionUtilityService->applySectionTranslations($sections, $translations, $defaultTranslations, $propertyTranslations);
+                // Apply translations to the sections recursively
+                // Note: fallback is now handled internally by fetchTranslationsForSectionsWithFallback
+                $this->sectionUtilityService->applySectionTranslations($sections, $translations, [], $propertyTranslations);
 
                 $this->sectionUtilityService->applySectionsData($sections);
 
