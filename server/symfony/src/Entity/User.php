@@ -14,16 +14,16 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersGroup::class, orphanRemoval: true)]
-    private \Doctrine\Common\Collections\Collection $usersGroups;
+    private Collection $usersGroups;
 
     // --- RELATIONSHIPS ---
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|Group[]
+     * @return Collection|Group[]
      */
-    public function getGroups(): \Doctrine\Common\Collections\Collection
+    public function getGroups(): Collection
     {
-        return new \Doctrine\Common\Collections\ArrayCollection(
+        return new ArrayCollection(
             array_map(fn($ug) => $ug->getGroup(), $this->usersGroups->toArray())
         );
     }
@@ -47,25 +47,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUsersGroups(): \Doctrine\Common\Collections\Collection
+    public function getUsersGroups(): Collection
     {
         return $this->usersGroups;
     }
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserActivity::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $userActivities;
+    private Collection $userActivities;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $transactions;
+    private Collection $transactions;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: RefreshToken::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $refreshTokens;
+    private Collection $refreshTokens;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ScheduledJobsUser::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $scheduledJobsUsers;
+    private Collection $scheduledJobsUsers;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ValidationCode::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $validationCodes;
+    private Collection $validationCodes;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     #[ORM\JoinTable(
@@ -73,17 +73,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         joinColumns: [new ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', onDelete: 'CASCADE')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'id_roles', referencedColumnName: 'id', onDelete: 'CASCADE')]
     )]
-    private \Doctrine\Common\Collections\Collection $roles;
+    private Collection $roles;
 
     public function __construct()
     {
-        $this->usersGroups = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->userActivities = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->transactions = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->refreshTokens = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->scheduledJobsUsers = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->validationCodes = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->usersGroups = new ArrayCollection();
+        $this->userActivities = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
+        $this->refreshTokens = new ArrayCollection();
+        $this->scheduledJobsUsers = new ArrayCollection();
+        $this->validationCodes = new ArrayCollection();
+        $this->roles = new ArrayCollection();
 
         // Set default userType in service layer or controller when creating new users
         // The default value should be the 'user' type from lookups table
@@ -339,9 +339,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Get the role entities associated with this user
      * 
-     * @return \Doctrine\Common\Collections\Collection<int, Role>
+     * @return Collection<int, Role>
      */
-    public function getUserRoles(): \Doctrine\Common\Collections\Collection
+    public function getUserRoles(): Collection
     {
         return $this->roles;
     }
@@ -374,9 +374,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // --- RELATIONSHIP GETTERS & SETTERS ---
     /**
-     * @return \Doctrine\Common\Collections\Collection|UserActivity[]
+     * @return Collection|UserActivity[]
      */
-    public function getUserActivities(): \Doctrine\Common\Collections\Collection
+    public function getUserActivities(): Collection
     {
         return $this->userActivities;
     }
@@ -399,9 +399,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|Transaction[]
+     * @return Collection|Transaction[]
      */
-    public function getTransactions(): \Doctrine\Common\Collections\Collection
+    public function getTransactions(): Collection
     {
         return $this->transactions;
     }
@@ -424,9 +424,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|RefreshToken[]
+     * @return Collection|RefreshToken[]
      */
-    public function getRefreshTokens(): \Doctrine\Common\Collections\Collection
+    public function getRefreshTokens(): Collection
     {
         return $this->refreshTokens;
     }
@@ -450,9 +450,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|ScheduledJobsUser[]
+     * @return Collection|ScheduledJobsUser[]
      */
-    public function getScheduledJobsUsers(): \Doctrine\Common\Collections\Collection
+    public function getScheduledJobsUsers(): Collection
     {
         return $this->scheduledJobsUsers;
     }
@@ -475,9 +475,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|ValidationCode[]
+     * @return Collection|ValidationCode[]
      */
-    public function getValidationCodes(): \Doctrine\Common\Collections\Collection
+    public function getValidationCodes(): Collection
     {
         return $this->validationCodes;
     }

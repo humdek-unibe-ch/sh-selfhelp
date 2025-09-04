@@ -3,6 +3,8 @@
 namespace App\Controller\Api\V1\Auth;
 
 use App\Controller\Trait\RequestValidatorTrait;
+use App\Entity\CmsPreference;
+use App\Entity\Language;
 use App\Entity\User;
 use App\Exception\RequestValidationException;
 use App\Repository\AuthRepository;
@@ -10,6 +12,7 @@ use App\Service\Auth\JWTService;
 use App\Service\Auth\LoginService;
 use App\Service\Core\ApiResponseFormatter;
 use App\Service\JSON\JsonSchemaValidationService;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,12 +36,13 @@ class AuthController extends AbstractController
         private readonly LoginService $loginService,
         private readonly JWTService $jwtService,
         private readonly ApiResponseFormatter $responseFormatter,
-        private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $entityManager,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly AuthRepository $authRepository,
         private readonly JsonSchemaValidationService $jsonSchemaValidationService,
-        private readonly \Psr\Log\LoggerInterface $logger
-    ) {}
+        private readonly LoggerInterface $logger
+    ) {
+    }
 
     /**
      * Get user language information with fallback to CMS preferences
@@ -46,39 +50,39 @@ class AuthController extends AbstractController
      * @param User $user
      * @return array ['language_id' => int, 'language_locale' => string|null]
      */
-    private function getUserLanguageInfo(\App\Entity\User $user): array
+    private function getUserLanguageInfo(User $user): array
     {
         $userLanguageId = null;
         $userLanguageLocale = null;
-        
+
         if ($user->getLanguage()) {
             $userLanguageId = $user->getLanguage()->getId();
             $userLanguageLocale = $user->getLanguage()->getLocale();
         } else {
             // User doesn't have language set, use CMS default
             try {
-                $cmsPreference = $this->entityManager->getRepository('App\Entity\CmsPreference')->findOneBy([]);
+                $cmsPreference = $this->entityManager->getRepository(CmsPreference::class)->findOneBy([]);
                 if ($cmsPreference && $cmsPreference->getDefaultLanguage()) {
                     $userLanguageId = $cmsPreference->getDefaultLanguage()->getId();
                     $userLanguageLocale = $cmsPreference->getDefaultLanguage()->getLocale();
                 } else {
                     // No CMS default language set, use fallback
                     $userLanguageId = 2;
-                    $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                    $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
                     if ($fallbackLanguage) {
                         $userLanguageLocale = $fallbackLanguage->getLocale();
                     }
                 }
             } catch (\Exception $e) {
                 // If there's an error getting the default language, use fallback
-                $userLanguageId = 2;
-                $fallbackLanguage = $this->entityManager->getRepository('App\Entity\Language')->find(2);
+                $userLanguageId = 2;    
+                $fallbackLanguage = $this->entityManager->getRepository(Language::class)->find(2);
                 if ($fallbackLanguage) {
                     $userLanguageLocale = $fallbackLanguage->getLocale();
                 }
             }
         }
-        
+
         return [
             'language_id' => $userLanguageId,
             'language_locale' => $userLanguageLocale
@@ -136,7 +140,7 @@ class AuthController extends AbstractController
                     'language_locale' => $userLanguageInfo['language_locale']
                 ]
             ], 'responses/auth/login', Response::HTTP_OK, true);
-        } catch (\App\Exception\RequestValidationException $e) {
+        } catch (RequestValidationException $e) {
             // Let the ApiExceptionListener handle this
             throw $e;
         } catch (\InvalidArgumentException $e) {
@@ -204,7 +208,7 @@ class AuthController extends AbstractController
                     'language_locale' => $userLanguageInfo['language_locale']
                 ]
             ], 'responses/auth/2fa_verify', Response::HTTP_OK, true);
-        } catch (\App\Exception\RequestValidationException $e) {
+        } catch (RequestValidationException $e) {
             // Let the ApiExceptionListener handle this
             throw $e;
         } catch (\InvalidArgumentException $e) {
@@ -239,7 +243,7 @@ class AuthController extends AbstractController
             $newTokens = $this->jwtService->processRefreshToken($refreshTokenString);
 
             return $this->responseFormatter->formatSuccess($newTokens, 'responses/auth/refresh_token', Response::HTTP_OK, true);
-        } catch (\App\Exception\RequestValidationException $e) {
+        } catch (RequestValidationException $e) {
             // Let the ApiExceptionListener handle this
             throw $e;
         } catch (\InvalidArgumentException $e) {
@@ -298,7 +302,7 @@ class AuthController extends AbstractController
                 try {
                     // Validate request against JSON schema
                     $data = $this->validateRequest($request, 'requests/auth/logout', $this->jsonSchemaValidationService);
-                } catch (\App\Exception\RequestValidationException $e) {
+                } catch (RequestValidationException $e) {
                     // For logout, we can continue even if validation fails
                     // Just log the error and proceed with empty data
                     $this->logger->warning('Logout request validation failed', [
@@ -359,11 +363,19 @@ class AuthController extends AbstractController
     {
         try {
             // Get the authenticated user
-            $user = $this->getUser();
-            if (!$user) {
+            $userInterface = $this->getUser();
+            if (!$userInterface) {
                 return $this->responseFormatter->formatError(
                     'User not authenticated',
                     Response::HTTP_UNAUTHORIZED
+                );
+            }
+
+            $user = $this->entityManager->getRepository(User::class)->find($userInterface->getId());
+            if (!$user) {
+                return $this->responseFormatter->formatError(
+                    'User not found',
+                    Response::HTTP_NOT_FOUND
                 );
             }
 
@@ -373,7 +385,7 @@ class AuthController extends AbstractController
             $languageId = (int) $data['language_id'];
 
             // Validate that the language exists
-            $language = $this->entityManager->getRepository('App\Entity\Language')->find($languageId);
+            $language = $this->entityManager->getRepository(Language::class)->find($languageId);
             if (!$language) {
                 return $this->responseFormatter->formatError(
                     'Invalid language ID',
@@ -385,21 +397,14 @@ class AuthController extends AbstractController
             $user->setLanguage($language);
             $this->entityManager->flush();
 
-            // Generate new JWT token with updated language
-            $newToken = $this->jwtService->createToken($user);
-
-            // Get user language info for response
-            $userLanguageInfo = $this->getUserLanguageInfo($user);
-
             return $this->responseFormatter->formatSuccess([
                 'message' => 'User language updated successfully',
                 'language_id' => $languageId,
                 'language_locale' => $language->getLocale(),
                 'language_name' => $language->getLanguage(),
-                'access_token' => $newToken
             ], null, Response::HTTP_OK, true);
 
-        } catch (\App\Exception\RequestValidationException $e) {
+        } catch (RequestValidationException $e) {
             // Let the ApiExceptionListener handle this
             throw $e;
         } catch (\InvalidArgumentException $e) {
