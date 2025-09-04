@@ -58,7 +58,7 @@
         },
         "globalFields": {
             "type": "object",
-            "description": "Global section fields (condition, data_config, css, css_mobile, debug)",
+            "description": "Global section fields (condition, data_config, css, css_mobile, debug). Send empty object {} to clear all fields or omit to keep existing values.",
             "properties": {
                 "condition": {
                     "type": ["string", "null"],
@@ -77,11 +77,12 @@
                     "description": "Mobile-specific CSS for the section"
                 },
                 "debug": {
-                    "type": "boolean",
+                    "type": ["boolean", "null"],
                     "description": "Debug flag for the section"
                 }
             },
-            "additionalProperties": false
+            "additionalProperties": false,
+            "required": []
         }
     },
     "required": ["contentFields", "propertyFields"],

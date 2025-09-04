@@ -156,9 +156,19 @@ class AdminSectionController extends AbstractController
     public function updateSection(Request $request, int $page_id, int $section_id): Response
     {
         try {
+            // Get raw request content to check if globalFields was explicitly sent
+            $requestContent = json_decode($request->getContent(), true);
+            $globalFieldsProvided = array_key_exists('globalFields', $requestContent);
+
             // Validate request against JSON schema
             $data = $this->validateRequest($request, 'requests/section/update_section', $this->jsonSchemaValidationService);
-            
+
+            // Determine globalFields value based on whether it was explicitly provided
+            $globalFields = null;
+            if ($globalFieldsProvided) {
+                $globalFields = $data['globalFields'] ?? [];
+            }
+
             // Update the section
             $section = $this->adminSectionService->updateSection(
                 $page_id,
@@ -166,7 +176,7 @@ class AdminSectionController extends AbstractController
                 isset($data['sectionName']) ? $data['sectionName'] : null,
                 $data['contentFields'],
                 $data['propertyFields'],
-                isset($data['globalFields']) ? $data['globalFields'] : []
+                $globalFields
             );
             
             // Section cache is automatically invalidated by the service

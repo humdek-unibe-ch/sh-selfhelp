@@ -339,7 +339,7 @@ class AdminSectionService extends BaseService
      * @return Section The updated section
      * @throws ServiceException If section not found or access denied
      */
-    public function updateSection(int $pageId, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields, array $globalFields = []): Section
+    public function updateSection(int $pageId, int $sectionId, ?string $sectionName, array $contentFields, array $propertyFields, ?array $globalFields = null): Section
     {
         $this->entityManager->beginTransaction();
 
@@ -368,22 +368,32 @@ class AdminSectionService extends BaseService
                 $section->setName($sectionName);
             }
 
-            // Update global fields if provided
-            if (!empty($globalFields)) {
-                if (isset($globalFields['condition'])) {
-                    $section->setCondition($globalFields['condition']);
-                }
-                if (isset($globalFields['data_config'])) {
-                    $section->setDataConfig($globalFields['data_config']);
-                }
-                if (isset($globalFields['css'])) {
-                    $section->setCss($globalFields['css']);
-                }
-                if (isset($globalFields['css_mobile'])) {
-                    $section->setCssMobile($globalFields['css_mobile']);
-                }
-                if (isset($globalFields['debug'])) {
-                    $section->setDebug((bool)$globalFields['debug']);
+            // Update global fields if provided (null means not provided, empty array means clear all, populated array means update specific fields)
+            if ($globalFields !== null) {
+                // If globalFields is an empty array (sent as {}), clear all global fields
+                if (empty($globalFields)) {
+                    $section->setCondition(null);
+                    $section->setDataConfig(null);
+                    $section->setCss(null);
+                    $section->setCssMobile(null);
+                    $section->setDebug(false);
+                } else {
+                    // Update only provided fields, leave others unchanged
+                    if (array_key_exists('condition', $globalFields)) {
+                        $section->setCondition($globalFields['condition']);
+                    }
+                    if (array_key_exists('data_config', $globalFields)) {
+                        $section->setDataConfig($globalFields['data_config']);
+                    }
+                    if (array_key_exists('css', $globalFields)) {
+                        $section->setCss($globalFields['css']);
+                    }
+                    if (array_key_exists('css_mobile', $globalFields)) {
+                        $section->setCssMobile($globalFields['css_mobile']);
+                    }
+                    if (array_key_exists('debug', $globalFields)) {
+                        $section->setDebug($globalFields['debug'] === null ? false : (bool)$globalFields['debug']);
+                    }
                 }
             }
 
