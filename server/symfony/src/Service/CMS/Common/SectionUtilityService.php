@@ -183,7 +183,6 @@ class SectionUtilityService
     ): void {
         foreach ($sections as &$section) {
             $sectionId = $section['id'] ?? null;
-            $fields = [];
 
             if ($sectionId) {
                 // Get the section's style ID to fetch default values if needed
@@ -212,7 +211,7 @@ class SectionUtilityService
                     foreach ($stylesFields as $fieldName => $defaultValue) {
                         // Only apply default value if the field doesn't already have a value
                         if (!isset($section[$fieldName]) || empty($section[$fieldName]['content'])) {
-                            $fields[$fieldName] = [
+                            $section[$fieldName] = [
                                 'content' => $defaultValue,
                                 'meta' => null
                             ];
@@ -220,8 +219,6 @@ class SectionUtilityService
                     }
                 }
             }
-
-            $section['fields'] = $fields;
 
             // Process children recursively
             if (isset($section['children']) && is_array($section['children'])) {
