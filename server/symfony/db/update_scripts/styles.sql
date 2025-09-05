@@ -208,3 +208,6 @@ VALUES (get_style_id('button'), get_field_id('is_link'), '0', 'If `isLink` prop 
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
 VALUES (get_style_id('button'), get_field_id('disabled'), '0', 'If `disabled` prop is set Button will be disabled. For more information check https://mantine.dev/core/button', 0, 0, 'Disabled');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('open_in_new_tab'), '0', 'If `openInNewTab` prop is set Button will open in a new tab. For more information check https://mantine.dev/core/button', 0, 0, 'Open in New Tab');
