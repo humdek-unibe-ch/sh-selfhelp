@@ -79,7 +79,7 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 
 -- Add new field `mantine-variant` to `button` style
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
-VALUES (get_style_id('button'), get_field_id('mantine-variant'), 'filled', 'Select variant for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Mantine Variant');
+VALUES (get_style_id('button'), get_field_id('mantine-variant'), 'filled', 'Select variant for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Variant');
 
 
 -- Add new field type `color-picker`
@@ -104,8 +104,70 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 ');
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
-VALUES (get_style_id('button'), get_field_id('mantine-color'), 'blue', 'Select color for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Mantine Color');
+VALUES (get_style_id('button'), get_field_id('mantine-color'), 'blue', 'Select color for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Color');
 
 
+-- Add new field type `slider`
+INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'slider', '3');
 
+-- Add field `mantine-slider-size` from type `slider`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine-slider-size', get_field_type_id('slider'), 0, '
+{
+	"options": [
+		{
+			"value": "xs",
+			"text": "XS"
+		},
+		{
+			"value": "sm",
+			"text": "SM"
+		},
+		{
+			"value": "md",
+			"text": "MD"
+		},
+		{
+			"value": "lg",
+			"text": "LG"
+		},
+		{
+			"value": "xl",
+			"text": "XL"
+		}
+	]
+}
+');
 
+-- Add field `mantine-slider-size` from type `slider`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine-slider-radius', get_field_type_id('slider'), 0, '
+{
+	"options": [
+		{
+			"value": "xs",
+			"text": "XS"
+		},
+		{
+			"value": "sm",
+			"text": "SM"
+		},
+		{
+			"value": "md",
+			"text": "MD"
+		},
+		{
+			"value": "lg",
+			"text": "LG"
+		},
+		{
+			"value": "xl",
+			"text": "XL"
+		}
+	]
+}
+');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('mantine-slider-size'), 'sm', 'Select slider size for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Size');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('mantine-slider-radius'), 'sm', 'Select slider size for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Radius');
