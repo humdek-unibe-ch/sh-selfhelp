@@ -220,3 +220,9 @@ VALUES (get_style_id('button'), get_field_id('use_mantine_style'), 1, 'If `useMa
 UPDATE fieldType
 SET position = 0
 WHERE `name` = 'checkbox';
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('page_keyword'), '#', 'Select a page keyword to link to. For more information check https://mantine.dev/core/button', 0, 0, 'URL');
+
+DELETE FROM styles_fields
+WHERE id_fields = get_field_id('url') and id_styles = get_style_id('button');

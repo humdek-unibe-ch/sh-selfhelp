@@ -2,7 +2,10 @@
 
 namespace App\Service\CMS\Admin;
 
+use App\Entity\DataTable;
 use App\Entity\Field;
+use App\Entity\Group;
+use App\Entity\Page;
 use App\Entity\Section;
 use App\Entity\SectionsFieldsTranslation;
 use App\Exception\ServiceException;
@@ -218,7 +221,7 @@ class SectionFieldService extends BaseService
                 function () {
                     $qb = $this->entityManager->createQueryBuilder();
                     $qb->select('g.id, g.name')
-                        ->from('App\Entity\Group', 'g')
+                        ->from(Group::class, 'g')
                         ->orderBy('g.name', 'ASC');
 
                     $groups = $qb->getQuery()->getResult();
@@ -246,7 +249,7 @@ class SectionFieldService extends BaseService
                 function () {
                     $qb = $this->entityManager->createQueryBuilder();
                     $qb->select('dt.id, dt.name')
-                        ->from('App\Entity\DataTable', 'dt')
+                        ->from(DataTable::class, 'dt')
                         ->orderBy('dt.name', 'ASC');
 
                     $dataTables = $qb->getQuery()->getResult();
@@ -274,14 +277,14 @@ class SectionFieldService extends BaseService
                 function () {
                     $qb = $this->entityManager->createQueryBuilder();
                     $qb->select('p.id, p.keyword')
-                        ->from('App\Entity\Page', 'p')
+                        ->from(Page::class, 'p')
                         ->where('p.keyword IS NOT NULL')
                         ->orderBy('p.keyword', 'ASC');
 
                     $pages = $qb->getQuery()->getResult();
 
                     return array_map(fn($page) => [
-                        'value' => (string) $page['id'],
+                        'value' => $page['keyword'],
                         'text' => $page['keyword']
                     ], $pages);
                 }
