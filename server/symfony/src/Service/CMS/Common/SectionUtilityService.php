@@ -210,7 +210,8 @@ class SectionUtilityService
                     // Apply default values for fields that don't have translations
                     foreach ($stylesFields as $fieldName => $defaultValue) {
                         // Only apply default value if the field doesn't already have a value
-                        if (!isset($section[$fieldName]) || empty($section[$fieldName]['content'])) {
+                        // Check for null or empty string, not empty() which considers '0' as empty
+                        if (!isset($section[$fieldName]) || $section[$fieldName]['content'] === null || $section[$fieldName]['content'] === '') {
                             $section[$fieldName] = [
                                 'content' => $defaultValue,
                                 'meta' => null

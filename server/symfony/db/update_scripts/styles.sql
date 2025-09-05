@@ -211,3 +211,12 @@ VALUES (get_style_id('button'), get_field_id('disabled'), '0', 'If `disabled` pr
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
 VALUES (get_style_id('button'), get_field_id('open_in_new_tab'), '0', 'If `openInNewTab` prop is set Button will open in a new tab. For more information check https://mantine.dev/core/button', 0, 0, 'Open in New Tab');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'use_mantine_style', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Button will use the Mantine style, otherwise it will be a clear element whcih can be styled with CSS and tailwind CSS classes. For more information check https://mantine.dev/core/button', 0, 0, 'Use Mantine Style');
+
+UPDATE fieldType
+SET position = 0
+WHERE `name` = 'checkbox';
