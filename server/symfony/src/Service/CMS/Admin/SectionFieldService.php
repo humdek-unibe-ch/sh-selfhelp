@@ -148,7 +148,7 @@ class SectionFieldService extends BaseService
                     if ($propertyTranslation) {
                         $fieldData['translations'][] = [
                             'language_id' => 1,
-                            'language_code' => 'property',  // This is a property, not actually language-specific
+                            'language_code' => 'all',  // This is a property, not actually language-specific
                             'content' => $propertyTranslation['content'],
                             'meta' => $propertyTranslation['meta']
                         ];
