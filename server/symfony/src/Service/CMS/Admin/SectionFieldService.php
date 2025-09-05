@@ -191,7 +191,7 @@ class SectionFieldService extends BaseService
         if (in_array($fieldType, ['select-group', 'select-data_table', 'select-css', 'select-page-keyword'])) {
             $config = [
                 'multiSelect' => in_array($fieldType, ['select-group', 'select-css']),
-                'creatable' => in_array($fieldType, ['select-css']),
+                'creatable' => in_array($fieldType, ['select-css', 'select-page-keyword']),
                 'separator' => in_array($fieldType, ['select-css']) ? ' ' : ',',
                 'options' => $options
             ];
