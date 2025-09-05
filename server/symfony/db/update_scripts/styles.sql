@@ -171,3 +171,8 @@ VALUES (get_style_id('button'), get_field_id('mantine-slider-size'), 'sm', 'Sele
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
 VALUES (get_style_id('button'), get_field_id('mantine-slider-radius'), 'sm', 'Select slider size for the button. For more information check https://mantine.dev/core/button', 0, 0, 'Radius');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine-fullwidth', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) 
+VALUES (get_style_id('button'), get_field_id('mantine-fullwidth'), '0', 'If `fullWidth`	 prop is set Button will take 100% of parent width', 0, 0, 'Full Width');
