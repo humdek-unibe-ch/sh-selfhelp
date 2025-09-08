@@ -4388,6 +4388,10 @@ END //
 
 DELIMITER ;
 
+-- Delete existing container style
+DELETE FROM styles
+WHERE name = 'container';
+
 
 
 -- Section Management API Enhancement
