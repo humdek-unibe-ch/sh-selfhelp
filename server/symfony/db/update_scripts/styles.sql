@@ -342,3 +342,93 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
 VALUES (get_style_id('center'), get_field_id('mantine_mah'), NULL, 'Sets the maximum height of the Center component. For more information check https://mantine.dev/core/center', 0, 0, 'Max Height');
 
+-- Delete existing container style
+DELETE FROM styles
+WHERE name = 'container';
+
+-- Add new style 'container' based on Mantine Container component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'container',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Container component for responsive layout containers',
+    1
+);
+
+-- Reuse existing mantine_slider_size field for container size (generic size field)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_slider_size'), 'md', 'Sets the maximum width of the Container component. Choose from predefined responsive breakpoints (xs, sm, md, lg, xl) or leave empty for custom width. For more information check https://mantine.dev/core/container', 0, 0, 'Size');
+
+-- Add field for fluid property (checkbox)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_container_fluid', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_container_fluid'), '0', 'If `fluid` prop is set Container will take 100% of parent width, ignoring size prop. For more information check https://mantine.dev/core/container', 0, 0, 'Fluid');
+
+-- Add generic horizontal padding field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_padding_x', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"xs","text":"Extra Small"},
+{"value":"sm","text":"Small"},
+{"value":"md","text":"Medium"},
+{"value":"lg","text":"Large"},
+{"value":"xl","text":"Extra Large"},
+{"value":"0","text":"None"},
+{"value":"5px","text":"5px"},
+{"value":"10px","text":"10px"},
+{"value":"15px","text":"15px"},
+{"value":"20px","text":"20px"},
+{"value":"25px","text":"25px"},
+{"value":"30px","text":"30px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_padding_x'), NULL, 'Sets the horizontal padding of the Container component. Choose from predefined sizes or enter custom values. For more information check https://mantine.dev/core/container', 0, 0, 'Horizontal Padding');
+
+-- Add generic vertical padding field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_padding_y', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"xs","text":"Extra Small"},
+{"value":"sm","text":"Small"},
+{"value":"md","text":"Medium"},
+{"value":"lg","text":"Large"},
+{"value":"xl","text":"Extra Large"},
+{"value":"0","text":"None"},
+{"value":"5px","text":"5px"},
+{"value":"10px","text":"10px"},
+{"value":"15px","text":"15px"},
+{"value":"20px","text":"20px"},
+{"value":"25px","text":"25px"},
+{"value":"30px","text":"30px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_padding_y'), NULL, 'Sets the vertical padding of the Container component. Choose from predefined sizes or enter custom values. For more information check https://mantine.dev/core/container', 0, 0, 'Vertical Padding');
+
+-- Reuse generic width field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_width'), NULL, 'Sets the width of the Container component. Common values include percentages, auto, or content-based sizing. For more information check https://mantine.dev/core/container', 0, 0, 'Width');
+
+-- Reuse generic height field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_height'), NULL, 'Sets the height of the Container component. Common values include percentages, auto, or content-based sizing. For more information check https://mantine.dev/core/container', 0, 0, 'Height');
+
+-- Reuse generic minimum width field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_miw'), NULL, 'Sets the minimum width of the Container component. For more information check https://mantine.dev/core/container', 0, 0, 'Min Width');
+
+-- Reuse generic minimum height field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_mih'), NULL, 'Sets the minimum height of the Container component. For more information check https://mantine.dev/core/container', 0, 0, 'Min Height');
+
+-- Reuse generic maximum width field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_maw'), NULL, 'Sets the maximum width of the Container component. For more information check https://mantine.dev/core/container', 0, 0, 'Max Width');
+
+-- Reuse generic maximum height field for Container (already has creatable)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('container'), get_field_id('mantine_mah'), NULL, 'Sets the maximum height of the Container component. For more information check https://mantine.dev/core/container', 0, 0, 'Max Height');
+
+-- NOTE: use_mantine_style field is already a generic field created for the button style
+-- and can be reused across ALL components (both Mantine and non-Mantine components)
+-- It provides the option to use Mantine styling or fall back to custom CSS/Tailwind classes
+
