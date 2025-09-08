@@ -226,3 +226,119 @@ VALUES (get_style_id('button'), get_field_id('page_keyword'), '#', 'Select a pag
 
 DELETE FROM styles_fields
 WHERE id_fields = get_field_id('url') and id_styles = get_style_id('button');
+
+-- Create 'mantine' style group for Mantine-specific components
+INSERT IGNORE INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'mantine', 'Mantine UI components for modern web interfaces', 10);
+
+-- Add new style 'center' based on Mantine Center component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'center',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Center component for centering content',
+    1
+);
+
+-- Add field for inline property (checkbox)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_center_inline', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_center_inline'), '0', 'If `inline` prop is set, Center will use inline-flex instead of flex display. For more information check https://mantine.dev/core/center', 0, 0, 'Inline');
+
+-- Add generic width field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_width', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"75%","text":"75%"},
+{"value":"100%","text":"100%"},
+{"value":"auto","text":"Auto"},
+{"value":"fit-content","text":"Fit Content"},
+{"value":"max-content","text":"Max Content"},
+{"value":"min-content","text":"Min Content"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_width'), NULL, 'Sets the width of the Center component. Common values include percentages, auto, or content-based sizing. For more information check https://mantine.dev/core/center', 0, 0, 'Width');
+
+-- Add generic height field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_height', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"75%","text":"75%"},
+{"value":"100%","text":"100%"},
+{"value":"auto","text":"Auto"},
+{"value":"fit-content","text":"Fit Content"},
+{"value":"max-content","text":"Max Content"},
+{"value":"min-content","text":"Min Content"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_height'), NULL, 'Sets the height of the Center component. Common values include percentages, auto, or content-based sizing. For more information check https://mantine.dev/core/center', 0, 0, 'Height');
+
+-- Add generic minimum width field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_miw', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"0","text":"0"},
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"100%","text":"100%"},
+{"value":"200px","text":"200px"},
+{"value":"300px","text":"300px"},
+{"value":"400px","text":"400px"},
+{"value":"500px","text":"500px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_miw'), NULL, 'Sets the minimum width of the Center component. For more information check https://mantine.dev/core/center', 0, 0, 'Min Width');
+
+-- Add generic minimum height field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_mih', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"0","text":"0"},
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"100%","text":"100%"},
+{"value":"200px","text":"200px"},
+{"value":"300px","text":"300px"},
+{"value":"400px","text":"400px"},
+{"value":"500px","text":"500px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_mih'), NULL, 'Sets the minimum height of the Center component. For more information check https://mantine.dev/core/center', 0, 0, 'Min Height');
+
+-- Add generic maximum width field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_maw', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"75%","text":"75%"},
+{"value":"100%","text":"100%"},
+{"value":"200px","text":"200px"},
+{"value":"300px","text":"300px"},
+{"value":"400px","text":"400px"},
+{"value":"500px","text":"500px"},
+{"value":"600px","text":"600px"},
+{"value":"800px","text":"800px"},
+{"value":"1000px","text":"1000px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_maw'), NULL, 'Sets the maximum width of the Center component. For more information check https://mantine.dev/core/center', 0, 0, 'Max Width');
+
+-- Add generic maximum height field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_mah', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"25%","text":"25%"},
+{"value":"50%","text":"50%"},
+{"value":"75%","text":"75%"},
+{"value":"100%","text":"100%"},
+{"value":"200px","text":"200px"},
+{"value":"300px","text":"300px"},
+{"value":"400px","text":"400px"},
+{"value":"500px","text":"500px"},
+{"value":"600px","text":"600px"},
+{"value":"800px","text":"800px"},
+{"value":"1000px","text":"1000px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('center'), get_field_id('mantine_mah'), NULL, 'Sets the maximum height of the Center component. For more information check https://mantine.dev/core/center', 0, 0, 'Max Height');
+
