@@ -145,26 +145,6 @@ final class LookupService
     }
 
     /**
-     * Find a lookup by type and value
-     * 
-     * @param string $typeCode The type code to search for
-     * @param string $lookupValue The lookup value to search for
-     * @return Lookup|null The lookup if found, null otherwise
-     */
-    public function findByTypeAndValue(string $typeCode, string $lookupValue): ?Lookup
-    {
-        $lookup_id = $this->cache
-            ->withCategory(CacheService::CATEGORY_LOOKUPS)
-            ->getItem(
-                "lookup-id_{$typeCode}_{$lookupValue}",
-                function () use ($typeCode, $lookupValue) {
-                    return $this->lookupRepository->findByTypeAndValue($typeCode, $lookupValue)->getId();
-                }
-            );
-        return $this->findById($lookup_id);
-    }
-
-    /**
      * Get the default user type (used for new users)
      * 
      * @return Lookup|null The default user type lookup

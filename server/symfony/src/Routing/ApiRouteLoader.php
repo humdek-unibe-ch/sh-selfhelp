@@ -107,14 +107,6 @@ class ApiRouteLoader extends Loader
 
         return $routes;
     }
-
-    /**
-     * Clear the route cache - call this when routes/permissions change
-     */
-    public function clearCache(): void
-    {
-        $this->cache->delete('api_routes_collection');
-    }
     
     /**
      * Maps a controller from the database to the versioned namespace

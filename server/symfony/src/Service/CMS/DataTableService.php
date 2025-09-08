@@ -161,27 +161,6 @@ class DataTableService extends BaseService
     }
 
     /**
-     * Generate unique form name for new form sections
-     * 
-     * @param string $baseName Base name for the form
-     * @return string Unique form name
-     */
-    public function generateUniqueFormName(string $baseName = 'form'): string
-    {
-        $timestamp = time();
-        $formName = $baseName . '_' . $timestamp;
-        
-        // Ensure uniqueness
-        $counter = 1;
-        while ($this->dataTableRepository->findOneBy(['name' => $formName])) {
-            $formName = $baseName . '_' . $timestamp . '_' . $counter;
-            $counter++;
-        }
-        
-        return $formName;
-    }
-
-    /**
      * Check if a section is a form section
      * 
      * @param Section $section The section to check
@@ -281,17 +260,6 @@ class DataTableService extends BaseService
                 ['previous' => $e, 'tableName' => $tableName]
             );
         }
-    }
-
-    /**
-     * Check if dataTable exists by name
-     * 
-     * @param string $tableName The table name
-     * @return bool True if exists
-     */
-    public function dataTableExists(string $tableName): bool
-    {
-        return $this->dataTableRepository->findOneBy(['name' => $tableName]) !== null;
     }
 
     /**

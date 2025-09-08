@@ -2,12 +2,8 @@
 
 namespace App\Service\CMS\Admin;
 
-use App\Entity\Field;
-use App\Entity\Language;
-use App\Entity\Page;
 use App\Entity\PagesSection;
 use App\Entity\Section;
-use App\Entity\SectionsFieldsTranslation;
 use App\Entity\SectionsHierarchy;
 use App\Exception\ServiceException;
 use App\Repository\SectionRepository;
@@ -151,7 +147,7 @@ class AdminSectionService extends BaseService
         $this->userContextAwareService->checkAccess($page->getKeyword(), 'select');
         $this->sectionRelationshipService->checkSectionInPage($page_id, $parent_section_id);
         $hierarchies = $this->entityManager->getRepository(SectionsHierarchy::class)
-            ->findBy(['parent' => $parent_section_id], ['position' => 'ASC']);
+            ->findBy(['parentSection' => $parent_section_id], ['position' => 'ASC']);
         $sections = [];
         foreach ($hierarchies as $hierarchy) {
             $child = $hierarchy->getChildSection();

@@ -9,7 +9,6 @@ use App\Service\CMS\UserPermissionService;
 use App\Service\Core\LookupService;
 use App\Service\Core\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
-use Proxies\__CG__\App\Entity\CmsPreference;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
