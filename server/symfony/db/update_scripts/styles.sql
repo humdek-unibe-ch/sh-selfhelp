@@ -116,23 +116,23 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 	"options": [
 		{
 			"value": "xs",
-			"text": "XS"
+			"text": "xs"
 		},
 		{
 			"value": "sm",
-			"text": "SM"
+			"text": "sm"
 		},
 		{
 			"value": "md",
-			"text": "MD"
+			"text": "md"
 		},
 		{
 			"value": "lg",
-			"text": "LG"
+			"text": "lg"
 		},
 		{
 			"value": "xl",
-			"text": "XL"
+			"text": "xl"
 		}
 	]
 }
@@ -144,23 +144,23 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 	"options": [
 		{
 			"value": "xs",
-			"text": "XS"
+			"text": "xs"
 		},
 		{
 			"value": "sm",
-			"text": "SM"
+			"text": "sm"
 		},
 		{
 			"value": "md",
-			"text": "MD"
+			"text": "md"
 		},
 		{
 			"value": "lg",
-			"text": "LG"
+			"text": "lg"
 		},
 		{
 			"value": "xl",
-			"text": "XL"
+			"text": "xl"
 		}
 	]
 }
@@ -178,6 +178,9 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 VALUES (get_style_id('button'), get_field_id('mantine_fullwidth'), '0', 'If `fullWidth`	 prop is set Button will take 100% of parent width', 0, 0, 'Full Width');
 
 INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-icon', '4');
+
+-- Add new field type `segment`
+INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'segment', '5');
 
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_btn_left_icon', get_field_type_id('select-icon'), 0, null);
 
@@ -395,4 +398,291 @@ VALUES (get_style_id('container'), get_field_id('mantine_py'), NULL, 'Sets the v
 -- Add use_mantine_style field for Container (reuse existing generic field)
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
 VALUES (get_style_id('container'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Container will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/container', 0, 0, 'Use Mantine Style');
+
+-- Add generic gap field (reusable across components) - use slider
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_gap', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "0", "text": "None"},
+		{"value": "xs", "text": "xs"},
+		{"value": "sm", "text": "sm"},
+		{"value": "md", "text": "md"},
+		{"value": "lg", "text": "lg"},
+		{"value": "xl", "text": "xl"}
+	]
+}');
+
+-- Add generic justify field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_justify', get_field_type_id('select'), 0, '{"searchable": false, "clearable": true, "options":[
+{"value":"flex-start","text":"Start"},
+{"value":"center","text":"Center"},
+{"value":"flex-end","text":"End"},
+{"value":"space-between","text":"Space Between"},
+{"value":"space-around","text":"Space Around"},
+{"value":"space-evenly","text":"Space Evenly"}
+]}');
+
+-- Add generic align field (reusable across components)
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_align', get_field_type_id('select'), 0, '{"searchable": false, "clearable": true, "options":[
+{"value":"flex-start","text":"Start"},
+{"value":"center","text":"Center"},
+{"value":"flex-end","text":"End"},
+{"value":"stretch","text":"Stretch"},
+{"value":"baseline","text":"Baseline"}
+]}');
+
+-- Add generic direction field (reusable across components) - use segment type
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_direction', get_field_type_id('segment'), 0, '{"options":[
+{"value":"row","text":"Row"},
+{"value":"column","text":"Column"},
+{"value":"row-reverse","text":"Row Reverse"},
+{"value":"column-reverse","text":"Column Reverse"}
+]}');
+
+-- Add generic wrap field (reusable across components) - use segment type
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_wrap', get_field_type_id('segment'), 0, '{"options":[
+{"value":"wrap","text":"Wrap"},
+{"value":"nowrap","text":"No Wrap"},
+{"value":"wrap-reverse","text":"Wrap Reverse"}
+]}');
+
+-- Add generic spacing field (reusable across components) - use slider
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_spacing', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "0", "text": "None"},
+		{"value": "xs", "text": "xs"},
+		{"value": "sm", "text": "sm"},
+		{"value": "md", "text": "md"},
+		{"value": "lg", "text": "lg"},
+		{"value": "xl", "text": "xl"}
+	]
+}');
+
+-- Add generic breakpoints field (reusable across components) - use slider
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_breakpoints', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "xs", "text": "xs"},
+		{"value": "sm", "text": "sm"},
+		{"value": "md", "text": "md"},
+		{"value": "lg", "text": "lg"},
+		{"value": "xl", "text": "xl"}
+	]
+}');
+
+-- Add generic columns field (reusable across components) - slider from 1 to 6
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_cols', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "1", "text": "1"},
+		{"value": "2", "text": "2"},
+		{"value": "3", "text": "3"},
+		{"value": "4", "text": "4"},
+		{"value": "5", "text": "5"},
+		{"value": "6", "text": "6"}
+	]
+}');
+
+-- ===========================================
+-- FLEX COMPONENT
+-- ===========================================
+
+-- Add new style 'flex' based on Mantine Flex component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'flex',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Flex component for flexible layouts',
+    1
+);
+
+-- Add Flex-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_gap'), 'md', 'Sets the gap between flex items. For more information check https://mantine.dev/core/flex', 0, 0, 'Gap');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_justify'), NULL, 'Sets the justify-content property. For more information check https://mantine.dev/core/flex', 0, 0, 'Justify');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_align'), NULL, 'Sets the align-items property. For more information check https://mantine.dev/core/flex', 0, 0, 'Align Items');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_direction'), 'row', 'Sets the flex-direction property. For more information check https://mantine.dev/core/flex', 0, 0, 'Direction');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_wrap'), 'nowrap', 'Sets the flex-wrap property. For more information check https://mantine.dev/core/flex', 0, 0, 'Wrap');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_width'), NULL, 'Sets the width of the Flex component. For more information check https://mantine.dev/core/flex', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('mantine_height'), NULL, 'Sets the height of the Flex component. For more information check https://mantine.dev/core/flex', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('flex'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Flex will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/flex', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- GROUP COMPONENT
+-- ===========================================
+
+-- Add new style 'group' based on Mantine Group component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'group',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Group component for horizontal layouts',
+    1
+);
+
+-- Add Group-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_gap'), 'md', 'Sets the gap between group items. For more information check https://mantine.dev/core/group', 0, 0, 'Gap');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_justify'), NULL, 'Sets the justify-content property. For more information check https://mantine.dev/core/group', 0, 0, 'Justify');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_align'), NULL, 'Sets the align-items property. For more information check https://mantine.dev/core/group', 0, 0, 'Align Items');
+
+-- Add Group-specific fields - use segment type
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_group_wrap', get_field_type_id('segment'), 0, '{"options":[
+{"value":"0","text":"No Wrap"},
+{"value":"1","text":"Wrap"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_group_wrap'), '0', 'If `wrap` prop is set Group will wrap items to the next line when there is not enough space. For more information check https://mantine.dev/core/group', 0, 0, 'Wrap');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_group_grow', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_group_grow'), '0', 'If `grow` prop is set Group will take all available space. For more information check https://mantine.dev/core/group', 0, 0, 'Grow');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_width'), NULL, 'Sets the width of the Group component. For more information check https://mantine.dev/core/group', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('mantine_height'), NULL, 'Sets the height of the Group component. For more information check https://mantine.dev/core/group', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('group'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Group will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/group', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- SIMPLEGRID COMPONENT
+-- ===========================================
+
+-- Add new style 'simpleGrid' based on Mantine SimpleGrid component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'simpleGrid',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine SimpleGrid component for responsive grid layouts',
+    1
+);
+
+-- Add SimpleGrid-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_cols'), '3', 'Sets the number of columns in the grid (1-6). For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Columns');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_spacing'), 'md', 'Sets the spacing between grid items. For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Spacing');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_breakpoints'), NULL, 'Sets responsive breakpoints for different screen sizes. For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Breakpoints');
+
+-- Add vertical spacing field (reusable across components) - use slider
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_vertical_spacing', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "0", "text": "None"},
+		{"value": "xs", "text": "xs"},
+		{"value": "sm", "text": "sm"},
+		{"value": "md", "text": "md"},
+		{"value": "lg", "text": "lg"},
+		{"value": "xl", "text": "xl"}
+	]
+}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_vertical_spacing'), NULL, 'Sets the vertical spacing between grid items. For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Vertical Spacing');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_width'), NULL, 'Sets the width of the SimpleGrid component. For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('mantine_height'), NULL, 'Sets the height of the SimpleGrid component. For more information check https://mantine.dev/core/simple-grid', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('simpleGrid'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set SimpleGrid will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/simple-grid', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- SPACE COMPONENT
+-- ===========================================
+
+-- Add new style 'space' based on Mantine Space component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'space',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Space component for adding spacing',
+    0
+);
+
+-- Add Space-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('space'), get_field_id('mantine_slider_size'), 'md', 'Sets the size of the space. For more information check https://mantine.dev/core/space', 0, 0, 'Size');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_space_h', get_field_type_id('segment'), 0, '{"options":[
+{"value":"0","text":"Vertical"},
+{"value":"1","text":"Horizontal"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('space'), get_field_id('mantine_space_h'), '0', 'If `h` prop is set Space will add horizontal spacing, otherwise it adds vertical spacing. For more information check https://mantine.dev/core/space', 0, 0, 'Direction');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('space'), get_field_id('mantine_width'), NULL, 'Sets the width of the Space component. For more information check https://mantine.dev/core/space', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('space'), get_field_id('mantine_height'), NULL, 'Sets the height of the Space component. For more information check https://mantine.dev/core/space', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('space'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Space will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/space', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- STACK COMPONENT
+-- ===========================================
+
+-- Add new style 'stack' based on Mantine Stack component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'stack',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Stack component for vertical layouts',
+    1
+);
+
+-- Add Stack-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('mantine_gap'), 'md', 'Sets the gap between stack items. For more information check https://mantine.dev/core/stack', 0, 0, 'Gap');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('mantine_justify'), NULL, 'Sets the justify-content property. For more information check https://mantine.dev/core/stack', 0, 0, 'Justify');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('mantine_align'), NULL, 'Sets the align-items property. For more information check https://mantine.dev/core/stack', 0, 0, 'Align Items');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('mantine_width'), NULL, 'Sets the width of the Stack component. For more information check https://mantine.dev/core/stack', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('mantine_height'), NULL, 'Sets the height of the Stack component. For more information check https://mantine.dev/core/stack', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('stack'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Stack will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/stack', 0, 1, 'Use Mantine Style');
 
