@@ -12,6 +12,8 @@ class Style
     public function __construct()
     {
         $this->stylesFields = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->allowedChildrenRelationships = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->allowedParentsRelationships = new \Doctrine\Common\Collections\ArrayCollection();
     }
     #[ORM\OneToMany(mappedBy: 'style', targetEntity: StylesField::class, cascade: ['persist', 'remove'])]
     private \Doctrine\Common\Collections\Collection $stylesFields;
@@ -42,6 +44,12 @@ class Style
     #[ORM\ManyToOne(targetEntity: StyleGroup::class, inversedBy: 'styles')]
     #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?StyleGroup $group = null;
+
+    #[ORM\OneToMany(mappedBy: 'parentStyle', targetEntity: StylesAllowedRelationship::class, cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $allowedChildrenRelationships;
+
+    #[ORM\OneToMany(mappedBy: 'childStyle', targetEntity: StylesAllowedRelationship::class, cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $allowedParentsRelationships;
 
     public function getId(): ?int
     {
@@ -146,6 +154,66 @@ class Style
                 $stylesField->setStyle(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, StylesAllowedRelationship>
+     */
+    public function getAllowedChildrenRelationships(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->allowedChildrenRelationships;
+    }
+
+    public function addAllowedChildrenRelationship(StylesAllowedRelationship $relationship): static
+    {
+        if (!$this->allowedChildrenRelationships->contains($relationship)) {
+            $this->allowedChildrenRelationships->add($relationship);
+            $relationship->setParentStyle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAllowedChildrenRelationship(StylesAllowedRelationship $relationship): static
+    {
+        if ($this->allowedChildrenRelationships->removeElement($relationship)) {
+            // set the owning side to null (unless already changed)
+            if ($relationship->getParentStyle() === $this) {
+                $relationship->setParentStyle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, StylesAllowedRelationship>
+     */
+    public function getAllowedParentsRelationships(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->allowedParentsRelationships;
+    }
+
+    public function addAllowedParentsRelationship(StylesAllowedRelationship $relationship): static
+    {
+        if (!$this->allowedParentsRelationships->contains($relationship)) {
+            $this->allowedParentsRelationships->add($relationship);
+            $relationship->setChildStyle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAllowedParentsRelationship(StylesAllowedRelationship $relationship): static
+    {
+        if ($this->allowedParentsRelationships->removeElement($relationship)) {
+            // set the owning side to null (unless already changed)
+            if ($relationship->getChildStyle() === $this) {
+                $relationship->setChildStyle(null);
+            }
+        }
+
         return $this;
     }
 }

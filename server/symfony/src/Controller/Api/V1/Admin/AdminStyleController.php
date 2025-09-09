@@ -31,14 +31,19 @@ class AdminStyleController extends AbstractController
     }
 
     /**
-     * Get all styles grouped by style group
+     * Get all styles grouped by style group with relationship information
+     *
+     * Returns styles with:
+     * - Basic style information (id, name, description, type)
+     * - canHaveChildren flag
+     * - Relationship constraints (allowedChildren, allowedParents)
      *
      * @Route("/api/v1/admin/styles", name="admin_styles_get", methods={"GET"})
      * @return JsonResponse
      */
     public function getStyles(): JsonResponse
     {
-        // Get all styles grouped by style group
+        // Get all styles grouped by style group with relationship information
         $styles = $this->styleRepository->findAllStylesGroupedByGroup();
         
         // Return formatted response with schema validation

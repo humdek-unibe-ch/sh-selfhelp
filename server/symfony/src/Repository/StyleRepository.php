@@ -18,7 +18,7 @@ class StyleRepository extends ServiceEntityRepository
 
     /**
      * Get all styles grouped by their style groups
-     * 
+     *
      * @return array Returns an array of styles grouped by style group
      */
     public function findAllStylesGroupedByGroup(): array
@@ -43,11 +43,15 @@ class StyleRepository extends ServiceEntityRepository
 
         $styles = $qb->getQuery()->getArrayResult();
 
+        // Get relationship information for all styles
+        $relationships = $this->getStylesRelationshipInfo();
+
         // Group styles by their style group
         $groupedStyles = [];
         foreach ($styles as $style) {
             $groupId = $style['style_group_id'];
-            
+            $styleId = $style['style_id'];
+
             if (!isset($groupedStyles[$groupId])) {
                 $groupedStyles[$groupId] = [
                     'id' => $style['style_group_id'],
@@ -57,18 +61,82 @@ class StyleRepository extends ServiceEntityRepository
                     'styles' => []
                 ];
             }
-            
+
             $groupedStyles[$groupId]['styles'][] = [
                 'id' => $style['style_id'],
                 'name' => $style['style_name'],
                 'description' => $style['style_description'],
                 'typeId' => $style['style_type_id'],
-                'type' => $style['style_type']
+                'type' => $style['style_type'],
+                'relationships' => [
+                    'allowedChildren' => $relationships['allowedChildren'][$styleId] ?? [],
+                    'allowedParents' => $relationships['allowedParents'][$styleId] ?? []
+                ]
             ];
         }
-        
+
         // Convert to indexed array and preserve order
         return array_values($groupedStyles);
+    }
+
+    /**
+     * Get relationship information for all styles
+     *
+     * @return array Returns array with allowedChildren and allowedParents for each style
+     */
+    private function getStylesRelationshipInfo(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $stylesAllowedRelationshipRepository = $entityManager->getRepository(\App\Entity\StylesAllowedRelationship::class);
+
+        // Get all style IDs to query relationships for
+        $styleIds = $this->createQueryBuilder('s')
+            ->select('s.id')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        if (empty($styleIds)) {
+            return [
+                'allowedChildren' => [],
+                'allowedParents' => []
+            ];
+        }
+
+        // Use the StylesAllowedRelationshipRepository to get relationships
+        return $stylesAllowedRelationshipRepository->getRelationshipsForStyles($styleIds);
+    }
+
+    /**
+     * Check if a parent-child relationship is allowed between two styles
+     */
+    public function isStyleRelationshipAllowed(Style $parentStyle, Style $childStyle): bool
+    {
+        $stylesAllowedRelationshipRepository = $this->getEntityManager()
+            ->getRepository(\App\Entity\StylesAllowedRelationship::class);
+
+        return $stylesAllowedRelationshipRepository->isRelationshipAllowed($parentStyle, $childStyle);
+    }
+
+    /**
+     * Get all allowed children for a specific style
+     */
+    public function getAllowedChildrenForStyle(Style $parentStyle): array
+    {
+        $stylesAllowedRelationshipRepository = $this->getEntityManager()
+            ->getRepository(\App\Entity\StylesAllowedRelationship::class);
+
+        return $stylesAllowedRelationshipRepository->findAllowedChildren($parentStyle);
+    }
+
+    /**
+     * Get all allowed parents for a specific style
+     */
+    public function getAllowedParentsForStyle(Style $childStyle): array
+    {
+        $stylesAllowedRelationshipRepository = $this->getEntityManager()
+            ->getRepository(\App\Entity\StylesAllowedRelationship::class);
+
+        return $stylesAllowedRelationshipRepository->findAllowedParents($childStyle);
     }
 
 }

@@ -836,7 +836,7 @@ INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`,
     (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
     get_style_group_id('mantine'),
     'Mantine Tabs component for switching between different views',
-    1
+    0
 );
 
 -- Add Tabs-specific fields
