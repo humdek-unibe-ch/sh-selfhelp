@@ -4390,7 +4390,11 @@ DELIMITER ;
 
 -- Delete existing container style
 DELETE FROM styles
-WHERE name = 'container';
+WHERE `name` = 'container';
+
+DELETE FROM styles
+WHERE `name` IN ('tabs', 'tab');
+
 
 
 
@@ -4405,3 +4409,257 @@ WHERE name = 'container';
 -- Added forceDeleteSection method that always deletes (never just removes from page)
 -- All deletion operations are wrapped in database transactions with proper rollback handling
 -- All operations properly check page access permissions before allowing section deletion
+
+--
+-- Styles Relationship System Enhancement v8.0.0
+-- Added relational constraints for styles to define allowed parent-child relationships
+-- This ensures that only valid style combinations can be created, preventing invalid hierarchies
+--
+
+-- Create table for defining allowed parent-child relationships between styles
+-- This table enforces style-level constraints to ensure only valid combinations are allowed
+-- Example: Style "tabs" can only have "tab" as children, "card-header" can only have "card" as parent
+CREATE TABLE IF NOT EXISTS `styles_allowed_relationships` (
+  `id_parent_style` int NOT NULL COMMENT 'ID of the parent style',
+  `id_child_style` int NOT NULL COMMENT 'ID of the child style',
+  PRIMARY KEY (`id_parent_style`,`id_child_style`),
+  KEY `IDX_styles_relationships_parent` (`id_parent_style`),
+  KEY `IDX_styles_relationships_child` (`id_child_style`),
+  CONSTRAINT `FK_styles_relationships_parent` FOREIGN KEY (`id_parent_style`) REFERENCES `styles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_styles_relationships_child` FOREIGN KEY (`id_child_style`) REFERENCES `styles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Defines allowed parent-child relationships between styles';
+
+-- Create helper function to check if a parent-child style relationship is allowed
+DELIMITER ;;
+CREATE FUNCTION `is_style_relationship_allowed`(
+    parent_style_id INT,
+    child_style_id INT
+) RETURNS BOOLEAN
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+    DECLARE parent_restrictions_count INT DEFAULT 0;
+    DECLARE child_restrictions_count INT DEFAULT 0;
+    DECLARE specific_allowed_count INT DEFAULT 0;
+
+    -- Check if parent has any restrictions defined
+    SELECT COUNT(*) INTO parent_restrictions_count
+    FROM styles_allowed_relationships
+    WHERE id_parent_style = parent_style_id;
+
+    -- Check if child has any restrictions defined
+    SELECT COUNT(*) INTO child_restrictions_count
+    FROM styles_allowed_relationships
+    WHERE id_child_style = child_style_id;
+
+    -- Case 1: If neither parent nor child has restrictions, allow all (default behavior)
+    IF parent_restrictions_count = 0 AND child_restrictions_count = 0 THEN
+        -- Check if parent can have children
+        IF (SELECT can_have_children FROM styles WHERE id = parent_style_id) = 1 THEN
+            RETURN TRUE;
+        ELSE
+            RETURN FALSE;
+        END IF;
+    END IF;
+
+    -- Case 2: If parent has restrictions, only allow explicitly defined children
+    IF parent_restrictions_count > 0 THEN
+        SELECT COUNT(*) INTO specific_allowed_count
+        FROM styles_allowed_relationships
+        WHERE id_parent_style = parent_style_id AND id_child_style = child_style_id;
+
+        RETURN specific_allowed_count > 0;
+    END IF;
+
+    -- Case 3: If child has restrictions, only allow explicitly defined parents
+    IF child_restrictions_count > 0 THEN
+        SELECT COUNT(*) INTO specific_allowed_count
+        FROM styles_allowed_relationships
+        WHERE id_parent_style = parent_style_id AND id_child_style = child_style_id;
+
+        RETURN specific_allowed_count > 0;
+    END IF;
+
+    -- Fallback (should not reach here)
+    RETURN FALSE;
+END ;;
+DELIMITER ;
+
+-- Create helper function to get all allowed children for a parent style
+DELIMITER ;;
+CREATE FUNCTION `get_allowed_children_styles`(parent_style_id INT)
+RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+    DECLARE children_list TEXT DEFAULT '';
+    DECLARE restrictions_count INT DEFAULT 0;
+
+    SET @@group_concat_max_len = 32000000;
+
+    -- Check if parent has any restrictions defined
+    SELECT COUNT(*) INTO restrictions_count
+    FROM styles_allowed_relationships
+    WHERE id_parent_style = parent_style_id;
+
+    IF restrictions_count = 0 THEN
+        -- No restrictions: return ALL styles (default behavior - any style can be child)
+        SELECT GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ')
+        INTO children_list
+        FROM styles s;
+
+        RETURN COALESCE(children_list, 'No styles available');
+    ELSE
+        -- Has restrictions: return only explicitly allowed children
+        SELECT GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ')
+        INTO children_list
+        FROM styles_allowed_relationships sar
+        JOIN styles s ON s.id = sar.id_child_style
+        WHERE sar.id_parent_style = parent_style_id;
+
+        RETURN COALESCE(children_list, 'No allowed children defined');
+    END IF;
+END ;;
+DELIMITER ;
+
+-- Create helper function to get all allowed parents for a child style
+DELIMITER ;;
+CREATE FUNCTION `get_allowed_parent_styles`(child_style_id INT)
+RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+    DECLARE parents_list TEXT DEFAULT '';
+    DECLARE restrictions_count INT DEFAULT 0;
+
+    SET @@group_concat_max_len = 32000000;
+
+    -- Check if child has any restrictions defined
+    SELECT COUNT(*) INTO restrictions_count
+    FROM styles_allowed_relationships
+    WHERE id_child_style = child_style_id;
+
+    IF restrictions_count = 0 THEN
+        -- No restrictions: return all styles that can have children (default behavior)
+        SELECT GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ')
+        INTO parents_list
+        FROM styles s
+        WHERE s.can_have_children = 1; -- Styles that can have children are potential parents
+
+        RETURN COALESCE(parents_list, 'No parent styles available');
+    ELSE
+        -- Has restrictions: return only explicitly allowed parents
+        SELECT GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ')
+        INTO parents_list
+        FROM styles_allowed_relationships sar
+        JOIN styles s ON s.id = sar.id_parent_style
+        WHERE sar.id_child_style = child_style_id;
+
+        RETURN COALESCE(parents_list, 'No allowed parents defined');
+    END IF;
+END ;;
+DELIMITER ;
+
+-- Add comments to existing styles table about the new relationship system
+-- Note: The existing can_have_children field is kept for backward compatibility
+-- but the new styles_allowed_relationships table provides more granular control
+
+-- Example usage and data population (uncomment and modify as needed):
+/*
+-- IMPORTANT: By default, ALL styles can be children of ANY parent that can_have_children=1
+-- Only define relationships when you want to RESTRICT the combinations
+
+-- Example: Define that "tabs" style can ONLY have "tab" as children (restrictive)
+-- This means tabs can only contain tab styles, not all other styles
+INSERT INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'tabs' AND s2.name = 'tab';
+
+-- Example: Define that "card-header" can ONLY be added to "card" as parent (restrictive)
+-- This means card-header can only be placed inside card styles, not in other containers
+INSERT INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'card' AND s2.name = 'card-header';
+
+-- Example: Define that "modal-footer" can ONLY be added to "modal" as parent
+INSERT INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'modal' AND s2.name = 'modal-footer';
+
+-- Example: Define that "container" can have multiple specific children only
+-- This restricts container to only these specific children instead of all styles
+INSERT INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'container' AND s2.name IN ('text', 'image', 'button');
+*/
+
+-- Create view for easier style relationship management
+CREATE VIEW `view_styles_relationships` AS
+SELECT
+    CONCAT(p.name, ' → ', c.name) AS relationship,
+    p.name AS parent_style,
+    c.name AS child_style,
+    p.id AS parent_id,
+    c.id AS child_id,
+    pg.name AS parent_group,
+    cg.name AS child_group
+FROM styles_allowed_relationships sar
+JOIN styles p ON p.id = sar.id_parent_style
+JOIN styles c ON c.id = sar.id_child_style
+LEFT JOIN styleGroup pg ON pg.id = p.id_group
+LEFT JOIN styleGroup cg ON cg.id = c.id_group
+ORDER BY p.name, c.name;
+
+-- Create view showing styles with their allowed relationships
+CREATE VIEW `view_styles_with_relationships` AS
+SELECT
+    s.id,
+    s.name,
+    s.description,
+    sg.name AS style_group,
+    s.can_have_children,
+    get_allowed_parent_styles(s.id) AS allowed_parents,
+    get_allowed_children_styles(s.id) AS allowed_children,
+    CASE
+        WHEN get_allowed_parent_styles(s.id) = 'All styles allowed' AND get_allowed_children_styles(s.id) = 'All styles allowed'
+        THEN 'No restrictions'
+        ELSE 'Has restrictions'
+    END AS relationship_status
+FROM styles s
+LEFT JOIN styleGroup sg ON sg.id = s.id_group
+ORDER BY s.name;
+
+-- Add indexes for better performance on relationship queries
+CREATE INDEX idx_styles_allowed_relationships_parent ON styles_allowed_relationships(id_parent_style);
+CREATE INDEX idx_styles_allowed_relationships_child ON styles_allowed_relationships(id_child_style);
+
+-- Usage in application code:
+-- Before creating a parent-child relationship between sections, check:
+-- SELECT is_style_relationship_allowed(
+--     (SELECT id_styles FROM sections WHERE id = parent_section_id),
+--     (SELECT id_styles FROM sections WHERE id = child_section_id)
+-- ) AS is_allowed;
+
+-- To get allowed children for a style:
+-- SELECT get_allowed_children_styles(style_id) AS allowed_children;
+-- Returns:
+--   - If NO restrictions defined for parent: ALL styles (default behavior)
+--   - If restrictions defined for parent: Only explicitly allowed children
+
+-- To get allowed parents for a style:
+-- SELECT get_allowed_parent_styles(style_id) AS allowed_parents;
+-- Returns:
+--   - If NO restrictions defined for child: All styles with can_have_children=1
+--   - If restrictions defined for child: Only explicitly allowed parents
+
+-- Example scenarios:
+-- 1. Getting children for "card" (no restrictions defined):
+--    -> Returns ALL styles as potential children (default behavior)
+-- 2. Getting children for "tabs" (has restrictions: only "tab"):
+--    -> Returns only "tab" as allowed child
+-- 3. Checking if "card-header" can be added to "card" (card-header has restrictions):
+--    -> Only allowed if "card" is explicitly defined as allowed parent for "card-header"
+-- 4. Checking if "text" can be added to any parent (text has no restrictions):
+--    -> Allowed in any parent that can have children (default behavior)
+-- 5. Adding "card-header" to "container" (card-header has restrictions):
+--    -> NOT allowed unless "container" is explicitly defined as allowed parent

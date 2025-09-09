@@ -686,3 +686,257 @@ VALUES (get_style_id('stack'), get_field_id('mantine_height'), NULL, 'Sets the h
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
 VALUES (get_style_id('stack'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Stack will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/stack', 0, 1, 'Use Mantine Style');
 
+-- ===========================================
+-- GRID COMPONENT
+-- ===========================================
+
+-- Add new style 'grid' based on Mantine Grid component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'grid',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Grid component for responsive 12 columns grid system',
+    1
+);
+
+-- Add Grid-specific fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_cols'), '12', 'Sets the total number of columns in the grid (default 12). For more information check https://mantine.dev/core/grid', 0, 0, 'Columns');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_gap'), 'md', 'Sets the gutter (spacing) between grid columns. For more information check https://mantine.dev/core/grid', 0, 0, 'Gutter');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_justify'), NULL, 'Sets the justify-content CSS property for the grid. For more information check https://mantine.dev/core/grid', 0, 0, 'Justify');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_align'), NULL, 'Sets the align-items CSS property for the grid. For more information check https://mantine.dev/core/grid', 0, 0, 'Align');
+
+-- Add grid-specific field for overflow
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_grid_overflow', get_field_type_id('segment'), 0, '{"options":[
+{"value":"visible","text":"Visible"},
+{"value":"hidden","text":"Hidden"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_grid_overflow'), 'visible', 'Sets the overflow CSS property for the grid container. For more information check https://mantine.dev/core/grid', 0, 0, 'Overflow');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_width'), NULL, 'Sets the width of the Grid component. For more information check https://mantine.dev/core/grid', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('mantine_height'), NULL, 'Sets the height of the Grid component. For more information check https://mantine.dev/core/grid', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Grid will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/grid', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- GRID-COLUMN COMPONENT
+-- ===========================================
+
+-- Add new style 'grid-column' based on Mantine Grid.Col component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'grid-column',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Grid.Col component for grid column with span, offset, and order controls',
+    1
+);
+
+-- Add Grid.Col-specific fields
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_grid_span', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "1", "text": "1"},
+		{"value": "2", "text": "2"},
+		{"value": "3", "text": "3"},
+		{"value": "4", "text": "4"},
+		{"value": "5", "text": "5"},
+		{"value": "6", "text": "6"},
+		{"value": "7", "text": "7"},
+		{"value": "8", "text": "8"},
+		{"value": "9", "text": "9"},
+		{"value": "10", "text": "10"},
+		{"value": "11", "text": "11"},
+		{"value": "12", "text": "12"},
+		{"value": "auto", "text": "Auto"},
+		{"value": "content", "text": "Content"}
+	]
+}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_grid_span'), '1', 'Sets the span (width) of the column. Number from 1-12 or "auto"/"content". For more information check https://mantine.dev/core/grid', 0, 0, 'Span');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_grid_offset', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "0", "text": "0"},
+		{"value": "1", "text": "1"},
+		{"value": "2", "text": "2"},
+		{"value": "3", "text": "3"},
+		{"value": "4", "text": "4"},
+		{"value": "5", "text": "5"},
+		{"value": "6", "text": "6"},
+		{"value": "7", "text": "7"},
+		{"value": "8", "text": "8"},
+		{"value": "9", "text": "9"},
+		{"value": "10", "text": "10"},
+		{"value": "11", "text": "11"}
+	]
+}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_grid_offset'), '0', 'Sets the offset (left margin) of the column. Number from 0-11. For more information check https://mantine.dev/core/grid', 0, 0, 'Offset');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_grid_order', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "1", "text": "1"},
+		{"value": "2", "text": "2"},
+		{"value": "3", "text": "3"},
+		{"value": "4", "text": "4"},
+		{"value": "5", "text": "5"},
+		{"value": "6", "text": "6"},
+		{"value": "7", "text": "7"},
+		{"value": "8", "text": "8"},
+		{"value": "9", "text": "9"},
+		{"value": "10", "text": "10"},
+		{"value": "11", "text": "11"},
+		{"value": "12", "text": "12"}
+	]
+}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_grid_order'), NULL, 'Sets the order of the column for reordering. Number from 1-12. For more information check https://mantine.dev/core/grid', 0, 0, 'Order');
+
+-- Add grid-column specific field for grow
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_grid_grow', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_grid_grow'), '0', 'If `grow` prop is set, column will grow to fill the remaining space in the row. For more information check https://mantine.dev/core/grid', 0, 0, 'Grow');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_width'), NULL, 'Sets the width of the Grid.Col component. For more information check https://mantine.dev/core/grid', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('mantine_height'), NULL, 'Sets the height of the Grid.Col component. For more information check https://mantine.dev/core/grid', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('grid-column'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Grid.Col will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/grid', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- TABS COMPONENT
+-- ===========================================
+
+-- Add new style 'tabs' based on Mantine Tabs component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'tabs',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Tabs component for switching between different views',
+    1
+);
+
+-- Add Tabs-specific fields
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tabs_variant', get_field_type_id('select'), 0, '{"searchable": false, "clearable": false, "options":[
+{"value":"default","text":"Default"},
+{"value":"outline","text":"Outline"},
+{"value":"pills","text":"Pills"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_tabs_variant'), 'default', 'Sets the variant of the tabs. For more information check https://mantine.dev/core/tabs', 0, 0, 'Variant');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tabs_orientation', get_field_type_id('segment'), 0, '{"options":[
+{"value":"horizontal","text":"Horizontal"},
+{"value":"vertical","text":"Vertical"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_tabs_orientation'), 'horizontal', 'Sets the orientation of the tabs. For more information check https://mantine.dev/core/tabs', 0, 0, 'Orientation');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tabs_radius', get_field_type_id('slider'), 0, '{
+	"options": [
+		{"value": "xs", "text": "xs"},
+		{"value": "sm", "text": "sm"},
+		{"value": "md", "text": "md"},
+		{"value": "lg", "text": "lg"},
+		{"value": "xl", "text": "xl"}
+	]
+}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_tabs_radius'), 'sm', 'Sets the border radius of the tabs. For more information check https://mantine.dev/core/tabs', 0, 0, 'Radius');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_color'), 'blue', 'Sets the color of the tabs. For more information check https://mantine.dev/core/tabs', 0, 0, 'Color');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_width'), NULL, 'Sets the width of the Tabs component. For more information check https://mantine.dev/core/tabs', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('mantine_height'), NULL, 'Sets the height of the Tabs component. For more information check https://mantine.dev/core/tabs', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tabs'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Tabs will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/tabs', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- TAB COMPONENT
+-- ===========================================
+
+-- Add new style 'tab' based on Mantine Tabs.Tab component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'tab',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Tabs.Tab component for individual tab items within a tabs component. Can contain child components for tab panel content.',
+    1
+);
+
+-- Add content field for tab label (using existing content field)
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('label'), NULL, 'Sets the label/content of the tab that will be displayed to users. For more information check https://mantine.dev/core/tabs', 0, 0, 'Label');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tab_left_section', get_field_type_id('select-icon'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('mantine_tab_left_section'), NULL, 'Sets the left section (icon) of the tab. For more information check https://mantine.dev/core/tabs', 0, 0, 'Left Icon');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tab_right_section', get_field_type_id('select-icon'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('mantine_tab_right_section'), NULL, 'Sets the right section (icon) of the tab. For more information check https://mantine.dev/core/tabs', 0, 0, 'Right Icon');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_tab_disabled', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('mantine_tab_disabled'), '0', 'If `disabled` prop is set, tab will be disabled. For more information check https://mantine.dev/core/tabs', 0, 0, 'Disabled');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('mantine_width'), NULL, 'Sets the width of the Tabs.Tab component. For more information check https://mantine.dev/core/tabs', 0, 0, 'Width');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('mantine_height'), NULL, 'Sets the height of the Tabs.Tab component. For more information check https://mantine.dev/core/tabs', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('tab'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Tabs.Tab will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/tabs', 0, 1, 'Use Mantine Style');
+
+-- ===========================================
+-- STYLE RELATIONSHIPS
+-- ===========================================
+
+-- Define that grid-column can ONLY be added inside grid
+INSERT IGNORE INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'grid' AND s2.name = 'grid-column';
+
+-- Define that tab can ONLY be added inside tabs
+INSERT IGNORE INTO styles_allowed_relationships (id_parent_style, id_child_style)
+SELECT s1.id, s2.id FROM styles s1, styles s2
+WHERE s1.name = 'tabs' AND s2.name = 'tab';
+
