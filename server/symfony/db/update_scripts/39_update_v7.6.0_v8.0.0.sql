@@ -4323,12 +4323,19 @@ CREATE PROCEDURE `get_page_sections_hierarchical`(IN page_id INT)
 BEGIN
     WITH RECURSIVE section_hierarchy AS (
         -- Base case: get top-level sections for the page, position starts from 10
-        SELECT 
+        SELECT
             s.id,
             s.`name`,
             s.id_styles,
             st.`name` AS style_name,
-            st.can_have_children,
+            CASE
+                WHEN st.can_have_children = 1 THEN 1
+                WHEN EXISTS (
+                    SELECT 1 FROM styles_allowed_relationships sar
+                    WHERE sar.id_parent_style = st.id
+                ) THEN 1
+                ELSE 0
+            END AS can_have_children,
             s.`condition`,
             s.css,
             s.css_mobile,
@@ -4343,16 +4350,23 @@ BEGIN
         LEFT JOIN sections_hierarchy sh ON s.id = sh.child
         WHERE ps.id_pages = page_id
         AND sh.parent IS NULL
-        
+
         UNION ALL
-        
+
         -- Recursive case: get children of sections
-        SELECT 
+        SELECT
             s.id,
             s.`name`,
             s.id_styles,
-            st.`name` AS style_name,            
-            st.can_have_children,
+            st.`name` AS style_name,
+            CASE
+                WHEN st.can_have_children = 1 THEN 1
+                WHEN EXISTS (
+                    SELECT 1 FROM styles_allowed_relationships sar
+                    WHERE sar.id_parent_style = st.id
+                ) THEN 1
+                ELSE 0
+            END AS can_have_children,
             s.`condition`,
             s.css,
             s.css_mobile,
@@ -4366,13 +4380,13 @@ BEGIN
         JOIN sections s ON sh.child = s.id
         JOIN styles st ON s.id_styles = st.id
     )
-    
+
     -- Select the result
-    SELECT 
+    SELECT
         id,
         `name`,
         id_styles,
-        style_name,        
+        style_name,
         can_have_children,
         `condition`,
 		css,
