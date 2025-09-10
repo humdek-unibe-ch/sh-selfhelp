@@ -4409,6 +4409,9 @@ WHERE `name` = 'container';
 DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab');
 
+DELETE FROM styles
+WHERE `name` = 'accordion';
+
 
 
 
