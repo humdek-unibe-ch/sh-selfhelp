@@ -4315,6 +4315,9 @@ WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell')
 DELETE FROM styles
 WHERE `name` = 'accordion';
 
+DELETE FROM styles
+WHERE `name` = 'card';
+
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  

@@ -435,59 +435,7 @@ VALUES (get_style_id('progress'), get_field_id('mantine_progress_animated'), '0'
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
 VALUES (get_style_id('progress'), get_field_id('mantine_progress_striped'), '0', 'If `striped` prop is set, progress bar will have stripes. For more information check https://mantine.dev/core/progress', 0, 0, 'Striped');
 
--- ===========================================
--- CARD STYLE
--- ===========================================
 
--- Add card style
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
-    NULL,
-    'card',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
-    get_style_group_id('mantine'),
-    'Card container component with Mantine styling',
-    1
-);
-
--- Create card-specific fields if they don't exist
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_card_shadow', get_field_type_id('select'), 0, '{"searchable": false, "clearable": true, "options":[
-{"value":"xs","text":"Extra Small"},
-{"value":"sm","text":"Small"},
-{"value":"md","text":"Medium"},
-{"value":"lg","text":"Large"},
-{"value":"xl","text":"Extra Large"}
-]}');
-
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_card_padding', get_field_type_id('select'), 0, '{"searchable": false, "clearable": true, "options":[
-{"value":"xs","text":"Extra Small"},
-{"value":"sm","text":"Small"},
-{"value":"md","text":"Medium"},
-{"value":"lg","text":"Large"},
-{"value":"xl","text":"Extra Large"}
-]}');
-
--- Add card-segment style for child components
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
-    NULL,
-    'card-segment',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
-    get_style_group_id('mantine'),
-    'Card segment component for organizing card content',
-    1
-);
-
--- Link fields to card style
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
-VALUES (get_style_id('card'), get_field_id('use_mantine_style'), '1', 'If `useMantineStyle` prop is set Card will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/card', 0, 0, 'Use Mantine Style');
-
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
-VALUES (get_style_id('card'), get_field_id('mantine_card_shadow'), 'sm', 'Sets the shadow of the card. For more information check https://mantine.dev/core/card', 0, 0, 'Shadow');
-
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
-VALUES (get_style_id('card'), get_field_id('mantine_card_padding'), 'md', 'Sets the padding of the card. For more information check https://mantine.dev/core/card', 0, 0, 'Padding');
-
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
-VALUES (get_style_id('card'), get_field_id('mantine_radius'), 'sm', 'Sets the border radius of the card. For more information check https://mantine.dev/core/card', 0, 0, 'Radius');
 
 -- ===========================================
 -- IMAGE STYLE
@@ -602,11 +550,6 @@ VALUES (get_style_id('list-item'), get_field_id('mantine_list_item_icon'), NULL,
 -- ===========================================
 
 -- Define parent-child relationships for hierarchical components
-
--- Card can contain Card-Segment
-INSERT IGNORE INTO styles_allowed_relationships (id_parent_style, id_child_style)
-SELECT s1.id, s2.id FROM styles s1, styles s2
-WHERE s1.name = 'card' AND s2.name = 'card-segment';
 
 -- List can contain List-Item
 INSERT IGNORE INTO styles_allowed_relationships (id_parent_style, id_child_style)

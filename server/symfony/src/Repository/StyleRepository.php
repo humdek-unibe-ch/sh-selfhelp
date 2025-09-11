@@ -28,6 +28,7 @@ class StyleRepository extends ServiceEntityRepository
                 's.id AS style_id',
                 's.name AS style_name',
                 's.description AS style_description',
+                's.canHaveChildren AS can_have_children',
                 'lst.id AS style_type_id',
                 'lst.lookupValue AS style_type',
                 'sg.id AS style_group_id',
@@ -69,7 +70,9 @@ class StyleRepository extends ServiceEntityRepository
                 'typeId' => $style['style_type_id'],
                 'type' => $style['style_type'],
                 'relationships' => [
-                    'allowedChildren' => $relationships['allowedChildren'][$styleId] ?? [],
+                    // If can_have_children is 1 (true), return empty array (can have all children)
+                    // If can_have_children is 0 (false), return custom allowed children from relationships
+                    'allowedChildren' => $style['can_have_children'] ? [] : ($relationships['allowedChildren'][$styleId] ?? []),
                     'allowedParents' => $relationships['allowedParents'][$styleId] ?? []
                 ]
             ];
