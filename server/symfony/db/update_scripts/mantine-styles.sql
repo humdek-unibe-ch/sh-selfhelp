@@ -2553,6 +2553,152 @@ SELECT s1.id, s2.id FROM styles s1, styles s2
 WHERE s1.name = 'tabs' AND s2.name = 'tab';
 
 -- ===========================================
+-- DIVIDER COMPONENT
+-- ===========================================
+
+-- Add new style 'divider' based on Mantine Divider component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'divider',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Divider component for visual separation',
+    0
+);
+
+-- Add Divider-specific fields
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_divider_variant', get_field_type_id('select'), 0, '{"searchable": false, "clearable": false, "options":[
+{"value":"solid","text":"Solid"},
+{"value":"dashed","text":"Dashed"},
+{"value":"dotted","text":"Dotted"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_divider_variant'), 'solid', 'Sets the variant of the divider line. For more information check https://mantine.dev/core/divider', 0, 0, 'Variant');
+
+-- Use unified orientation field for divider
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_orientation'), 'horizontal', 'Sets the orientation of the divider. For more information check https://mantine.dev/core/divider', 0, 0, 'Orientation');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_divider_size', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"1","text":"1px"},
+{"value":"2","text":"2px"},
+{"value":"3","text":"3px"},
+{"value":"4","text":"4px"},
+{"value":"5","text":"5px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_divider_size'), '1', 'Sets the thickness of the divider line. For more information check https://mantine.dev/core/divider', 0, 0, 'Size');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_divider_label', get_field_type_id('text'), 1, '{"placeholder": "Divider label"}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_divider_label'), NULL, 'Sets the label text for the divider. For more information check https://mantine.dev/core/divider', 0, 0, 'Label');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_divider_label_position', get_field_type_id('select'), 0, '{"searchable": false, "clearable": false, "options":[
+{"value":"left","text":"Left"},
+{"value":"center","text":"Center"},
+{"value":"right","text":"Right"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_divider_label_position'), 'center', 'Sets the position of the divider label. For more information check https://mantine.dev/core/divider', 0, 0, 'Label Position');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('mantine_color'), 'gray', 'Sets the color of the divider. For more information check https://mantine.dev/core/divider', 0, 0, 'Color');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('divider'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Divider will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/divider', 0, 0, 'Use Mantine Style');
+
+-- ===========================================
+-- PAPER COMPONENT
+-- ===========================================
+
+-- Add new style 'paper' based on Mantine Paper component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'paper',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine Paper component for elevated surfaces',
+    1
+);
+
+-- Add Paper-specific fields
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_paper_shadow', get_field_type_id('select'), 0, '{"searchable": false, "clearable": true, "options":[
+{"value":"xs","text":"Extra Small"},
+{"value":"sm","text":"Small"},
+{"value":"md","text":"Medium"},
+{"value":"lg","text":"Large"},
+{"value":"xl","text":"Extra Large"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('paper'), get_field_id('mantine_paper_shadow'), 'sm', 'Sets the shadow of the paper. For more information check https://mantine.dev/core/paper', 0, 0, 'Shadow');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('paper'), get_field_id('mantine_radius'), 'sm', 'Sets the border radius of the paper. For more information check https://mantine.dev/core/paper', 0, 0, 'Radius');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('paper'), get_field_id('mantine_px'), NULL, 'Sets the horizontal padding of the paper. For more information check https://mantine.dev/core/paper', 0, 0, 'Horizontal Padding');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('paper'), get_field_id('mantine_py'), NULL, 'Sets the vertical padding of the paper. For more information check https://mantine.dev/core/paper', 0, 0, 'Vertical Padding');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('paper'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set Paper will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/paper', 0, 0, 'Use Mantine Style');
+
+-- ===========================================
+-- SCROLLAREA COMPONENT
+-- ===========================================
+
+-- Add new style 'scrollArea' based on Mantine ScrollArea component
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+    NULL,
+    'scrollArea',
+    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    get_style_group_id('mantine'),
+    'Mantine ScrollArea component for custom scrollbars',
+    1
+);
+
+-- Add ScrollArea-specific fields
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_scrollarea_scrollbar_size', get_field_type_id('select'), 0, '{"creatable": true, "searchable": false, "clearable": true, "options":[
+{"value":"6","text":"6px"},
+{"value":"8","text":"8px"},
+{"value":"10","text":"10px"},
+{"value":"12","text":"12px"},
+{"value":"16","text":"16px"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('scrollArea'), get_field_id('mantine_scrollarea_scrollbar_size'), '8', 'Sets the size of the scrollbar. For more information check https://mantine.dev/core/scroll-area', 0, 0, 'Scrollbar Size');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_scrollarea_type', get_field_type_id('segment'), 0, '{"options":[
+{"value":"hover","text":"Hover"},
+{"value":"always","text":"Always"},
+{"value":"never","text":"Never"}
+]}');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('scrollArea'), get_field_id('mantine_scrollarea_type'), 'hover', 'Sets when to show the scrollbar. For more information check https://mantine.dev/core/scroll-area', 0, 0, 'Scrollbar Type');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUES (NULL, 'mantine_scrollarea_offset_scrollbars', get_field_type_id('checkbox'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('scrollArea'), get_field_id('mantine_scrollarea_offset_scrollbars'), '0', 'If `offsetScrollbars` prop is set, scrollbars will be offset from the container edge. For more information check https://mantine.dev/core/scroll-area', 0, 0, 'Offset Scrollbars');
+
+-- Reuse existing fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('scrollArea'), get_field_id('mantine_height'), NULL, 'Sets the height of the scroll area. For more information check https://mantine.dev/core/scroll-area', 0, 0, 'Height');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`)
+VALUES (get_style_id('scrollArea'), get_field_id('use_mantine_style'), 1, 'If `useMantineStyle` prop is set ScrollArea will use the Mantine style, otherwise it will be a clear element which can be styled with CSS and Tailwind CSS classes. For more information check https://mantine.dev/core/scroll-area', 0, 0, 'Use Mantine Style');
+
+-- ===========================================
 -- FIELD OPTIMIZATION SUMMARY AND FINAL CLEANUP
 -- ===========================================
 
@@ -2621,6 +2767,7 @@ WHERE s1.name = 'tabs' AND s2.name = 'tab';
 -- ✅ Removed unnecessary components (accordionPanel) - handled in frontend
 -- ✅ Simplified component structure (accordion-Item accepts all children)
 -- ✅ Converted select fields to text/textarea fields for better flexibility
+-- ✅ Added 3 new components: Divider, Paper, ScrollArea
 -- ✅ Reduced code duplication by ~70%
 -- ✅ Improved maintainability and reusability
 -- ✅ Proper SQL script execution order

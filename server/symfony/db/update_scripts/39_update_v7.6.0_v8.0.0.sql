@@ -576,26 +576,12 @@ BEGIN
 
   -- 2) actions → lookups + pages.id_actions
   IF EXISTS (
-    SELECT 1 FROM information_schema.TABLES
+    SELECT 1
+    FROM information_schema.COLUMNS
     WHERE table_schema = DATABASE() AND table_name = 'actions'
+    GROUP BY table_schema, table_name
+    HAVING COUNT(*) = 2
   ) THEN
-    INSERT IGNORE INTO lookups(type_code, lookup_code, lookup_value, lookup_description)
-    SELECT 'pageActions', name, name, NULL
-      FROM actions;
-
-	CALL drop_foreign_key('pages', 'pages_fk_id_actions');
-
-    UPDATE pages p
-    JOIN actions a ON p.id_actions = a.id
-    JOIN lookups l ON l.type_code   = 'pageActions'
-                  AND l.lookup_code = a.name
-    SET p.id_actions = l.id;
-    
-    CALL add_foreign_key('pages',
-                         'pages_fk_id_actions',
-                         'id_actions',
-                         'lookups(id)');
-
     DROP TABLE IF EXISTS `actions`;
   END IF;
 
@@ -748,83 +734,6 @@ GROUP BY
   lut.lookup_code,
   lut.lookup_value
 ORDER BY u.email;
-
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_page_fields //
-CREATE PROCEDURE get_page_fields(
-    IN page_id INT,
-    IN language_id INT,
-    IN default_language_id INT,
-    IN filter_param VARCHAR(1000),
-    IN order_param VARCHAR(1000)
-)
-READS SQL DATA
-DETERMINISTIC
-BEGIN  
-    -- page_id = -1 returns all pages
-    SET @@group_concat_max_len = 32000000;
-
-    SELECT get_page_fields_helper(page_id, language_id, default_language_id) 
-      INTO @sql;    
-    
-    IF @sql IS NULL THEN    
-        SELECT * 
-          FROM pages 
-         WHERE 1=2;
-    ELSE 
-        BEGIN
-            SET @sql = CONCAT(
-                'SELECT 
-                    p.id,
-                    p.keyword,
-                    p.url,
-                    p.protocol,
-                    p.id_actions,
-                    "select" AS access_level,
-                    p.id_navigation_section,
-                    p.parent,
-                    p.is_headless,
-                    p.nav_position,
-                    p.footer_position,
-                    p.id_type,
-                    p.id_pageAccessTypes,
-                    a.lookup_code AS `action`, ',
-                 @sql, '
-                 FROM pages p
-                 LEFT JOIN lookups AS a 
-                   ON a.id = p.id_actions 
-                  AND a.type_code = "pageActions"
-                 LEFT JOIN pageType_fields AS ptf 
-                   ON ptf.id_pageType = p.id_type 
-                 LEFT JOIN fields AS f 
-                   ON f.id = ptf.id_fields
-                 WHERE (p.id = ', page_id, ' OR -1 = ', page_id, ')
-                 GROUP BY 
-                   p.id, p.keyword, p.url, p.protocol, p.id_actions,
-                   p.id_navigation_section, p.parent, p.is_headless,
-                   p.nav_position, p.footer_position, p.id_type,
-                   p.id_pageAccessTypes, a.lookup_code
-                 HAVING 1 ', filter_param
-            );
-            
-            IF order_param <> '' THEN             
-                SET @sql = CONCAT(
-                    'SELECT * FROM (',
-                    @sql,
-                    ') AS t ', order_param
-                );
-            END IF;
-
-            PREPARE stmt FROM @sql;
-            EXECUTE stmt;
-            DEALLOCATE PREPARE stmt;
-        END;
-    END IF;
-END 
-//
-
-DELIMITER ;
 
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('pageActions', 'navigation', 'Navigation', 'Navigation section page');
 
@@ -1168,7 +1077,7 @@ ALTER TABLE pageType_fields CHANGE id_fields id_fields INT NOT NULL, CHANGE id_p
 ALTER TABLE plugins CHANGE id id INT AUTO_INCREMENT NOT NULL;
 ALTER TABLE refreshTokens CHANGE id_users id_users INT NOT NULL;
 ALTER TABLE scheduledJobs CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE id_jobTypes id_jobTypes INT NOT NULL, CHANGE id_jobStatus id_jobStatus INT NOT NULL, CHANGE date_create date_create DATETIME NOT NULL;
-ALTER TABLE scheduledJobs_formActions CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_formActions id_formActions INT NOT NULL, CHANGE id_dataRows id_dataRows INT DEFAULT NULL;
+ALTER TABLE scheduledJobs_formActions CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_formActions id_actions INT NOT NULL, CHANGE id_dataRows id_dataRows INT DEFAULT NULL;
 ALTER TABLE scheduledJobs_mailQueue CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_mailQueue id_mailQueue INT NOT NULL;
 ALTER TABLE scheduledJobs_notifications CHANGE id_notifications id_notifications INT NOT NULL, CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL;
 ALTER TABLE scheduledJobs_reminders CHANGE id_scheduledJobs id_scheduledJobs INT NOT NULL, CHANGE id_dataTables id_dataTables INT NOT NULL;
@@ -1224,10 +1133,6 @@ CALL add_foreign_key('fields', 'FK_7EE5E388FF2309B7', 'id_type', 'fieldType(id)'
 CALL add_foreign_key('formActions', 'FK_3128FB5E8A8FCE9D', 'id_formProjectActionTriggerTypes', 'lookups(id)');
 CALL add_foreign_key('formActions', 'FK_3128FB5EE2E6A7C3', 'id_dataTables', 'dataTables(id)');
 CALL add_foreign_key('logPerformance', 'FK_6D164595F2D13C3F', 'id_user_activity', 'user_activity(id)');
-
--- more indexes
-CALL add_index('formActions', 'IDX_3128FB5E8A8FCE9D', 'id_formProjectActionTriggerTypes', FALSE);
-CALL add_index('formActions', 'IDX_3128FB5EE2E6A7C3', 'id_dataTables', FALSE);
 
 -- foreign keys for pages and related tables
 CALL add_foreign_key('pages', 'FK_2074E575DBD5589F', 'id_actions', 'lookups(id)');
@@ -4189,10 +4094,11 @@ CALL drop_index('scheduledJobs_formActions', 'IDX_AE5B5D0B293A36A9');
 CALL rename_table('formActions', 'actions');
 CALL rename_table('scheduledJobs_formActions', 'scheduledJobs_actions');
 
+CALL add_foreign_key('scheduledJobs_actions', 'FK_862DD4F8DBD5589F', 'id_actions', 'actions (id)');
+
 CALL drop_foreign_key('actions', 'FK_3128FB5E8A8FCE9D');
 CALL drop_foreign_key('actions', 'FK_548F1EF4AC2316F');
 CALL drop_foreign_key('actions', 'FK_3128FB5EE2E6A7C3');
-CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
 CALL drop_index('actions', 'IDX_548F1EF8A8FCE9D');
 CALL rename_table_column('actions', 'id_formProjectActionTriggerTypes', 'id_actionTriggerTypes');
 ALTER TABLE actions CHANGE id_actionTriggerTypes id_actionTriggerTypes INT NOT NULL;
@@ -4212,15 +4118,12 @@ CALL add_index(
 ALTER TABLE actions CHANGE id_dataTables id_dataTables INT NOT NULL;
 
 -- Recreate foreign key and index to point to the new table/column
-CALL add_foreign_key('scheduledJobs_actions', 'FK_SJ_ACTIONS', 'id_actions', 'actions(id)');
 CALL add_foreign_key('actions', 'FK_548F1EFE2E6A7C3', 'id_dataTables', 'dataTables(id)');
 CALL add_index('scheduledJobs_actions', 'IDX_862DD4F8DBD5589F', 'id_actions', FALSE);
 
-CALL rename_index('actions', 'idx_3128fb5e8a8fce9d', 'IDX_548F1EF8A8FCE9D');
-CALL rename_index('actions', 'idx_3128fb5ee2e6a7c3', 'IDX_548F1EFE2E6A7C3');
-
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0b8030ba52', 'IDX_862DD4F88030BA52');
 CALL rename_index('scheduledJobs_actions', 'idx_ae5b5d0bf3854f45',  'IDX_862DD4F8F3854F45');
+CALL rename_index('actions', 'fk_548f1efe2e6a7c3',  'IDX_548F1EFE2E6A7C3');
 
 UPDATE pages
 SET nav_position = null
@@ -4403,11 +4306,11 @@ END //
 DELIMITER ;
 
 -- Delete existing container style
-DELETE FROM styles
-WHERE `name` = 'container';
+-- DELETE FROM styles
+-- WHERE `name` = 'container';
 
 DELETE FROM styles
-WHERE `name` IN ('tabs', 'tab');
+WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell');
 
 DELETE FROM styles
 WHERE `name` = 'accordion';
