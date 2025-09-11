@@ -130,8 +130,8 @@ class DataTableService extends BaseService
             
             // Log transaction
             $this->transactionService->logTransaction(
-                'update',
-                'transactionBy_by_system',
+                LookupService::TRANSACTION_TYPES_UPDATE,
+                LookupService::TRANSACTION_BY_BY_SYSTEM,
                 'dataTables',
                 $dataTable->getId()
             );
@@ -230,8 +230,8 @@ class DataTableService extends BaseService
         try {
             // Log transaction before deletion
             $this->transactionService->logTransaction(
-                'delete',
-                'transactionBy_by_system',
+                LookupService::TRANSACTION_TYPES_DELETE,
+                LookupService::TRANSACTION_BY_BY_SYSTEM,
                 'dataTables',
                 $dataTable->getId()
             );
@@ -335,8 +335,8 @@ class DataTableService extends BaseService
 
             if ($deletedCount > 0) {
                 $this->transactionService->logTransaction(
-                    'delete',
-                    'transactionBy_by_system',
+                    LookupService::TRANSACTION_TYPES_DELETE,
+                    LookupService::TRANSACTION_BY_BY_SYSTEM,
                     'dataTables',
                     $dataTable->getId()
                 );

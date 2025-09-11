@@ -6,6 +6,7 @@ use App\Controller\Trait\RequestValidatorTrait;
 use App\Service\CMS\DataService;
 use App\Service\CMS\FormValidationService;
 use App\Service\Core\ApiResponseFormatter;
+use App\Service\Core\LookupService;
 use App\Service\JSON\JsonSchemaValidationService;
 use App\Service\Auth\UserContextService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,7 +65,7 @@ class FormController extends AbstractController
             $recordId = $this->dataService->saveData(
                 (string) $sectionId,
                 $formData,
-                'transactionBy_by_user'
+                LookupService::TRANSACTION_BY_BY_USER
             );
 
             if ($recordId === false) {
@@ -113,7 +114,7 @@ class FormController extends AbstractController
                 return $this->apiResponseFormatter->formatError(
                     'Authentication required',
                     Response::HTTP_UNAUTHORIZED
-                );
+                );  
             }
 
             // Validate request schema
@@ -131,7 +132,7 @@ class FormController extends AbstractController
             $recordId = $this->dataService->saveData(
                 (string) $sectionId,
                 $formData,
-                'transactionBy_by_user',
+                LookupService::TRANSACTION_BY_BY_USER,
                 $updateBasedOn,
                 true // own entries only
             );
