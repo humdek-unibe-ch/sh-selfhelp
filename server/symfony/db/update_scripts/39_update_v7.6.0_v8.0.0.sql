@@ -4316,7 +4316,22 @@ DELETE FROM styles
 WHERE `name` = 'accordion';
 
 
+DELETE FROM styles_fields
+WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
 
+DELETE FROM styles_fields
+WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('sources') AND id_styles = get_style_id('video'));  
+
+INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('select-image', '8');
+INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('select-video', '8');
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`, `config`) VALUES ('video_src', get_field_type_id('select-video'), 0, null);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`, `title`) VALUES (get_style_id('video'), get_field_id('video_src'), null, null, 0, 0, 'Video Source');
+
+UPDATE `fields`
+SET id_type = get_field_type_id('select-image')
+WHERE `name` IN ('img_src');
 
 
 -- Section Management API Enhancement

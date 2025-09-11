@@ -16,6 +16,7 @@ use App\Service\Core\BaseService;
 use App\Service\ACL\ACLService;
 use App\Service\Auth\UserContextService;
 use App\Service\Cache\Core\CacheService;
+use App\Service\CMS\Admin\AdminAssetService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,7 +36,8 @@ class SectionFieldService extends BaseService
         private readonly ACLService $aclService,
         private readonly UserContextService $userContextService,
         private readonly PageRepository $pageRepository,
-        private readonly SectionRepository $sectionRepository
+        private readonly SectionRepository $sectionRepository,
+        private readonly AdminAssetService $adminAssetService
     ) {
     }
 
@@ -186,12 +188,20 @@ class SectionFieldService extends BaseService
             // format ["value" => "page_id", "text" => "page_keyword"]
             $options = $this->getPageKeywords();
         }
+        if ($fieldType === 'select-image') {
+            // format ["value" => "file_path", "text" => "file_name"]
+            $options = $this->getImages();
+        }
+        if ($fieldType === 'select-video') {
+            // format ["value" => "file_path", "text" => "file_name"]
+            $options = $this->getVideos();
+        }
         $config = [];
 
-        if (in_array($fieldType, ['select-group', 'select-data_table', 'select-css', 'select-page-keyword'])) {
+        if (in_array($fieldType, ['select-group', 'select-data_table', 'select-css', 'select-page-keyword', 'select-image', 'select-video'])) {
             $config = [
                 'multiSelect' => in_array($fieldType, ['select-group', 'select-css']),
-                'creatable' => in_array($fieldType, ['select-css', 'select-page-keyword']),
+                'creatable' => in_array($fieldType, ['select-css', 'select-page-keyword', 'select-image', 'select-video']),
                 'separator' => in_array($fieldType, ['select-css']) ? ' ' : ',',
                 'options' => $options
             ];
@@ -264,7 +274,7 @@ class SectionFieldService extends BaseService
 
     /**
      * Get page keywords for select-page-keyword field type
-     * 
+     *
      * @return array The page keywords formatted as options
      */
     private function getPageKeywords(): array
@@ -287,6 +297,68 @@ class SectionFieldService extends BaseService
                         'value' => $page['keyword'],
                         'text' => $page['keyword']
                     ], $pages);
+                }
+            );
+    }
+
+    /**
+     * Get images for select-image field type
+     *
+     * @return array The images formatted as options with relative paths
+     */
+    private function getImages(): array
+    {
+        $cacheKey = "images_list";
+        return $this->cache
+            ->withCategory(CacheService::CATEGORY_ASSETS)
+            ->getList(
+                $cacheKey,
+                function () {
+                    // Get all assets and filter for image types
+                    $allAssets = $this->adminAssetService->getAllAssets(1, 1000); // Get first 1000 assets for initial load
+
+                    $images = array_filter($allAssets['assets'], function ($asset) {
+                        $extension = strtolower(pathinfo($asset['file_name'], PATHINFO_EXTENSION));
+                        return in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                    });
+
+                    return array_map(function ($image) {
+                        return [
+                            'value' => $image['file_path'], // Use relative path as value
+                            'text' => $image['file_name']
+                        ];
+                    }, array_values($images));
+                }
+            );
+    }
+
+    /**
+     * Get videos for select-video field type
+     *
+     * @return array The videos formatted as options with relative paths
+     */
+    private function getVideos(): array
+    {
+        $cacheKey = "videos_list";
+        return $this->cache
+            ->withCategory(CacheService::CATEGORY_ASSETS)
+            ->getList(
+                $cacheKey,
+                function () {
+                    // Get all assets and filter for video types
+                    $allAssets = $this->adminAssetService->getAllAssets(1, 1000); // Get first 1000 assets for initial load
+
+                    $videos = array_filter($allAssets['assets'], function ($asset) {
+                        $extension = strtolower(pathinfo($asset['file_name'], PATHINFO_EXTENSION));
+                        return in_array($extension, ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm']);
+                    });
+
+                    return array_map(function ($video) {
+                        return [
+                            'value' => $video['file_path'], // Use relative path as value
+                            'text' => $video['file_name']
+                        ];
+                    }, array_values($videos));
                 }
             );
     }
