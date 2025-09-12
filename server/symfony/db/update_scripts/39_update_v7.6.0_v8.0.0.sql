@@ -4318,7 +4318,6 @@ WHERE `name` = 'accordion';
 DELETE FROM styles
 WHERE `name` = 'card';
 
-
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
 
@@ -4335,6 +4334,10 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 UPDATE `fields`
 SET id_type = get_field_type_id('select-image')
 WHERE `name` IN ('img_src');
+
+UPDATE `fields`
+SET id_type = get_field_type_id('text')
+WHERE `name` IN ('value');
 
 
 -- Section Management API Enhancement
