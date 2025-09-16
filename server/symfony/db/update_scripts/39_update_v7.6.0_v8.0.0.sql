@@ -4310,13 +4310,10 @@ DELIMITER ;
 -- WHERE `name` = 'container';
 
 DELETE FROM styles
-WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell');
+WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 'card', 'alert', 'radioGroup', 'radio-group', 'radio');
 
 DELETE FROM styles
-WHERE `name` = 'accordion';
-
-DELETE FROM styles
-WHERE `name` = 'card';
+WHERE `name` = 'rangeSlider';
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
@@ -4338,6 +4335,8 @@ WHERE `name` IN ('img_src');
 UPDATE `fields`
 SET id_type = get_field_type_id('text')
 WHERE `name` IN ('value');
+
+ALTER TABLE `styles_fields` CHANGE `default_value` `default_value` VARCHAR(1000) NOT NULL;
 
 
 -- Section Management API Enhancement
