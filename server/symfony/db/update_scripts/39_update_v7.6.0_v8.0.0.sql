@@ -4313,7 +4313,7 @@ DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 'card', 'alert', 'radioGroup', 'radio-group', 'radio');
 
 DELETE FROM styles
-WHERE `name` = 'rangeSlider';
+WHERE `name` = 'themeIcon';
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
