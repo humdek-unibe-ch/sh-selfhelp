@@ -4310,10 +4310,11 @@ DELIMITER ;
 -- WHERE `name` = 'container';
 
 DELETE FROM styles
-WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 'card', 'alert', 'radioGroup', 'radio-group', 'radio');
+WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
+'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox');
 
 DELETE FROM styles
-WHERE `name` = 'themeIcon';
+WHERE `name` = 'checkbox';
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
