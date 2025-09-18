@@ -4311,10 +4311,11 @@ DELIMITER ;
 
 DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
-'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox');
+'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox', 'div', 'htmlTag',
+'textarea');
 
 DELETE FROM styles
-WHERE `name` = 'checkbox';
+WHERE `name` = 'rich-text-editor';
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  
