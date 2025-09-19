@@ -225,8 +225,10 @@ class DataTableService extends BaseService
             return false;
         }
 
+        $deletedDataTableId = $dataTable->getId();
+
         $this->entityManager->beginTransaction();
-        
+
         try {
             // Log transaction before deletion
             $this->transactionService->logTransaction(
@@ -248,7 +250,7 @@ class DataTableService extends BaseService
 
             $this->cache
                 ->withCategory(CacheService::CATEGORY_DATA_TABLES)
-                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $deletedDataTableId);
 
             return true;
             

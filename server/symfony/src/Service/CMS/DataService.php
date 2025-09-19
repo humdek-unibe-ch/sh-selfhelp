@@ -353,6 +353,10 @@ class DataService extends BaseService
             $dataCell = new DataCell();
             $dataCell->setDataRow($dataRow);
             $dataCell->setDataCol($column);
+            //if field value is emty array, set it to []
+            if (is_array($fieldValue) && empty($fieldValue)) {
+                $fieldValue = '[]';
+            }
             $dataCell->setValue($fieldValue ?? '');
 
             $this->entityManager->persist($dataCell);

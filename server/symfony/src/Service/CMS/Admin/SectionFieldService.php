@@ -210,6 +210,11 @@ class SectionFieldService extends BaseService
             if ($fieldType === 'select-css') {
                 $config['apiUrl'] = '/cms-api/v1/frontend/css-classes';
             }
+
+            if ($fieldType === 'select-page-keyword') {
+                $config['searchable'] = true;
+                $config['clearable'] = true;
+            }
         }
 
         return $config;
