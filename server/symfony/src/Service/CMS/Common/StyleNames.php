@@ -11,6 +11,11 @@ final class StyleNames
     public const STYLE_SHOW_USER_INPUT = 'showUserInput';
 
     /**
+     * Style that is used for form record
+     */
+    public const STYLE_FORM_RECORD = 'form-record';
+
+    /**
      * Styles that are allowed to be used for submitting data
      */
     public const FORM_STYLE_NAMES = [

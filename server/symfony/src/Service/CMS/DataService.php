@@ -456,9 +456,10 @@ class DataService extends BaseService
      * @param string $dataTableName Data table name
      * @return array
      */
-    public function getFormUserInputRecordData(int $dataTableNameId): array
+    public function getFormRecordData(string $dataTableName): array
     {
-        $data = $this->getData($dataTableNameId, 'ORDER BY record_id DESC LIMIT 1', true, $this->userContextService->getCurrentUser()->getId(), false, true);
+        $dataTableId = $this->dataTableRepository->findOneBy(['name' => $dataTableName])->getId();
+        $data = $this->getData($dataTableId, 'ORDER BY record_id DESC LIMIT 1', true, $this->userContextService->getCurrentUser()->getId(), false, true);
         return $data;
     }
 

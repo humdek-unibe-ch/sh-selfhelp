@@ -287,8 +287,8 @@ class SectionUtilityService
     public function applySectionData(array &$section): void
     {
         $section['section_data'] = [];
-        if ($section['style_name'] == 'formUserInputRecord') {
-            $section['section_data'] = $this->dataService->getFormUserInputRecordData($section['id']);
+        if ($section['style_name'] == StyleNames::STYLE_FORM_RECORD) {
+            $section['section_data'] = $this->dataService->getFormRecordData($section['id']);
         }
     }
 }
