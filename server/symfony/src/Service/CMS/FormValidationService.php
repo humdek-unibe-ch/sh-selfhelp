@@ -192,7 +192,38 @@ class FormValidationService extends BaseService
                 );
             }
 
-            // Convert values to strings and check length
+            // Handle file input fields specially
+            if (str_contains(strtolower($fieldName), 'file')) {
+                // Allow empty objects, empty arrays, or file path strings for file input fields
+                if ($fieldValue === null || $fieldValue === '' ||
+                    (is_array($fieldValue) && empty($fieldValue)) ||
+                    (is_object($fieldValue) && empty((array)$fieldValue))) {
+                    // Empty file field is valid (no files uploaded)
+                    continue;
+                }
+
+                // Allow file path strings
+                if (is_string($fieldValue) && str_contains($fieldValue, 'uploads/form-files/')) {
+                    // File paths are allowed for file input fields
+                    continue;
+                }
+
+                // Allow JSON strings containing file information
+                if (is_string($fieldValue) && $this->isValidFileJson($fieldValue)) {
+                    // Valid JSON string with file information
+                    continue;
+                }
+
+                // If it's not one of the allowed formats, check if it's a valid scalar
+                if (!is_scalar($fieldValue)) {
+                    throw new ServiceException(
+                        "Field '{$fieldName}' must contain a valid file value (string, empty array, or empty object)",
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+            }
+
+            // Convert values to strings and check length for non-file fields
             if ($fieldValue !== null && !is_scalar($fieldValue)) {
                 throw new ServiceException(
                     "Field '{$fieldName}' must contain a scalar value",
@@ -207,6 +238,39 @@ class FormValidationService extends BaseService
                     Response::HTTP_BAD_REQUEST
                 );
             }
+        }
+    }
+
+    /**
+     * Check if a string contains valid JSON with file information
+     *
+     * @param string $jsonString The string to validate
+     * @return bool True if valid file JSON
+     */
+    private function isValidFileJson(string $jsonString): bool
+    {
+        try {
+            $decoded = json_decode($jsonString, true);
+            if (!is_array($decoded)) {
+                return false;
+            }
+
+            // Check if array contains valid filenames or file paths
+            foreach ($decoded as $item) {
+                if (!is_string($item)) {
+                    return false;
+                }
+
+                // Allow either filenames or file paths
+                if (!preg_match('/^[a-zA-Z0-9\-_\.\s\(\)]+\.[a-zA-Z0-9]{1,10}$/', $item) &&
+                    !str_contains($item, 'uploads/form-files/')) {
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
         }
     }
 

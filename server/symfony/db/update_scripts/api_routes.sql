@@ -280,17 +280,19 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
 ), NULL),
 ('languages_get_all', 'v1', '/languages', 'App\\Controller\\Api\\V1\\Frontend\\LanguageController::getAllLanguages', 'GET', NULL, NULL),
 
--- Form submission routes (public access)
+-- Form submission routes (public access) - supports both JSON and multipart/form-data for file uploads
 ('form_submit', 'v1', '/forms/submit', 'App\\Controller\\Api\\V1\\Frontend\\FormController::submitForm', 'POST', NULL, JSON_OBJECT(
     'page_id', JSON_OBJECT('in', 'body', 'required', true),
     'section_id', JSON_OBJECT('in', 'body', 'required', true),
-    'form_data', JSON_OBJECT('in', 'body', 'required', true)
+    'form_data', JSON_OBJECT('in', 'body', 'required', true),
+    'files', JSON_OBJECT('in', 'form', 'required', false, 'description', 'Uploaded files for file input fields')
 )),
 ('form_update', 'v1', '/forms/update', 'App\\Controller\\Api\\V1\\Frontend\\FormController::updateForm', 'PUT', NULL, JSON_OBJECT(
     'page_id', JSON_OBJECT('in', 'body', 'required', true),
     'section_id', JSON_OBJECT('in', 'body', 'required', true),
     'form_data', JSON_OBJECT('in', 'body', 'required', true),
-    'update_based_on', JSON_OBJECT('in', 'body', 'required', false)
+    'update_based_on', JSON_OBJECT('in', 'body', 'required', false),
+    'files', JSON_OBJECT('in', 'form', 'required', false, 'description', 'Uploaded files for file input fields')
 )),
 ('form_delete', 'v1', '/forms/delete', 'App\\Controller\\Api\\V1\\Frontend\\FormController::deleteForm', 'DELETE', NULL, JSON_OBJECT(
     'record_id', JSON_OBJECT('in', 'body', 'required', true),

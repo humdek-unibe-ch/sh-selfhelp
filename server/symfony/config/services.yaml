@@ -49,3 +49,8 @@ services:
     App\Service\CMS\Admin\AdminAssetService:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    # Form File Upload Service - needs explicit project directory
+    App\Service\CMS\FormFileUploadService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

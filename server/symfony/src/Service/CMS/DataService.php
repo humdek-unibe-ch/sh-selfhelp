@@ -18,6 +18,7 @@ use App\Service\Cache\Core\CacheService;
 use App\Service\Core\UserContextAwareService;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
+use App\Service\CMS\FormFileUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -39,7 +40,8 @@ class DataService extends BaseService
         private readonly UserContextAwareService $userContextAwareService,
         private readonly CacheService $cache,
         private readonly PageRepository $pageRepository,
-        private readonly SectionRepository $sectionRepository
+        private readonly SectionRepository $sectionRepository,
+        private readonly FormFileUploadService $formFileUploadService
     ) {
     }
 
@@ -145,6 +147,9 @@ class DataService extends BaseService
                 }
             }
 
+            // Extract file data before marking as deleted
+            $fileData = $this->extractFileDataFromRecord($dataRow);
+
             // Mark as deleted instead of physical deletion
             $deletedTriggerType = $this->lookupService->getLookupIdByValue('actionTriggerTypes', LookupService::ACTION_TRIGGER_TYPES_DELETED);
             $dataRow->setIdActionTriggerTypes($deletedTriggerType);
@@ -159,6 +164,16 @@ class DataService extends BaseService
 
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            // Clean up associated files after successful database deletion
+            if (!empty($fileData)) {
+                try {
+                    $this->formFileUploadService->deleteFiles($fileData);
+                } catch (\Exception $e) {
+                    // Log file cleanup error but don't fail the deletion
+                    error_log("File cleanup failed for record {$recordId}: " . $e->getMessage());
+                }
+            }
 
             // Invalidate data table cache after deleting record
             $this->cache
@@ -175,6 +190,51 @@ class DataService extends BaseService
                 ['previous' => $e, 'recordId' => $recordId]
             );
         }
+    }
+
+    /**
+     * Extract file data from a data record
+     *
+     * @param DataRow $dataRow The data row to extract files from
+     * @return array Array of file paths keyed by field name
+     */
+    private function extractFileDataFromRecord(DataRow $dataRow): array
+    {
+        $fileData = [];
+
+        // Get all data cells for this row
+        $dataCells = $this->entityManager->getRepository(DataCell::class)->findBy([
+            'dataRow' => $dataRow
+        ]);
+
+        foreach ($dataCells as $dataCell) {
+            $fieldName = $dataCell->getDataCol()->getName();
+            $fieldValue = $dataCell->getValue();
+
+            // Check if this field contains file information
+            if ($this->formFileUploadService->isFileInputField($fieldName, $dataRow->getDataTable()->getId())) {
+                try {
+                    // Try to decode as JSON (for multiple files)
+                    $decoded = json_decode($fieldValue, true);
+                    if (is_array($decoded)) {
+                        // Multiple files
+                        $fileData[$fieldName] = array_filter($decoded, function($path) {
+                            return is_string($path) && str_contains($path, 'uploads/form-files/');
+                        });
+                    } elseif (is_string($fieldValue) && str_contains($fieldValue, 'uploads/form-files/')) {
+                        // Single file
+                        $fileData[$fieldName] = $fieldValue;
+                    }
+                } catch (\Exception $e) {
+                    // If JSON parsing fails, check if it's a direct file path
+                    if (is_string($fieldValue) && str_contains($fieldValue, 'uploads/form-files/')) {
+                        $fileData[$fieldName] = $fieldValue;
+                    }
+                }
+            }
+        }
+
+        return $fileData;
     }
 
     /**

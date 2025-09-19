@@ -24,7 +24,12 @@
           {"type": "string", "maxLength": 65535},
           {"type": "number"},
           {"type": "boolean"},
-          {"type": "null"}
+          {"type": "null"},
+          {
+            "type": ["array", "object"],
+            "items": {"type": "string", "maxLength": 65535},
+            "description": "Array of filenames for file input fields"
+          }
         ]
       },
       "patternProperties": {
