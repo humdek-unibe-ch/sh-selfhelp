@@ -85,12 +85,20 @@ class DataService extends BaseService
                 if ($existingRecord) {
                     $recordId = $this->updateExistingRecord($existingRecord['record_id'], $data, $transactionBy);
                     $this->entityManager->commit();
-                    
+
                     // Invalidate data table cache after updating record
                     $this->cache
                         ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                         ->invalidateAllListsInCategory();
-                    
+
+                    $this->cache
+                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                        ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+
+                    $this->cache
+                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                        ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $currentUser->getId());
+
                     return $recordId;
                 } elseif (count($updateBasedOn) > 0) {
                     // Trying to update non-existent record
@@ -103,12 +111,12 @@ class DataService extends BaseService
             $recordId = $this->createNewRecord($dataTable, $data, $transactionBy);
 
             $this->entityManager->commit();
-            
+
             // Invalidate data table cache after creating new record
             $this->cache
                 ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
-            
+
             return $recordId;
 
         } catch (\Throwable $e) {
@@ -180,6 +188,10 @@ class DataService extends BaseService
                 ->withCategory(CacheService::CATEGORY_DATA_TABLES)
                 ->invalidateAllListsInCategory();
 
+            $this->cache
+                ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataRow->getDataTable()->getId());
+
             return true;
 
         } catch (\Throwable $e) {
@@ -218,7 +230,7 @@ class DataService extends BaseService
                     $decoded = json_decode($fieldValue, true);
                     if (is_array($decoded)) {
                         // Multiple files
-                        $fileData[$fieldName] = array_filter($decoded, function($path) {
+                        $fileData[$fieldName] = array_filter($decoded, function ($path) {
                             return is_string($path) && str_contains($path, 'uploads/form-files/');
                         });
                     } elseif (is_string($fieldValue) && str_contains($fieldValue, 'uploads/form-files/')) {
