@@ -1,6 +1,6 @@
-drop view if exists view_fields;
-create view view_fields
-as
-select cast(f.id as unsigned) as field_id, f.name as field_name, f.display, cast(ft.id as unsigned) as field_type_id, ft.name as field_type, ft.position
-from fields f
-left join fieldType ft on (f.id_type = ft.id);
+DROP VIEW IF EXISTS view_fields;
+CREATE VIEW view_fields
+AS
+SELECT f.id AS field_id, f.`name` AS field_name, f.display, ft.id AS field_type_id, ft.`name` AS field_type, ft.position, f.config
+FROM `fields` f
+LEFT JOIN fieldType ft ON (f.id_type = ft.id);

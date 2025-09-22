@@ -4312,13 +4312,13 @@ DELIMITER ;
 DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
 'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox', 'div', 'htmlTag',
-'textarea', 'formUserInputRecord', 'formUserInputLog');
+'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput');
 
 DELETE FROM styles
-WHERE `name` = 'formUserInputLog';
+WHERE `name` = 'html-tag';
 
 DELETE FROM `fields`
-WHERE `name` IN ('ajax', 'redirect_at_end');
+WHERE `name` IN ('ajax', 'redirect_at_end', 'html_tag');
 
 DELETE FROM styles_fields
 WHERE id_fields IN (SELECT id FROM fields WHERE `name` IN ('height', 'width') AND id_styles = get_style_id('image'));  

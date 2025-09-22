@@ -470,7 +470,11 @@ class DataService extends BaseService
      */
     public function getFormRecordData(string $dataTableName): array
     {
-        $dataTableId = $this->dataTableRepository->findOneBy(['name' => $dataTableName])->getId();
+        $dataTable = $this->dataTableRepository->findOneBy(['name' => $dataTableName]);
+        if (!$dataTable) {
+            return [];
+        }
+        $dataTableId = $dataTable->getId();
         $data = $this->getData($dataTableId, 'ORDER BY record_id DESC LIMIT 1', true, $this->userContextService->getCurrentUser()->getId(), false, true);
         return $data;
     }
