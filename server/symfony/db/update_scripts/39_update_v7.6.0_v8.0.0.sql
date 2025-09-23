@@ -4312,10 +4312,10 @@ DELIMITER ;
 DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
 'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox', 'div', 'htmlTag',
-'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput');
+'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput', 'profile');
 
 DELETE FROM styles
-WHERE `name` = 'html-tag';
+WHERE `name` = 'profile';
 
 DELETE FROM `fields`
 WHERE `name` IN ('ajax', 'redirect_at_end', 'html_tag');

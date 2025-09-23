@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Update Name Request",
+  "description": "Schema for updating a user's name",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "The new name for the user"
+    }
+  },
+  "required": ["name"],
+  "additionalProperties": false
+}

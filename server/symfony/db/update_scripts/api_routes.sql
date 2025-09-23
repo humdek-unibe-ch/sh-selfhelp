@@ -1331,3 +1331,11 @@ WHERE ar.route_name IN ('admin_cache_reset_stats_v1');
 -- This follows security best practices by keeping JWT tokens minimal and fetching user data on-demand
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('auth_user_data_get_v1', 'v1', '/auth/user-data', 'App\\Controller\\Api\\V1\\Auth\\UserDataController::getCurrentUserData', 'GET', NULL, NULL);
+
+-- User Profile Management API Routes
+-- Added endpoints for user profile management: name change, password change, and account deletion
+-- All endpoints require JWT authentication and return appropriate responses
+INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
+('auth_user_name_update_v1', 'v1', '/auth/user/name', 'App\\Controller\\Api\\V1\\Auth\\ProfileController::updateName', 'PUT', NULL, NULL),
+('auth_user_password_update_v1', 'v1', '/auth/user/password', 'App\\Controller\\Api\\V1\\Auth\\ProfileController::updatePassword', 'PUT', NULL, NULL),
+('auth_user_account_delete_v1', 'v1', '/auth/user/account', 'App\\Controller\\Api\\V1\\Auth\\ProfileController::deleteAccount', 'DELETE', NULL, NULL);
