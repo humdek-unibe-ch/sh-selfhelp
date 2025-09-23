@@ -104,8 +104,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $password = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $id_genders = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     private bool $blocked = false;
@@ -144,9 +142,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(name: 'id_userTypes', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE', options: ['default' => 72])] //TODO: set default value to user type dynamically
     private ?Lookup $userType = null;
 
-    #[ORM\ManyToOne(targetEntity: Gender::class)]
-    #[ORM\JoinColumn(name: 'id_genders', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
-    private ?Gender $gender = null;
 
     #[ORM\ManyToOne(targetEntity: Lookup::class)]
     #[ORM\JoinColumn(name: 'id_status', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
@@ -214,13 +209,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->userType = $userType;
         return $this;
     }
-
-    public function getIdGenders(): ?int
-    {
-        return $this->id_genders;
-    }
-
-
 
     public function isBlocked(): ?bool
     {
@@ -575,16 +563,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGender(): ?Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(?Gender $gender): self
-    {
-        $this->gender = $gender;
-        return $this;
-    }
 
     public function getLanguage(): ?Language
     {

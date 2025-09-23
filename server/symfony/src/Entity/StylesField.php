@@ -29,7 +29,7 @@ class StylesField
         return $this;
     }
 
-    #[ORM\Column(name: 'default_value', type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'default_value', type: 'string', length: 1000, nullable: true)]
     private ?string $defaultValue = null;
 
     #[ORM\Column(name: 'help', type: 'text', nullable: true)]

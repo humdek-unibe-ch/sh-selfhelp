@@ -104,7 +104,7 @@ class UserValidationController extends AbstractController
     }
 
     /**
-     * Complete user validation with password, name, gender and additional form inputs
+     * Complete user validation with password, name and additional form inputs
      *
      * @route /validate/{user_id}/{token}/complete
      * @method POST
@@ -130,7 +130,6 @@ class UserValidationController extends AbstractController
             // Extract user data
             $password = $data['password'] ?? null;
             $name = $data['name'] ?? null;
-            $gender = $data['gender'] ?? null;
             $formInputs = $data['form_inputs'] ?? [];
             $sectionId = $data['section_id'] ?? null;
 
@@ -165,17 +164,6 @@ class UserValidationController extends AbstractController
                 // Update name if provided
                 if ($name) {
                     $user->setName($name);
-                }
-
-                // Update gender if provided
-                if ($gender) {
-                    // Find gender by name (case-insensitive)
-                    $genderEntity = $this->entityManager->getRepository(\App\Entity\Gender::class)
-                        ->findOneBy(['name' => ucfirst(strtolower($gender))]);
-
-                    if ($genderEntity) {
-                        $user->setGender($genderEntity);
-                    }
                 }
 
                 $this->entityManager->flush();

@@ -4342,7 +4342,9 @@ UPDATE `fields`
 SET id_type = get_field_type_id('text')
 WHERE `name` IN ('value');
 
-ALTER TABLE `styles_fields` CHANGE `default_value` `default_value` VARCHAR(1000) NOT NULL;
+ALTER TABLE styles_fields CHANGE default_value default_value VARCHAR(1000) DEFAULT NULL;
+
+CALL drop_index('transactions', 'idx_transactions_table_name');
 
 
 -- Section Management API Enhancement
@@ -4382,5 +4384,11 @@ CREATE TABLE IF NOT EXISTS `styles_allowed_relationships` (
   COMMENT='Defines allowed parent-child relationships between styles';
   ALTER TABLE styles_allowed_relationships CHANGE id_parent_style id_parent_style INT NOT NULL, CHANGE id_child_style id_child_style INT NOT NULL;
 
+
+-- Drop gender-related foreign keys and columns before dropping the genders table
+CALL drop_foreign_key('sections_fields_translation', 'FK_EC5054155D8601CD');
+CALL drop_foreign_key('users', 'FK_1483A5E95D8601CD');
+CALL drop_table_column('sections_fields_translation', 'id_genders');
+CALL drop_table_column('users', 'id_genders');
 
 DROP TABLE IF EXISTS genders;

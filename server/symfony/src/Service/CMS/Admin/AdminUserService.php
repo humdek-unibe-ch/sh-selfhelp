@@ -7,7 +7,6 @@ use App\Entity\Group;
 use App\Entity\Role;
 use App\Entity\ValidationCode;
 use App\Entity\UsersGroup;
-use App\Entity\Gender;
 use App\Entity\Language;
 use App\Repository\UserRepository;
 use App\Service\Core\LookupService;
@@ -647,15 +646,10 @@ class AdminUserService extends BaseService
     }
 
     /**
-     * Set user related entities (gender, language, user type)
+     * Set user related entities (language, user type)
      */
     private function setUserRelatedEntities(User $user, array $userData): void
     {
-        if (isset($userData['id_genders'])) {
-            $gender = $this->entityManager->getRepository(Gender::class)->find($userData['id_genders']);
-            $user->setGender($gender);
-        }
-
         if (isset($userData['id_languages'])) {
             $language = $this->entityManager->getRepository(Language::class)->find($userData['id_languages']);
             $user->setLanguage($language);
@@ -845,7 +839,6 @@ class AdminUserService extends BaseService
 
         return array_merge($basic, [
             'user_name' => $user->getUserName(),
-            'id_genders' => $user->getGender()?->getId(),
             'id_languages' => $user->getLanguage()?->getId(),
             'id_userTypes' => $user->getUserType()?->getId(),
             'groups' => $fresh ? $this->fetchUserGroupsFromEntity($user) : $this->getUserGroups($user->getId()),

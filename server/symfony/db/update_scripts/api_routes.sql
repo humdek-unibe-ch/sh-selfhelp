@@ -418,7 +418,6 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'password', JSON_OBJECT('in', 'body', 'required', false),
     'user_type_id', JSON_OBJECT('in', 'body', 'required', false),
     'blocked', JSON_OBJECT('in', 'body', 'required', false),
-    'id_genders', JSON_OBJECT('in', 'body', 'required', false),
     'id_languages', JSON_OBJECT('in', 'body', 'required', false),
     'validation_code', JSON_OBJECT('in', 'body', 'required', true),
     'group_ids', JSON_OBJECT('in', 'body', 'type', 'array', 'required', false),
@@ -434,7 +433,6 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'password', JSON_OBJECT('in', 'body', 'required', false),
     'user_type_id', JSON_OBJECT('in', 'body', 'required', false),
     'blocked', JSON_OBJECT('in', 'body', 'required', false),
-    'id_genders', JSON_OBJECT('in', 'body', 'required', false),
     'id_languages', JSON_OBJECT('in', 'body', 'required', false)
 ));
 
@@ -844,10 +842,6 @@ WHERE ar.`route_name` IN (
 );
 
 
--- Admin Gender routes
-INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
-('admin_genders_get_all_v1', 'v1', '/admin/genders', 'App\\Controller\\Api\\V1\\Admin\\AdminGenderController::getAllGenders', 'GET', NULL, NULL);
-
 -- Admin CMS Preferences routes
 INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, `methods`, `requirements`, `params`) VALUES
 ('admin_cms_preferences_get_v1', 'v1', '/admin/cms-preferences', 'App\\Controller\\Api\\V1\\Admin\\AdminCmsPreferenceController::getCmsPreferences', 'GET', NULL, NULL);
@@ -914,7 +908,6 @@ WHERE `route_name` = 'admin_assets_create_v1';
 -- Create permissions for new features
 INSERT IGNORE INTO `permissions` (`name`, `description`)
 VALUES
-  ('admin.gender.read', 'Can read genders'),
   ('admin.cms_preferences.read', 'Can read CMS preferences'),
   ('admin.cms_preferences.update', 'Can update CMS preferences'),
   ('admin.asset.read', 'Can read assets'),
@@ -923,24 +916,13 @@ VALUES
 
 -- Grant new permissions to admin role
 INSERT IGNORE INTO `roles_permissions` (`id_roles`, `id_permissions`)
-SELECT r.id, p.id FROM roles r, permissions p 
+SELECT r.id, p.id FROM roles r, permissions p
 WHERE r.name = 'admin' AND p.name IN (
-  'admin.gender.read', 'admin.cms_preferences.read', 'admin.cms_preferences.update',
+  'admin.cms_preferences.read', 'admin.cms_preferences.update',
   'admin.asset.read', 'admin.asset.create', 'admin.asset.delete'
 );
 
 -- Link new routes to permissions
-INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
-SELECT
-  ar.`id`      AS id_api_routes,
-  p.`id`       AS id_permissions
-FROM `api_routes`     AS ar
-JOIN `permissions`   AS p
-  ON p.`name` = 'admin.gender.read'
-WHERE ar.`route_name` IN (
-  'admin_genders_get_all_v1'
-);
-
 INSERT IGNORE INTO `api_routes_permissions` (`id_api_routes`, `id_permissions`)
 SELECT
   ar.`id`      AS id_api_routes,
