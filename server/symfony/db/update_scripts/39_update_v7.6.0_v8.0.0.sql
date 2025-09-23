@@ -4312,10 +4312,11 @@ DELIMITER ;
 DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
 'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox', 'div', 'htmlTag',
-'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput', 'profile');
+'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput', 'profile', 'resetPasword',
+'validate');
 
 DELETE FROM styles
-WHERE `name` = 'profile';
+WHERE `name` = 'validate';
 
 DELETE FROM `fields`
 WHERE `name` IN ('ajax', 'redirect_at_end', 'html_tag');
@@ -4382,3 +4383,4 @@ CREATE TABLE IF NOT EXISTS `styles_allowed_relationships` (
   ALTER TABLE styles_allowed_relationships CHANGE id_parent_style id_parent_style INT NOT NULL, CHANGE id_child_style id_child_style INT NOT NULL;
 
 
+DROP TABLE IF EXISTS genders;

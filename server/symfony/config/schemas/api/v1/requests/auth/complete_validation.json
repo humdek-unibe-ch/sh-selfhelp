@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Complete Validation Request",
+  "description": "Schema for completing user account validation with password, profile data, and form inputs",
+  "type": "object",
+  "properties": {
+    "password": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 255,
+      "description": "The user's new password"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "The user's full name"
+    },
+    "section_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The ID of the validation section/form"
+    },
+    "form_inputs": {
+      "type": ["object", "array"],
+      "description": "Additional form inputs to save with the user validation",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "array", "object"]
+      }
+    }
+  },
+  "required": ["password", "name"],
+  "additionalProperties": false
+}

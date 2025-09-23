@@ -267,7 +267,9 @@ class JobSchedulerService extends BaseService
             $jobData['users'] = [$userId];
         }
 
-        return $this->scheduleJob($jobData, $this->lookupService::TRANSACTION_BY_BY_SYSTEM);
+        $job =  $this->scheduleJob($jobData, $this->lookupService::TRANSACTION_BY_BY_SYSTEM);
+
+        return $job ? $job->getId() : false;
     }
 
     /**
@@ -436,11 +438,12 @@ class JobSchedulerService extends BaseService
             $this->em->persist($scheduledJobUser);
             $this->cache
                 ->withCategory(CacheService::CATEGORY_SCHEDULED_JOBS)
-                ->withEntityScope(CacheService::ENTITY_SCOPE_SCHEDULED_JOB, $job->getId())
-                ->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId)
-                ->invalidateUserInCategory();
+                ->invalidateAllListsInCategory();
+
+            $this->cache
+                ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
         }
-        
+
         $this->em->flush();
     }
 

@@ -128,6 +128,10 @@ INSERT IGNORE INTO `api_routes` (`route_name`, `version`, `path`, `controller`, 
     'user_id', '[0-9]+',
     'token', '[a-f0-9]{32}'
 ), NULL),
+('user_complete_validation', 'v1', '/validate/{user_id}/{token}/complete', 'App\\Controller\\Api\\V1\\Auth\\UserValidationController::completeValidation', 'POST', JSON_OBJECT(
+    'user_id', '[0-9]+',
+    'token', '[a-f0-9]{32}'
+), NULL),
 
 -- Admin routes
 ('admin_lookups', 'v1', '/admin/lookups', 'App\\Controller\\Api\\V1\\Admin\\Common\\LookupController::getAllLookups', 'GET', NULL, NULL),

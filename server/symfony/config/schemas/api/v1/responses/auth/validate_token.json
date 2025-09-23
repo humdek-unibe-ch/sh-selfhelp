@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Validate Token Response",
+  "description": "Schema for validating a user account validation token",
+  "allOf": [
+    { "$ref": "../common/_response_envelope.json" }
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "description": "User ID"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address"
+        },
+        "name": {
+          "type": ["string", "null"],
+          "description": "User's name"
+        },
+        "token_valid": {
+          "type": "boolean",
+          "description": "Whether the token is valid"
+        },
+        "message": {
+          "type": "string",
+          "description": "Validation message"
+        }
+      },
+      "required": [
+        "user_id",
+        "email",
+        "token_valid",
+        "message"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

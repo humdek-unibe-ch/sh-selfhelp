@@ -114,14 +114,6 @@ class UserValidationService extends BaseService
                 ];
             }
 
-            // Check if user is already validated
-            if (!$user->isBlocked()) {
-                return [
-                    'success' => false,
-                    'error' => 'User account is already validated'
-                ];
-            }
-
             // Activate the user account
             $user->setBlocked(false);
             
