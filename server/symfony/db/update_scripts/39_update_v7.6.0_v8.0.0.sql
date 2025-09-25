@@ -4313,7 +4313,7 @@ DELETE FROM styles
 WHERE `name` IN ('tabs', 'tab', 'progressBar', 'table', 'tableRow', 'tableCell', 'accordion', '', 
 'card', 'alert', 'radioGroup', 'radio-group', 'radio', 'carousel', 'container', 'slider', 'checkbox', 'div', 'htmlTag',
 'textarea', 'formUserInputRecord', 'formUserInputLog', 'htmlTag', 'table', 'tableRow', 'tableCell', 'showUserInput', 'profile', 'resetPasword',
-'validate');
+'validate', 'heading', 'markdown', 'plaintext');
 
 DELETE FROM styles
 WHERE `name` = 'validate';
