@@ -52,7 +52,7 @@ class AdminDataController extends AbstractController
 
     /**
      * Get data rows from a data table
-     * Supported query params: table_name (string, required), user_id (int|null), exclude_deleted (bool, default true)
+     * Supported query params: table_name (string, required), user_id (int|null), exclude_deleted (bool, default true), language_id (int, default 1)
      * Other legacy parameters are fixed: filter = '', own_entries_only = false, db_first = false
      */
     public function getData(Request $request): JsonResponse
@@ -70,9 +70,10 @@ class AdminDataController extends AbstractController
 
             $userId = $request->query->has('user_id') ? (int)$request->query->get('user_id') : null;
             $excludeDeleted = filter_var($request->query->get('exclude_deleted', 'true'), FILTER_VALIDATE_BOOLEAN);
+            $languageId = $request->query->has('language_id') ? (int)$request->query->get('language_id') : 1;
 
             // filter = '', ownEntriesOnly = false, dbFirst = false
-            $rows = $this->dataService->getData($dataTable->getId(), '', false, $userId, false, $excludeDeleted);
+            $rows = $this->dataService->getData($dataTable->getId(), '', false, $userId, false, $excludeDeleted, $languageId);
 
             return $this->responseFormatter->formatSuccess(['rows' => $rows]);
         } catch (ServiceException $e) {
