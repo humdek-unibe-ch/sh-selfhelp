@@ -223,6 +223,19 @@ class FormValidationService extends BaseService
                 }
             }
 
+            // Handle translation arrays (new feature)
+            if (is_array($fieldValue) && !empty($fieldValue) && isset($fieldValue[0]['language_id'])) {
+                // Validate translation array format
+                if (!$this->isValidTranslationArray($fieldValue)) {
+                    throw new ServiceException(
+                        "Field '{$fieldName}' contains invalid translation data format",
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+                // Translation array is valid, continue to next field
+                continue;
+            }
+
             // Convert values to strings and check length for non-file fields
             if ($fieldValue !== null && !is_scalar($fieldValue)) {
                 throw new ServiceException(
@@ -272,6 +285,46 @@ class FormValidationService extends BaseService
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Check if an array contains valid translation data
+     *
+     * @param array $translationArray The array to validate
+     * @return bool True if valid translation array
+     */
+    private function isValidTranslationArray(array $translationArray): bool
+    {
+        if (!is_array($translationArray) || empty($translationArray)) {
+            return false;
+        }
+
+        foreach ($translationArray as $translation) {
+            // Each translation must be an object with language_id and value
+            if (!is_array($translation) ||
+                !isset($translation['language_id']) ||
+                !isset($translation['value'])) {
+                return false;
+            }
+
+            // language_id must be a positive integer
+            if (!is_int($translation['language_id']) || $translation['language_id'] < 1) {
+                return false;
+            }
+
+            // value can be string, number, boolean, or null
+            $value = $translation['value'];
+            if ($value !== null && !is_scalar($value)) {
+                return false;
+            }
+
+            // If value is string, check length
+            if (is_string($value) && strlen($value) > 65535) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -19,6 +19,11 @@ class DataCell
     #[ORM\JoinColumn(name: 'id_dataCols', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?DataCol $dataCol = null;
 
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Language::class)]
+    #[ORM\JoinColumn(name: 'language_id', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false, options: ['default' => 1])]
+    private ?Language $language = null;
+
     #[ORM\Column(name: 'value', type: 'text')]
     private string $value = '';
 
@@ -39,6 +44,16 @@ class DataCell
     public function setDataCol(?DataCol $dataCol): static
     {
         $this->dataCol = $dataCol;
+        return $this;
+    }
+
+    public function getLanguage(): ?Language
+    {
+        return $this->language;
+    }
+    public function setLanguage(?Language $language): static
+    {
+        $this->language = $language;
         return $this;
     }
 

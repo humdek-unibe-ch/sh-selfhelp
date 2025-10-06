@@ -6,6 +6,7 @@ use App\Entity\DataTable;
 use App\Entity\DataRow;
 use App\Entity\DataCol;
 use App\Entity\DataCell;
+use App\Entity\Language;
 use App\Entity\Lookup;
 use App\Exception\ServiceException;
 use App\Repository\DataTableRepository;
@@ -214,7 +215,7 @@ class DataService extends BaseService
     {
         $fileData = [];
 
-        // Get all data cells for this row
+        // Get all data cells for this row (across all languages)
         $dataCells = $this->entityManager->getRepository(DataCell::class)->findBy([
             'dataRow' => $dataRow
         ]);
@@ -303,18 +304,52 @@ class DataService extends BaseService
         foreach ($data as $fieldName => $fieldValue) {
             $column = $columns[$fieldName];
 
-            // Find existing cell or create new one
-            $dataCell = $this->entityManager->getRepository(DataCell::class)
-                ->findOneBy(['dataRow' => $dataRow, 'dataCol' => $column]);
+            // Handle language-specific data
+            if (is_array($fieldValue) && !empty($fieldValue) && isset($fieldValue[0]['language_id'])) {
+                // Multi-language field: array of {language_id, value} objects
+                foreach ($fieldValue as $languageData) {
+                    if (isset($languageData['language_id']) && isset($languageData['value'])) {
+                        $language = $this->entityManager->getRepository(Language::class)->find($languageData['language_id']);
+                        if ($language) {
+                            // Find existing cell or create new one for this language
+                            $dataCell = $this->entityManager->getRepository(DataCell::class)
+                                ->findOneBy(['dataRow' => $dataRow, 'dataCol' => $column, 'language' => $language]);
 
-            if (!$dataCell) {
-                $dataCell = new DataCell();
-                $dataCell->setDataRow($dataRow);
-                $dataCell->setDataCol($column);
-                $this->entityManager->persist($dataCell);
+                            if (!$dataCell) {
+                                $dataCell = new DataCell();
+                                $dataCell->setDataRow($dataRow);
+                                $dataCell->setDataCol($column);
+                                $dataCell->setLanguage($language);
+                                $this->entityManager->persist($dataCell);
+                            }
+
+                            $dataCell->setValue($languageData['value'] ?? '');
+                        }
+                    }
+                }
+            } else {
+                // Single language field (default language 1)
+                $defaultLanguage = $this->entityManager->getRepository(Language::class)->find(1);
+                if ($defaultLanguage) {
+                    // Find existing cell or create new one for default language
+                    $dataCell = $this->entityManager->getRepository(DataCell::class)
+                        ->findOneBy(['dataRow' => $dataRow, 'dataCol' => $column, 'language' => $defaultLanguage]);
+
+                    if (!$dataCell) {
+                        $dataCell = new DataCell();
+                        $dataCell->setDataRow($dataRow);
+                        $dataCell->setDataCol($column);
+                        $dataCell->setLanguage($defaultLanguage);
+                        $this->entityManager->persist($dataCell);
+                    }
+
+                    //if field value is empty array, set it to []
+                    if (is_array($fieldValue) && empty($fieldValue)) {
+                        $fieldValue = '[]';
+                    }
+                    $dataCell->setValue($fieldValue ?? '');
+                }
             }
-
-            $dataCell->setValue($fieldValue ?? '');
         }
 
         // Log transaction
@@ -362,16 +397,38 @@ class DataService extends BaseService
         foreach ($data as $fieldName => $fieldValue) {
             $column = $columns[$fieldName];
 
-            $dataCell = new DataCell();
-            $dataCell->setDataRow($dataRow);
-            $dataCell->setDataCol($column);
-            //if field value is emty array, set it to []
-            if (is_array($fieldValue) && empty($fieldValue)) {
-                $fieldValue = '[]';
+            // Handle language-specific data
+            if (is_array($fieldValue) && !empty($fieldValue) && isset($fieldValue[0]['language_id'])) {
+                // Multi-language field: array of {language_id, value} objects
+                foreach ($fieldValue as $languageData) {
+                    if (isset($languageData['language_id']) && isset($languageData['value'])) {
+                        $language = $this->entityManager->getRepository(Language::class)->find($languageData['language_id']);
+                        if ($language) {
+                            $dataCell = new DataCell();
+                            $dataCell->setDataRow($dataRow);
+                            $dataCell->setDataCol($column);
+                            $dataCell->setLanguage($language);
+                            $dataCell->setValue($languageData['value'] ?? '');
+                            $this->entityManager->persist($dataCell);
+                        }
+                    }
+                }
+            } else {
+                // Single language field (default language 1)
+                $defaultLanguage = $this->entityManager->getRepository(Language::class)->find(1);
+                if ($defaultLanguage) {
+                    $dataCell = new DataCell();
+                    $dataCell->setDataRow($dataRow);
+                    $dataCell->setDataCol($column);
+                    $dataCell->setLanguage($defaultLanguage);
+                    //if field value is empty array, set it to []
+                    if (is_array($fieldValue) && empty($fieldValue)) {
+                        $fieldValue = '[]';
+                    }
+                    $dataCell->setValue($fieldValue ?? '');
+                    $this->entityManager->persist($dataCell);
+                }
             }
-            $dataCell->setValue($fieldValue ?? '');
-
-            $this->entityManager->persist($dataCell);
         }
 
         // Log transaction
@@ -494,7 +551,8 @@ class DataService extends BaseService
         bool $ownEntriesOnly = true,
         ?int $userId = null,
         bool $dbFirst = false,
-        bool $excludeDeleted = true
+        bool $excludeDeleted = true,
+        int $languageId = 1
     ): array {
         try {
             // Guard: ignore malformed dynamic filter attempts
@@ -517,7 +575,8 @@ class DataService extends BaseService
                 $dataTableId,
                 $resolvedUserId,
                 $filter,
-                $excludeDeleted
+                $excludeDeleted,
+                $languageId
             );
 
             if ($dbFirst) {

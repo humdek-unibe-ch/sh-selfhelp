@@ -26,6 +26,27 @@
           {"type": "boolean"},
           {"type": "null"},
           {
+            "type": "array",
+            "description": "Array of translation objects",
+            "items": {
+              "type": "object",
+              "required": ["language_id", "value"],
+              "properties": {
+                "language_id": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Language ID for the translation"
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"],
+                  "maxLength": 65535,
+                  "description": "Translated value"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
             "type": ["array", "object"],
             "items": {"type": "string", "maxLength": 65535},
             "description": "Array of filenames or empty object for file input fields"

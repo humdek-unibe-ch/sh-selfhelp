@@ -4392,3 +4392,180 @@ CALL drop_table_column('sections_fields_translation', 'id_genders');
 CALL drop_table_column('users', 'id_genders');
 
 DROP TABLE IF EXISTS genders;
+
+-- =================================================
+-- Data Tables Translation System
+-- =================================================
+-- This script adds language support to the dataCells table
+-- allowing for multi-language content in data tables.
+--
+-- Translation Logic:
+-- - Language ID 1 is the default/internal language (non-translatable)
+-- - Language ID > 1 are translatable languages
+-- - If a cell has language_id = 1, it cannot have translations
+-- - If a cell has language_id > 1, it can have multiple translations
+-- - When retrieving data, always include language 1 + requested language
+--
+-- Usage in get_dataTable_with_filter:
+-- - Default language_id = 1 (returns only internal language)
+-- - Specify language_id > 1 to get translations where available
+-- =================================================
+
+-- Add language_id column to dataCells table
+CALL add_table_column('dataCells', 'language_id', 'int NOT NULL DEFAULT 1');
+
+-- Add foreign key constraint to languages table
+CALL add_foreign_key('dataCells', 'FK_dataCells_languages', 'language_id', 'languages(id)');
+
+-- Update primary key to include language_id
+-- First drop existing primary key
+ALTER TABLE `dataCells` DROP PRIMARY KEY;
+
+-- Add new composite primary key
+ALTER TABLE `dataCells` ADD PRIMARY KEY (`id_dataRows`, `id_dataCols`, `language_id`);
+
+-- Add index for better performance on language queries
+CALL add_index('dataCells', 'IDX_726A5F2582F1BAF4', 'language_id', FALSE);
+
+-- =================================================
+-- Update get_dataTable_with_filter stored procedure
+-- =================================================
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS `get_dataTable_with_filter`$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_dataTable_with_filter`(
+	IN table_id_param INT,
+	IN user_id_param INT,
+	IN filter_param VARCHAR(1000),
+	IN exclude_deleted_param BOOLEAN, -- If true it will exclude the deleted records and it will not return them
+	IN language_id_param INT -- Language ID for translations (default 1 = internal language only)
+)
+    READS SQL DATA
+    DETERMINISTIC
+BEGIN
+	SET @@group_concat_max_len = 32000000;
+	SET @sql = NULL;
+
+	-- Build the dynamic column selection (same as before)
+	SELECT
+	GROUP_CONCAT(DISTINCT
+		CONCAT(
+			'MAX(CASE WHEN col.`name` = "',
+				col.name,
+				'" THEN `value` END) AS `',
+			replace(col.name, ' ', ''), '`'
+		)
+	) INTO @sql
+	FROM  dataTables t
+	INNER JOIN dataCols col on (t.id = col.id_dataTables)
+	WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code');
+
+	IF (@sql is null) THEN
+		SELECT `name` from view_dataTables where 1=2;
+	ELSE
+		BEGIN
+			-- User filter (same as before)
+			SET @user_filter = '';
+			IF user_id_param > 0 THEN
+				SET @user_filter = CONCAT(' AND r.id_users = ', user_id_param);
+			END IF;
+
+			-- Time period filter (same as before)
+			SET @time_period_filter = '';
+			CASE
+				WHEN filter_param LIKE '%LAST_HOUR%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
+				WHEN filter_param LIKE '%LAST_DAY%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 DAY';
+				WHEN filter_param LIKE '%LAST_WEEK%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 WEEK';
+				WHEN filter_param LIKE '%LAST_MONTH%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 MONTH';
+				WHEN filter_param LIKE '%LAST_YEAR%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 YEAR';
+				ELSE
+					SET @time_period_filter = '';
+			END CASE;
+
+			-- Exclude deleted filter (same as before)
+			SET @exclude_deleted_filter = '';
+			CASE
+				WHEN exclude_deleted_param = TRUE THEN
+					SET @exclude_deleted_filter = CONCAT(' AND IFNULL(r.id_actionTriggerTypes, 0) <> ', (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' LIMIT 0,1));
+				ELSE
+					SET @exclude_deleted_filter = '';
+			END CASE;
+
+			-- Language filter for translations
+			-- Always include language 1 (internal), and also include the requested language if different
+			SET @language_filter = '';
+			IF language_id_param IS NULL OR language_id_param = 1 THEN
+				-- Default: only internal language (language_id = 1)
+				SET @language_filter = ' AND cell.language_id = 1';
+			ELSE
+				-- Include both internal language (1) and requested language
+				-- This ensures we always have fallback to language 1, and translations where available
+				SET @language_filter = CONCAT(' AND cell.language_id IN (1, ', language_id_param, ')');
+			END IF;
+
+			-- Build the main query with language filtering
+			SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id,
+					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, vc.code AS user_code, r.id_actionTriggerTypes, l.lookup_code AS triggerType,', @sql,
+					' FROM dataTables t
+					INNER JOIN dataRows r ON (t.id = r.id_dataTables)
+					INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
+					INNER JOIN dataCols col ON (col.id = cell.id_dataCols)
+					LEFT JOIN users u ON (r.id_users = u.id)
+					LEFT JOIN validation_codes vc ON (u.id = vc.id_users)
+					LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
+					WHERE t.id = ', table_id_param, @user_filter, @time_period_filter, @exclude_deleted_filter, @language_filter,
+					' GROUP BY r.id ) AS r WHERE 1=1  ', filter_param);
+
+			-- select @sql; -- Uncomment for debugging
+			PREPARE stmt FROM @sql;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+		END;
+	END IF;
+END$$
+
+DELIMITER ;
+
+-- =================================================
+-- Documentation: How the Translation System Works
+-- =================================================
+--
+-- 1. Table Structure Changes:
+--    - dataCells table now has language_id column (default 1)
+--    - Primary key is now (id_dataRows, id_dataCols, language_id)
+--    - Foreign key constraint to languages(id)
+--
+-- 2. Translation Logic:
+--    - Language ID 1 = Internal/Default language (cannot be translated)
+--    - Language ID 2+ = Translatable languages
+--    - Rule: If a cell exists with language_id = 1, it cannot have translations
+--    - Rule: If a cell exists with language_id > 1, it can have multiple translations
+--
+-- 3. Data Retrieval:
+--    - get_dataTable_with_filter now accepts language_id_param (default 1)
+--    - When language_id_param = 1: Returns only internal language data
+--    - When language_id_param > 1: Returns internal language + requested language translations
+--    - Translation fallback: Internal language (1) is always included as fallback
+--
+-- 4. Usage Examples:
+--    - CALL get_dataTable_with_filter(1, 0, '', FALSE, 1);     -- Internal language only
+--    - CALL get_dataTable_with_filter(1, 0, '', FALSE, 2);     -- Internal + language 2
+--    - CALL get_dataTable_with_filter(1, 0, '', FALSE, 3);     -- Internal + language 3
+--
+-- 5. Data Entry Rules:
+--    - New cells default to language_id = 1
+--    - To add translation: Insert new row with same id_dataRows/id_dataCols but different language_id
+--    - Cannot add language_id > 1 if language_id = 1 already exists for same cell
+--    - Can add multiple language_id > 1 for same cell (multiple translations)
+--
+-- 6. Migration Notes:
+--    - Existing data automatically gets language_id = 1 (default)
+--    - No data loss during migration
+--    - Backward compatible: existing calls work unchanged (default language_id = 1)

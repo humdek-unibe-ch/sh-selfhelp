@@ -18,7 +18,7 @@ class DataTableRepository extends ServiceEntityRepository
     /**
      * Calls the stored procedure get_dataTable_with_filter and returns the result.
      */
-    public function getDataTableWithFilter(int $tableId, int $userId, string $filter, bool $excludeDeleted): array
+    public function getDataTableWithFilter(int $tableId, int $userId, string $filter, bool $excludeDeleted, int $languageId = 1): array
     {
         $cache = $this->cache
             ->withCategory(CacheService::CATEGORY_DATA_TABLES)
@@ -27,14 +27,15 @@ class DataTableRepository extends ServiceEntityRepository
             $cache->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
         }
         return $cache
-            ->getList("data_table_with_filter_{$tableId}_{$userId}_{$filter}_{$excludeDeleted}", function () use ($tableId, $userId, $filter, $excludeDeleted) {
+            ->getList("data_table_with_filter_{$tableId}_{$userId}_{$filter}_{$excludeDeleted}_{$languageId}", function () use ($tableId, $userId, $filter, $excludeDeleted, $languageId) {
                 $conn = $this->getEntityManager()->getConnection();
-                $sql = 'CALL get_dataTable_with_filter(:tableId, :userId, :filter, :excludeDeleted)';
+                $sql = 'CALL get_dataTable_with_filter(:tableId, :userId, :filter, :excludeDeleted, :languageId)';
                 $stmt = $conn->prepare($sql);
                 $stmt->bindValue('tableId', $tableId, \PDO::PARAM_INT);
                 $stmt->bindValue('userId', $userId, \PDO::PARAM_INT);
                 $stmt->bindValue('filter', $filter, \PDO::PARAM_STR);
                 $stmt->bindValue('excludeDeleted', $excludeDeleted, \PDO::PARAM_BOOL);
+                $stmt->bindValue('languageId', $languageId, \PDO::PARAM_INT);
                 $result = $stmt->executeQuery();
 
                 return $result->fetchAllAssociative();

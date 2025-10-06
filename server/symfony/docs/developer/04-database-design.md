@@ -302,7 +302,206 @@ CREATE TABLE `fieldsTranslations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 ```
 
-### 6. System Tables
+### 6. Data Tables Translation System
+
+#### Overview
+The data tables translation system allows for multi-language support in dynamic data tables (`dataTables`, `dataRows`, `dataCols`, `dataCells`). This system enables storing and retrieving translated content for user-generated data in different languages while maintaining backward compatibility.
+
+#### Core Tables Structure
+
+#### `dataCells` - Data Cell Values with Language Support
+```sql
+CREATE TABLE `dataCells` (
+  `id_dataRows` int NOT NULL,
+  `id_dataCols` int NOT NULL,
+  `language_id` int NOT NULL DEFAULT 1,
+  `value` longtext NOT NULL,
+  PRIMARY KEY (`id_dataRows`,`id_dataCols`,`language_id`),
+  KEY `IDX_726A5F25F3854F45` (`id_dataRows`),
+  KEY `IDX_726A5F25B216B425` (`id_dataCols`),
+  KEY `IDX_dataCells_language` (`language_id`),
+  CONSTRAINT `FK_726A5F25B216B425` FOREIGN KEY (`id_dataCols`) REFERENCES `dataCols` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_726A5F25F3854F45` FOREIGN KEY (`id_dataRows`) REFERENCES `dataRows` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_dataCells_languages` FOREIGN KEY (`language_id`) REFERENCES `languages` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+```
+
+#### Translation Logic Rules
+
+1. **Language ID 1 (Internal/Default)**: Represents the internal language, cannot be translated
+2. **Language ID > 1 (Translatable)**: Can have multiple translations
+3. **Translation Rule**: If a cell exists with `language_id = 1`, it cannot have translations
+4. **Multi-translation Rule**: If a cell exists with `language_id > 1`, it can have multiple translations
+
+#### Data Retrieval with `get_dataTable_with_filter`
+
+The stored procedure `get_dataTable_with_filter` has been enhanced to support language filtering:
+
+```sql
+PROCEDURE `get_dataTable_with_filter`(
+    IN table_id_param INT,
+    IN user_id_param INT,
+    IN filter_param VARCHAR(1000),
+    IN exclude_deleted_param BOOLEAN,
+    IN language_id_param INT -- New parameter for language filtering
+)
+```
+
+**Language Filtering Behavior:**
+- `language_id_param = 1` or `NULL`: Returns only internal language data
+- `language_id_param > 1`: Returns internal language (1) + requested language translations
+- **Translation Fallback**: Internal language (1) is always included as fallback
+
+#### Usage Examples
+
+```sql
+-- Get data in internal language only (default behavior)
+CALL get_dataTable_with_filter(1, 0, '', FALSE, 1);
+
+-- Get data with English translations (includes fallback to internal)
+CALL get_dataTable_with_filter(1, 0, '', FALSE, 2);
+
+-- Get data with German translations (includes fallback to internal)
+CALL get_dataTable_with_filter(1, 0, '', FALSE, 3);
+```
+
+#### Data Entry Rules
+
+1. **Default Language**: New cells automatically get `language_id = 1`
+2. **Adding Translations**: Insert new rows with same `id_dataRows`/`id_dataCols` but different `language_id > 1`
+3. **Validation**: Cannot add `language_id > 1` if `language_id = 1` already exists for same cell
+4. **Multiple Translations**: Can add multiple `language_id > 1` for same cell (multiple translations)
+
+#### API Payload Format
+
+The `DataService::saveData()` method now supports two payload formats for form data:
+
+##### Simple Format (Backward Compatible)
+```json
+{
+  "page_id": 89,
+  "section_id": 229,
+  "form_data": {
+    "combo": null,
+    "rich": null,
+    "switch": "0",
+    "text": null
+  }
+}
+```
+All fields are saved with default language ID 1 (internal language).
+
+##### Multi-Language Format
+```json
+{
+  "page_id": 89,
+  "section_id": 229,
+  "form_data": {
+    "combo": null,
+    "rich": null,
+    "switch": "0",
+    "text": [
+      {
+        "language_id": 2,
+        "value": "german text"
+      },
+      {
+        "language_id": 3,
+        "value": "english text"
+      },
+      {
+        "language_id": 4,
+        "value": "french text"
+      }
+    ]
+  }
+}
+```
+
+**Multi-Language Field Rules:**
+- Field value must be an array of objects
+- Each object must have `language_id` and `value` properties
+- Multiple translations can be saved for the same field
+- Language ID 1 (internal) cannot have translations (enforced by application logic)
+
+##### Data Retrieval
+
+Use the `language_id` parameter in `getData()` method:
+
+```php
+// Get data in default language (1)
+$data = $dataService->getData($tableId, '', true, null, false, true, 1);
+
+// Get data with German translations (includes fallback to language 1)
+$data = $dataService->getData($tableId, '', true, null, false, true, 3);
+```
+
+#### JSON Schema Validation
+
+The API request schemas have been updated to support both simple and multi-language payloads:
+
+**Updated Schemas:**
+- `config/schemas/api/v1/requests/frontend/submit_form.json`
+- `config/schemas/api/v1/requests/frontend/update_form.json`
+
+**Supported Form Data Formats:**
+
+1. **Simple Values** (Backward Compatible):
+```json
+{
+  "page_id": 89,
+  "section_id": 229,
+  "form_data": {
+    "combo": null,
+    "rich": "<p>Simple content</p>",
+    "switch": "0",
+    "text": null
+  }
+}
+```
+
+2. **Multi-Language Arrays** (New Feature):
+```json
+{
+  "page_id": 89,
+  "section_id": 229,
+  "form_data": {
+    "combo": null,
+    "rich": [
+      {"language_id": 2, "value": "<p>German content</p>"},
+      {"language_id": 3, "value": "<p>English content</p>"},
+      {"language_id": 4, "value": "<p>French content</p>"}
+    ],
+    "switch": "0",
+    "text": null
+  }
+}
+```
+
+**Schema Validation Rules:**
+- Translation arrays must contain objects with `language_id` (integer ≥ 1) and `value` (string/number/boolean/null)
+- Simple values (string, number, boolean, null) remain supported
+- File input arrays and other array/object types still supported
+- Mixed simple and translation fields allowed in same form
+
+#### Application-Level Validation
+
+The `FormValidationService` has been updated to handle translation arrays:
+
+**Updated Validation Logic:**
+- `validateFormData()` now recognizes translation arrays by checking for `language_id` in the first array element
+- Translation arrays are validated using `isValidTranslationArray()` method
+- Each translation object must have required `language_id` (integer ≥ 1) and `value` (scalar) properties
+- String values in translations are limited to 65535 characters (TEXT field limit)
+
+#### Migration Notes
+
+- **Existing Data**: Automatically gets `language_id = 1` (no data loss)
+- **Backward Compatibility**: Existing API calls work unchanged (default `language_id = 1`)
+- **Performance**: New index on `language_id` for efficient language filtering
+- **Data Integrity**: Foreign key constraint ensures valid language references
+
+### 7. System Tables
 
 #### `transactions` - Audit Trail
 ```sql
@@ -400,7 +599,7 @@ INSERT INTO `fieldTypes` (`name`, `description`, `input_type`) VALUES
 ('NUMBER', 'Numeric input', 'number');
 ```
 
-### 7. Lookup Tables System
+### 8. Lookup Tables System
 
 #### `lookups` - Dynamic Lookup Values
 ```sql
