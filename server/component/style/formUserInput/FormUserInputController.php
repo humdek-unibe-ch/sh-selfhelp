@@ -29,8 +29,8 @@ class FormUserInputController extends BaseController
      */
     public function __construct($model)
     {
-        parent::__construct($model);    
-        $this->execute();    
+        parent::__construct($model);
+        $this->execute();
     }
 
     /* Private Methods ********************************************************/
@@ -49,31 +49,28 @@ class FormUserInputController extends BaseController
         $filter_rules = array();
         $field_names = array();
         $post = array();
-        foreach($_POST as $name => $values)
-        {
+        foreach ($_POST as $name => $values) {
             $type = ''; // reset type for each field
-            if(!isset($values['id'])){
+            if (!isset($values['id'])) {
                 $post[$name] = $values;
-                continue;   
+                continue;
             }
             $id_section = intval($values['id']);
-            if(!isset($values['value']))
+            if (!isset($values['value']))
                 $values['value'] = "";
             $value = $values['value'];
             $label = $this->model->get_field_label($id_section);
-            if($label == "")
+            if ($label == "")
                 $label = $name;
             $field_names[$name] = $label;
             // determine the type of the field
             $style = $this->model->get_field_style($id_section);
-            if($style == "slider")
-            {
+            if ($style == "slider") {
                 $validation_rules[$name] = "integer";
                 $filter_rules[$name] = "sanitize_numbers";
-            }
-            else if($style == "textarea")
+            } else if ($style == "textarea")
                 $filter_rules[$name] = "sanitize_string";
-            else if($style == "select" || $style == "radio")
+            else if ($style == "select" || $style == "radio")
                 $filter_rules[$name] = "trim|sanitize_string";
             else if ($style == "input") {
                 $type = $this->model->get_field_type($id_section);
@@ -93,7 +90,7 @@ class FormUserInputController extends BaseController
                 // else if($type == "time")
                 //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if ($type == "url")
-                    $validation_rules[$name] = "valid_url";                
+                    $validation_rules[$name] = "valid_url";
                 else
                     $filter_rules[$name] = "sanitize_string";
             } else
@@ -102,7 +99,7 @@ class FormUserInputController extends BaseController
                 $post[$name] = json_encode($value); // save the data as json
             } else {
                 $post[$name] = $value;
-                if ($type == "anonymous-holder"){
+                if ($type == "anonymous-holder") {
                     // save as holder
                     $post[$name] = str_repeat('*', strlen($value));
                 }
@@ -156,13 +153,16 @@ class FormUserInputController extends BaseController
         }
     }
 
-    public function execute(){   
-        if(count($_POST) === 0){
+    public function execute()
+    {
+        if (count($_POST) === 0) {
             $this->model->queue_job_from_actions(actionTriggerTypes_started);
             return;
-        } 
-        if(!isset($_POST['__form_name'])
-            || $_POST['__form_name'] !== $this->model->get_db_field("name"))
+        }
+        if (
+            !isset($_POST['__form_name'])
+            || $_POST['__form_name'] !== $this->model->get_db_field("name")
+        )
             return;
         unset($_POST['__form_name']);
         if (isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])) {
@@ -173,9 +173,9 @@ class FormUserInputController extends BaseController
         }
         if (isset($_POST[DELETE_RECORD_ID]) && isset($_POST[DELETE_RECORD_ID]['value'])) {
             $_POST[DELETE_RECORD_ID] = $_POST[DELETE_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
-        }        
+        }
 
-        if(!$this->has_access()){
+        if (!$this->has_access()) {
             // if the user has no access to edit or delete this record abort and return
             return;
         }
@@ -184,10 +184,13 @@ class FormUserInputController extends BaseController
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
         if (is_array($user_input)) {
+            array_walk_recursive($user_input, function (&$v) {
+                $v = html_entity_decode($v, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            });
             // if it is array convert it to string and decode special characters
             $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
-        }   
-        $user_input['trigger_type']= actionTriggerTypes_finished;
+        }
+        $user_input['trigger_type'] = actionTriggerTypes_finished;
         // that info should not be saved
         unset($user_input[DELETE_RECORD_ID]);
         unset($user_input[SELECTED_RECORD_ID]);
@@ -196,13 +199,13 @@ class FormUserInputController extends BaseController
             if (isset($_POST[$key]['id'])) {
                 $_POST[$key] = isset($value['value']) ? $value['value'] : '';
             }
-        }     
+        }
         if ($user_input === false) {
             $this->fail = true;
             if (isset($_POST['mobile']) && $_POST['mobile']) {
                 foreach ($gump->get_errors_array(true) as $key => $err) {
                     $this->error_msgs[] = $err;
-                }                
+                }
             } else {
                 $this->error_msgs = $gump->get_errors_array(true);
             }
@@ -220,27 +223,22 @@ class FormUserInputController extends BaseController
                 if ($this->alert_success !== "")
                     $this->success_msgs[] = "The record: " . $_POST[DELETE_RECORD_ID] . " was deleted.";
             }
-        }
-        else
-        {
+        } else {
             $record_id = isset($_POST[SELECTED_RECORD_ID]) ?
                 $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) :
                 $this->model->save_user_input($user_input);
-            if($record_id === false)
-            {
+            if ($record_id === false) {
                 $this->fail = true;
                 $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator";
-            }
-            else if($record_id > 0)
-            {
+            } else if ($record_id > 0) {
                 $this->success = true;
-                if($this->alert_success !== "")
+                if ($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
                 $this->model->reload_children();
             }
         }
         $redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
-        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect_at_end != "" && !isset($_POST[ENTRY_RECORD_ID])){
+        if (!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect_at_end != "" && !isset($_POST[ENTRY_RECORD_ID])) {
             $redirect_at_end = $this->model->get_services()->get_router()->get_url($redirect_at_end);
             header("Location: " . $redirect_at_end);
             die();
