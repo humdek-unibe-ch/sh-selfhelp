@@ -21,7 +21,7 @@ class DataCell
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Language::class)]
-    #[ORM\JoinColumn(name: 'language_id', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false, options: ['default' => 1])]
+    #[ORM\JoinColumn(name: 'id_languages', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false, options: ['default' => 1])]
     private ?Language $language = null;
 
     #[ORM\Column(name: 'value', type: 'text')]

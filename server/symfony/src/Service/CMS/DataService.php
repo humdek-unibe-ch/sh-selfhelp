@@ -78,33 +78,75 @@ class DataService extends BaseService
 
             // Check for existing record to update
             if ($updateBasedOn !== null) {
-                $filter = '';
-                foreach ($updateBasedOn as $key => $value) {
-                    $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
-                }
-                $existingRecord = $this->getData($dataTable->getId(), $filter, $ownEntriesOnly, $currentUser->getId(), true);
-                if ($existingRecord) {
-                    $recordId = $this->updateExistingRecord($existingRecord['record_id'], $data, $transactionBy);
-                    $this->entityManager->commit();
+                // Special handling for record_id - look up directly by DataRow ID
+                if (isset($updateBasedOn['record_id'])) {
+                    $recordId = (int) $updateBasedOn['record_id'];
+                    $dataRow = $this->entityManager->getRepository(DataRow::class)->find($recordId);
 
-                    // Invalidate data table cache after updating record
-                    $this->cache
-                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
-                        ->invalidateAllListsInCategory();
+                    if ($dataRow) {
+                        // Check ownership if required
+                        if ($ownEntriesOnly) {
+                            if (!$currentUser || $dataRow->getIdUsers() !== $currentUser->getId()) {
+                                $this->entityManager->rollback();
+                                throw new ServiceException('Access denied to this record', Response::HTTP_FORBIDDEN);
+                            }
+                        }
 
-                    $this->cache
-                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
-                        ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+                        // Update the existing record
+                        $updatedRecordId = $this->updateExistingRecord($recordId, $data, $transactionBy);
+                        $this->entityManager->commit();
 
-                    $this->cache
-                        ->withCategory(CacheService::CATEGORY_DATA_TABLES)
-                        ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $currentUser->getId());
+                        // Invalidate data table cache after updating record
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateAllListsInCategory();
 
-                    return $recordId;
-                } elseif (count($updateBasedOn) > 0) {
-                    // Trying to update non-existent record
-                    $this->entityManager->rollback();
-                    return false;
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $currentUser->getId());
+
+                        return $updatedRecordId;
+                    } else {
+                        // Record not found
+                        $this->entityManager->rollback();
+                        return false;
+                    }
+                } else {
+                    // Handle other types of update filters using the stored procedure
+                    $filter = '';
+                    foreach ($updateBasedOn as $key => $value) {
+                        $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
+                    }
+
+                    $existingRecord = $this->getData($dataTable->getId(), $filter, $ownEntriesOnly, $currentUser->getId(), true);
+
+                    if ($existingRecord) {
+                        $recordId = $this->updateExistingRecord($existingRecord['record_id'], $data, $transactionBy);
+                        $this->entityManager->commit();
+
+                        // Invalidate data table cache after updating record
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateAllListsInCategory();
+
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_DATA_TABLE, $dataTable->getId());
+
+                        $this->cache
+                            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+                            ->invalidateEntityScope(CacheService::ENTITY_SCOPE_USER, $currentUser->getId());
+
+                        return $recordId;
+                    } elseif (count($updateBasedOn) > 0) {
+                        // Trying to update non-existent record
+                        $this->entityManager->rollback();
+                        return false;
+                    }
                 }
             }
 
@@ -537,6 +579,38 @@ class DataService extends BaseService
     }
 
     /**
+     * Get form record data with all languages
+     *
+     * @param string $dataTableName Data table name
+     * @return array
+     */
+    public function getFormRecordDataWithAllLanguages(string $dataTableName): array
+    {
+        $dataTable = $this->dataTableRepository->findOneBy(['name' => $dataTableName]);
+        if (!$dataTable) {
+            return [];
+        }
+        $dataTableId = $dataTable->getId();
+        $data = $this->getDataWithAllLanguages($dataTableId, '', true, $this->userContextService->getCurrentUser()->getId(), false, true);
+
+        // Filter to only return records for the highest record_id
+        if (!empty($data)) {
+            // Find the maximum record_id
+            $maxRecordId = max(array_column($data, 'record_id'));
+
+            // Filter data to only include records with the maximum record_id
+            $data = array_filter($data, function ($record) use ($maxRecordId) {
+                return $record['record_id'] === $maxRecordId;
+            });
+
+            // Reset array keys
+            $data = array_values($data);
+        }
+
+        return $data;
+    }
+
+    /**
      * Fetch data records from a data table using the legacy stored procedure behavior.
      * Mirrors the old get_data($dataTableId, $filter, $own_entries_only, $user_id, $db_first, $exclude_deleted) logic.
      *
@@ -587,6 +661,64 @@ class DataService extends BaseService
         } catch (\Throwable $e) {
             throw new ServiceException(
                 'Failed to fetch data: ' . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['previous' => $e, 'dataTableId' => $dataTableId]
+            );
+        }
+    }
+
+    /**
+     * Fetch data records from a data table with all languages returned.
+     * This method returns all language versions for each record.
+     *
+     * @param int $dataTableId Data table ID
+     * @param string $filter Filter string
+     * @param bool $ownEntriesOnly Whether to restrict to user's own entries
+     * @param int|null $userId User ID for filtering
+     * @param bool $dbFirst Return only first record
+     * @param bool $excludeDeleted Whether to exclude deleted records
+     * @return array
+     */
+    public function getDataWithAllLanguages(
+        int $dataTableId,
+        string $filter = '',
+        bool $ownEntriesOnly = true,
+        ?int $userId = null,
+        bool $dbFirst = false,
+        bool $excludeDeleted = true
+    ): array {
+        try {
+            // Guard: ignore malformed dynamic filter attempts
+            if (str_contains($filter, '{{')) {
+                $filter = '';
+            }
+
+            // Resolve user id as per legacy rules
+            $resolvedUserId = $userId;
+            if ($resolvedUserId === null) {
+                if ($ownEntriesOnly) {
+                    $currentUser = $this->userContextService->getCurrentUser();
+                    $resolvedUserId = $currentUser ? $currentUser->getId() : -1;
+                } else {
+                    $resolvedUserId = -1; // all users
+                }
+            }
+
+            $rows = $this->dataTableRepository->getDataTableWithAllLanguages(
+                $dataTableId,
+                $resolvedUserId,
+                $filter,
+                $excludeDeleted
+            );
+
+            if ($dbFirst) {
+                return isset($rows[0]) ? $rows[0] : [];
+            }
+
+            return $rows;
+        } catch (\Throwable $e) {
+            throw new ServiceException(
+                'Failed to fetch data with all languages: ' . $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['previous' => $e, 'dataTableId' => $dataTableId]
             );

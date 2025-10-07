@@ -401,10 +401,10 @@ WHERE id_fields = get_field_id('url') and id_styles = get_style_id('button');
 INSERT IGNORE INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'mantine', 'Mantine UI components for modern web interfaces', 10);
 
 -- Add new style 'center' based on Mantine Center component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'center',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Center component for centering content',
     1
@@ -514,10 +514,10 @@ VALUES (get_style_id('center'), get_field_id('mantine_mah'), NULL, 'Sets the max
 
 
 -- Add new style 'container' based on Mantine Container component (core props only)
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'container',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Container component for responsive layout containers',
     1
@@ -652,10 +652,10 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`, `config`) VALUE
 -- ===========================================
 
 -- Add new style 'flex' based on Mantine Flex component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'flex',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Flex component for flexible layouts',
     1
@@ -692,10 +692,10 @@ VALUES (get_style_id('flex'), get_field_id('use_mantine_style'), 1, 'If `useMant
 -- ===========================================
 
 -- Add new style 'group' based on Mantine Group component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'group',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Group component for horizontal layouts',
     1
@@ -740,10 +740,10 @@ VALUES (get_style_id('group'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'simpleGrid' based on Mantine SimpleGrid component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'simpleGrid',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine SimpleGrid component for responsive grid layouts',
     1
@@ -789,10 +789,10 @@ VALUES (get_style_id('simpleGrid'), get_field_id('use_mantine_style'), 1, 'If `u
 -- ===========================================
 
 -- Add new style 'space' based on Mantine Space component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'space',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Space component for adding spacing',
     0
@@ -824,10 +824,10 @@ VALUES (get_style_id('space'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'stack' based on Mantine Stack component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'stack',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Stack component for vertical layouts',
     1
@@ -858,10 +858,10 @@ VALUES (get_style_id('stack'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'grid' based on Mantine Grid component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'grid',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Grid component for responsive 12 columns grid system',
     1
@@ -904,10 +904,10 @@ VALUES (get_style_id('grid'), get_field_id('use_mantine_style'), 1, 'If `useMant
 -- ===========================================
 
 -- Add new style 'grid-column' based on Mantine Grid.Col component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'grid-column',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Grid.Col component for grid column with span, offset, and order controls',
     1
@@ -997,10 +997,10 @@ VALUES (get_style_id('grid-column'), get_field_id('use_mantine_style'), 1, 'If `
 -- ===========================================
 
 -- Add new style 'tabs' based on Mantine Tabs component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'tabs',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Tabs component for switching between different views',
     0
@@ -1051,10 +1051,10 @@ VALUES (get_style_id('tabs'), get_field_id('use_mantine_style'), 1, 'If `useMant
 -- ===========================================
 
 -- Add new style 'tab' based on Mantine Tabs.Tab component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'tab',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Tabs.Tab component for individual tab items within a tabs component. Can contain child components for tab panel content.',
     1
@@ -1100,10 +1100,10 @@ WHERE s1.name = 'grid' AND s2.name = 'grid-column';
 -- ===========================================
 
 -- Add new style 'aspectRatio' based on Mantine AspectRatio component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'aspectRatio',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine AspectRatio component for maintaining aspect ratios',
     1
@@ -1131,10 +1131,10 @@ VALUES (get_style_id('aspectRatio'), get_field_id('use_mantine_style'), 1, 'If `
 -- ===========================================
 
 -- Add new style 'chip' based on Mantine Chip component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'chip',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Chip component for selectable tags',
     0
@@ -1181,10 +1181,10 @@ VALUES (get_style_id('chip'), get_field_id('use_mantine_style'), 1, 'If `useMant
 -- ===========================================
 
 -- Add new style 'colorInput' based on Mantine ColorInput component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'colorInput',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine ColorInput component for color selection',
     0
@@ -1287,10 +1287,10 @@ VALUES (get_style_id('colorInput'), get_field_id('use_mantine_style'), 1, 'If `u
 -- ===========================================
 
 -- Add new style 'colorPicker' based on Mantine ColorPicker component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'colorPicker',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine ColorPicker component for color selection',
     0
@@ -1326,10 +1326,10 @@ VALUES (get_style_id('colorPicker'), get_field_id('use_mantine_style'), 1, 'If `
 -- ===========================================
 
 -- Add new style 'fieldset' based on Mantine Fieldset component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'fieldset',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Fieldset component for grouping form elements',
     1
@@ -1359,10 +1359,10 @@ VALUES (get_style_id('fieldset'), get_field_id('use_mantine_style'), 1, 'If `use
 -- ===========================================
 
 -- Add new style 'fileInput' based on Mantine FileInput component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'fileInput',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine FileInput component for file uploads',
     0
@@ -1407,10 +1407,10 @@ VALUES (get_style_id('fileInput'), get_field_id('use_mantine_style'), 1, 'If `us
 -- ===========================================
 
 -- Add new style 'numberInput' based on Mantine NumberInput component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'numberInput',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine NumberInput component for numeric input',
     0
@@ -1491,10 +1491,10 @@ VALUES (get_style_id('numberInput'), get_field_id('use_mantine_style'), 1, 'If `
 -- ===========================================
 
 -- Add new style 'radioGroup' based on Mantine Radio.Group component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'radioGroup',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Radio.Group component for radio button groups',
     1
@@ -1526,10 +1526,10 @@ VALUES (get_style_id('radioGroup'), get_field_id('use_mantine_style'), 1, 'If `u
 -- ===========================================
 
 -- Add new style 'radio' based on Mantine Radio component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'radio',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Radio component for individual radio buttons',
     0
@@ -1560,10 +1560,10 @@ VALUES (get_style_id('radio'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'rangeSlider' based on Mantine RangeSlider component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'rangeSlider',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine RangeSlider component for range selection',
     0
@@ -1607,10 +1607,10 @@ WHERE s1.name = 'radioGroup' AND s2.name = 'radio';
 -- ===========================================
 
 -- Add new style 'rating' based on Mantine Rating component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'rating',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Rating component for star ratings',
     0
@@ -1666,10 +1666,10 @@ VALUES (get_style_id('rating'), get_field_id('use_mantine_style'), 1, 'If `useMa
 -- ===========================================
 
 -- Add new style 'segmentedControl' based on Mantine SegmentedControl component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'segmentedControl',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine SegmentedControl component for segmented controls',
     0
@@ -1709,10 +1709,10 @@ VALUES (get_style_id('segmentedControl'), get_field_id('use_mantine_style'), 1, 
 -- ===========================================
 
 -- Add new style 'switch' based on Mantine Switch component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'switch',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Switch component for toggle switches',
     0
@@ -1754,10 +1754,10 @@ VALUES (get_style_id('switch'), get_field_id('use_mantine_style'), 1, 'If `useMa
 -- ===========================================
 
 -- Add new style 'combobox' based on Mantine Combobox component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'combobox',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Combobox component for advanced select inputs',
     0
@@ -1790,10 +1790,10 @@ VALUES (get_style_id('combobox'), get_field_id('use_mantine_style'), 1, 'If `use
 -- ===========================================
 
 -- Add new style 'multiSelect' based on Mantine MultiSelect component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'multiSelect',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine MultiSelect component for multiple selection',
     0
@@ -1836,10 +1836,10 @@ VALUES (get_style_id('multiSelect'), get_field_id('use_mantine_style'), 1, 'If `
 -- ===========================================
 
 -- Add new style 'actionIcon' based on Mantine ActionIcon component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'actionIcon',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine ActionIcon component for interactive icons',
     0
@@ -1875,10 +1875,10 @@ VALUES (get_style_id('actionIcon'), get_field_id('use_mantine_style'), 1, 'If `u
 -- ===========================================
 
 -- Add new style 'stepper' based on Mantine Stepper component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'stepper',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Stepper component for multi-step processes',
     1
@@ -1923,10 +1923,10 @@ VALUES (get_style_id('stepper'), get_field_id('use_mantine_style'), 1, 'If `useM
 -- ===========================================
 
 -- Add new style 'stepper-Step' based on Mantine Stepper.Step component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'stepper-Step',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Stepper.Step component for individual step items',
     1
@@ -1958,10 +1958,10 @@ VALUES (get_style_id('stepper-Step'), get_field_id('use_mantine_style'), 1, 'If 
 -- ===========================================
 
 -- Add new style 'stepper-Complete' based on Mantine Stepper.Completed component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'stepper-Complete',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Stepper.Completed component for completed step indicator',
     1
@@ -1980,10 +1980,10 @@ VALUES (get_style_id('stepper-Complete'), get_field_id('use_mantine_style'), 1, 
 -- ===========================================
 
 -- Add new style 'notification' based on Mantine Notification component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'notification',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Notification component for alerts and messages',
     0
@@ -2027,10 +2027,10 @@ WHERE s1.name = 'stepper' AND s2.name = 'stepper-Complete';
 -- ===========================================
 
 -- Add new style 'accordion' based on Mantine Accordion component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'accordion',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Accordion component for collapsible content',
     1
@@ -2067,10 +2067,10 @@ VALUES (get_style_id('accordion'), get_field_id('use_mantine_style'), 1, 'If `us
 -- ===========================================
 
 -- Add new style 'accordion-Item' based on Mantine Accordion.Item component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'accordion-Item',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Accordion.Item component for individual accordion items (accepts all children, panels handled in frontend)',
     1
@@ -2091,10 +2091,10 @@ VALUES (get_style_id('accordion-Item'), get_field_id('use_mantine_style'), 1, 'I
 -- ===========================================
 
 -- Add new style 'avatar' based on Mantine Avatar component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'avatar',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Avatar component for user profile images',
     0
@@ -2138,10 +2138,10 @@ VALUES (get_style_id('avatar'), get_field_id('use_mantine_style'), 1, 'If `useMa
 -- ===========================================
 
 -- Add new style 'backgroundImage' based on Mantine BackgroundImage component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'backgroundImage',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine BackgroundImage component for background images',
     1
@@ -2163,10 +2163,10 @@ VALUES (get_style_id('backgroundImage'), get_field_id('use_mantine_style'), 1, '
 -- ===========================================
 
 -- Add new style 'badge' based on Mantine Badge component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'badge',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Badge component for status indicators and labels',
     0
@@ -2204,10 +2204,10 @@ WHERE s1.name = 'accordion' AND s2.name = 'accordion-Item';
 -- ===========================================
 
 -- Add new style 'indicator' based on Mantine Indicator component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'indicator',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Indicator component for status indicators',
     1
@@ -2239,10 +2239,10 @@ VALUES (get_style_id('indicator'), get_field_id('use_mantine_style'), 1, 'If `us
 -- ===========================================
 
 -- Add new style 'kbd' based on Mantine Kbd component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'kbd',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Kbd component for keyboard key display',
     0
@@ -2260,10 +2260,10 @@ VALUES (get_style_id('kbd'), get_field_id('use_mantine_style'), 1, 'If `useManti
 -- ===========================================
 
 -- Add new style 'spoiler' based on Mantine Spoiler component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'spoiler',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Spoiler component for collapsible text',
     0
@@ -2300,10 +2300,10 @@ VALUES (get_style_id('spoiler'), get_field_id('use_mantine_style'), 1, 'If `useM
 -- ===========================================
 
 -- Add new style 'themeIcon' based on Mantine ThemeIcon component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'themeIcon',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine ThemeIcon component for themed icon containers',
     0
@@ -2332,10 +2332,10 @@ VALUES (get_style_id('themeIcon'), get_field_id('use_mantine_style'), 1, 'If `us
 -- ===========================================
 
 -- Add new style 'timeline' based on Mantine Timeline component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'timeline',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Timeline component for chronological displays',
     1
@@ -2368,10 +2368,10 @@ VALUES (get_style_id('timeline'), get_field_id('use_mantine_style'), 1, 'If `use
 -- ===========================================
 
 -- Add new style 'timeline-item' based on Mantine Timeline.Item component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'timeline-item',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Timeline.Item component for individual timeline entries',
     1
@@ -2407,10 +2407,10 @@ VALUES (get_style_id('timeline-item'), get_field_id('use_mantine_style'), 1, 'If
 -- ===========================================
 
 -- Add new style 'blockquote' based on Mantine Blockquote component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'blockquote',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Blockquote component for quoted text',
     0
@@ -2436,10 +2436,10 @@ VALUES (get_style_id('blockquote'), get_field_id('use_mantine_style'), 1, 'If `u
 -- ===========================================
 
 -- Add new style 'code' based on Mantine Code component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'code',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Code component for inline code display',
     0
@@ -2463,10 +2463,10 @@ VALUES (get_style_id('code'), get_field_id('use_mantine_style'), 1, 'If `useMant
 -- ===========================================
 
 -- Add new style 'highlight' based on Mantine Highlight component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'highlight',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Highlight component for text highlighting',
     0
@@ -2494,10 +2494,10 @@ VALUES (get_style_id('highlight'), get_field_id('use_mantine_style'), 1, 'If `us
 -- ===========================================
 
 -- Add new style 'title' based on Mantine Title component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'title',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Title component for headings and titles',
     0
@@ -2530,10 +2530,10 @@ VALUES (get_style_id('title'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'typography' based on Mantine TypographyStylesProvider component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'typography',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine TypographyStylesProvider component for consistent typography',
     1
@@ -2557,10 +2557,10 @@ WHERE s1.name = 'tabs' AND s2.name = 'tab';
 -- ===========================================
 
 -- Add new style 'divider' based on Mantine Divider component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'divider',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Divider component for visual separation',
     0
@@ -2617,10 +2617,10 @@ VALUES (get_style_id('divider'), get_field_id('use_mantine_style'), 1, 'If `useM
 -- ===========================================
 
 -- Add new style 'paper' based on Mantine Paper component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'paper',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine Paper component for elevated surfaces',
     1
@@ -2656,10 +2656,10 @@ VALUES (get_style_id('paper'), get_field_id('use_mantine_style'), 1, 'If `useMan
 -- ===========================================
 
 -- Add new style 'scrollArea' based on Mantine ScrollArea component
-INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`, `can_have_children`) VALUES (
+INSERT IGNORE INTO `styles` (`id`, `name`,  `id_group`, `description`, `can_have_children`) VALUES (
     NULL,
     'scrollArea',
-    (SELECT id FROM lookups WHERE type_code = 'styleType' AND lookup_code = 'component' LIMIT 1),
+    
     get_style_group_id('mantine'),
     'Mantine ScrollArea component for custom scrollbars',
     1

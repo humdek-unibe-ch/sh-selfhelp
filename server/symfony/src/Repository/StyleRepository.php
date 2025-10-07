@@ -29,16 +29,12 @@ class StyleRepository extends ServiceEntityRepository
                 's.name AS style_name',
                 's.description AS style_description',
                 's.canHaveChildren AS can_have_children',
-                'lst.id AS style_type_id',
-                'lst.lookupValue AS style_type',
                 'sg.id AS style_group_id',
                 'sg.name AS style_group',
                 'sg.description AS style_group_description',
                 'sg.position AS style_group_position'
             )
-            ->leftJoin('s.type', 'lst', 'WITH', 'lst.typeCode = :typeCode')
             ->leftJoin('s.group', 'sg')
-            ->setParameter('typeCode', 'styleType')
             ->orderBy('sg.position', 'ASC')
             ->addOrderBy('s.name', 'ASC');
 
@@ -67,8 +63,6 @@ class StyleRepository extends ServiceEntityRepository
                 'id' => $style['style_id'],
                 'name' => $style['style_name'],
                 'description' => $style['style_description'],
-                'typeId' => $style['style_type_id'],
-                'type' => $style['style_type'],
                 'relationships' => [
                     // If can_have_children is 1 (true), return empty array (can have all children)
                     // If can_have_children is 0 (false), return custom allowed children from relationships

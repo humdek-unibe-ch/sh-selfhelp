@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Lookup;
 
 #[ORM\Entity(repositoryClass: "App\Repository\StyleRepository")]
 #[ORM\Table(name: 'styles')]
@@ -25,9 +24,6 @@ class Style
     #[ORM\Column(name: 'name', type: 'string', length: 100, unique: true)]
     private string $name;
 
-    #[ORM\Column(name: 'id_type', type: 'integer')]
-    private int $idType;
-
     #[ORM\Column(name: 'can_have_children', type: 'boolean', options: ['default' => 0])]
     private bool $canHaveChildren = false;
 
@@ -36,10 +32,6 @@ class Style
 
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     private ?string $description = null;
-
-    #[ORM\ManyToOne(targetEntity: Lookup::class)]
-    #[ORM\JoinColumn(name: 'id_type', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private ?Lookup $type = null;
 
     #[ORM\ManyToOne(targetEntity: StyleGroup::class, inversedBy: 'styles')]
     #[ORM\JoinColumn(name: 'id_group', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
@@ -67,12 +59,6 @@ class Style
 
         return $this;
     }
-
-    public function getIdType(): ?int
-    {
-        return $this->idType;
-    }
-
 
 
     public function getIdGroup(): ?int
@@ -106,16 +92,6 @@ class Style
         return $this;
     }
 
-    public function getType(): ?Lookup
-    {
-        return $this->type;
-    }
-
-    public function setType(?Lookup $type): static
-    {
-        $this->type = $type;
-        return $this;
-    }
 
     public function getGroup(): ?StyleGroup
     {

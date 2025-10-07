@@ -31,11 +31,38 @@ class DataTableRepository extends ServiceEntityRepository
                 $conn = $this->getEntityManager()->getConnection();
                 $sql = 'CALL get_dataTable_with_filter(:tableId, :userId, :filter, :excludeDeleted, :languageId)';
                 $stmt = $conn->prepare($sql);
-                $stmt->bindValue('tableId', $tableId, \PDO::PARAM_INT);
-                $stmt->bindValue('userId', $userId, \PDO::PARAM_INT);
-                $stmt->bindValue('filter', $filter, \PDO::PARAM_STR);
-                $stmt->bindValue('excludeDeleted', $excludeDeleted, \PDO::PARAM_BOOL);
-                $stmt->bindValue('languageId', $languageId, \PDO::PARAM_INT);
+                $stmt->bindValue('tableId', $tableId, PDO::PARAM_INT);
+                $stmt->bindValue('userId', $userId, PDO::PARAM_INT);
+                $stmt->bindValue('filter', $filter, PDO::PARAM_STR);
+                $stmt->bindValue('excludeDeleted', $excludeDeleted, PDO::PARAM_BOOL);
+                $stmt->bindValue('languageId', $languageId, PDO::PARAM_INT);
+                $result = $stmt->executeQuery();
+
+                return $result->fetchAllAssociative();
+            });
+    }
+
+    /**
+     * Calls the stored procedure get_dataTable_with_all_languages and returns the result.
+     * This procedure returns all languages for each record (no language filtering).
+     */
+    public function getDataTableWithAllLanguages(int $tableId, int $userId, string $filter, bool $excludeDeleted): array
+    {
+        $cache = $this->cache
+            ->withCategory(CacheService::CATEGORY_DATA_TABLES)
+            ->withEntityScope(entityType: CacheService::ENTITY_SCOPE_DATA_TABLE, entityId: $tableId);
+        if ($userId > 0) {
+            $cache->withEntityScope(CacheService::ENTITY_SCOPE_USER, $userId);
+        }
+        return $cache
+            ->getList("data_table_with_all_languages_{$tableId}_{$userId}_{$filter}_{$excludeDeleted}", function () use ($tableId, $userId, $filter, $excludeDeleted) {
+                $conn = $this->getEntityManager()->getConnection();
+                $sql = 'CALL get_dataTable_with_all_languages(:tableId, :userId, :filter, :excludeDeleted)';
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('tableId', $tableId, PDO::PARAM_INT);
+                $stmt->bindValue('userId', $userId, PDO::PARAM_INT);
+                $stmt->bindValue('filter', $filter, PDO::PARAM_STR);
+                $stmt->bindValue('excludeDeleted', $excludeDeleted, PDO::PARAM_BOOL);
                 $result = $stmt->executeQuery();
 
                 return $result->fetchAllAssociative();
@@ -44,7 +71,7 @@ class DataTableRepository extends ServiceEntityRepository
 
     /**
      * Get data table id by name
-     * 
+     *
      * @param string $name Data table name
      * @return int Data table id
      */

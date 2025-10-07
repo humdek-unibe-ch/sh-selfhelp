@@ -177,8 +177,6 @@ class AdminSectionService extends BaseService
                 'id' => $style->getId(),
                 'name' => $style->getName(),
                 'description' => $style->getDescription(),
-                'typeId' => $style->getIdType(),
-                'type' => $style->getType() ? $style->getType()->getLookupValue() : null,
                 'canHaveChildren' => $style->getCanHaveChildren(),
             ];
         }

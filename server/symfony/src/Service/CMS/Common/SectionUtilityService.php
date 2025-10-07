@@ -281,14 +281,14 @@ class SectionUtilityService
 
     /**
      * Apply data to a section
-     * 
+     *
      * @param array &$section The section to apply data to (passed by reference)
      */
     public function applySectionData(array &$section): void
     {
         $section['section_data'] = [];
         if ($section['style_name'] == StyleNames::STYLE_FORM_RECORD) {
-            $section['section_data'] = $this->dataService->getFormRecordData($section['id']);
+            $section['section_data'] = $this->dataService->getFormRecordDataWithAllLanguages($section['id']);
         }
     }
 }

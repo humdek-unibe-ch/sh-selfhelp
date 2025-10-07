@@ -307,8 +307,13 @@ class FormValidationService extends BaseService
                 return false;
             }
 
-            // language_id must be a positive integer
-            if (!is_int($translation['language_id']) || $translation['language_id'] < 1) {
+            // language_id must be a positive integer (or numeric string that can be converted to int)
+            $languageId = $translation['language_id'];
+            if (is_string($languageId)) {
+                $languageId = is_numeric($languageId) ? (int) $languageId : null;
+            }
+
+            if (!is_int($languageId) || $languageId < 1) {
                 return false;
             }
 
