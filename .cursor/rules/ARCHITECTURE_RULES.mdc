@@ -1,0 +1,105 @@
+---
+description: Core architectural patterns and system structure for SelfHelp
+globs:
+alwaysApply: true
+---
+# SelfHelp Architecture Rules
+
+## System Architecture
+
+SelfHelp follows a traditional MVC (Model-View-Controller) architecture with a component-based approach built entirely in vanilla PHP without external frameworks. The system provides full control over the application lifecycle through custom-built services.
+
+### Entry Point Flow
+- **index.php**: Sets security headers (XSS protection, frame options), includes Selfhelp.php
+- **Selfhelp.php**: Initializes plugins, sets up error handling, enables CORS for mobile development, creates Services instance, routes between web and mobile calls
+- **Services Layer**: Acts as dependency injection container with Database (PageDb), Router (AltoRouter), ACL, UserInput, JobScheduler, Transaction, Clockwork
+- **Page Types**: SectionPage (full pages with sections), ComponentPage (single components), AjaxRequest (AJAX calls), CallbackRequest (external callbacks)
+
+### Design Patterns Used
+- **Service Locator**: `$services = new Services(); $db = $services->get_db();`
+- **Factory Pattern**: Components instantiated dynamically based on database configuration: `$component_class = ucfirst($keyword) . "Component";`
+- **Template Method**: Base classes define skeleton operations, subclasses override specific steps
+- **Strategy Pattern**: Different output strategies for web vs mobile: `output_content()` vs `output_content_mobile()`
+
+## Component Architecture
+
+Each UI element is a self-contained component with Model, View, and optional Controller classes following strict MVC pattern.
+
+### Component Structure
+- **BaseComponent**: Foundation class defining component lifecycle
+- **BaseModel**: Handles data logic and database interactions
+- **BaseView**: Manages HTML rendering and asset loading
+- **BaseController**: Optional, handles complex business logic
+
+### Component Lifecycle
+1. **Instantiation**: Page loading creates component instances based on database configuration
+2. **Data Loading**: Model loads component configuration and data
+3. **Rendering**: View outputs content (HTML for web, JSON for mobile)
+4. **Interaction**: Controller processes form submissions and triggers actions
+
+## Plugin System
+
+- Located in `server/plugins/`
+- Auto-loaded during initialization
+- Can override components and services
+- Follow same architectural patterns
+- Versioned independently
+
+## Data Flow
+
+1. **Request** → Router matches URL to page configuration
+2. **ACL Check** → Services verify user permissions
+3. **Page Load** → Page type loads appropriate components
+4. **Component Render** → Each component follows MVC pattern
+5. **Data Fetch** → Models query database through services
+6. **Response** → Views render output (HTML or JSON)
+
+## Key Architectural Principles
+
+- **Vanilla PHP**: No frameworks, pure PHP with custom architecture
+- **Component-based**: Modular MVC architecture for UI components
+- **Database-driven**: Dynamic content loaded from MySQL database
+- **Version-controlled**: Semantic versioning with database migrations
+- **Mobile-ready**: JSON API for mobile applications
+- **Plugin system**: Extensible through plugins
+
+## Technology Stack
+
+- **Backend**: PHP 8.2+ (8.3 recommended)
+- **Database**: MySQL 8.0+
+- **Frontend**: Vanilla JavaScript, Bootstrap 4.6, jQuery
+- **Caching**: APCu (Alternative PHP Cache User)
+- **Build Tools**: Gulp for asset minification
+- **Debugging**: Clockwork for performance monitoring
+
+## Performance Optimizations
+
+- **APCu Caching**: Database queries and computed data
+- **Lazy Loading**: Components load only when needed
+- **Query Optimization**: Efficient database queries with proper indexing
+- **Asset Minification**: Gulp builds optimized CSS/JS bundles
+- **Clockwork Monitoring**: Performance profiling and debugging
+
+## Security Architecture
+
+- **Input Sanitization**: All user inputs filtered
+- **SQL Injection Prevention**: Parameterized queries
+- **XSS Protection**: Output escaping and CSP headers
+- **CSRF Protection**: Token-based validation
+- **Access Control**: Role-based permissions system
+- **Session Security**: Secure cookie configuration
+
+## File Structure Guidelines
+
+When working with SelfHelp codebase:
+- **server/**: Core application logic
+- **server/component/style/**: Individual components (MVC structure)
+- **server/service/**: Business logic services
+- **server/db/**: Database migrations and utilities
+- **server/page/**: Page rendering logic
+- **server/ajax/**: AJAX endpoints
+- **server/callback/**: External callback processing
+- **server/plugins/**: Plugin extensions
+- **doc/system-concept/**: System documentation
+- **js/, css/**: Frontend assets
+- **schemas/**: JSON schemas for validation

@@ -1,0 +1,826 @@
+---
+description: Development workflow, component creation, migrations, testing, and asset management for SelfHelp
+globs:
+alwaysApply: true
+---
+# SelfHelp Development Rules
+
+## Development Environment Setup
+
+### Prerequisites
+
+```bash
+# Required software
+PHP 8.2+ (8.3 recommended)
+MySQL 8.0+
+Node.js 14+ (for build tools)
+Git
+Composer (PHP dependency manager)
+```
+
+### Initial Setup
+
+```bash
+# Clone repository
+git clone https://github.com/humdek-unibe-ch/sh-selfhelp.git
+cd sh-selfhelp
+
+# Install PHP dependencies
+composer install
+
+# Install Node.js dependencies
+cd gulp
+npm install
+
+# Configure database
+cp server/service/globals_untracked.default.php server/service/globals_untracked.php
+# Edit globals_untracked.php with your database credentials
+
+# Run database migrations (in order)
+mysql -u username -p database < server/db/update_scripts/01_initial.sql
+mysql -u username -p database < server/db/update_scripts/02_update_xyz.sql
+# ... continue with all migration scripts
+
+# Build frontend assets
+gulp
+```
+
+### Development Server
+
+```bash
+# Start PHP built-in server (for development only)
+php -S localhost:8000 -t .
+
+# Or configure Apache/Nginx to serve the project
+```
+
+## Component Development
+
+### Creating a New Component
+
+1. **Plan the Component**
+   - Define the component's purpose and interface
+   - Identify required database fields
+   - Plan mobile vs web output differences
+
+2. **Create Directory Structure**
+   ```bash
+   mkdir -p server/component/style/new_component
+   cd server/component/style/new_component
+   ```
+
+3. **Implement Component Files**
+   ```php
+   # NewComponent.php (main component class)
+   <?php
+   class NewComponent extends BaseComponent {
+       public function __construct($services, $id, $params, $id_page, $entry_record) {
+           $model = new NewModel($services, $id, $params, $id_page, $entry_record);
+           $view = new NewView($model, $id);
+           parent::__construct($model, $view);
+       }
+   }
+   ```
+
+   ```php
+   # NewModel.php (data logic)
+   <?php
+   class NewModel extends BaseModel {
+       public function get_component_data() {
+           // Component-specific data loading
+           return $this->load_data();
+       }
+   }
+   ```
+
+   ```php
+   # NewView.php (presentation)
+   <?php
+   class NewView extends BaseView {
+       public function output_content() {
+           $data = $this->model->get_component_data();
+           include 'templates/new_component.php';
+       }
+
+       public function get_css_includes() {
+           return ['/css/components/new_component.css'];
+       }
+
+       public function get_js_includes() {
+           return ['/js/components/new_component.js'];
+       }
+   }
+   ```
+
+4. **Add Template and Assets**
+   ```html
+   <!-- templates/new_component.php -->
+   <div class="new-component">
+       <h3><?php echo $this->escape_html($data['title']); ?></h3>
+       <div class="content">
+           <?php echo $data['content']; ?>
+       </div>
+   </div>
+   ```
+
+   ```css
+   /* css/new_component.css */
+   .new-component {
+       border: 1px solid #ddd;
+       padding: 1rem;
+       margin: 1rem 0;
+   }
+   ```
+
+   ```javascript
+   // js/new_component.js
+   $(document).ready(function() {
+       $('.new-component').each(function() {
+           initializeNewComponent($(this));
+       });
+   });
+
+   function initializeNewComponent($element) {
+       // Component initialization logic
+   }
+   ```
+
+5. **Register Component in Database**
+   ```sql
+   -- Add component style definition
+   INSERT INTO styles (name, description, style_group_id)
+   VALUES ('new_component', 'Description of new component', 1);
+   ```
+
+### Component Testing
+
+```php
+# Basic component test
+class NewComponentTest {
+    public function test_component_renders() {
+        $services = $this->create_mock_services();
+        $component = new NewComponent($services, 1, [], 1, null);
+
+        $output = $component->output_content();
+        $this->assertContains('new-component', $output);
+    }
+
+    public function test_component_data_loading() {
+        $model = new NewModel($this->services, 1, [], 1, null);
+        $data = $model->get_component_data();
+
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('title', $data);
+    }
+}
+```
+
+## Database Development
+
+### Creating Database Migrations
+
+1. **Analyze Schema Changes**
+   - Identify required table modifications
+   - Plan foreign key relationships
+   - Consider data migration needs
+
+2. **Create Migration Script**
+   ```sql
+   -- File: server/db/update_scripts/NN_update_vX.Y.Z_vX.Y.Z+1.sql
+
+   -- Update version number
+   UPDATE version SET version = 'vX.Y.Z+1';
+
+   -- Begin transaction
+   START TRANSACTION;
+
+   -- Schema changes
+   ALTER TABLE existing_table
+   ADD COLUMN new_field VARCHAR(255) DEFAULT NULL;
+
+   -- Data migrations (if needed)
+   UPDATE existing_table
+   SET new_field = 'default_value'
+   WHERE new_field IS NULL;
+
+   -- Add constraints
+   ALTER TABLE existing_table
+   ADD CONSTRAINT fk_table_reference
+   FOREIGN KEY (reference_id) REFERENCES reference_table(id);
+
+   -- Commit transaction
+   COMMIT;
+   ```
+
+3. **Helper Procedures**
+   ```sql
+   -- Use existing helper procedures for safe operations
+   CALL add_table_column('table_name', 'column_name', 'VARCHAR(255) NOT NULL DEFAULT ""');
+   CALL drop_table_column('table_name', 'column_name');
+   CALL add_foreign_key('table_name', 'column_name', 'reference_table', 'reference_column');
+   ```
+
+4. **Test Migration**
+   ```bash
+   # Test on development database
+   mysql -u dev_user -p dev_database < migration_script.sql
+
+   # Verify schema changes
+   mysql -u dev_user -p dev_database -e "DESCRIBE table_name;"
+
+   # Check data integrity
+   mysql -u dev_user -p dev_database -e "SELECT COUNT(*) FROM table_name WHERE new_field IS NULL;"
+   ```
+
+### Database Version Management
+
+```php
+class DatabaseVersionManager {
+    public function get_current_version() {
+        $result = $this->db->query_db_first("SELECT version FROM version");
+        return $result['version'];
+    }
+
+    public function update_version($new_version) {
+        $this->db->update_by_ids('version', ['version' => $new_version], ['id' => 1]);
+    }
+
+    public function validate_migration_order() {
+        $applied_migrations = $this->get_applied_migrations();
+        $available_migrations = $this->get_available_migrations();
+
+        foreach ($available_migrations as $migration) {
+            if (!in_array($migration, $applied_migrations)) {
+                throw new Exception("Missing migration: $migration");
+            }
+        }
+    }
+}
+```
+
+## Frontend Development
+
+### Asset Management
+
+1. **Component Assets**
+   ```javascript
+   // server/component/style/component_name/js/component_name.js
+   $(document).ready(function() {
+       // Component initialization
+       $('.component-name').componentName();
+   });
+
+   $.fn.componentName = function(options) {
+       return this.each(function() {
+           var $element = $(this);
+           var settings = $.extend({}, $.fn.componentName.defaults, options);
+
+           // Component logic
+       });
+   };
+
+   $.fn.componentName.defaults = {
+       // Default settings
+   };
+   ```
+
+2. **Build Process**
+   ```bash
+   # Development build (with source maps)
+   gulp
+
+   # Production build (minified)
+   NODE_ENV=production gulp
+
+   # Watch for changes
+   gulp watch
+   ```
+
+### JavaScript Best Practices
+
+```javascript
+// Use IIFE for component isolation
+(function($) {
+    'use strict';
+
+    var ComponentName = function(element, options) {
+        this.$element = $(element);
+        this.options = $.extend({}, ComponentName.DEFAULTS, options);
+
+        this.init();
+    };
+
+    ComponentName.DEFAULTS = {
+        // Default options
+    };
+
+    ComponentName.prototype.init = function() {
+        // Initialization logic
+        this.bindEvents();
+    };
+
+    ComponentName.prototype.bindEvents = function() {
+        var that = this;
+
+        this.$element.on('click.componentName', '.trigger', function(e) {
+            e.preventDefault();
+            that.handleClick($(this));
+        });
+    };
+
+    ComponentName.prototype.handleClick = function($trigger) {
+        // Handle click events
+    };
+
+    // jQuery plugin
+    $.fn.componentName = function(option) {
+        return this.each(function() {
+            var $this = $(this);
+            var data = $this.data('componentName');
+            var options = typeof option === 'object' && option;
+
+            if (!data) {
+                $this.data('componentName', (data = new ComponentName(this, options)));
+            }
+
+            if (typeof option === 'string') {
+                data[option]();
+            }
+        });
+    };
+
+    // Auto-initialize on document ready
+    $(document).ready(function() {
+        $('[data-component="component-name"]').componentName();
+    });
+
+})(jQuery);
+```
+
+### CSS Organization
+
+```css
+/* Component-specific styles */
+.component-name {
+    /* Base styles */
+}
+
+.component-name--modifier {
+    /* Modifier styles */
+}
+
+.component-name__element {
+    /* Element styles */
+}
+
+.component-name__element--modifier {
+    /* Element modifier styles */
+}
+
+/* Responsive breakpoints */
+@media (min-width: 768px) {
+    .component-name {
+        /* Tablet styles */
+    }
+}
+
+@media (min-width: 1200px) {
+    .component-name {
+        /* Desktop styles */
+    }
+}
+```
+
+## Plugin Development
+
+### Plugin Structure
+```
+server/plugins/plugin-name/
+├── README.md
+├── CHANGELOG.md
+├── server/
+│   ├── component/
+│   │   ├── PluginHooks.php      # Plugin hooks
+│   │   └── style/               # Plugin components
+│   ├── service/
+│   │   └── globals.php          # Plugin configuration
+│   ├── db/
+│   │   └── v1.0.0.sql           # Initial schema
+│   └── api/                     # Plugin API endpoints (optional)
+├── css/
+│   └── ext/
+│       └── plugin.min.css
+├── js/
+│   └── ext/
+│       └── plugin.min.js
+└── gulp/                        # Build configuration (optional)
+```
+
+### Plugin Hooks
+```php
+class PluginHooks {
+    public function __construct($services) {
+        $this->services = $services;
+    }
+
+    public function hook_component_render($component, $data) {
+        // Modify component before rendering
+        if ($component instanceof SomeComponent) {
+            $data['extra_field'] = 'extra_value';
+        }
+        return $data;
+    }
+
+    public function hook_form_submit($form_data, $component) {
+        // Process form submission
+        $this->process_plugin_data($form_data);
+        return $form_data;
+    }
+
+    public function hook_api_request($request, $response) {
+        // Intercept API requests
+        if ($request->getPath() === '/api/plugin/endpoint') {
+            return $this->handle_plugin_api($request);
+        }
+        return $response;
+    }
+}
+```
+
+### Plugin Configuration
+```php
+// server/service/globals.php
+<?php
+// Plugin-specific constants
+define('PLUGIN_VERSION', '1.0.0');
+define('PLUGIN_NAME', 'plugin-name');
+
+// Plugin settings
+$plugin_config = [
+    'enabled' => true,
+    'api_key' => 'your-api-key',
+    'endpoints' => [
+        'main' => '/api/plugin/main',
+        'data' => '/api/plugin/data'
+    ]
+];
+```
+
+## Testing
+
+### Unit Testing
+```php
+class ComponentTest extends PHPUnit_Framework_TestCase {
+    protected $services;
+
+    public function setUp() {
+        $this->services = $this->createMockServices();
+    }
+
+    public function test_component_initialization() {
+        $component = new TestComponent($this->services, 1, [], 1, null);
+
+        $this->assertInstanceOf('TestComponent', $component);
+        $this->assertInstanceOf('TestModel', $component->model);
+        $this->assertInstanceOf('TestView', $component->view);
+    }
+
+    public function test_model_data_loading() {
+        $model = new TestModel($this->services, 1, [], 1, null);
+
+        $data = $model->get_data();
+
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('title', $data);
+        $this->assertArrayHasKey('content', $data);
+    }
+
+    public function test_view_rendering() {
+        $model = $this->createMockModel();
+        $view = new TestView($model, 1);
+
+        $output = $view->output_content();
+
+        $this->assertContains('<div class="test-component">', $output);
+        $this->assertContains('</div>', $output);
+    }
+}
+```
+
+### Integration Testing
+```php
+class IntegrationTest extends PHPUnit_Framework_TestCase {
+    public function test_full_component_workflow() {
+        // Set up test database
+        $this->setUpTestDatabase();
+
+        // Create component
+        $component = new TestComponent($this->services, 1, [], 1, null);
+
+        // Simulate user interaction
+        $_POST['test_field'] = 'test_value';
+        $result = $component->handle_submission();
+
+        // Verify database changes
+        $data = $this->db->query_db_first("SELECT * FROM test_table WHERE id = ?", [$result['id']]);
+        $this->assertEquals('test_value', $data['test_field']);
+
+        // Clean up
+        $this->tearDownTestDatabase();
+    }
+}
+```
+
+### API Testing
+```bash
+# Test API endpoints
+curl -X GET "http://localhost/api/base/ping" \
+     -H "X-API-Key: test-key"
+
+curl -X POST "http://localhost/api/data/table/test" \
+     -H "X-API-Key: test-key" \
+     -H "Content-Type: application/json" \
+     -d '{"field": "value"}'
+```
+
+## Code Quality
+
+### Coding Standards
+```php
+// PSR-4 autoloading
+namespace SelfHelp\Component\Style;
+
+class ComponentName
+{
+    // Properties
+    private $property;
+
+    // Constructor
+    public function __construct($param)
+    {
+        $this->property = $param;
+    }
+
+    // Public methods
+    public function publicMethod()
+    {
+        return $this->privateMethod();
+    }
+
+    // Private methods
+    private function privateMethod()
+    {
+        return 'result';
+    }
+}
+```
+
+### Documentation
+```php
+/**
+ * Component description
+ *
+ * @package SelfHelp\Component\Style
+ * @author Developer Name
+ * @version 1.0.0
+ */
+class ComponentName extends BaseComponent
+{
+    /**
+     * Constructor
+     *
+     * @param array $services Service container
+     * @param int $id Component ID
+     * @param array $params Component parameters
+     * @param int $id_page Page ID
+     * @param mixed $entry_record Entry record data
+     */
+    public function __construct($services, $id, $params, $id_page, $entry_record)
+    {
+        // Implementation
+    }
+
+    /**
+     * Process component data
+     *
+     * @param array $data Input data
+     * @return array Processed data
+     */
+    public function processData(array $data): array
+    {
+        // Implementation
+        return $data;
+    }
+}
+```
+
+## Performance Optimization
+
+### Caching Strategy
+```php
+class ComponentCache {
+    public function getCachedData($component_id, $params) {
+        $cache_key = $this->generateCacheKey($component_id, $params);
+
+        $cached = $this->cache->get($cache_key);
+        if ($cached !== false) {
+            return $cached;
+        }
+
+        $data = $this->loadData($component_id, $params);
+        $this->cache->set($cache_key, $data, $this->getCacheTtl());
+
+        return $data;
+    }
+
+    private function generateCacheKey($component_id, $params) {
+        return 'component_' . $component_id . '_' . md5(serialize($params));
+    }
+
+    private function getCacheTtl() {
+        return 3600; // 1 hour
+    }
+}
+```
+
+### Database Optimization
+```php
+class OptimizedQuery {
+    public function getPaginatedData($page, $limit, $filters = []) {
+        $offset = ($page - 1) * $limit;
+
+        $query = "
+            SELECT SQL_CALC_FOUND_ROWS
+                id, title, content, created_at
+            FROM data_table
+            WHERE deleted = 0
+        ";
+
+        $params = [];
+        if (!empty($filters['status'])) {
+            $query .= " AND status = ?";
+            $params[] = $filters['status'];
+        }
+
+        $query .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        $data = $this->db->query_db($query, $params);
+
+        // Get total count efficiently
+        $total = $this->db->query_db_first("SELECT FOUND_ROWS() as total")['total'];
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'pages' => ceil($total / $limit)
+        ];
+    }
+}
+```
+
+## Deployment
+
+### Build Process
+```bash
+# Install dependencies
+composer install
+cd gulp && npm install
+
+# Run tests
+./vendor/bin/phpunit
+
+# Build assets
+gulp
+
+# Create deployment package
+tar -czf deployment.tar.gz \
+    --exclude='.git' \
+    --exclude='node_modules' \
+    --exclude='tests' \
+    .
+```
+
+### Environment Configuration
+```php
+// Production configuration
+define('DEBUG', false);
+define('CACHE_ENABLED', true);
+define('LOG_LEVEL', 'ERROR');
+
+// Database
+define('DB_HOST', 'production-host');
+define('DB_NAME', 'production_db');
+define('DB_USER', 'production_user');
+define('DB_PASS', 'production_pass');
+```
+
+### Health Checks
+```php
+class HealthCheck {
+    public function checkDatabase() {
+        try {
+            $this->db->query_db_first("SELECT 1");
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function checkCache() {
+        try {
+            $this->cache->set('health_check', 'ok', 60);
+            $result = $this->cache->get('health_check');
+            return $result === 'ok';
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function checkApi() {
+        try {
+            $response = $this->callApi('/api/base/ping');
+            return $response['status'] === 200 && $response['response'] === 'pong';
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+}
+```
+
+## Monitoring and Logging
+
+### Application Logging
+```php
+class Logger {
+    private $log_file;
+
+    public function __construct($log_file = null) {
+        $this->log_file = $log_file ?: __DIR__ . '/../../logs/application.log';
+    }
+
+    public function log($level, $message, $context = []) {
+        $timestamp = date('Y-m-d H:i:s');
+        $context_str = empty($context) ? '' : ' ' . json_encode($context);
+
+        $log_entry = "[$timestamp] [$level] $message{$context_str}" . PHP_EOL;
+
+        file_put_contents($this->log_file, $log_entry, FILE_APPEND | LOCK_EX);
+    }
+
+    public function error($message, $context = []) {
+        $this->log('ERROR', $message, $context);
+    }
+
+    public function warning($message, $context = []) {
+        $this->log('WARNING', $message, $context);
+    }
+
+    public function info($message, $context = []) {
+        $this->log('INFO', $message, $context);
+    }
+
+    public function debug($message, $context = []) {
+        if (DEBUG) {
+            $this->log('DEBUG', $message, $context);
+        }
+    }
+}
+```
+
+### Performance Monitoring
+```php
+class PerformanceMonitor {
+    private $start_time;
+    private $memory_start;
+
+    public function start() {
+        $this->start_time = microtime(true);
+        $this->memory_start = memory_get_usage();
+    }
+
+    public function end($operation_name) {
+        $end_time = microtime(true);
+        $memory_end = memory_get_usage();
+
+        $duration = ($end_time - $this->start_time) * 1000; // milliseconds
+        $memory_used = $memory_end - $this->memory_start;
+
+        $this->logger->info("Performance: $operation_name", [
+            'duration_ms' => round($duration, 2),
+            'memory_bytes' => $memory_used,
+            'memory_mb' => round($memory_used / 1024 / 1024, 2)
+        ]);
+
+        // Log slow operations
+        if ($duration > 1000) { // More than 1 second
+            $this->logger->warning("Slow operation detected: $operation_name", [
+                'duration_ms' => round($duration, 2)
+            ]);
+        }
+    }
+}
+```

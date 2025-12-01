@@ -1,0 +1,346 @@
+---
+description: Database architecture patterns, migrations, and data management for SelfHelp
+globs:
+alwaysApply: true
+---
+# SelfHelp Database Rules
+
+## Database Overview
+
+SelfHelp uses MySQL as its primary database with a version-controlled migration system. Database changes are managed through incremental SQL scripts that follow semantic versioning principles. The system includes a unified data storage approach and comprehensive audit trails.
+
+## Versioning System
+
+### Semantic Versioning Rules
+SelfHelp follows semantic versioning (MAJOR.MINOR.PATCH):
+- **MAJOR** (X.0.0): Breaking changes, major architectural updates
+- **MINOR** (X.Y.0): New features, database schema additions
+- **PATCH** (X.Y.Z): Bug fixes, no database changes
+
+### Migration Scripts
+Located in `server/db/update_scripts/` with naming pattern:
+```
+{number}_update_{from_version}_v{to_version}.sql
+```
+Example: `32_update_v6.17.0_v7.0.0.sql`
+
+## Migration System
+
+### Script Structure
+Each migration script follows this pattern:
+```sql
+-- Update version number
+UPDATE version SET version = 'v7.0.0';
+
+-- Save current SQL mode for safety
+SET @orig_sql_mode = @@sql_mode;
+SET SESSION sql_mode = REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '');
+
+-- Migration logic here
+-- CREATE TABLE, ALTER TABLE, INSERT, UPDATE, etc.
+
+-- Stored procedures for complex operations
+DELIMITER //
+CREATE PROCEDURE migration_procedure()
+BEGIN
+    -- Complex migration logic
+END //
+DELIMITER ;
+
+-- Restore SQL mode
+SET SESSION sql_mode = @orig_sql_mode;
+```
+
+### Helper Procedures
+Common procedures available in migrations:
+- `add_table_column(table, column, type)`: Safely add columns
+- `drop_table_column(table, column)`: Safely drop columns
+- `add_foreign_key(table, column, ref_table, ref_column)`: Add constraints
+- `drop_foreign_key(table, constraint_name)`: Remove constraints
+
+## Database Structure
+
+### Core Tables
+
+#### Users and Authentication
+- `users`: User accounts, profiles, settings
+- `groups`: User groups for permissions (separate from DB roles)
+- `user_groups`: Many-to-many relationship between users and groups
+- `users_2fa_codes`: Two-factor authentication codes
+- `user_activity`: User session and activity logging
+
+#### Content Management
+- `pages`: Page definitions with routing information
+- `sections`: Content sections within pages
+- `sections_fields`: Field definitions for sections
+- `sections_fields_translation`: Multi-language content
+- `pages_fields`: Page-level configurations
+
+#### Forms and Data Collection
+- `dataTables`: Defines data table structures with metadata (name, displayName, etc.)
+- `dataCols`: Column definitions for dataTables (field names, types, validation)
+- `dataRows`: Individual data records within dataTables (with user_id, timestamp)
+- `dataCells`: Cell values linking dataRows to dataCols
+- `uploadRows`: File upload data and metadata (refactored from old uploadTable)
+
+#### Scheduling and Jobs
+- `scheduledJobs`: Background job queue with status tracking
+- `scheduledJobs_mailQueue`: Links jobs to email queue for mail jobs
+- `scheduledJobs_notifications`: Links jobs to notifications for push notifications
+- `scheduledJobs_tasks`: Links jobs to tasks for custom operations
+- `scheduledJobs_formActions`: Links jobs to form actions for workflow automation
+- `scheduledJobs_reminders`: Reminder configurations for notifications
+- `mailQueue`: Email job queue with recipients, subjects, and bodies
+- `notifications`: Push notification definitions
+- `tasks`: Custom task definitions (including plugin tasks like R scripts)
+- `formActions`: Automated actions triggered by form submissions
+
+#### System Management
+- `version`: Current database version
+- `transactions`: Audit trail for all database operations
+- `lookups`: System-wide lookup tables (statuses, types, etc.)
+
+### Key Design Patterns
+
+#### Normalized Content Structure
+```
+pages (routing) ← sections (layout) ← fields (content) ← translations (i18n)
+```
+
+#### Unified Data Storage
+All data (previously INTERNAL/EXTERNAL) is now stored in the unified dataTables system:
+- **dataTables**: Define table structures (previously separate INTERNAL/EXTERNAL tables)
+- **dataCols**: Define columns within tables
+- **dataRows**: Store individual records with user associations
+- **dataCells**: Store individual cell values
+- **Flexible metadata**: Each dataTable can have custom column structures
+- **Unified querying**: Single system handles all data types with consistent APIs
+
+#### Audit Trail
+Every database operation is logged in the `transactions` table:
+```sql
+INSERT INTO transactions (
+    table_name, record_id, operation_type, user_id, timestamp, details
+) VALUES (?, ?, ?, ?, NOW(), ?)
+```
+
+## Data Types and Constraints
+
+### Field Types
+- `varchar`, `text`, `longtext`: Text content
+- `int`, `bigint`: Numeric values
+- `datetime`, `timestamp`: Date/time values
+- `json`: Structured data (MySQL 5.7.8+)
+- `enum`: Fixed value sets
+
+### Indexing Strategy
+- Primary keys on all tables
+- Foreign key constraints with indexes
+- Composite indexes for common query patterns
+- Full-text indexes for search functionality
+
+### Data Integrity
+- Foreign key constraints enforce referential integrity
+- NOT NULL constraints on required fields
+- CHECK constraints for data validation
+- UNIQUE constraints prevent duplicates
+
+## Query Optimization
+
+### Common Query Patterns
+
+#### User Permissions
+```sql
+SELECT p.* FROM pages p
+INNER JOIN acl_groups_pages agp ON p.id = agp.id_pages
+INNER JOIN user_groups ug ON agp.id_groups = ug.id_groups
+WHERE ug.id_users = ?
+```
+
+#### Content Loading
+```sql
+SELECT sf.*, sft.content
+FROM sections_fields sf
+LEFT JOIN sections_fields_translation sft
+    ON sf.id = sft.id_sections_fields
+WHERE sf.id_sections = ?
+    AND sft.id_languages = ?
+ORDER BY sf.sort_order
+```
+
+#### Form Data Retrieval
+```sql
+SELECT uir.*, GROUP_CONCAT(uif.field_name, '=', uif.field_value) as fields
+FROM user_input_record uir
+LEFT JOIN user_input_fields uif ON uir.id = uif.id_user_input_record
+WHERE uir.id_users = ?
+GROUP BY uir.id
+```
+
+## Database Functions, Views, and Stored Procedures
+
+The system includes comprehensive database functions, views, and stored procedures located in `server/db/FUN_PRO_VIEWS/`:
+
+### Schema Management Procedures
+- `add_table_column()`: Safely adds columns to existing tables
+- `drop_table_column()`: Safely removes columns from tables
+- `add_foreign_key()`: Creates foreign key constraints
+- `drop_foreign_key()`: Removes foreign key constraints
+- `add_index()`: Creates database indexes for performance
+- `drop_index()`: Removes database indexes
+- `add_unique_key()`: Creates unique constraints
+- `rename_table_column()`: Renames table columns
+- `rename_table()`: Renames tables
+
+### Helper Functions
+- `get_form_fields_helper()`: Retrieves form field configurations
+- `get_page_fields_helper()`: Gets page field definitions
+- `get_sections_fields_helper()`: Retrieves section field configurations
+- `get_field_type_id()`: Maps field type names to IDs
+- `get_field_id()`: Retrieves field IDs by name
+- `get_style_id()`: Gets style IDs by name
+- `get_style_group_id()`: Retrieves style group IDs
+
+### Data Retrieval Procedures
+- `get_dataTable_with_filter()`: Complex procedure for retrieving filtered data from dataTables with:
+  - User-specific filtering
+  - Time period filtering (LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR)
+  - Soft delete exclusion (deleted records)
+  - Dynamic column pivoting from dataCols to readable format
+
+### User Access Control Views
+- `view_acl_groups_pages`: Group-based page access permissions
+- `view_acl_users_pages`: User-specific page access
+- `view_acl_users_in_groups_pages`: Combined user-group-page permissions
+- `view_acl_users_union`: Unified user access view
+
+### Access Control Procedures
+- `get_group_acl()`: Retrieves group-based access control lists
+- `get_user_acl()`: Gets user-specific access permissions
+- `get_navigation()`: Builds navigation menus based on user permissions
+
+### Data Views
+- `view_dataTables`: DataTables with display names and dropdown formatting
+- `view_dataTables_data`: Combined dataTables with actual data rows and cells
+- `view_fields`: Field definitions with translations
+- `view_styles`: Style configurations
+- `view_style_fields`: Style field definitions
+- `view_sections_fields`: Section field configurations with translations
+- `view_users`: User data with group associations
+- `view_scheduledJobs`: Job queue with related data (emails, notifications, tasks)
+- `view_scheduledJobs_transactions`: Job execution history
+- `view_scheduledJobs_reminders`: Reminder configurations
+- `view_mailQueue`: Email queue with status and content
+- `view_notifications`: Push notification definitions
+- `view_tasks`: Task definitions and configurations
+- `view_formActions`: Form action definitions
+- `view_user_codes`: User validation codes
+- `view_transactions`: Audit trail of all database operations
+
+### CMS Views
+- `view_cmsPreferences`: CMS configuration preferences
+- `get_page_fields()`: Page field retrieval functions
+- `get_sections_fields()`: Section field retrieval functions
+
+### Utility Procedures
+- `drop_index()`: Safely drops database indexes
+- `rename_table_column()`: Renames table columns with data preservation
+
+## Transaction Management
+
+### Database Transactions
+All create, edit, delete operations in admin services must be wrapped in database transactions with proper rollback handling:
+```php
+$this->db->begin_transaction();
+try {
+    // Database operations
+    $this->db->insert('table', $data);
+    $this->db->update('table', $updates, $where);
+
+    // Log transaction
+    $this->services->get_transaction_service()->log_operation(
+        'CREATE', 'table', $new_id, $user_id, $details
+    );
+
+    $this->db->commit();
+} catch (Exception $e) {
+    $this->db->rollback();
+    throw $e;
+}
+```
+
+### Audit Trail
+Every transaction must be logged using the TransactionService:
+```php
+$this->transaction_service->log_operation(
+    $operation_type,    // 'CREATE', 'UPDATE', 'DELETE'
+    $table_name,        // affected table
+    $record_id,         // primary key of affected record
+    $user_id,           // user performing operation
+    $details           // additional context
+);
+```
+
+## Development Workflow
+
+### Adding Database Changes
+
+1. **Create migration script** in `server/db/update_scripts/`
+2. **Follow naming convention**: `{number}_update_{from}_v{to}.sql`
+3. **Test on development** environment first
+4. **Update changelog** with version bump and description
+5. **Document breaking changes** clearly
+
+### Schema Changes Checklist
+- [ ] Update relevant models to handle new fields
+- [ ] Modify queries in services layer if needed
+- [ ] Update API responses (JSON schemas)
+- [ ] Test both create and read operations
+- [ ] Verify foreign key constraints
+- [ ] Check performance impact of new indexes
+- [ ] Update documentation
+
+### Migration Testing
+```bash
+# Test migration on development database
+mysql -u username -p database < migration_script.sql
+
+# Verify data integrity
+mysql -u username -p database -e "CHECK TABLE table_name;"
+
+# Check data consistency
+mysql -u username -p database -e "SELECT COUNT(*) FROM table_name WHERE new_field IS NULL;"
+
+# Rollback if needed
+mysql -u username -p database < rollback_script.sql
+```
+
+## Performance Considerations
+
+### Indexing
+- All foreign keys are indexed
+- Composite indexes for multi-column WHERE clauses
+- Avoid over-indexing (maintenance overhead)
+
+### Query Optimization
+- Use EXPLAIN to analyze query execution plans
+- Prefer JOINs over subqueries for large datasets
+- Use appropriate data types to minimize storage
+
+### Connection Management
+- Connection pooling through PDO
+- Prepared statements for repeated queries
+- Transaction batching for bulk operations
+
+## Backup and Recovery
+
+### Backup Strategy
+1. **Full database backup** before major version updates
+2. **Incremental backups** for production environments
+3. **Test migrations** on staging environments first
+
+### Recovery Procedures
+1. Restore from backup
+2. Re-run migration scripts in order from `server/db/update_scripts/`
+3. Verify data integrity
+4. Update application version

@@ -1,0 +1,9 @@
+---
+description: Allows committing changes via /commit command
+globs: 
+alwaysApply: true
+---
+COMMIT_RULE - The assistant can now commit changes when the /commit command is used
+You can commit changes to git using the /commit command
+This overrides the previous "NEVER NEVER GIT" rule for commit operations only
+Push operations are still prohibited unless explicitly requested

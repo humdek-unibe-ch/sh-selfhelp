@@ -1,0 +1,463 @@
+---
+description: API development patterns, response formats, and authentication for SelfHelp
+globs:
+alwaysApply: true
+---
+# SelfHelp API Rules
+
+## API Overview
+
+SelfHelp's API functionality is provided through the **sh-shp-api plugin**. The core SelfHelp system does not include built-in API endpoints - all API functionality is implemented as a plugin that extends the base system. This plugin provides RESTful APIs for mobile applications and external integrations.
+
+## API Architecture
+
+### Plugin Structure
+```
+server/plugins/sh-shp-api/
+├── server/
+│   ├── api/
+│   │   ├── ApiBase.php          # Base API endpoints (/api/base/)
+│   │   ├── ApiData.php          # Data API endpoints (/api/data/)
+│   │   └── ApiRequest.php       # Base API request handler
+│   └── service/
+│       └── globals.php          # HTTP status constants and X-API-KEY header
+└── API.md                       # API documentation
+```
+
+### Base Classes
+- **ApiRequest**: Base class extending BaseModel, handles authentication, response formatting, and API execution
+- **ApiBase**: Extends ApiRequest, provides basic endpoints like ping/pong and greetings
+- **ApiData**: Extends ApiRequest, provides dataTable CRUD operations
+
+## Authentication
+
+### API Key Authentication
+The API uses `X-API-Key` header for authentication:
+
+```php
+// In ApiRequest.php
+public function authorizeUser() {
+    $headers = array_change_key_case(getallheaders(), CASE_LOWER);
+    if (isset($headers['x-api-key'])) {
+        $api_key = $headers['x-api-key'];
+        $user_id = $this->get_user_id_by_api_token($api_key);
+        if ($user_id > 0) {
+            $page_id = $this->db->fetch_page_id_by_keyword($this->router->route['name']);
+            $has_access = $this->acl->has_access($user_id, $page_id, $requested_mode);
+            $_SESSION['id_user'] = $user_id;
+        }
+    }
+}
+```
+
+### API Token Storage
+API tokens are stored in the `users_api` table:
+```sql
+CREATE TABLE users_api (
+    id INT PRIMARY KEY,
+    id_users INT,
+    token VARCHAR(255),
+    created_at TIMESTAMP
+);
+```
+
+## Response Format
+
+### Standard Response Structure
+All API responses follow a simple JSON structure:
+
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": "pong"
+}
+```
+
+### Success Response Examples
+```json
+// Ping response
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": "pong"
+}
+
+// Data response
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": [
+        {
+            "id": 1,
+            "name": "John Doe",
+            "email": "john@example.com"
+        }
+    ]
+}
+```
+
+### Error Response Examples
+```json
+// Not found error
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 404,
+    "message": "Not Found",
+    "error_message": "The table does not exists!"
+}
+
+// Conflict error
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 409,
+    "message": "Conflict",
+    "error_message": "The table already exists!"
+}
+```
+
+## API Endpoints
+
+### Base Module (`/api/base/`)
+
+#### Ping/Pong Health Check
+```http
+GET /api/base/ping
+```
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": "pong"
+}
+```
+
+#### Greeting Endpoints
+```http
+GET /api/base/hallo/{name}
+POST /api/base/hallo/{name}
+```
+
+**Parameters:**
+- `{name}` (string, required): Name for greeting
+- `my_name` (string, POST body): Your name for response
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": "Hallo {name}. My name is: {my_name}"
+}
+```
+
+### Data Module (`/api/data/`)
+
+#### Get User Data
+```http
+GET /api/my/data/table/{table_name}?filter=...
+```
+
+**Parameters:**
+- `{table_name}` (string, required): Name of the dataTable
+- `filter` (string, optional): SQL filter clause (e.g., `AND record_id = 200`)
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": [
+        {
+            "id": 1,
+            "field_name": "value",
+            "_json": {"parsed": "json_data"}
+        }
+    ]
+}
+```
+
+#### Get All Users Data (Admin)
+```http
+GET /api/data/table/{table_name}?filter=...
+```
+
+Same as above but returns data for all users (requires admin access).
+
+#### Create DataTable
+```http
+POST /api/data/table
+Content-Type: application/json
+
+{
+    "name": "new_table",
+    "displayName": "New Table Display Name"
+}
+```
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": 123  // New table ID
+}
+```
+
+#### Import Data
+```http
+POST /api/data/table/{table_name}
+Content-Type: application/x-www-form-urlencoded
+# OR
+Content-Type: application/json
+```
+
+**Parameters:**
+- `{table_name}` (string, required): Name of the dataTable
+
+**Request Body:**
+- Form data: `field1=value1&field2=value2`
+- JSON data: `{"field1": "value1", "field2": "value2"}`
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": 456  // New record ID
+}
+```
+
+#### Update Data Record
+```http
+PUT /api/data/table/{table_name}/{record_id}
+Content-Type: application/x-www-form-urlencoded or application/json
+```
+
+**Parameters:**
+- `{table_name}` (string, required): Name of the dataTable
+- `{record_id}` (integer, required): Record ID to update
+
+**Request Body:** Same as POST above
+
+**Response:**
+```json
+{
+    "timestamp": "2024-01-01 12:00:00",
+    "status": 200,
+    "message": "OK",
+    "response": 456  // Updated record ID
+}
+```
+
+## Method Routing
+
+### Dynamic Method Execution
+API methods are called dynamically based on HTTP method and URL path:
+
+```php
+// URL: GET /api/base/ping
+// Calls: GET_ping()
+
+// URL: POST /api/base/hallo/john
+// Calls: POST_hallo("john", $post_data)
+
+// URL: GET /api/my/data/table/users
+// Calls: GET_table("users", "", "my")
+
+// URL: PUT /api/data/table/users/123
+// Calls: PUT_table("users", "123", $put_data)
+```
+
+### Parameter Extraction
+URL parameters are automatically extracted and passed to methods:
+- Path parameters: `/api/base/hallo/{name}` → `GET_hallo($name)`
+- Query parameters: `?filter=value` → passed as additional arguments
+- Request body: Automatically parsed based on Content-Type
+
+## Development Guidelines
+
+### Creating New API Classes
+
+1. **Extend ApiRequest**:
+```php
+class MyApi extends ApiRequest {
+    public function __construct($services, $response) {
+        parent::__construct($services);
+        $this->init_response($response);
+    }
+}
+```
+
+2. **Implement HTTP Methods**:
+```php
+public function GET_my_endpoint($param1, $param2 = '') {
+    // Process GET request
+    $data = $this->get_some_data($param1, $param2);
+    $this->set_response($data);
+    $this->return_response();
+}
+
+public function POST_my_endpoint($data) {
+    // Process POST request
+    $result = $this->process_data($data);
+    $this->set_response($result);
+    $this->return_response();
+}
+```
+
+3. **Handle Errors**:
+```php
+public function GET_protected_data() {
+    if (!$this->is_authenticated()) {
+        $this->set_status(HTTP_UNAUTHORIZED);
+        $this->set_error_message('Authentication required');
+        return $this->return_response();
+    }
+    // Continue with normal processing
+}
+```
+
+### Response Methods
+
+#### Setting Response Data
+```php
+$this->set_response($data);  // Set the main response data
+```
+
+#### Setting Status and Messages
+```php
+$this->set_status(HTTP_OK);  // Set HTTP status code
+$this->set_message('Custom message');  // Override default message
+$this->set_error_message('Error details');  // Set error message
+```
+
+#### Returning Response
+```php
+$this->return_response();  // Send JSON response and exit
+```
+
+### Authentication Checks
+
+#### Check API Key
+```php
+$user_id = $this->get_user_id_by_api_token($api_key);
+if (!$user_id) {
+    $this->set_status(HTTP_UNAUTHORIZED);
+    return $this->return_response();
+}
+```
+
+#### Check Permissions
+```php
+$page_id = $this->db->fetch_page_id_by_keyword($this->router->route['name']);
+$has_access = $this->acl->has_access($user_id, $page_id, $requested_mode);
+if (!$has_access) {
+    $this->set_status(HTTP_UNAUTHORIZED);
+    return $this->return_response();
+}
+```
+
+## HTTP Status Constants
+
+The API uses predefined HTTP status constants:
+
+```php
+define('HTTP_OK', 200);
+define('HTTP_CREATED', 201);
+define('HTTP_BAD_REQUEST', 400);
+define('HTTP_UNAUTHORIZED', 401);
+define('HTTP_FORBIDDEN', 403);
+define('HTTP_NOT_FOUND', 404);
+define('HTTP_CONFLICT', 409);
+define('HTTP_INTERNAL_SERVER_ERROR', 500);
+// ... and many more
+```
+
+## API Logging
+
+All API requests are automatically logged to the `apiLogs` table:
+
+```sql
+CREATE TABLE apiLogs (
+    id INT PRIMARY KEY,
+    id_users INT,
+    remote_addr VARCHAR(45),
+    target_url TEXT,
+    post_params TEXT,
+    status INT,
+    return_response TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Testing API Endpoints
+
+### Manual Testing with curl
+```bash
+# Ping endpoint
+curl -X GET "http://localhost/api/base/ping" \
+     -H "X-API-Key: your-api-key"
+
+# Get data
+curl -X GET "http://localhost/api/data/table/users" \
+     -H "X-API-Key: your-api-key"
+
+# Create data
+curl -X POST "http://localhost/api/data/table/users" \
+     -H "X-API-Key: your-api-key" \
+     -H "Content-Type: application/json" \
+     -d '{"name": "John", "email": "john@example.com"}'
+```
+
+### Unit Testing
+```php
+class ApiTest {
+    public function test_api_response_format() {
+        $api = new ApiBase($this->services, []);
+        $api->GET_ping();
+
+        // Check that response follows expected format
+        $this->assertEquals(200, $api->get_status());
+        $this->assertEquals('pong', $api->get_response());
+    }
+}
+```
+
+## Security Considerations
+
+### Input Validation
+Always validate and sanitize input data:
+
+```php
+public function POST_create_user($data) {
+    // Validate required fields
+    if (empty($data['name']) || empty($data['email'])) {
+        $this->set_status(HTTP_BAD_REQUEST);
+        $this->set_error_message('Name and email are required');
+        return $this->return_response();
+    }
+
+    // Sanitize input
+    $data['name'] = filter_var($data['name'], FILTER_SANITIZE_STRING);
+    $data['email'] = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
+
+    // Continue processing...
+}
+```
+
+### Rate Limiting
+Consider implementing rate limiting for API endpoints to prevent abuse.
+
+### CORS Headers
+The API handles CORS automatically through the main SelfHelp application.

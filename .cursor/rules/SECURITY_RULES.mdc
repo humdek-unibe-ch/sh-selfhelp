@@ -1,0 +1,731 @@
+---
+description: Security patterns, authentication, and access control for SelfHelp
+globs:
+alwaysApply: true
+---
+# SelfHelp Security Rules
+
+## Security Overview
+
+SelfHelp implements a comprehensive security framework with role-based access control, secure authentication mechanisms, and protection against common web vulnerabilities. The system supports both traditional web authentication and mobile API access.
+
+## Authentication System
+
+### User Authentication
+
+#### Login Process
+```php
+class Login {
+    public function authenticate($username, $password) {
+        // Validate input
+        if (!$this->validate_credentials($username, $password)) {
+            $this->log_failed_attempt($username);
+            return false;
+        }
+
+        // Check account status
+        $user = $this->get_user_by_credentials($username);
+        if (!$user || !$user['active']) {
+            return false;
+        }
+
+        // Create session
+        $this->create_user_session($user);
+
+        // Log successful login
+        $this->log_successful_login($user['id']);
+
+        return true;
+    }
+}
+```
+
+#### Session Management
+```php
+class Login {
+    private function create_user_session($user) {
+        $_SESSION['id_user'] = $user['id'];
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_language'] = $user['language'];
+        $_SESSION['default_language_id'] = LANGUAGE;
+        $_SESSION['last_activity'] = time();
+
+        // Regenerate session ID for security
+        session_regenerate_id(true);
+    }
+
+    public function check_session_timeout() {
+        $timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 3600;
+        if (isset($_SESSION['last_activity']) &&
+            (time() - $_SESSION['last_activity'] > $timeout)) {
+            $this->logout();
+            return false;
+        }
+        $_SESSION['last_activity'] = time();
+        return true;
+    }
+}
+```
+
+### Two-Factor Authentication (2FA)
+
+#### 2FA Implementation
+```php
+class TwoFactorAuth {
+    public function enable_2fa($user_id) {
+        // Generate secret key
+        $secret = $this->generate_secret();
+
+        // Store in database
+        $this->db->insert('users_2fa_codes', [
+            'id_users' => $user_id,
+            'secret' => $this->encrypt_secret($secret),
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return $secret;
+    }
+
+    public function verify_2fa_code($user_id, $code) {
+        $secret_data = $this->get_user_2fa_secret($user_id);
+        if (!$secret_data) {
+            return false;
+        }
+
+        $secret = $this->decrypt_secret($secret_data['secret']);
+        return $this->verify_totp($secret, $code);
+    }
+}
+```
+
+#### TOTP Verification
+```php
+private function verify_totp($secret, $code) {
+    $window = 1; // Allow 30 seconds clock skew
+    $current_time = time();
+
+    for ($i = -$window; $i <= $window; $i++) {
+        $time = $current_time + ($i * 30);
+        $generated_code = $this->generate_totp($secret, $time);
+        if ($generated_code === $code) {
+            return true;
+        }
+    }
+
+    return false;
+}
+```
+
+## Access Control
+
+### Role-Based Access Control (RBAC)
+
+#### Group-Based Permissions
+```php
+class Acl {
+    public function check_page_access($page_keyword, $user_id) {
+        // Get user's groups
+        $user_groups = $this->get_user_groups($user_id);
+
+        // Check if any group has access to the page
+        foreach ($user_groups as $group_id) {
+            if ($this->group_has_page_access($group_id, $page_keyword)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function check_section_access($section_id, $user_id) {
+        $user_groups = $this->get_user_groups($user_id);
+
+        foreach ($user_groups as $group_id) {
+            if ($this->group_has_section_access($group_id, $section_id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+### Permission Checking
+
+#### Page Access Control
+```php
+public function has_page_permission($user_id, $page_keyword) {
+    // Check if user is in allowed groups for this page
+    $query = "
+        SELECT COUNT(*) as count
+        FROM user_groups ug
+        INNER JOIN acl_groups_pages agp ON ug.id_groups = agp.id_groups
+        INNER JOIN pages p ON agp.id_pages = p.id
+        WHERE ug.id_users = ? AND p.keyword = ?
+    ";
+
+    $result = $this->db->query_db_first($query, [$user_id, $page_keyword]);
+    return $result['count'] > 0;
+}
+```
+
+#### Section Access Control
+```php
+public function has_section_permission($user_id, $section_id) {
+    // Check if user can access the section
+    $query = "
+        SELECT COUNT(*) as count
+        FROM user_groups ug
+        INNER JOIN acl_groups_sections ags ON ug.id_groups = ags.id_groups
+        WHERE ug.id_users = ? AND ags.id_sections = ?
+    ";
+
+    $result = $this->db->query_db_first($query, [$user_id, $section_id]);
+    return $result['count'] > 0;
+}
+```
+
+## Input Validation and Sanitization
+
+### Input Sanitization
+```php
+class InputSanitizer {
+    public function sanitize_string($input) {
+        return filter_var(trim($input), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+    }
+
+    public function sanitize_email($input) {
+        return filter_var(trim($input), FILTER_SANITIZE_EMAIL);
+    }
+
+    public function sanitize_int($input) {
+        return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+    }
+
+    public function sanitize_url($input) {
+        return filter_var($input, FILTER_SANITIZE_URL);
+    }
+}
+```
+
+### Form Data Validation
+```php
+class FormValidator {
+    public function validate_required($value, $field_name) {
+        if (empty($value)) {
+            return "$field_name is required";
+        }
+        return true;
+    }
+
+    public function validate_email($email) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return "Invalid email format";
+        }
+        return true;
+    }
+
+    public function validate_length($value, $min, $max, $field_name) {
+        $length = strlen($value);
+        if ($length < $min) {
+            return "$field_name must be at least $min characters";
+        }
+        if ($length > $max) {
+            return "$field_name must be no more than $max characters";
+        }
+        return true;
+    }
+
+    public function validate_form($data, $rules) {
+        $errors = [];
+
+        foreach ($rules as $field => $field_rules) {
+            $value = $data[$field] ?? null;
+
+            foreach ($field_rules as $rule) {
+                $result = $this->{$rule['method']}($value, ...$rule['params']);
+                if ($result !== true) {
+                    $errors[$field] = $result;
+                    break;
+                }
+            }
+        }
+
+        return empty($errors) ? true : $errors;
+    }
+}
+```
+
+## CSRF Protection
+
+### CSRF Token Generation
+```php
+class CsrfProtection {
+    public function generate_token() {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    public function validate_token($token) {
+        if (empty($_SESSION['csrf_token']) || empty($token)) {
+            return false;
+        }
+
+        if (!hash_equals($_SESSION['csrf_token'], $token)) {
+            return false;
+        }
+
+        // Token is single-use - regenerate after validation
+        unset($_SESSION['csrf_token']);
+        return true;
+    }
+}
+```
+
+### CSRF in Forms
+```php
+// In form templates
+<input type="hidden" name="csrf_token" value="<?php echo $csrf->generate_token(); ?>">
+
+// In form processing
+if (!$csrf->validate_token($_POST['csrf_token'])) {
+    die('CSRF token validation failed');
+}
+```
+
+## SQL Injection Prevention
+
+### Parameterized Queries
+```php
+class Database {
+    public function query_db($sql, $params = []) {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    public function query_db_first($sql, $params = []) {
+        $stmt = $this->query_db($sql, $params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Safe user lookup
+    public function get_user_by_email($email) {
+        $sql = "SELECT * FROM users WHERE email = ?";
+        return $this->query_db_first($sql, [$email]);
+    }
+}
+```
+
+### Dynamic Query Building
+```php
+public function build_safe_query($base_query, $filters) {
+    $conditions = [];
+    $params = [];
+
+    foreach ($filters as $field => $value) {
+        // Whitelist allowed fields
+        if (in_array($field, $this->allowed_fields)) {
+            $conditions[] = "$field = ?";
+            $params[] = $value;
+        }
+    }
+
+    $where_clause = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
+    $sql = $base_query . ' ' . $where_clause;
+
+    return $this->query_db($sql, $params);
+}
+```
+
+## XSS Protection
+
+### Output Escaping
+```php
+class OutputSanitizer {
+    public function escape_html($text) {
+        return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    public function escape_js($text) {
+        return json_encode($text, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    }
+
+    public function escape_css($text) {
+        // Basic CSS escaping - use dedicated libraries for production
+        return preg_replace('/[<>&"\'`]/', '', $text);
+    }
+}
+```
+
+### Content Security Policy (CSP)
+```php
+// In index.php or bootstrap
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'");
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+```
+
+### Template Escaping
+```php
+// In view templates
+<div class="user-content">
+    <?php echo $this->escape_html($user_input); ?>
+</div>
+
+<script>
+    var userData = <?php echo $this->escape_js($user_data); ?>;
+</script>
+```
+
+## Session Security
+
+### Secure Session Configuration
+```php
+// In configuration or bootstrap
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 1); // HTTPS only
+ini_set('session.cookie_samesite', 'Strict');
+ini_set('session.use_only_cookies', 1);
+ini_set('session.use_strict_mode', 1);
+
+// Session settings
+session_name('selfhelp_session');
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
+```
+
+### Session Hijacking Prevention
+```php
+class SessionSecurity {
+    public function regenerate_session() {
+        // Regenerate session ID to prevent fixation
+        session_regenerate_id(true);
+
+        // Update last activity
+        $_SESSION['last_regeneration'] = time();
+    }
+
+    public function check_session_integrity() {
+        // Check for suspicious session changes
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+
+        if (isset($_SESSION['user_agent']) && $_SESSION['user_agent'] !== $user_agent) {
+            // Potential session hijacking
+            $this->destroy_session();
+            return false;
+        }
+
+        if (isset($_SESSION['ip_address']) && $_SESSION['ip_address'] !== $ip_address) {
+            // IP address changed - log suspicious activity
+            $this->log_suspicious_activity('IP address changed');
+        }
+
+        $_SESSION['user_agent'] = $user_agent;
+        $_SESSION['ip_address'] = $ip_address;
+        return true;
+    }
+}
+```
+
+## Password Security
+
+### Password Hashing
+```php
+class PasswordSecurity {
+    public function hash_password($password) {
+        return password_hash($password, PASSWORD_ARGON2ID, [
+            'memory_cost' => 65536,  // 64MB
+            'time_cost' => 4,        // 4 iterations
+            'threads' => 3           // 3 parallel threads
+        ]);
+    }
+
+    public function verify_password($password, $hash) {
+        return password_verify($password, $hash);
+    }
+
+    public function needs_rehash($hash) {
+        return password_needs_rehash($hash, PASSWORD_ARGON2ID, [
+            'memory_cost' => 65536,
+            'time_cost' => 4,
+            'threads' => 3
+        ]);
+    }
+}
+```
+
+### Password Policies
+```php
+public function validate_password_strength($password) {
+    $errors = [];
+
+    if (strlen($password) < 12) {
+        $errors[] = "Password must be at least 12 characters long";
+    }
+
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = "Password must contain at least one uppercase letter";
+    }
+
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = "Password must contain at least one lowercase letter";
+    }
+
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = "Password must contain at least one number";
+    }
+
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $errors[] = "Password must contain at least one special character";
+    }
+
+    return empty($errors) ? true : $errors;
+}
+```
+
+## File Upload Security
+
+### File Upload Validation
+```php
+class FileUploadSecurity {
+    private $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+    private $max_file_size = 5242880; // 5MB
+
+    public function validate_upload($file) {
+        // Check if file was uploaded
+        if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+            return "File upload failed";
+        }
+
+        // Check file size
+        if ($file['size'] > $this->max_file_size) {
+            return "File size exceeds limit";
+        }
+
+        // Check file extension
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($extension, $this->allowed_extensions)) {
+            return "File type not allowed";
+        }
+
+        // Check MIME type
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!$this->is_allowed_mime_type($mime_type, $extension)) {
+            return "Invalid file type";
+        }
+
+        return true;
+    }
+
+    private function is_allowed_mime_type($mime_type, $extension) {
+        $mime_map = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'pdf' => 'application/pdf'
+        ];
+
+        return isset($mime_map[$extension]) && $mime_map[$extension] === $mime_type;
+    }
+}
+```
+
+### Secure File Storage
+```php
+public function secure_file_storage($uploaded_file, $user_id) {
+    // Generate secure filename
+    $extension = pathinfo($uploaded_file['name'], PATHINFO_EXTENSION);
+    $secure_name = bin2hex(random_bytes(16)) . '.' . $extension;
+
+    // Create user-specific directory
+    $user_dir = UPLOAD_DIR . '/' . $user_id;
+    if (!is_dir($user_dir)) {
+        mkdir($user_dir, 0750, true);
+    }
+
+    $target_path = $user_dir . '/' . $secure_name;
+
+    // Move file to secure location
+    if (move_uploaded_file($uploaded_file['tmp_name'], $target_path)) {
+        // Store file metadata in database
+        $this->store_file_metadata($user_id, $secure_name, $uploaded_file);
+
+        return $secure_name;
+    }
+
+    return false;
+}
+```
+
+## Security Monitoring and Logging
+
+### Security Event Logging
+```php
+class SecurityLogger {
+    public function log_security_event($event_type, $user_id, $details) {
+        $this->db->insert('security_events', [
+            'event_type' => $event_type,
+            'user_id' => $user_id,
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            'details' => json_encode($details),
+            'timestamp' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function log_failed_login($username, $ip_address) {
+        $this->log_security_event('failed_login', null, [
+            'username' => $username,
+            'ip_address' => $ip_address
+        ]);
+    }
+
+    public function log_suspicious_activity($activity_type, $user_id, $details) {
+        $this->log_security_event('suspicious_activity', $user_id, [
+            'activity_type' => $activity_type,
+            'details' => $details
+        ]);
+    }
+}
+```
+
+### Brute Force Protection
+```php
+class BruteForceProtection {
+    private $max_attempts = 5;
+    private $lockout_time = 900; // 15 minutes
+
+    public function check_brute_force($username, $ip_address) {
+        $attempts = $this->get_recent_attempts($username, $ip_address);
+
+        if ($attempts >= $this->max_attempts) {
+            // Check if lockout period has passed
+            $last_attempt = $this->get_last_attempt_time($username, $ip_address);
+            if (time() - $last_attempt < $this->lockout_time) {
+                return false; // Still locked out
+            }
+        }
+
+        return true;
+    }
+
+    public function record_failed_attempt($username, $ip_address) {
+        $this->db->insert('login_attempts', [
+            'username' => $username,
+            'ip_address' => $ip_address,
+            'attempt_time' => date('Y-m-d H:i:s'),
+            'success' => 0
+        ]);
+    }
+
+    private function get_recent_attempts($username, $ip_address) {
+        $cutoff = date('Y-m-d H:i:s', time() - $this->lockout_time);
+        $result = $this->db->query_db_first("
+            SELECT COUNT(*) as attempts
+            FROM login_attempts
+            WHERE username = ? AND ip_address = ? AND attempt_time > ?
+        ", [$username, $ip_address, $cutoff]);
+
+        return $result['attempts'];
+    }
+}
+```
+
+## Security Headers
+
+### HTTP Security Headers
+```php
+class SecurityHeaders {
+    public static function set_security_headers() {
+        // Prevent clickjacking
+        header('X-Frame-Options: DENY');
+
+        // Prevent MIME type sniffing
+        header('X-Content-Type-Options: nosniff');
+
+        // Enable XSS protection
+        header('X-XSS-Protection: 1; mode=block');
+
+        // Referrer policy
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+
+        // HSTS (HTTP Strict Transport Security)
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+
+        // CSP (Content Security Policy)
+        header("Content-Security-Policy: " .
+            "default-src 'self'; " .
+            "script-src 'self' 'unsafe-inline'; " .
+            "style-src 'self' 'unsafe-inline'; " .
+            "img-src 'self' data: https:; " .
+            "font-src 'self'; " .
+            "connect-src 'self'"
+        );
+    }
+}
+```
+
+## Security Testing
+
+### Security Checklist
+- [ ] All user inputs are validated and sanitized
+- [ ] SQL queries use parameterized statements
+- [ ] Passwords are hashed with strong algorithms
+- [ ] Session management is secure
+- [ ] CSRF protection is implemented
+- [ ] XSS prevention measures are in place
+- [ ] File uploads are validated and secured
+- [ ] Security headers are set
+- [ ] Access controls are enforced
+- [ ] Security events are logged
+- [ ] Regular security audits are performed
+
+### Penetration Testing
+```bash
+# Test for common vulnerabilities
+# SQL injection
+sqlmap -u "http://localhost/login" --data="username=admin&password=pass"
+
+# XSS testing
+# Check forms and user input fields manually
+
+# CSRF testing
+# Attempt cross-site request forgery attacks
+
+# File upload testing
+# Try uploading malicious files
+```
+
+### Security Code Review
+```php
+// Review checklist for code reviews
+class SecurityCodeReview {
+    public static $checks = [
+        'input_validation' => 'All user inputs validated?',
+        'sql_injection' => 'Parameterized queries used?',
+        'xss_protection' => 'Output properly escaped?',
+        'csrf_protection' => 'CSRF tokens implemented?',
+        'auth_checks' => 'Authentication/authorization verified?',
+        'session_security' => 'Session handling secure?',
+        'file_security' => 'File operations secure?',
+        'error_handling' => 'Sensitive info not leaked in errors?'
+    ];
+}
+```

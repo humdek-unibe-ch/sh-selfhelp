@@ -1,0 +1,549 @@
+---
+description: Caching architecture and patterns for SelfHelp using APCu
+globs:
+alwaysApply: true
+---
+# SelfHelp Caching Rules
+
+## Caching Overview
+
+SelfHelp uses APCu (Alternative PHP Cache User) as its primary caching mechanism. The system implements a simple but effective caching strategy focused on database query results and frequently accessed lookup data. Unlike complex caching systems, SelfHelp uses direct APCu operations with a straightforward key-based approach.
+
+## Cache Architecture
+
+### Simple APCu-Based Caching
+The caching system is built around direct APCu operations without complex abstractions:
+
+```php
+class Cache {
+    // Direct APCu operations
+    public function get($key) {
+        return apcu_fetch($key);
+    }
+
+    public function set($key, $value, $ttl = 0) {
+        return apcu_store($key, $value, $ttl);
+    }
+
+    public function clear_cache($type = null, $id = null) {
+        if (!$type) {
+            return apcu_clear_cache();
+        }
+        // Pattern-based clearing using iterators
+    }
+}
+```
+
+### Cache Key Structure
+Keys follow a simple prefixed pattern:
+```
+selfhelp-{TYPE}-{ID}-{PARAMETERS}
+```
+
+Examples:
+- `selfhelp-LOOKUPS-get_lookup_id_by_value-user_type`
+- `selfhelp-LOOKUPS-get_lookup_id_by_code-admin-user_type`
+
+### Cache Types
+The system defines specific cache categories:
+
+```php
+const CACHE_TYPE_PAGES = 'CACHE_PAGES';
+const CACHE_TYPE_SECTIONS = 'CACHE_SECTIONS';
+const CACHE_TYPE_FIELDS = 'CACHE_FIELDS';
+const CACHE_TYPE_STYLES = 'CACHE_STYLES';
+const CACHE_TYPE_HOOKS = 'HOOKS';
+const CACHE_TYPE_USER_INPUT = 'USER_INPUT';
+const CACHE_TYPE_CONDITION = 'CONDITION';
+const CACHE_TYPE_LOOKUPS = 'LOOKUPS';
+```
+
+## Implementation Details
+
+### Lookup Caching
+The most heavily cached operations are lookup table queries:
+
+```php
+public function get_lookup_id_by_value($type, $value) {
+    $key = $this->generate_key(self::CACHE_TYPE_LOOKUPS, $value,
+                              [__FUNCTION__, $type]);
+
+    $cached = $this->get($key);
+    if ($cached !== false) {
+        return $cached;
+    }
+
+    // Database query
+    $result = $this->query_db_first(
+        'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type',
+        [':value' => $value, ':type_code' => $type]
+    );
+
+    $value = $result ? $result['id'] : null;
+    $this->set($key, $value);
+
+    return $value;
+}
+```
+
+### Cache Key Generation
+Simple key generation with parameters:
+
+```php
+public function generate_key($type, $id, $extra_params = []) {
+    $key = PROJECT_NAME . '-' . $type . '-' . $id;
+    if (!empty($extra_params)) {
+        $key .= '-' . implode('-', $extra_params);
+    }
+    return $key;
+}
+```
+
+### Cache Clearing Strategy
+Pattern-based cache invalidation:
+
+```php
+public function clear_cache($type = null, $id = null) {
+    if (!$type) {
+        return apcu_clear_cache();
+    }
+
+    $pattern = PROJECT_NAME . '-' . $type;
+    if ($id) {
+        $pattern .= '-' . $id;
+    }
+
+    $iterator = new APCUIterator('#^' . preg_quote($pattern) . '#', APC_ITER_KEY);
+    foreach ($iterator as $entry) {
+        apcu_delete($entry['key']);
+    }
+}
+```
+
+## ReworkedCacheService
+
+SelfHelp now uses ReworkedCacheService as the main cache implementation, featuring:
+
+### Builder Pattern
+Immutable service instances with withCategory() and withPrefix() methods for clean, chainable operations:
+
+```php
+$cache = new ReworkedCacheService($apcu_service);
+
+// Create category-specific cache instances
+$userCache = $cache->withCategory(CATEGORY_USERS);
+$pageCache = $cache->withCategory(CATEGORY_PAGES)->withPrefix('page_');
+```
+
+### Generation-Based Invalidation
+O(1) cache invalidation using generation counters instead of scanning/deleting entries:
+
+```php
+public function invalidateCategory($category) {
+    $generation = $this->getNextGeneration($category);
+    $this->setGeneration($category, $generation);
+    return $generation;
+}
+```
+
+### Dual Cache Types
+- **getList()**: For collections/paginated results
+- **getItem()**: For individual entities
+
+```php
+// Cache a list of users
+$users = $cache->withCategory(CATEGORY_USERS)->getList('active_users', function() {
+    return $this->userRepository->findActiveUsers();
+});
+
+// Cache individual user
+$user = $cache->withCategory(CATEGORY_USERS)->getItem("user_{$id}", function() use ($id) {
+    return $this->userRepository->findUser($id);
+});
+```
+
+### Automatic Statistics
+Built-in hit/miss/set/invalidate tracking per category:
+
+```php
+$stats = $cache->getStatistics(CATEGORY_USERS);
+// Returns: ['hits' => 150, 'misses' => 25, 'sets' => 175, 'invalidations' => 3]
+```
+
+## Cache Invalidation Patterns
+
+### Entity Scope + List Rule
+When using invalidateEntityScope(), ALWAYS also call invalidateAllListsInCategory() for that category:
+
+```php
+public function updateUser($userId, $data) {
+    // Update user data
+    $this->userRepository->update($userId, $data);
+
+    // CRITICAL: Invalidate both entity scope and lists
+    $this->cache->invalidateEntityScope(CATEGORY_USERS, $userId);
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+}
+```
+
+### CRUD Invalidation Strategy
+- **CREATE**: lists only
+- **UPDATE/DELETE**: entity scope + lists
+
+```php
+public function createUser($data) {
+    $user = $this->userRepository->create($data);
+    // Only invalidate lists since new entity won't be cached yet
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+    return $user;
+}
+
+public function updateUser($id, $data) {
+    $user = $this->userRepository->update($id, $data);
+    // Invalidate both entity and lists
+    $this->cache->invalidateEntityScope(CATEGORY_USERS, $id);
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+    return $user;
+}
+```
+
+### Multi-Entity Relationships
+When relationships change (User↔Group, User↔Role), invalidate ALL affected entities and their categories:
+
+```php
+public function assignUserToGroup($userId, $groupId) {
+    // Update relationship
+    $this->userGroupRepository->assign($userId, $groupId);
+
+    // Invalidate all affected entities
+    $this->cache->invalidateEntityScopes([
+        [CATEGORY_USERS, $userId],
+        [CATEGORY_GROUPS, $groupId]
+    ]);
+
+    // Invalidate all related lists
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+    $this->cache->invalidateAllListsInCategory(CATEGORY_GROUPS);
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USER_GROUPS);
+}
+```
+
+### Transaction Order
+Get fresh data BEFORE invalidating caches:
+
+```php
+public function updateUserWithTransaction($id, $data) {
+    $this->db->beginTransaction();
+
+    try {
+        // 1. Update database
+        $updatedUser = $this->userRepository->update($id, $data);
+
+        // 2. Get fresh data for cache
+        $freshUser = $this->userRepository->find($id);
+
+        // 3. Update cache with fresh data
+        $this->cache->setItem(CATEGORY_USERS, "user_{$id}", $freshUser);
+
+        // 4. Invalidate related caches
+        $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+
+        $this->db->commit();
+        return $updatedUser;
+
+    } catch (Exception $e) {
+        $this->db->rollback();
+        throw $e;
+    }
+}
+```
+
+### Conditional Invalidation
+Only invalidate related entities if they were actually modified:
+
+```php
+public function updateUserProfile($userId, $profileData) {
+    $existingUser = $this->userRepository->find($userId);
+    $updatedUser = $this->userRepository->update($userId, $profileData);
+
+    // Only invalidate if groups changed
+    if ($existingUser['group_id'] !== $updatedUser['group_id']) {
+        $this->cache->invalidateEntityScope(CATEGORY_GROUPS, $existingUser['group_id']);
+        $this->cache->invalidateEntityScope(CATEGORY_GROUPS, $updatedUser['group_id']);
+        $this->cache->invalidateAllListsInCategory(CATEGORY_GROUPS);
+    }
+
+    // Always invalidate user entity and user lists
+    $this->cache->invalidateEntityScope(CATEGORY_USERS, $userId);
+    $this->cache->invalidateAllListsInCategory(CATEGORY_USERS);
+}
+```
+
+## Cache Categories and Usage Patterns
+
+### User Management (CATEGORY_USERS)
+```php
+// User lists
+$activeUsers = $cache->withCategory(CATEGORY_USERS)->getList('active', $callback);
+$inactiveUsers = $cache->withCategory(CATEGORY_USERS)->getList('inactive', $callback);
+
+// Individual users
+$user = $cache->withCategory(CATEGORY_USERS)->getItem("user_{$id}", $callback);
+
+// User permissions
+$userPermissions = $cache->withCategory(CATEGORY_USERS)->getItem("permissions_{$id}", $callback);
+```
+
+### Page Management (CATEGORY_PAGES)
+```php
+// Page configurations
+$pageConfig = $cache->withCategory(CATEGORY_PAGES)->getItem("config_{$pageId}", $callback);
+
+// Navigation menus
+$menu = $cache->withCategory(CATEGORY_PAGES)->getItem('navigation_menu', $callback);
+```
+
+### Content Management (CATEGORY_CONTENT)
+```php
+// Sections and fields
+$sections = $cache->withCategory(CATEGORY_CONTENT)->getList("page_sections_{$pageId}", $callback);
+$fields = $cache->withCategory(CATEGORY_CONTENT)->getItem("section_fields_{$sectionId}", $callback);
+```
+
+### Lookup Tables (CATEGORY_LOOKUPS)
+```php
+// Static lookup data (cached indefinitely)
+$userTypes = $cache->withCategory(CATEGORY_LOOKUPS)->getList('user_types', $callback);
+$statusCodes = $cache->withCategory(CATEGORY_LOOKUPS)->getList('status_codes', $callback);
+```
+
+## Cache Key Generation
+
+### Standard Key Format
+```
+{PROJECT_NAME}-{CATEGORY}-{GENERATION}-{IDENTIFIER}-{PARAMETERS}
+```
+
+### Examples
+```php
+// List cache key
+"selfhelp-users-g123-active_users"
+
+// Item cache key
+"selfhelp-users-g123-user_456"
+
+// Complex key with parameters
+"selfhelp-content-g789-section_fields_123_lang_en"
+```
+
+### Key Generation Methods
+```php
+public function generateListKey($category, $listName, $params = []) {
+    $generation = $this->getGeneration($category);
+    $key = "selfhelp-{$category}-g{$generation}-{$listName}";
+
+    if (!empty($params)) {
+        $key .= '_' . md5(serialize($params));
+    }
+
+    return $key;
+}
+
+public function generateItemKey($category, $itemId, $params = []) {
+    $generation = $this->getGeneration($category);
+    $key = "selfhelp-{$category}-g{$generation}-{$itemId}";
+
+    if (!empty($params)) {
+        $key .= '_' . md5(serialize($params));
+    }
+
+    return $key;
+}
+```
+
+## Performance Characteristics
+
+### Cache Hit Scenarios
+1. **Lookup Values**: Frequently accessed, cached indefinitely
+2. **User Permissions**: Cached per user, cleared on permission changes
+3. **Configuration Data**: Cached until manually cleared
+
+### Cache Miss Scenarios
+1. **New Lookups**: First access to new lookup values
+2. **Cache Clears**: Administrative actions clearing caches
+3. **Memory Pressure**: APCu evicting entries due to memory limits
+
+### Transaction Rollback
+Automatic cache clearing on database transaction rollback:
+
+```php
+public function rollback() {
+    $this->dbh->rollback();
+    $this->cache->clear_cache(); // Clear all caches on rollback
+}
+```
+
+## Configuration
+
+### APCu Configuration
+```ini
+; php.ini or apcu.ini
+apc.enabled=1
+apc.shm_size=128M
+apc.ttl=7200
+apc.gc_ttl=3600
+apc.entries_hint=4096
+apc.slam_defense=1
+```
+
+### Cache TTL Settings
+```php
+const CACHE_TTL = [
+    CATEGORY_USERS => 3600,      // 1 hour
+    CATEGORY_PAGES => 1800,      // 30 minutes
+    CATEGORY_CONTENT => 900,     // 15 minutes
+    CATEGORY_LOOKUPS => 0,       // Indefinite
+    CATEGORY_SESSIONS => 86400,  // 24 hours
+];
+```
+
+## Cache Warming
+
+### Proactive Cache Population
+```php
+class CacheWarmer {
+    public function warmCommonCaches() {
+        // Warm up frequently accessed data
+        $this->cache->withCategory(CATEGORY_LOOKUPS)->getList('user_types', $this->getUserTypes());
+        $this->cache->withCategory(CATEGORY_LOOKUPS)->getList('status_codes', $this->getStatusCodes());
+
+        // Warm up active user data
+        $this->cache->withCategory(CATEGORY_USERS)->getList('active', $this->getActiveUsers());
+    }
+
+    public function warmPageCache($pageId) {
+        // Warm up page-related caches
+        $this->cache->withCategory(CATEGORY_PAGES)->getItem("config_{$pageId}", $this->getPageConfig($pageId));
+        $this->cache->withCategory(CATEGORY_CONTENT)->getList("page_sections_{$pageId}", $this->getPageSections($pageId));
+    }
+}
+```
+
+## Cache Monitoring
+
+### Cache Statistics
+```php
+class CacheMonitor {
+    public function getCacheStats() {
+        $stats = [];
+
+        foreach ($this->categories as $category) {
+            $stats[$category] = [
+                'hits' => $this->cache->getHitCount($category),
+                'misses' => $this->cache->getMissCount($category),
+                'hit_ratio' => $this->calculateHitRatio($category),
+                'memory_usage' => $this->getMemoryUsage($category),
+                'last_invalidated' => $this->getLastInvalidationTime($category)
+            ];
+        }
+
+        return $stats;
+    }
+
+    public function calculateHitRatio($category) {
+        $hits = $this->cache->getHitCount($category);
+        $misses = $this->cache->getMissCount($category);
+        $total = $hits + $misses;
+
+        return $total > 0 ? ($hits / $total) * 100 : 0;
+    }
+}
+```
+
+### Cache Alerts
+```php
+public function checkCacheHealth() {
+    $alerts = [];
+
+    foreach ($this->categories as $category) {
+        $hitRatio = $this->calculateHitRatio($category);
+
+        if ($hitRatio < 70) {
+            $alerts[] = "Low cache hit ratio for {$category}: {$hitRatio}%";
+        }
+
+        $memoryUsage = $this->getMemoryUsage($category);
+        if ($memoryUsage > 100 * 1024 * 1024) { // 100MB
+            $alerts[] = "High memory usage for {$category}: " . $this->formatBytes($memoryUsage);
+        }
+    }
+
+    return $alerts;
+}
+```
+
+## Cache Debugging
+
+### Debug Mode
+```php
+class CacheDebugger {
+    public function enableDebugMode() {
+        $this->debugMode = true;
+        $this->queryLog = [];
+    }
+
+    public function logCacheOperation($operation, $key, $result, $duration) {
+        if (!$this->debugMode) return;
+
+        $this->queryLog[] = [
+            'operation' => $operation,
+            'key' => $key,
+            'result' => $result ? 'HIT' : 'MISS',
+            'duration' => $duration,
+            'timestamp' => microtime(true)
+        ];
+    }
+
+    public function getCacheLog() {
+        return $this->queryLog;
+    }
+
+    public function getSlowCacheQueries($threshold = 0.1) {
+        return array_filter($this->queryLog, function($log) use ($threshold) {
+            return $log['duration'] > $threshold;
+        });
+    }
+}
+```
+
+## Best Practices
+
+### Cache Key Design
+1. **Consistent naming**: Use clear, descriptive key names
+2. **Include all parameters**: Cache keys must include all parameters that affect the result
+3. **Avoid special characters**: Use only alphanumeric characters and underscores
+4. **Keep keys short**: Long keys consume more memory
+
+### Cache Invalidation
+1. **Be specific**: Invalidate only what needs to be invalidated
+2. **Use generation counters**: For efficient bulk invalidation
+3. **Invalidate in transactions**: Ensure cache consistency with database transactions
+4. **Document dependencies**: Clearly document what each cache invalidation affects
+
+### Performance Monitoring
+1. **Monitor hit ratios**: Aim for >80% hit ratio for most categories
+2. **Track memory usage**: Monitor APCu memory consumption
+3. **Log slow queries**: Identify and optimize slow cache operations
+4. **Set up alerts**: Alert on cache performance degradation
+
+### Cache Warming Strategies
+1. **Warm critical data**: Pre-populate frequently accessed data
+2. **Warm during low traffic**: Perform cache warming during off-peak hours
+3. **Incremental warming**: Warm caches gradually to avoid performance impact
+4. **Monitor warming effectiveness**: Track cache hit ratios after warming
+
+### Error Handling
+1. **Graceful degradation**: Continue operation when cache is unavailable
+2. **Log cache errors**: Log cache failures for monitoring
+3. **Fallback to database**: Fall back to direct database queries on cache failure
+4. **Cache error recovery**: Implement automatic cache recovery mechanisms
