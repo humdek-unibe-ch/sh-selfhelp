@@ -1,0 +1,385 @@
+---
+description: Plugin system architecture, development patterns, and hook implementation rules
+globs:
+alwaysApply: true
+---
+# SelfHelp Plugin Development Rules
+
+## Plugin System Architecture
+
+SelfHelp implements a sophisticated plugin system that allows extending core functionality without modifying the base codebase. Plugins follow strict architectural patterns and are version-controlled independently.
+
+### Key Architectural Principles
+
+- **Non-Invasive Extension**: Plugins extend functionality through hooks and components without touching core code
+- **Version Independence**: Each plugin maintains its own semantic versioning
+- **Database-Driven Configuration**: Plugin behavior controlled through database tables
+- **Hook-Based Modification**: Core behavior modified through registered hook functions
+- **Component Registration**: New UI components registered dynamically
+
+### Plugin Directory Structure
+
+```
+server/plugins/plugin-name/
+├── README.md              # Plugin documentation
+├── CHANGELOG.md           # Version history
+├── server/                # Server-side code
+│   ├── component/         # UI components and hooks
+│   │   ├── PluginHooks.php    # Hook implementations
+│   │   └── style/         # Custom components
+│   ├── service/           # Service classes and globals
+│   │   └── globals.php    # Plugin constants and config
+│   ├── api/               # API endpoints (optional)
+│   ├── callback/          # External callbacks (optional)
+│   ├── cronjobs/          # Scheduled jobs (optional)
+│   └── db/                # Database migrations
+│       └── v1.0.0.sql     # Initial schema
+├── css/                   # Frontend styles (optional)
+│   └── ext/
+├── js/                    # Frontend scripts (optional)
+│   └── ext/
+├── schemas/               # JSON schemas (optional)
+├── examples/              # Usage examples (optional)
+└── gulp/                  # Build configuration (optional)
+```
+
+## Plugin Loading Process
+
+Plugins are loaded during SelfHelp initialization following a specific sequence:
+
+### 1. Global Configuration Loading
+- System scans `server/plugins/` directory in `Selfhelp.php::loadPluginGlobals()`
+- Loads each plugin's `server/service/globals.php` file
+- Plugin constants become available system-wide
+- No separate plugin service initialization exists
+
+### 2. Hook Registration
+- Hooks registered through database `hooks` table
+- Loaded by `Hooks` service during initialization
+- Two types: `hook_on_function_execute` and `hook_overwrite_return`
+- Cached for performance using APCu
+
+### 3. Component Registration
+- Components registered through database `styles` table
+- Loaded dynamically when pages request specific component styles
+- Follow same MVC pattern as core components
+
+## Hook System Implementation
+
+SelfHelp uses a powerful hook system allowing plugins to modify core behavior through method interception.
+
+### Hook Types
+
+#### Function Execution Hooks (`hook_on_function_execute`)
+Execute alongside target method without modifying return value:
+
+```php
+// Database registration
+INSERT INTO hooks (id_hookTypes, name, class, function, exec_class, exec_function)
+VALUES (
+    (SELECT id FROM lookups WHERE lookup_code = 'hook_on_function_execute'),
+    'hook-name',
+    'TargetClass',
+    'targetMethod',
+    'HookClass',
+    'hookMethod'
+);
+```
+
+**Execution**: When `TargetClass::targetMethod()` called, `HookClass::hookMethod()` executes alongside.
+
+#### Return Override Hooks (`hook_overwrite_return`)
+Completely replace target method's return value:
+
+```php
+// Database registration
+INSERT INTO hooks (id_hookTypes, name, class, function, exec_class, exec_function)
+VALUES (
+    (SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return'),
+    'hook-name',
+    'TargetClass',
+    'targetMethod',
+    'HookClass',
+    'hookMethod'
+);
+```
+
+**Execution**: `TargetClass::targetMethod()` returns `HookClass::hookMethod()` result instead.
+
+### Hook Priority System
+
+Hooks execute in priority order defined in database:
+
+```sql
+ORDER BY priority;
+```
+
+- Lower priority numbers execute first (higher priority)
+- **CRITICAL**: For `hook_overwrite_return`, only highest priority hook executes
+- For `hook_on_function_execute`, all hooks execute in priority order
+
+### Hook Loading and Execution
+
+Hooks loaded during `Hooks` service initialization using `uopz` extension:
+
+```php
+// Execution hooks
+uopz_set_hook($hook['class'], $hook['function'], function() use ($hookService, $hook) {
+    foreach ($hookService->get_hook_calls(hookTypes_hook_on_function_execute, $hook['class'], $hook['function']) as $hook_method) {
+        $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
+        $hookClassInstance->{$hook_method['exec_function']}();
+    }
+});
+
+// Override hooks
+uopz_set_return($class, $func, $new_func, true);
+```
+
+### Hook Execution Behavior
+
+**CRITICAL RULE**: Hooks do NOT chain together. Each hook completely replaces the original method's return value. Multiple hooks on the same method override each other based on priority.
+
+For `hook_overwrite_return`:
+- Only highest priority hook (lowest number) executes
+- Completely replaces original method's return value
+- Other hooks ignored
+
+For `hook_on_function_execute`:
+- All hooks execute when method called
+- Do not affect return value
+- Used for side effects (logging, notifications, etc.)
+
+### Hook Parameters and Context
+
+Hooks receive execution context through parameters:
+
+```php
+public function yourHookMethod($args) {
+    $hookedClassInstance = $args['hookedClassInstance'];  // The hooked object
+    $methodName = $args['methodName'];                    // Method being hooked
+    $originalParams = $args['original_parameters'];      // Original method params
+    // ... other hook-specific parameters
+}
+```
+
+### Reflection-Based Access
+
+Hooks can access private methods and properties using reflection:
+
+```php
+protected function execute_private_method($args) {
+    $reflector = new ReflectionObject($args['hookedClassInstance']);
+    $method = $reflector->getMethod($args['methodName']);
+    $method->setAccessible(true);
+    $result = $method->invoke($args['hookedClassInstance'], ...$params);
+    $method->setAccessible(false);
+    return $result;
+}
+```
+
+## Plugin Development Patterns
+
+### Creating New Plugins
+
+#### Step 1: Plugin Planning
+- Define functionality and integration points
+- Identify required UI components
+- Determine database schema requirements
+- Plan hook integration points
+- Assess external dependencies
+
+#### Step 2: Directory Structure Creation
+```bash
+mkdir -p server/plugins/sh-shp-your-plugin
+cd server/plugins/sh-shp-your-plugin
+mkdir -p server/component server/service server/db css/ext js/ext
+touch README.md CHANGELOG.md
+touch server/component/YourPluginHooks.php
+touch server/service/globals.php
+touch server/db/v1.0.0.sql
+```
+
+#### Step 3: Core Implementation
+
+**PluginHooks.php** - Main hook class extending BaseHooks:
+```php
+<?php
+require_once __DIR__ . "/../../../../component/BaseHooks.php";
+
+class YourPluginHooks extends BaseHooks
+{
+    public function __construct($services, $params = array()) {
+        parent::__construct($services, $params);
+    }
+
+    public function customHookMethod($args) {
+        // Plugin-specific logic
+    }
+}
+?>
+```
+
+**globals.php** - Plugin constants and configuration:
+```php
+<?php
+define('YOUR_PLUGIN_NAME', 'sh-shp-your-plugin');
+define('PAGE_ACTION_YOUR_FEATURE', 'your-feature');
+define('YOUR_TRANSACTION_TYPE', 'by_your_plugin');
+?>
+```
+
+**Database Migration** - Schema and hook registration:
+```sql
+START TRANSACTION;
+
+-- Register plugin
+INSERT IGNORE INTO plugins (name, version) VALUES ('your-plugin', 'v1.0.0');
+
+-- Create plugin tables
+CREATE TABLE IF NOT EXISTS your_plugin_table (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_users INT(10) UNSIGNED ZEROFILL NOT NULL,
+    data_field VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_your_plugin_users FOREIGN KEY (id_users) REFERENCES users(id)
+);
+
+-- Register transaction type for audit logging
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description)
+VALUES ('transactionBy', 'by_your_plugin', 'By Your Plugin', 'Actions performed by your plugin');
+
+-- Register hooks
+INSERT INTO hooks (id_hookTypes, name, description, class, function, exec_class, exec_function)
+SELECT
+    (SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return'),
+    'your-plugin-custom-hook',
+    'Custom hook for your plugin',
+    'TargetClass',
+    'targetMethod',
+    'YourPluginHooks',
+    'customHookMethod';
+
+COMMIT;
+```
+
+#### Step 4: Component Creation (Optional)
+
+Create components extending BaseComponent following MVC pattern:
+
+```php
+<?php
+require_once __DIR__ . "/../../../../component/BaseComponent.php";
+
+class YourComponent extends BaseComponent {
+    public function __construct($services, $id, $params, $id_page, $entry_record) {
+        $model = new YourModel($services, $id, $params, $id_page, $entry_record);
+        $view = new YourView($model, $id);
+        parent::__construct($model, $view);
+    }
+}
+?>
+```
+
+#### Step 5: API Endpoints (Optional)
+
+Create API classes extending ApiRequest:
+
+```php
+<?php
+require_once __DIR__ . "/../api/ApiRequest.php";
+
+class YourApi extends ApiRequest {
+    public function GET_your_endpoint($params) {
+        $data = $this->getYourData($params);
+        $this->set_response($data);
+        return $this->return_response();
+    }
+}
+?>
+```
+
+### Best Practices
+
+#### Plugin Development
+- **Version Control**: Use semantic versioning (MAJOR.MINOR.PATCH)
+- **Database Safety**: Always use transactions for data changes
+- **Error Handling**: Implement proper error handling and logging
+- **Security**: Validate all inputs and escape outputs
+- **Documentation**: Document all hooks, methods, and configuration options
+
+#### Hook Implementation
+- **Idempotent Operations**: Hooks should be safe to run multiple times
+- **Performance**: Keep hooks lightweight; avoid expensive operations
+- **Error Resilience**: Handle exceptions gracefully to prevent breaking core functionality
+- **Clear Naming**: Use descriptive names for hooks and methods
+
+#### Database Design
+- **Prefix Tables**: Use plugin prefixes to avoid naming conflicts
+- **Foreign Keys**: Define proper relationships and constraints
+- **Indexing**: Add appropriate indexes for performance
+- **Migrations**: Provide rollback scripts for all migrations
+
+#### Code Quality
+- **PSR Standards**: Follow PHP PSR coding standards
+- **Documentation**: Use PHPDoc comments for all public methods
+- **Testing**: Include unit tests for critical functionality
+- **Dependencies**: Minimize external dependencies
+
+## Existing Plugin Examples
+
+### API Plugin (sh-shp-api)
+- **Purpose**: RESTful API endpoints for mobile applications
+- **Key Features**: API key authentication, CRUD operations, request logging
+- **Hooks**: API request listening, authorization hooks
+
+### External Authentication (sh-shp-auth_external)
+- **Purpose**: University of Bern SSO integration
+- **Key Features**: Single sign-on, user provisioning, group synchronization
+
+### Chat Plugin (sh-shp-chat)
+- **Purpose**: Real-time messaging functionality
+- **Key Features**: WebSocket messaging, message history, file attachments
+
+### Formula Parser (sh-shp-formula_parser)
+- **Purpose**: Advanced mathematical calculations
+- **Key Features**: Expression evaluation, custom functions, variable substitution
+
+### Qualtrics Integration (sh-shp-qualtrics)
+- **Purpose**: Survey management and response processing
+- **Key Features**: Survey creation, automated workflows, PDF generation
+
+### R Serve Integration (sh-shp-r_serve)
+- **Purpose**: Statistical computing with R
+- **Key Features**: R script execution, data visualization, result processing
+
+## Deployment and Maintenance
+
+### Version Compatibility
+- Specify minimum SelfHelp version requirements
+- Test plugin with target SelfHelp versions
+- Document version compatibility matrix
+
+### Migration Strategy
+- Ensure migrations can be run in sequence
+- Provide rollback procedures for failed deployments
+- Test migrations on staging environments first
+
+### Configuration Management
+- Document all configuration requirements
+- Provide configuration examples
+- Include configuration validation
+
+### Troubleshooting
+
+#### Common Issues
+- **Hooks Not Firing**: Check database registration and hook type
+- **Plugin Not Loading**: Verify directory structure and globals.php
+- **Database Errors**: Check migration scripts and foreign key constraints
+- **Permission Issues**: Verify ACL settings for plugin pages
+
+#### Debug Mode
+Enable debug mode for detailed logging:
+```php
+define('DEBUG', 1);
+```
+Check logs in the `data/clockwork` directory for execution traces.
