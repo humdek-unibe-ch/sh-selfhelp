@@ -97,6 +97,195 @@ INSERT INTO transactions (
 ) VALUES (?, ?, ?, ?, NOW(), ?)
 ```
 
+## Transaction Logging System
+
+SelfHelp implements a comprehensive transaction logging system that tracks all database operations for audit trails, debugging, and compliance purposes.
+
+### Transaction Service Usage
+
+The `Transaction` service provides centralized logging of all database operations:
+
+```php
+// Get the transaction service from services container
+$transactionService = $services->get_transaction();
+
+// Log a transaction
+$transactionService->add_transaction(
+    $tran_type,    // 'CREATE', 'UPDATE', 'DELETE'
+    $tran_by,      // Who/what triggered the transaction
+    $user_id,      // User performing the action
+    $table_name,   // Table affected (e.g., 'users')
+    $entry_id,     // Record ID affected
+    $log_row,      // Whether to log full row data (false)
+    $verbal_log    // Human-readable description
+);
+```
+
+### Transaction Table Structure
+
+The `transactions` table stores comprehensive audit information:
+
+```sql
+CREATE TABLE transactions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_transactionTypes INT,           -- Type: CREATE, UPDATE, DELETE
+    id_transactionBy INT,              -- Source: by_admin, by_user, by_plugin
+    id_users INT,                      -- User who performed action
+    table_name VARCHAR(255),           -- Affected table
+    id_table_name INT,                 -- Affected record ID
+    transaction_log JSON,              -- Detailed log data
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Transaction Types
+
+Transactions are categorized using lookup tables:
+
+- **transactionTypes**: `CREATE`, `UPDATE`, `DELETE` - Standard CRUD operation types
+- **transactionBy**: Identifies the source of the transaction:
+  - `by_admin`: Actions performed by administrators
+  - `by_user`: Actions performed by regular users
+  - `by_plugin`: Actions performed by plugins (e.g., `by_llm_plugin`)
+  - `by_system`: Automated system operations
+
+### Transaction Log Structure
+
+Each transaction includes detailed metadata:
+
+```json
+{
+    "verbal_log": "Created new user account for john.doe@example.com",
+    "url": "/admin/users/create",
+    "session": { ... },
+    "table_row_entry": {
+        "id": 123,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "created_at": "2024-01-15 10:30:00"
+    }
+}
+```
+
+### Logged Operations
+
+#### Core System Operations
+- **User Management**: Account creation, profile updates, authentication
+- **Content Management**: Page/section creation, field modifications
+- **Access Control**: Permission changes, group assignments
+- **Form Submissions**: Data collection and processing
+- **Job Scheduling**: Background task execution and results
+
+#### Plugin Operations
+Plugins integrate with the transaction system using standardized patterns:
+
+```php
+// Plugin transaction logging example
+$this->services->get_transaction()->add_transaction(
+    'CREATE',
+    'by_llm_plugin',
+    $user_id,
+    'llmConversations',
+    $conversation_id,
+    false,
+    "New conversation created by user $user_id"
+);
+```
+
+### Transaction Benefits
+
+#### Audit Trail
+- **Complete Record**: Every database change is logged with context
+- **Compliance**: Supports regulatory requirements and data governance
+- **Debugging**: Historical view of system operations
+- **Security**: Track unauthorized or suspicious activities
+
+#### Performance Monitoring
+- **Usage Analytics**: Monitor system usage patterns
+- **Performance Analysis**: Identify slow operations and bottlenecks
+- **Resource Tracking**: Monitor database load and optimization needs
+
+#### Data Recovery
+- **Change History**: Reconstruct data states at specific points in time
+- **Rollback Support**: Identify operations that may need reversal
+- **Data Integrity**: Verify data consistency and detect corruption
+
+### Transaction Querying
+
+#### Recent Transactions
+```sql
+SELECT t.*, tt.lookup_value as operation_type, tb.lookup_value as triggered_by, u.name as user_name
+FROM transactions t
+LEFT JOIN lookups tt ON t.id_transactionTypes = tt.id
+LEFT JOIN lookups tb ON t.id_transactionBy = tb.id
+LEFT JOIN users u ON t.id_users = u.id
+ORDER BY t.timestamp DESC
+LIMIT 100;
+```
+
+#### Transactions by User
+```sql
+SELECT table_name, COUNT(*) as operations, MAX(timestamp) as last_activity
+FROM transactions
+WHERE id_users = ?
+GROUP BY table_name
+ORDER BY operations DESC;
+```
+
+#### Transactions by Type
+```sql
+SELECT tt.lookup_value as operation_type, COUNT(*) as count
+FROM transactions t
+LEFT JOIN lookups tt ON t.id_transactionTypes = tt.id
+WHERE t.timestamp > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+GROUP BY tt.lookup_value;
+```
+
+### Best Practices
+
+#### Transaction Logging Guidelines
+- **Descriptive Messages**: Use clear, human-readable verbal_log messages
+- **Consistent Categorization**: Use appropriate transactionBy values
+- **Performance Consideration**: Avoid logging full row data for large tables unless necessary
+- **Privacy Compliance**: Sanitize sensitive data in transaction logs
+
+#### Plugin Integration
+- **Standard Patterns**: Follow established transaction logging patterns
+- **Plugin Prefixes**: Use descriptive plugin identifiers (e.g., `by_llm_plugin`)
+- **Error Handling**: Ensure transaction logging doesn't break core functionality
+- **Documentation**: Document transaction logging in plugin documentation
+
+#### Monitoring and Maintenance
+- **Log Rotation**: Implement log rotation for large transaction tables
+- **Archiving**: Archive old transactions for performance and compliance
+- **Analysis**: Regular analysis of transaction patterns for optimization
+- **Alerting**: Set up alerts for unusual transaction patterns
+
+### Transaction Service Methods
+
+The Transaction service provides several methods for different logging scenarios:
+
+#### add_transaction()
+Primary method for logging transactions with full context.
+
+#### Transaction Constants
+```php
+// Table name constants
+Transaction::TABLE_USERS = 'users';
+Transaction::TABLE_PAGES = 'pages';
+Transaction::TABLE_dataTables = 'dataTables';
+Transaction::TRANSACTIONS_TABLE = 'transactions';
+```
+
+### Security Considerations
+
+- **Access Control**: Transaction logs are protected by user permissions
+- **Data Sanitization**: Sensitive information is filtered from logs
+- **Integrity Protection**: Transaction logs cannot be modified after creation
+- **Encryption**: Consider encrypting sensitive transaction data at rest
+
+This comprehensive transaction logging system ensures complete auditability while maintaining system performance and security.
+
 ## Migration System
 
 ### Script Structure
