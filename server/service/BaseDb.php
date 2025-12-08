@@ -37,9 +37,9 @@ class BaseDb {
      * @param string $dbname:   name of database
      * @param string $username: username
      * @param string $password: password
-     * @param string $names:    charset (optional, default: utf8)
+     * @param string $names:    charset (optional, default: utf8mb4)
      */
-    public function __construct($server, $dbname, $username, $password, $clockwork, $names="utf8") {
+    public function __construct($server, $dbname, $username, $password, $clockwork, $names="utf8mb4") {
         $this->cache = new Cache();
         try {
             $this->dbh = new ExtendedPdo(
