@@ -1,6 +1,6 @@
 .cms-edit
 {
-    left: auto;
+    left: auto !important;
     background-color: rgba(1, 1, 1, 0.1);
 }
 
