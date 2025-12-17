@@ -1,4 +1,4 @@
-# v7.6.4 (Not released yet)
+# v7.6.4
  - Updated database character set from `utf8` to `utf8mb4` to ensure full Unicode support.
  - Improved handling and storage of special characters in the database.
 
