@@ -1,3 +1,6 @@
+# v7.6.5
+ - build gulp for css and js files
+
 # v7.6.4
  - Updated database character set from `utf8` to `utf8mb4` to ensure full Unicode support.
  - Improved handling and storage of special characters in the database.
