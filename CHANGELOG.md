@@ -1,5 +1,11 @@
 # v7.6.6
  - fix redirect to last user page when used `#last_user_page`
+   - Add comprehensive URL filtering to prevent redirects to login, backend, and API pages
+   - Exclude API requests with action parameters (e.g., LLM plugin endpoints)
+   - Add path pattern detection for API endpoints when HTTP_REFERER lacks query parameters
+   - Unify URL validation logic between BasePage session storage and Login database storage
+   - Prevent users from seeing raw JSON when redirected after login
+   - Add fallback to home page when no valid last page exists
 
 # v7.6.5
  - build gulp for css and js files

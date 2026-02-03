@@ -150,9 +150,10 @@ class Router extends AltoRouter {
             return false;
         }
         
-        // Parse URL to get the path
+        // Parse URL to get the path and query
         $parsed_url = parse_url($url);
         $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $query = isset($parsed_url['query']) ? $parsed_url['query'] : '';
         
         // Remove base path from the URL path
         if (!empty(BASE_PATH) && strpos($path, BASE_PATH) === 0) {
@@ -166,6 +167,42 @@ class Router extends AltoRouter {
         // Exclude login page explicitly
         if ($keyword === 'login') {
             return false;
+        }
+        
+        // Check $_GET/$_POST first, as they are most reliable for current request
+        if (isset($_GET['action']) || isset($_POST['action'])) {
+            return false; // This is an API request, not a frontend page
+        }
+        // Fallback to parsed query string if $_GET/$_POST not set
+        if (!empty($query)) {
+            parse_str($query, $query_params);
+            if (isset($query_params['action'])) {
+                return false; // This is an API request, not a frontend page
+            }
+        }
+        
+        // Additional check: Exclude URLs that look like API endpoints based on path patterns
+        // This handles cases where HTTP_REFERER doesn't include query parameters
+        $api_patterns = [
+            '/action=/',           // URLs containing action parameter in path
+            '/get_/',             // Common API prefix patterns
+            '/api/',              // Explicit API paths
+            '/ajax/',             // AJAX endpoints
+        ];
+        
+        foreach ($api_patterns as $pattern) {
+            if (strpos($path, $pattern) !== false) {
+                return false; // This looks like an API endpoint
+            }
+        }
+        
+        // Special case: Check if this looks like an LLM plugin API request
+        // LLM plugin URLs often have section_id parameter
+        if (strpos($path, 'angst') !== false || strpos($path, 'llm') !== false) {
+            // If it's an LLM-related path and had query parameters, it's likely an API request
+            if (!empty($query) || strpos($path, '?') !== false) {
+                return false;
+            }
         }
         
         // If current keyword is provided, ensure we're not redirecting to the same page type
@@ -191,7 +228,7 @@ class Router extends AltoRouter {
             return $result !== false;
         } catch (Exception $e) {
             // If database query fails, fall back to path-based check
-            // Assume non-admin paths are frontend (except login)
+            // Assume non-admin paths are frontend (except login and API requests)
             return strpos($path, '/admin/') !== 0 && $keyword !== 'login';
         }
     }

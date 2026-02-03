@@ -122,7 +122,8 @@ class Services
                 $this->transaction,
                 $this->job_scheduler,
                 $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
-                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route)
+                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route),
+                $this
             );
             $this->acl = new Acl($this->db);        
         }

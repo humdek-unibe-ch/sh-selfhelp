@@ -35,6 +35,11 @@ class Login
     private $job_scheduler;
 
     /**
+     * The services instance to access router for URL validation.
+     */
+    private $services;
+
+    /**
      * Start the session.
      *
      * @param object $db
@@ -47,14 +52,17 @@ class Login
      *  If true the current url is stored as last url in the db.
      * @param bool $redirect
      *  If true the user is redirected to the current url after login.
+     * @param object $services
+     *  The services instance to access router for URL validation.
      */
-    public function __construct($db, $transaction, $job_scheduler, $store_url=false, $redirect=false)
+    public function __construct($db, $transaction, $job_scheduler, $store_url=false, $redirect=false, $services=null)
     {
         $this->db = $db;
         $this->store_url = $store_url;
         $this->redirect = $redirect;
         $this->transaction = $transaction;
         $this->job_scheduler = $job_scheduler;
+        $this->services = $services;
         $this->init_session();
     }
 
@@ -167,6 +175,7 @@ class Login
 
     /**
      * Update the last visited url of the active user.
+     * Only stores frontend pages, excluding login, backend, and API requests.
      *
      * @param $id
      *  The user id
@@ -175,8 +184,19 @@ class Login
      */
     private function update_last_url($id, $url)
     {
-        $this->db->update_by_ids('users',
-            array('last_url' => $url), array('id' => $id));
+        // Only store if URL is provided and services are available
+        if (empty($url) || !$this->services) {
+            $this->db->update_by_ids('users',
+                array('last_url' => null), array('id' => $id));
+            return;
+        }
+        
+        // Use the same frontend page validation logic as BasePage
+        $router = $this->services->get_router();
+        if ($router && $router->is_frontend_page($url)) {
+            $this->db->update_by_ids('users',
+                array('last_url' => $url), array('id' => $id));
+        }
     }
 
     /**
