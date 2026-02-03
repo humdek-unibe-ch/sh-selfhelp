@@ -416,12 +416,22 @@ abstract class BasePage
     private function set_last_user_page()
     {
         $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        if (!isset($_SESSION['last_user_page']) && isset($_SERVER['HTTP_REFERER'])) {
-            // if the variable is not set assign it
-            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
-        } else if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != $curr_url) {
-            // if it is set but the current url is from a new page, reassign the page
-            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        
+        if (!isset($_SERVER['HTTP_REFERER'])) {
+            return; // No referer to process
+        }
+        
+        $referer = $_SERVER['HTTP_REFERER'];
+        
+        // Skip if referer is the same as current URL (to avoid loops)
+        if ($referer == $curr_url) {
+            return;
+        }
+        
+        // Only store if referer is a frontend page
+        $router = $this->services->get_router();
+        if ($router->is_frontend_page($referer, $this->keyword)) {
+            $_SESSION['last_user_page'] = $referer;
         }
     }
 

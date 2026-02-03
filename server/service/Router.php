@@ -85,7 +85,11 @@ class Router extends AltoRouter {
             return $this->generate("home");
         }
         else if($url == "#last_user_page"){
-            return isset($_SESSION['last_user_page']) ? $_SESSION['last_user_page'] : '';
+            if (isset($_SESSION['last_user_page']) && !empty($_SESSION['last_user_page'])) {
+                return $_SESSION['last_user_page'];
+            }
+            // Fallback to home page if no valid last page exists
+            return $this->generate("home");
         }
         else if($url == "#self")
             return $_SERVER['REQUEST_URI'];
@@ -132,6 +136,64 @@ class Router extends AltoRouter {
         }
         else
             return $url;
+    }
+
+    /**
+     * Check if the given URL refers to a frontend/user-facing page
+     * @param string $url The URL to check
+     * @param string $current_keyword Optional current page keyword for context
+     * @return bool True if it's a frontend page, false otherwise
+     */
+    public function is_frontend_page($url, $current_keyword = null)
+    {
+        if (empty($url)) {
+            return false;
+        }
+        
+        // Parse URL to get the path
+        $parsed_url = parse_url($url);
+        $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        
+        // Remove base path from the URL path
+        if (!empty(BASE_PATH) && strpos($path, BASE_PATH) === 0) {
+            $path = substr($path, strlen(BASE_PATH));
+        }
+        
+        // Extract keyword from the path (first segment after base path)
+        $segments = explode('/', trim($path, '/'));
+        $keyword = isset($segments[0]) ? $segments[0] : '';
+        
+        // Exclude login page explicitly
+        if ($keyword === 'login') {
+            return false;
+        }
+        
+        // If current keyword is provided, ensure we're not redirecting to the same page type
+        if ($current_keyword !== null) {
+            // Optionally skip if current page is not a frontend page
+            try {
+                $current_sql = "SELECT p.id FROM pages p WHERE p.keyword = ? AND p.id_actions = 3";
+                $current_result = $this->db->query_db_first($current_sql, array($current_keyword));
+                // Only store frontend pages if current page is also a frontend page
+                if (!$current_result) {
+                    return false;
+                }
+            } catch (Exception $e) {
+                // If check fails, continue with normal logic
+            }
+        }
+        
+        // Check against known frontend pages in database (sections action = id_actions = 3)
+        try {
+            $sql = "SELECT p.id FROM pages p 
+                    WHERE p.keyword = ? AND p.id_actions = 3";
+            $result = $this->db->query_db_first($sql, array($keyword));
+            return $result !== false;
+        } catch (Exception $e) {
+            // If database query fails, fall back to path-based check
+            // Assume non-admin paths are frontend (except login)
+            return strpos($path, '/admin/') !== 0 && $keyword !== 'login';
+        }
     }
 
     /**

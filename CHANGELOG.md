@@ -1,3 +1,6 @@
+# v7.6.6
+ - fix redirect to last user page when used `#last_user_page`
+
 # v7.6.5
  - build gulp for css and js files
 
