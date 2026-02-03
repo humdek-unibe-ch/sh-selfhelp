@@ -460,7 +460,7 @@ class UserInput
         );
         foreach ($users as $key => $user_id) {
             $mail['id_users'][] = $user_id;
-            $user_info =  $this->db->select_by_uid('users', $user_id);
+            $user_info =  $this->db->query_db_first('SELECT * FROM view_users WHERE id = :uid and intern <> 1', array(":uid" => $user_id));
             // replace dynamically the email
             if ($action['config'][ACTION_TARGET_GROUPS]) {
                 // it is sent to the whole group
@@ -477,6 +477,13 @@ class UserInput
                 '@user_name',
                 $user_info['name'],
                 $job['notification']['body']
+            );
+            // replace dynamically the @user_code if used
+            $user_code = isset($user_info['code']) ? $user_info['code'] : '';
+            $mail['body'] = str_replace(
+                '@user_code',
+                $user_code,
+                $mail['body']
             );
 
             $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);

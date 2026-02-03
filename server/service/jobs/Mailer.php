@@ -81,9 +81,10 @@ class Mailer extends BasicJob
         foreach ($mail_info_recipients as $mail) {
             unset($to['to']);
             $to['to'][] = array('address' => $mail, 'name' => $mail);
-            $user_info = $this->db->query_db_first('SELECT name, id FROM users WHERE email = :email', array(":email" => trim($mail)));
+            $user_info = $this->db->query_db_first('SELECT * FROM view_users WHERE email = :email', array(":email" => trim($mail)));
             $user_name = isset($user_info['name']) ? $user_info['name'] : '';
             $user_info_id = isset($user_info['id']) ? $user_info['id'] : '';
+            $user_code = isset($user_info['code']) ? $user_info['code'] : '';
             $notification_settings = $this->user_input->get_user_notification_settings($user_info_id);
             if ($notification_settings && isset($notification_settings['no_emails']) && $notification_settings['no_emails']) {
                 $this->transaction->add_transaction(
@@ -103,6 +104,12 @@ class Mailer extends BasicJob
                 }
                 if ($msg_html && $user_name) {
                     $msg_html = str_replace('@user_name', $user_name, $msg_html);
+                }
+                if ($user_code) {
+                    $msg = str_replace('@user_code', $user_code, $msg);
+                }
+                if ($msg_html && $user_code) {
+                    $msg_html = str_replace('@user_code', $user_code, $msg_html);
                 }
                 $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, $attachments, $replyTo);
                 $this->transaction->add_transaction(

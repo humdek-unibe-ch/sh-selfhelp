@@ -6,6 +6,9 @@
    - Unify URL validation logic between BasePage session storage and Login database storage
    - Prevent users from seeing raw JSON when redirected after login
    - Add fallback to home page when no valid last page exists
+ - Add support for `@user_code` placeholder in email templates
+   - Email templates can now use `@user_code` to dynamically insert the recipient's validation code
+   - Works in both action-triggered emails and direct email sending
 
 # v7.6.5
  - build gulp for css and js files
@@ -1327,7 +1330,7 @@
 - Generate PDF files as output for spesific callback functions
     - It is used for `Workwell` project. A folder `workwell_evaluate_personal_strenghts` should be created in folder `assets`. The new folder should have 777 rights
     - It uses php-pdftk library
-    - It requires pdftk installed on the server <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/> Ubuntu 18.04 installation command: `sudo snap install pdftk` (if there some issues a symbolic link maybe needed `sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk` )
+    - It requires pdftk installed on the server <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/> Ubuntu 18.04 installation command: `sudo snap install pdftk` (if there are some issues a symbolic link maybe needed `sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk` )
 - For Qualtrics synchronizations:
     - `php-dom` is needed: `sudo apt-get install php7.2-xml`
     - `php-curl` is needed: `sudo apt-get install php7.2-curl`
