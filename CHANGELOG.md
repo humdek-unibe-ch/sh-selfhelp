@@ -9,6 +9,7 @@
  - Add support for `@user_code` placeholder in email templates
    - Email templates can now use `@user_code` to dynamically insert the recipient's validation code
    - Works in both action-triggered emails and direct email sending
+ - properly save `keyword` in `user_activity` table
 
 # v7.6.5
  - build gulp for css and js files
