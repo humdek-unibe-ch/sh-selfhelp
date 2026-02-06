@@ -5,8 +5,30 @@
 ?>
 <?php
 spl_autoload_register(function ($class_name) {
-    if(strpos($class_name, "Ajax") === 0)
-        require_once __DIR__ . '/' . $class_name . ".php";
+    if(strpos($class_name, "Ajax") === 0) {
+        $plugins_dir = dirname(__DIR__) . '/plugins';
+        $ajax_dirs = [__DIR__];
+
+        if (is_dir($plugins_dir)) {
+            $plugins = scandir($plugins_dir);
+            foreach ($plugins as $plugin) {
+                if ($plugin !== '.' && $plugin !== '..' && is_dir($plugins_dir . '/' . $plugin)) {
+                    $ajax_dir = $plugins_dir . '/' . $plugin . '/server/ajax';
+                    if (is_dir($ajax_dir)) {
+                        $ajax_dirs[] = $ajax_dir;
+                    }
+                }
+            }
+        }
+
+        foreach ($ajax_dirs as $dir) {
+            $file = $dir . '/' . $class_name . '.php';
+            if (file_exists($file)) {
+                require_once $file;
+                break;
+            }
+        }
+    }
 });
 
 /**

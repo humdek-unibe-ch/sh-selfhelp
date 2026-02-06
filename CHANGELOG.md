@@ -1,4 +1,7 @@
-# v7.6.6
+# v7.6.7
+ - Modified Ajax autoloader in `AjaxRequest.php` to load Ajax classes from plugin directories
+
+# v7.6.6 
  - fix redirect to last user page when used `#last_user_page`
    - Add comprehensive URL filtering to prevent redirects to login, backend, and API pages
    - Exclude API requests with action parameters (e.g., LLM plugin endpoints)
