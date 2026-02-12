@@ -1,5 +1,6 @@
 # v7.6.9
  - adjust `update_user_last_url` to be called on all requests that set the user activity
+ - properly set `target_url` on login if there is no `last_url` from the user
 
 # v7.6.8
  - adjust `log_user_activity` to set the debug start time in the router, this way the log user activty can be customly set in plugin if they have to exit requests easrly

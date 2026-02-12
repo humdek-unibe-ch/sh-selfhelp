@@ -425,9 +425,13 @@ class Login
      */
     public function get_target_url($default_url)
     {
-        // if target_url is set use it
-        if($_SESSION['target_url'] !== null)
-            return $_SESSION['target_url'];
+        // if target_url is set and is a frontend page, use it
+        if($_SESSION['target_url'] !== null) {
+            $router = $this->services->get_router();
+            if($router && $router->is_frontend_page($_SESSION['target_url'])) {
+                return $_SESSION['target_url'];
+            }
+        }
 
         $url = $_SESSION['target_url'] ?? $default_url;
 
@@ -439,7 +443,7 @@ class Login
         $url_db = $this->db->query_db_first($sql,
             array(':uid' => $_SESSION['id_user']));
 
-        // if last_url is set n the DB use it
+        // if last_url is set in the DB use it
         if($url_db['last_url'] != "")
             $url = $url_db['last_url'];
 
