@@ -361,6 +361,25 @@ class Router extends AltoRouter {
             "mobile" => (int)$mobile,
             "id_type" => $exp ? 1 : 2,
         ));
+
+        // Update user's last visited URL
+        $this->update_user_last_url($_SESSION['id_user'], $_SERVER['REQUEST_URI']);
+    }
+
+    /**
+     * Update the user's last visited URL if it's a frontend page
+     * @param int $user_id The user ID
+     * @param string $url The URL to potentially store as last URL
+     */
+    public function update_user_last_url($user_id, $url) {
+        if (empty($url)) {
+            $this->db->update_by_ids('users', array('last_url' => null), array('id' => $user_id));
+            return;
+        }
+        
+        if ($this->is_frontend_page($url)) {
+            $this->db->update_by_ids('users', array('last_url' => $url), array('id' => $user_id));
+        }
     }
 
     /**

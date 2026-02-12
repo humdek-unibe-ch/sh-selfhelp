@@ -184,19 +184,10 @@ class Login
      */
     private function update_last_url($id, $url)
     {
-        // Only store if URL is provided and services are available
-        if (empty($url) || !$this->services) {
-            $this->db->update_by_ids('users',
-                array('last_url' => null), array('id' => $id));
+        if (!$this->services) {
             return;
         }
-        
-        // Use the same frontend page validation logic as BasePage
-        $router = $this->services->get_router();
-        if ($router && $router->is_frontend_page($url)) {
-            $this->db->update_by_ids('users',
-                array('last_url' => $url), array('id' => $id));
-        }
+        $this->services->get_router()->update_user_last_url($id, $url);
     }
 
     /**
