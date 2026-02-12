@@ -1,3 +1,6 @@
+# v7.6.8
+ - adjust `log_user_activity` to set the debug start time in the router, this way the log user activty can be customly set in plugin if they have to exit requests easrly
+
 # v7.6.7
  - Modified Ajax autoloader in `AjaxRequest.php` to load Ajax classes from plugin directories
 

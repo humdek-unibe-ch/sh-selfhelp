@@ -18,6 +18,11 @@ class Router extends AltoRouter {
     private $db;
 
     /**
+     * The start time of the request
+     */
+    private $debug_start_time;
+
+    /**
      * The router array which holds the name, target, and parameters of a route.
      */
     public $route = NULL;
@@ -31,6 +36,7 @@ class Router extends AltoRouter {
      * The current keyword
      */
     public $current_keyword;
+    
 
     /**
      * The constructor which calls the parent constructor.
@@ -339,7 +345,7 @@ class Router extends AltoRouter {
      * @param bool $mobile
      * Is the request from a mobile app. The default is false
      */
-    public function log_user_activity($debug_start_time, $mobile = false){
+    public function log_user_activity($mobile = false){
         // Always log with keyword for proper tracking
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
         $exp = $this->db->query_db_first(
@@ -349,7 +355,7 @@ class Router extends AltoRouter {
         $this->db->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],
-            "exec_time" => (microtime(true) - $debug_start_time),
+            "exec_time" => (microtime(true) - $this->debug_start_time),
             "keyword" => $this->route['name'],
             "params" => json_encode($this->route['params']),
             "mobile" => (int)$mobile,
@@ -365,6 +371,26 @@ class Router extends AltoRouter {
     public function get_sensible_pages()
     {
         return ['cmsUpdate', 'moduleFormsAction'];
+    }
+
+    /**
+     * Get the debug start time of the request
+     * @return float
+     * return the debug start time of the request
+     */
+    public function get_debug_start_time()
+    {
+        return $this->debug_start_time;
+    }
+
+    /**
+     * Set the debug start time of the request
+     * @param float $start_time
+     * return the debug start time of the request
+     */
+    public function set_debug_start_time($start_time)
+    {
+        $this->debug_start_time = $start_time;
     }
 
     /**

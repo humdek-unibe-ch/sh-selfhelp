@@ -140,7 +140,7 @@ class Selfhelp
     {
         $router = $services->get_router();
         $db = $services->get_db();
-        $debug_start_time = microtime(true);
+        $router->set_debug_start_time(microtime(true));
         if (isset($_POST['id_languages']) && $_POST['id_languages'] != '') {
             $_SESSION['user_language'] = $_POST['id_languages'];
             $_SESSION['language'] = $_POST['id_languages'];
@@ -202,7 +202,7 @@ class Selfhelp
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity 
-            $router->log_user_activity($debug_start_time, true);
+            $router->log_user_activity(true);
         } else {
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
@@ -219,7 +219,7 @@ class Selfhelp
     {
         // call closure or throw 404 status
         $router = $services->get_router();
-        $debug_start_time = microtime(true);
+        $router->set_debug_start_time(microtime(true));
         if ($router->route) {
             if ($router->route['target'] == "sections") {
                 $page = new SectionPage(
@@ -248,7 +248,7 @@ class Selfhelp
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity
-            $router->log_user_activity($debug_start_time);
+            $router->log_user_activity();
             $router->get_other_users_editing_this_page();
         } else {
             // no route was matched
