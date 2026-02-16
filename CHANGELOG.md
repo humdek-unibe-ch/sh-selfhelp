@@ -1,3 +1,6 @@
+# v7.6.10
+ - update `moment.js` to v2.30.1
+
 # v7.6.9
  - adjust `update_user_last_url` to be called on all requests that set the user activity
  - properly set `target_url` on login if there is no `last_url` from the user
