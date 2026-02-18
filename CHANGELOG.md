@@ -3,6 +3,7 @@
  - add `selected_columns` field to `entryList` as a multi-select field to control which data table columns are loaded
  - dynamically reload selectable `selected_columns` values in CMS when `entryList.data_table` changes
  - extend procedure `get_dataTable_with_filter` with a selected-columns parameter so only chosen data columns are loaded (meta/system columns remain available)
+ - optimize `data_config` loading to pass selected columns to `get_data`, fetching only required fields for faster interpolation
 
 # v7.6.10
  - update `moment.js` to v2.30.1

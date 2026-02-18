@@ -139,6 +139,47 @@ abstract class BaseModel
 
         return $arr;
     }
+
+    /**
+     * Build a comma-separated list of columns needed for a data-config query.
+     *
+     * @param array $config
+     *  A single data-config source definition.
+     * @return string
+     *  Comma-separated columns or empty string to load all columns.
+     */
+    private function get_data_config_selected_columns($config)
+    {
+        // If all fields are explicitly requested, keep the old behavior.
+        if (isset($config['all_fields']) && $config['all_fields']) {
+            return '';
+        }
+
+        $columns = array();
+        if (isset($config['map_fields']) && is_array($config['map_fields'])) {
+            foreach ($config['map_fields'] as $field) {
+                if (isset($field['field_name']) && $field['field_name'] !== '') {
+                    $columns[] = trim($field['field_name']);
+                }
+            }
+        }
+
+        // For JSON mode, map_fields can still require source columns.
+        if (isset($config['retrieve']) && $config['retrieve'] === 'JSON'
+            && isset($config['map_fields']) && is_array($config['map_fields'])) {
+            foreach ($config['map_fields'] as $field) {
+                if (isset($field['field_name']) && $field['field_name'] !== '') {
+                    $columns[] = trim($field['field_name']);
+                }
+            }
+        }
+
+        $columns = array_values(array_unique(array_filter($columns, function ($column) {
+            return preg_match('/^[a-zA-Z0-9_]+$/', $column);
+        })));
+
+        return count($columns) > 0 ? implode(',', $columns) : '';
+    }
     
 
     /* Protected Methods *********************************************************/
@@ -174,7 +215,16 @@ abstract class BaseModel
                         // get the config value if it is set
                         $current_user = $config['current_user'];
                     }
-                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $user_id);
+                    $selected_columns = $this->get_data_config_selected_columns($config);
+                    $data = $this->user_input->get_data(
+                        $table_id,
+                        $filter,
+                        $current_user,
+                        $user_id,
+                        false,
+                        true,
+                        $selected_columns
+                    );
                     if ($data) {
                         $data = array_filter($data, function ($value) {
                             return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
