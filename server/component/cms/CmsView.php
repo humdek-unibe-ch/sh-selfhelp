@@ -1071,7 +1071,28 @@ class CmsView extends BaseView
                 "max" => 10,
                 "live_search" => 1,
                 "is_required" => 1,
+                "css" => "entryList-data-table-select",
                 "items" => $this->model->get_db()->fetch_table_as_select_values('view_dataTables', 'id', array('name'), '')
+            ));
+        } else if ($field['type'] == "select-data_table_columns") {
+            $selected_columns = array();
+            if (!empty($field['content'])) {
+                $selected_columns = array_values(array_filter(array_map('trim', explode(',', $field['content'])), function ($val) {
+                    return $val !== '';
+                }));
+            }
+            $items = array();
+            foreach ($selected_columns as $column) {
+                $items[] = array("value" => $column, "text" => $column);
+            }
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $selected_columns,
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_multiple" => true,
+                "css" => "entryList-selected-columns-select",
+                "items" => $items
             ));
         } else if ($field['type'] == "select-plugin") {
             $children[] = new BaseStyleComponent("select", array(
@@ -1192,7 +1213,27 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
+                "css" => "entryList-data-table-select",
                 "items" => $this->model->get_db()->fetch_table_as_select_values('view_dataTables', 'id', array('name'), '')
+            ));
+        } else if ($field['type'] == "select-data_table_columns") {
+            $selected_columns = array();
+            if (!empty($field['content'])) {
+                $selected_columns = array_values(array_filter(array_map('trim', explode(',', $field['content'])), function ($val) {
+                    return $val !== '';
+                }));
+            }
+            $items = array();
+            foreach ($selected_columns as $column) {
+                $items[] = array("value" => $column, "text" => $column);
+            }
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $selected_columns,
+                "name" => $field['name'],
+                "disabled" => 1,
+                "is_multiple" => true,
+                "css" => "entryList-selected-columns-select",
+                "items" => $items
             ));
         }
         else if($field['type'] == "select-plugin")

@@ -6,7 +6,8 @@ CREATE PROCEDURE get_dataTable_with_filter(
 	IN table_id_param INT, 
     IN user_id_param INT, 
     IN filter_param VARCHAR(1000),
-    IN exclude_deleted_param BOOLEAN -- If true it will exclude the deleted records and it will not return them
+    IN exclude_deleted_param BOOLEAN, -- If true it will exclude the deleted records and it will not return them
+    IN selected_columns_param VARCHAR(4000) -- Comma separated list of data column names to be loaded
 )
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 READS SQL DATA
@@ -25,7 +26,12 @@ BEGIN
     ) INTO @sql
     FROM  dataTables t
 	INNER JOIN dataCols col on (t.id = col.id_dataTables)
-    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code');
+    WHERE t.id = table_id_param
+        AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code')
+        AND (
+            IFNULL(TRIM(selected_columns_param), '') = ''
+            OR FIND_IN_SET(col.`name`, selected_columns_param) > 0
+        );
 
     IF (@sql is null) THEN
         SELECT `name` from view_dataTables where 1=2;

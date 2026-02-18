@@ -1107,10 +1107,12 @@ class UserInput
      * If true it returns the first row. 
      * @param boolean $exclude_deleted
      * If true do not return the deleted records
+     * @param string $selected_columns
+     * Comma-separated list of selected data columns. If empty, all data columns are loaded.
      * @return array
      * the result of the fetched data
      */
-    public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false, $exclude_deleted = true)
+    public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false, $exclude_deleted = true, $selected_columns = '')
     {
         if (!is_numeric($form_id)) {
             // if the form id is not integer, some error.
@@ -1126,7 +1128,7 @@ class UserInput
                 $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
             }
         }
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $user_id, $db_first]);
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $user_id, $db_first, $exclude_deleted, $selected_columns]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
@@ -1135,9 +1137,10 @@ class UserInput
                 ":form_id" => $form_id,
                 ":user_id" => $user_id,
                 ":filter" => $filter,
-                ":exclude_deleted" => (int)$exclude_deleted
+                ":exclude_deleted" => (int)$exclude_deleted,
+                ":selected_columns" => $selected_columns
             );
-            $sql = 'CALL get_dataTable_with_filter(:form_id, :user_id, :filter, :exclude_deleted)';
+            $sql = 'CALL get_dataTable_with_filter(:form_id, :user_id, :filter, :exclude_deleted, :selected_columns)';
             if ($db_first) {
                 $res = $this->db->query_db_first($sql, $params);
             } else {

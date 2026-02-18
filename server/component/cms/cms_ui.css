@@ -147,8 +147,26 @@
 
 .ui-card-properties>.card-body {
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: visible;
     padding: 0 !important;
+}
+
+/* Keep bootstrap-select dropdowns readable inside the properties sidebar. */
+#properties .bootstrap-select .dropdown-menu {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+}
+
+#properties .bootstrap-select .dropdown-menu .inner {
+    max-width: 100%;
+}
+
+#properties .bootstrap-select .dropdown-menu li a .text {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow: visible;
+    text-overflow: unset;
 }
 
 .ui-card-properties form>button {

@@ -32,6 +32,7 @@ function init_ui_cms() {
         initSortableElements();
         adjustPropertiesHeight();
         $('select').selectpicker();
+        initEntryListSelectedColumnsSync();
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
@@ -72,6 +73,88 @@ function initStyles() {
             }
         })
     }
+}
+
+/**
+ * Keep `entryList.selected_columns` synced with the selected `data_table`.
+ * Loads columns on init and reloads them when the table changes.
+ */
+function initEntryListSelectedColumnsSync() {
+    var $form = $('.ui-card-properties form').first();
+    if ($form.length === 0) {
+        return;
+    }
+
+    $form.find('select.entryList-data-table-select').each(function () {
+        var $dataTableSelect = $(this);
+        var dataTableName = $dataTableSelect.attr('name') || '';
+        var match = dataTableName.match(/^fields\[data_table\]\[([^\]]+)\]\[([^\]]+)\]\[content\]$/);
+        if (!match) {
+            return;
+        }
+
+        var targetName = 'fields[selected_columns][' + match[1] + '][' + match[2] + '][content][]';
+        var $columnsSelect = $form.find('select.entryList-selected-columns-select').filter(function () {
+            return $(this).attr('name') === targetName;
+        }).first();
+
+        if ($columnsSelect.length === 0) {
+            return;
+        }
+
+        var loadColumns = function () {
+            var tableId = $dataTableSelect.val();
+            var selectedValues = $columnsSelect.val() || [];
+            if (!tableId) {
+                $columnsSelect.empty();
+                $columnsSelect.selectpicker('refresh');
+                return;
+            }
+
+            $.post(
+                BASE_PATH + '/request/AjaxDataSource/get_table_fields',
+                { id: tableId, exclude_system: 1 },
+                function (data) {
+                    if (!data.success) {
+                        return;
+                    }
+
+                    var columns = [];
+                    try {
+                        columns = JSON.parse(data.data);
+                    } catch (error) {
+                        console.log("Error while parsing", data.data);
+                        return;
+                    }
+
+                    $columnsSelect.empty();
+                    var nextSelected = [];
+                    columns.forEach(function (columnName) {
+                        var isSelected = selectedValues.indexOf(columnName) !== -1;
+                        if (isSelected) {
+                            nextSelected.push(columnName);
+                        }
+                        $columnsSelect.append(
+                            $('<option></option>')
+                                .attr('value', columnName)
+                                .prop('selected', isSelected)
+                                .text(columnName)
+                        );
+                    });
+                    $columnsSelect.val(nextSelected);
+                    $columnsSelect.selectpicker('refresh');
+                    $columnsSelect.trigger('change');
+                },
+                'json'
+            );
+        };
+
+        $dataTableSelect.off('changed.bs.select.entryListColumns').on('changed.bs.select.entryListColumns', function () {
+            loadColumns();
+        });
+
+        loadColumns();
+    });
 }
 
 /**

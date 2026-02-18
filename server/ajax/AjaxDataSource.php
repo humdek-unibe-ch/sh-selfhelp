@@ -245,16 +245,31 @@ class AjaxDataSource extends BaseAjax
      * array with all field names as string
      */
     public function get_table_fields($data){
-        $form_id = $this->user_input->get_dataTable_id($data['name']);
+        $form_id = 0;
+        if (isset($data['id']) && intval($data['id']) > 0) {
+            $form_id = intval($data['id']);
+        } else if (isset($data['name']) && $data['name'] !== '') {
+            $form_id = $this->user_input->get_dataTable_id($data['name']);
+        }
         if (!$form_id) {
             // the form does not exist anymore
             return json_encode(array());
         }
-        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, -1, true, false);
+
+        $exclude_system = isset($data['exclude_system']) && intval($data['exclude_system']) === 1;
+        $where_exclude_system = "";
+        if ($exclude_system) {
+            $where_exclude_system = " AND `name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType','entry_date','user_code')";
+        }
+        $sql = "SELECT `name`
+                FROM dataCols
+                WHERE id_dataTables = :id" . $where_exclude_system . "
+                ORDER BY id";
+        $res_db = $this->db->query_db($sql, array("id" => $form_id));
         $res = array();
         if ($res_db) {
-            foreach ($res_db as $key => $value) {
-                array_push($res, $key);
+            foreach ($res_db as $value) {
+                array_push($res, $value['name']);
             }
         }
         return json_encode($res);

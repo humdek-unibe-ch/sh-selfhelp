@@ -35,6 +35,11 @@ class EntryListModel extends StyleModel
     private $own_entries_only;
 
     /**
+     * Comma-separated list of selected columns. If empty, all data columns are loaded.
+     */
+    private $selected_columns;
+
+    /**
      * The constructor
      *
      * @param array $services
@@ -69,7 +74,7 @@ class EntryListModel extends StyleModel
      */
     private function fetch_entry_list()
     {
-        $entry_data = $this->user_input->get_data($this->data_table_id, $this->filter, $this->own_entries_only);
+        $entry_data = $this->user_input->get_data($this->data_table_id, $this->filter, $this->own_entries_only, null, false, true, $this->selected_columns);
         $i = 0;
         foreach ($entry_data as $key => $value) {
             // add index to the data
@@ -95,6 +100,15 @@ class EntryListModel extends StyleModel
         $this->data_table_id = $this->get_db_field("data_table");
         $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
         $this->filter = $this->get_db_field("filter", "");
+        $selected_columns = $this->get_db_field("selected_columns", "");
+        if (is_array($selected_columns)) {
+            $selected_columns = implode(',', array_filter(array_map('trim', $selected_columns), function ($val) {
+                return $val !== '';
+            }));
+        } else {
+            $selected_columns = trim((string)$selected_columns);
+        }
+        $this->selected_columns = $selected_columns;
         if ($this->data_table_id) {
             $this->entry_list = $this->fetch_entry_list();
             if ($this->entry_list) {

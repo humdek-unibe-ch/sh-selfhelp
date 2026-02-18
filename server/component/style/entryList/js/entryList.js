@@ -1,5 +1,16 @@
 $(document).ready(function () {
+    initEntryList();
+});
+
+function initEntryList() {
+    initEntryListDataTables();
+}
+
+function initEntryListDataTables() {
     $('.entryList').each(function () {
+        if ($.fn.dataTable && $.fn.dataTable.isDataTable(this)) {
+            return;
+        }
         var classes = $(this).attr('class').split(' ');
 
         var dataTableConfig = { columnDefs: [] }; //init data table config
@@ -30,9 +41,9 @@ $(document).ready(function () {
 
         //check for hiiden columns **********************************************************************************
         // dt-hide-0
-        var ordered = classes.filter(function (str) { return str.includes("dt-hide"); });
-        for (let i = 0; i < ordered.length; i++) {
-            const ordClassElements = ordered[i].split('-');
+        var hidden = classes.filter(function (str) { return str.includes("dt-hide"); });
+        for (let i = 0; i < hidden.length; i++) {
+            const ordClassElements = hidden[i].split('-');
             if (ordClassElements.length == 3) {
                 //correct order pattern                
                 if (ordClassElements[2] == parseInt(ordClassElements[2], 10)) {
@@ -47,4 +58,4 @@ $(document).ready(function () {
 
         $(this).DataTable(dataTableConfig);
     });
-})
+}
