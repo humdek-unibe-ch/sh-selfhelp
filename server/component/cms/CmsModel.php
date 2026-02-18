@@ -416,7 +416,7 @@ class CmsModel extends BaseModel
         $sql = "SELECT 1*p.id AS id_pages, 1*f.id AS id, f.display, f.name, ft.id as id_fieldType, ft.name AS type,
         pf.default_value, pf.help, l.locale AS locale, 1*l.id AS id_language,
         'male' AS gender, ".MALE_GENDER_ID." AS id_gender,
-        (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1) AS content,
+        IFNULL((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1), pf.default_value) AS content,
         :relation AS relation, 0 as hidden
         FROM pages AS p
         LEFT JOIN pageType pt ON (pt.id = p.id_type)

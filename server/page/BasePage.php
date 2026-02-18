@@ -602,6 +602,35 @@ abstract class BasePage
             $page->output_content();
         }
         if($this->render_footer) $this->output_component("footer");
+        $this->output_event_listener();
+    }
+
+    /**
+     * Output the event listener activation element when the page has
+     * enable_event_listener configured. This is a generic mechanism:
+     * any page type that includes the enable_event_listener pageType_field
+     * can activate client-side polling for refresh events. Currently
+     * LLM scripts generate refresh events, but the system is extensible.
+     */
+    protected function output_event_listener()
+    {
+        if (!isset($this->page['enable_event_listener'])
+            || empty($this->page['enable_event_listener'])
+            || $this->page['enable_event_listener'] === '0') {
+            return;
+        }
+
+        $interval = 5;
+        if (isset($this->page['event_listener_interval'])
+            && !empty($this->page['event_listener_interval'])) {
+            $interval = intval($this->page['event_listener_interval']);
+        }
+        if ($interval < 1) {
+            $interval = 5;
+        }
+
+        echo '<script src="' . BASE_PATH . '/js/ext/event-listener.js"></script>';
+        echo '<div data-event-listener="1" data-event-listener-interval="' . $interval . '" style="display:none"></div>';
     }
 
     /**

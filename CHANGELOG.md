@@ -1,3 +1,14 @@
+# v7.8.0 (not released yet)
+### New Feature
+ - **Refresh Events System**: Generic page-level polling mechanism for background task notifications
+   - New `refresh_events` and `refresh_events_sections` database tables for user-specific event queuing
+   - New `enable_event_listener` and `event_listener_interval` page fields configurable via CMS
+   - Fields attached to page types: core (2), experiment (3), emails (7) — any page of these types can enable polling
+   - New core `AjaxRefreshEvents` AJAX endpoint (`/request/AjaxRefreshEvents/check`) for lightweight event polling
+   - New core `js/ext/event-listener.js` client-side script that polls for events and silently refreshes specified sections
+   - `BasePage::output_event_listener()` automatically injects the polling activation element when enabled on a page
+   - Currently used by LLM scripts plugin to refresh pages after async script execution; mechanism is generic and extensible to any plugin or background task
+
 # v7.7.0
 ### New Feature
  - add `selected_columns` field to `entryList` as a multi-select field to control which data table columns are loaded
