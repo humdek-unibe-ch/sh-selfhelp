@@ -63,3 +63,12 @@ VALUES (NULL, 'ajax_refresh_events_check', '/request/[AjaxRefreshEvents:class]/[
 
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
 VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'ajax_refresh_events_check'), '1', '0', '0', '0');
+
+-- =====================================================
+-- LAST USER PAGE TRACKING
+-- Add second_last_url to track the previous page so
+-- #last_user_page links can avoid pointing to the
+-- current page.
+-- =====================================================
+
+CALL add_table_column('users', 'second_last_url', 'VARCHAR(100) DEFAULT NULL AFTER `last_url`');

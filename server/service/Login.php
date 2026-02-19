@@ -425,29 +425,26 @@ class Login
      */
     public function get_target_url($default_url)
     {
-        // if target_url is set and is a frontend page, use it
+        // Priority 1: if target_url is set and is a frontend page, use it
         if($_SESSION['target_url'] !== null) {
-            $router = $this->services->get_router();
+            $router = $this->services ? $this->services->get_router() : null;
             if($router && $router->is_frontend_page($_SESSION['target_url'])) {
                 return $_SESSION['target_url'];
             }
         }
 
-        $url = $_SESSION['target_url'] ?? $default_url;
-
-        // if user is not logged in use target_url or fallback
         if(!$this->is_logged_in())
-            return $url;
+            return $default_url;
 
+        // Priority 2: use last_url from the DB (source of truth for last visited page)
         $sql = "SELECT last_url FROM users WHERE id = :uid";
         $url_db = $this->db->query_db_first($sql,
             array(':uid' => $_SESSION['id_user']));
 
-        // if last_url is set in the DB use it
-        if($url_db['last_url'] != "")
-            $url = $url_db['last_url'];
+        if($url_db && !empty($url_db['last_url']))
+            return $url_db['last_url'];
 
-        return $url;
+        return $default_url;
     }
 
     /**

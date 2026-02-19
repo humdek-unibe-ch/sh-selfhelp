@@ -91,10 +91,17 @@ class Router extends AltoRouter {
             return $this->generate("home");
         }
         else if($url == "#last_user_page"){
-            if (isset($_SESSION['last_user_page']) && !empty($_SESSION['last_user_page'])) {
-                return $_SESSION['last_user_page'];
+            if (isset($_SESSION['id_user'])) {
+                $sql = "SELECT last_url, second_last_url FROM users WHERE id = :uid";
+                $result = $this->db->query_db_first($sql, array(':uid' => $_SESSION['id_user']));
+                if ($result && !empty($result['last_url'])) {
+                    $current_uri = $_SERVER['REQUEST_URI'] ?? '';
+                    if ($result['last_url'] === $current_uri && !empty($result['second_last_url'])) {
+                        return $result['second_last_url'];
+                    }
+                    return $result['last_url'];
+                }
             }
-            // Fallback to home page if no valid last page exists
             return $this->generate("home");
         }
         else if($url == "#self")
@@ -378,7 +385,15 @@ class Router extends AltoRouter {
         }
         
         if ($this->is_frontend_page($url)) {
-            $this->db->update_by_ids('users', array('last_url' => $url), array('id' => $user_id));
+            $sql = "SELECT last_url FROM users WHERE id = :uid";
+            $current = $this->db->query_db_first($sql, array(':uid' => $user_id));
+
+            $updates = array('last_url' => $url);
+            if ($current && !empty($current['last_url']) && $current['last_url'] !== $url) {
+                $updates['second_last_url'] = $current['last_url'];
+            }
+
+            $this->db->update_by_ids('users', $updates, array('id' => $user_id));
         }
     }
 

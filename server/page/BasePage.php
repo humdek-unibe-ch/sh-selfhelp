@@ -407,32 +407,6 @@ abstract class BasePage
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
-        $this->set_last_user_page();
-    }
-
-    /**
-     * Set the last unique page that the user visited in his/her SESSION
-     */
-    private function set_last_user_page()
-    {
-        $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        
-        if (!isset($_SERVER['HTTP_REFERER'])) {
-            return; // No referer to process
-        }
-        
-        $referer = $_SERVER['HTTP_REFERER'];
-        
-        // Skip if referer is the same as current URL (to avoid loops)
-        if ($referer == $curr_url) {
-            return;
-        }
-        
-        // Only store if referer is a frontend page
-        $router = $this->services->get_router();
-        if ($router->is_frontend_page($referer, $this->keyword)) {
-            $_SESSION['last_user_page'] = $referer;
-        }
     }
 
     /**

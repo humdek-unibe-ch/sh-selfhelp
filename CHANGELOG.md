@@ -1,4 +1,9 @@
 # v7.8.0 (not released yet)
+### Improvement
+ - `#last_user_page` now reads from `users.last_url` in the database instead of the session-based `HTTP_REFERER` tracking, making it reliable across sessions and independent of browser referer headers
+ - Track `second_last_url` in the `users` table so `#last_user_page` links avoid pointing to the current page; when `last_url` matches the current page, the link falls back to `second_last_url`
+ - Simplify `Login::get_target_url()` to use the DB `last_url` as the single source of truth for post-login redirects
+
 ### New Feature
  - **Refresh Events System**: Generic page-level polling mechanism for background task notifications
    - New `refresh_events` and `refresh_events_sections` database tables for user-specific event queuing
