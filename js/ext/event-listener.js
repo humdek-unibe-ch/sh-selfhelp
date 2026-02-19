@@ -102,8 +102,25 @@
 
         $(document).on('submit', 'form', function () {
             var loadingSections = collectLoadingSectionIds();
-            if (loadingSections.length > 0) {
+            if (loadingSections.length === 0) {
+                return;
+            }
+
+            var isAjax = $(this).find('input[name="ajax"]').val() == 1;
+
+            if (isAjax) {
+                applyOverlaysForSections(loadingSections);
+            } else {
                 storePendingSections(loadingSections);
+            }
+        });
+    }
+
+    function applyOverlaysForSections(sectionIds) {
+        sectionIds.forEach(function (sectionId) {
+            var $section = $('.style-section-' + sectionId);
+            if ($section.length > 0) {
+                applyLoadingOverlay($section);
             }
         });
     }
@@ -252,13 +269,16 @@
                 'top: 0; left: 0; right: 0; bottom: 0;' +
                 'background: rgba(255,255,255,0.85);' +
                 'display: flex;' +
-                'align-items: center;' +
+                'align-items: flex-start;' +
                 'justify-content: center;' +
                 'z-index: 100;' +
                 'border-radius: inherit;' +
             '}' +
             '.selfhelp-event-loading-content {' +
                 'text-align: center;' +
+                'position: sticky;' +
+                'top: 40%;' +
+                'padding: 2rem 0;' +
             '}' +
             '.selfhelp-event-loading-label {' +
                 'margin-top: 0.5rem;' +
