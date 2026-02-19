@@ -61,7 +61,7 @@
         $.get(location.href, function (html) {
             var $newPage = $(html);
             sectionIds.forEach(function (sectionId) {
-                var selector = '#section-' + sectionId;
+                var selector = '.style-section-' + sectionId;
                 var $newSection = $newPage.find(selector);
                 var $currentSection = $(selector);
                 if ($newSection.length > 0 && $currentSection.length > 0) {
