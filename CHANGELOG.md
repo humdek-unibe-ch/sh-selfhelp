@@ -8,6 +8,15 @@
    - New core `js/ext/event-listener.js` client-side script that polls for events and silently refreshes specified sections
    - `BasePage::output_event_listener()` automatically injects the polling activation element when enabled on a page
    - Currently used by LLM scripts plugin to refresh pages after async script execution; mechanism is generic and extensible to any plugin or background task
+ - **Event Refresh Loading UX**: Generic opt-in loading indicators for sections refreshed by the event listener
+   - Any component template can add `data-event-refresh-loading="1"` to its wrapper element to opt in
+   - **Loading overlay**: When a form is submitted on an event-listener page, sections containing opted-in elements receive a semi-transparent overlay with a Bootstrap spinner and "Processing..." label
+   - **Session persistence**: Loading state is saved to `sessionStorage` before form submit so the overlay reappears after full page reload
+   - **Refresh animation**: When the event listener refreshes a section, the overlay is removed and a brief blue highlight pulse (1.5s) draws attention to the updated content
+   - **Stale protection**: Stored loading state is discarded after 2 minutes to prevent stale overlays
+   - **Auto-cleanup**: Loading overlay is automatically removed after 2 minutes as a safety timeout
+   - **Zero configuration**: Works automatically for any component that adds the data attribute; no additional JavaScript or CSS setup required
+   - **How to use**: Add `data-event-refresh-loading="1"` to a component's wrapper element that is inside a section refreshed by the event listener. Example: `<div class="my-component <?php echo $this->css; ?>" data-event-refresh-loading="1">`
 
 # v7.7.0
 ### New Feature
