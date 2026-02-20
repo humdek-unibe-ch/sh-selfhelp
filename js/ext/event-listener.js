@@ -78,14 +78,17 @@
 
     function refreshSections(sectionIds) {
         $.get(location.href, function (html) {
-            var $newPage = $(html);
+            var tempDoc = document.implementation.createHTMLDocument('');
+            tempDoc.documentElement.innerHTML = html;
+            var $newPage = $(tempDoc);
+
             sectionIds.forEach(function (sectionId) {
                 var selector = '.style-section-' + sectionId;
                 var $newSection = $newPage.find(selector);
                 var $currentSection = $(selector);
                 if ($newSection.length > 0 && $currentSection.length > 0) {
-                    removeLoadingOverlay($currentSection);
-                    $currentSection.empty().append($newSection.children());
+                    $currentSection.find('.selfhelp-event-loading-overlay').remove();
+                    $currentSection.empty().append($newSection.children().clone());
                     highlightSection($currentSection);
                 }
             });
