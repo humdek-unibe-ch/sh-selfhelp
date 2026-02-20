@@ -23,6 +23,10 @@
    - **Zero configuration**: Works automatically for any component that adds the data attribute; no additional JavaScript or CSS setup required
    - **How to use**: Add `data-event-refresh-loading="1"` to a component's wrapper element that is inside a section refreshed by the event listener. Example: `<div class="my-component <?php echo $this->css; ?>" data-event-refresh-loading="1">`
 
+### Mobile Support
+ - Include plugin CSS files in mobile `external_css` response — `BasePage::get_external_css_for_mobile()` now traverses `PLUGIN_SERVER_PATH` subdirectories and includes `css/ext/*.css` from all installed plugins
+ - Add `enable_event_listener` and `event_listener_interval` fields to `output_base_content_mobile()` JSON response so the mobile app can poll for refresh events
+
 # v7.7.0
 ### New Feature
  - add `selected_columns` field to `entryList` as a multi-select field to control which data table columns are loaded

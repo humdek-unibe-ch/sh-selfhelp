@@ -500,9 +500,20 @@ abstract class BasePage
     }
 
     private function get_external_css_for_mobile(){
-        $path = CSS_SERVER_PATH;
-        $extension = 'css';
-        if(!file_exists($path)) return;
+        $css_content = '';
+        $css_content .= $this->read_css_from_directory(CSS_SERVER_PATH);
+        $css_content .= $this->read_plugin_css_for_mobile();
+        return $css_content;
+    }
+
+    /**
+     * Read all .css files from a directory and return their concatenated content.
+     *
+     * @param string $path The directory path to scan
+     * @return string Concatenated CSS content
+     */
+    private function read_css_from_directory($path){
+        if(!file_exists($path)) return '';
         $files = array();
         if($handle = opendir($path)) {
             while(false !== ($file = readdir($handle)))
@@ -517,8 +528,31 @@ abstract class BasePage
         foreach($files as $file)
         {
             $file_parts = pathinfo($file);
-            if($file_parts['extension'] === $extension)
+            if(isset($file_parts['extension']) && $file_parts['extension'] === 'css')
                 $css_content .= file_get_contents($path . '/' . $file);
+        }
+        return $css_content;
+    }
+
+    /**
+     * Collect CSS from all installed plugins for mobile.
+     * Reads css/ext/*.css from each plugin directory under PLUGIN_SERVER_PATH.
+     *
+     * @return string Concatenated plugin CSS content
+     */
+    private function read_plugin_css_for_mobile(){
+        $css_content = '';
+        $plugin_path = PLUGIN_SERVER_PATH;
+        if(!file_exists($plugin_path)) return '';
+        if($handle = opendir($plugin_path)) {
+            while(false !== ($dir = readdir($handle)))
+            {
+                if($dir === '.' || $dir === '..' || filetype($plugin_path . '/' . $dir) !== "dir")
+                    continue;
+                $css_ext_path = $plugin_path . '/' . $dir . '/css/ext';
+                $css_content .= $this->read_css_from_directory($css_ext_path);
+            }
+            closedir($handle);
         }
         return $css_content;
     }
@@ -637,6 +671,18 @@ abstract class BasePage
         $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();
         $res['languages'] = $this->services->get_db()->get_languages();
         $res['redirect_url'] = isset($_SESSION[MOBILE_REDIRECT_URL]) ? $_SESSION[MOBILE_REDIRECT_URL] : false;
+        $res['enable_event_listener'] = isset($this->page['enable_event_listener'])
+            && !empty($this->page['enable_event_listener'])
+            && $this->page['enable_event_listener'] !== '0';
+        $event_interval = 5;
+        if (isset($this->page['event_listener_interval'])
+            && !empty($this->page['event_listener_interval'])) {
+            $event_interval = intval($this->page['event_listener_interval']);
+        }
+        if ($event_interval < 1) {
+            $event_interval = 5;
+        }
+        $res['event_listener_interval'] = $event_interval;
         return $res;
     }
 
