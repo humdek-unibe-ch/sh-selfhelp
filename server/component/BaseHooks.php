@@ -34,18 +34,38 @@ class BaseHooks extends BaseModel
     }
 
     /**
-     * Execute private method with reflection
-     * @param object hookedClassInstance
-     * The class which was hooked
-     * @param string $methodName
-     * The name of the method that we want to execute
-     * @param object $params = null
-     * Params passed to the method
-     * @return object
-     * Return the method result
+     * Execute the previous link in the hook chain, or the original method
+     * when the chain is exhausted.
+     *
+     * When called inside a hook_overwrite_return chain the method uses the
+     * chain context stored in $args (_hook_chain_key / _hook_chain_index)
+     * to call the previous hook.  Once the first hook (index 0) calls this,
+     * the original target method is invoked via reflection which bypasses
+     * uopz_set_return, so no infinite recursion occurs.
+     *
+     * Hooks that are NOT part of a chain (no _hook_chain_key in $args)
+     * fall through to the original reflection-based behaviour.
+     *
+     * @param array $args  Associative array with at least
+     *                     'hookedClassInstance' and 'methodName'.
+     * @return mixed
      */
     protected function execute_private_method($args = array())
     {
+        if (isset($args['_hook_chain_key']) && isset($args['_hook_chain_index'])) {
+            $chain = Hooks::get_hook_chain($args['_hook_chain_key']);
+            if ($chain) {
+                $prev_index = $args['_hook_chain_index'] - 1;
+
+                if ($prev_index >= 0) {
+                    $prev_hook = $chain['hooks'][$prev_index];
+                    $args['_hook_chain_index'] = $prev_index;
+                    $inst = new $prev_hook['exec_class']($this->services);
+                    return $inst->{$prev_hook['exec_function']}($args);
+                }
+            }
+        }
+
         $reflector = new ReflectionObject($args['hookedClassInstance']);
         $method = $reflector->getMethod($args['methodName']);
         $method->setAccessible(true);
@@ -53,7 +73,7 @@ class BaseHooks extends BaseModel
 
         $params = array();
         foreach ($parameters as $key => $parameter) {
-            if (array_key_exists($parameter->name, $args )) {
+            if (array_key_exists($parameter->name, $args)) {
                 $params[] = $args[$parameter->name];
             }
         }
