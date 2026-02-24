@@ -89,12 +89,13 @@ class NavView extends BaseView
     private function output_nav_item($page, $nav_child=null)
     {
         $active = (isset($page['is_active']) && $page['is_active']) ? "active" : "";
-        $page_name = $page['title'];
+        $page_name = $page['title'] ?? '';
         $params = array();
         if($nav_child !== null)
             $params['nav'] = $nav_child;        
-        $icon = $this->get_icon($page['icon']);
-        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
+        $icon = $this->get_icon($page['icon'] ?? '');
+        $action = $page['action'] ?? null;
+        $url = ($action == PAGE_ACTION_BACKEND && ($page['id_type'] ?? null) != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'] ?? '', $params));
         require __DIR__ . "/tpl_nav_item.php";
     }
 
