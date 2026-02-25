@@ -29,6 +29,7 @@
 ### Mobile Support
  - Include plugin CSS files in mobile `external_css` response — `BasePage::get_external_css_for_mobile()` now traverses `PLUGIN_SERVER_PATH` subdirectories and includes `css/ext/*.css` from all installed plugins
  - Add `enable_event_listener` and `event_listener_interval` fields to `output_base_content_mobile()` JSON response so the mobile app can poll for refresh events
+ - separate request from app and mobilePreview from web when the cookies session is created
 
 # v7.7.0
 ### New Feature

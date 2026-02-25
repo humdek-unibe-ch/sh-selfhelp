@@ -96,15 +96,36 @@ class Login
                 session_name(PROJECT_NAME);
             }
         }
-        if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
-            // enable cross side cookies for mobile preview, only for specific addresses       
-            if (PHP_VERSION_ID < 70300) {
-                session_set_cookie_params(6000, '/; samesite=' . 'None', $_SERVER['HTTP_HOST'], true);
-            } else {
+        if (isset($_POST['mobile']) && $_POST['mobile'] && (!isset($_POST['mobile_web']) || !$_POST['mobile_web'])) {
+            // Native mobile app requests (CapacitorHttp) - use Lax with relaxed settings
+            // so the native HTTP client can properly persist session cookies
+            $session_timeout_cookie = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
+            session_set_cookie_params(
+                [
+                    'lifetime' => $session_timeout_cookie,
+                    'path' => '/',
+                    'secure' => DEBUG ? false : true,
+                    'httponly' => DEBUG ? true : false,
+                    'samesite' => 'Lax'
+                ]
+            );
+        } else if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
+            // Mobile web preview (live reload / browser-based debug) - needs cross-origin cookies
+            $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+            if ($is_https) {
                 session_set_cookie_params(
                     [
                         'secure' => true,
                         'samesite' => 'None'
+                    ]
+                );
+            } else {
+                // HTTP: SameSite=None requires Secure, which won't work on plain HTTP.
+                // Fall back to Lax so the cookie is at least accepted.
+                session_set_cookie_params(
+                    [
+                        'secure' => false,
+                        'samesite' => 'Lax'
                     ]
                 );
             }
