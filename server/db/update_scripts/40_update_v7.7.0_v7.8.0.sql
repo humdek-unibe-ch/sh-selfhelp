@@ -78,3 +78,5 @@ VALUES ('0000000003', (SELECT id FROM pages WHERE keyword = 'ajax_refresh_events
 -- =====================================================
 
 CALL add_table_column('users', 'second_last_url', 'VARCHAR(100) DEFAULT NULL AFTER `last_url`');
+
+ALTER TABLE `styles_fields` CHANGE `default_value` `default_value` TEXT DEFAULT NULL;

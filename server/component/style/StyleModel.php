@@ -307,9 +307,11 @@ class StyleModel extends BaseModel implements IStyleModel
             $map = explode(".",
                 $key
             );
-            $map_value_obj = json_decode($map_value, true);
-            if(json_last_error() == JSON_ERROR_NONE){
-                $map_value = $map_value_obj;
+            if (is_string($map_value)) {
+                $map_value_obj = json_decode($map_value, true);
+                if (json_last_error() == JSON_ERROR_NONE) {
+                    $map_value = $map_value_obj;
+                }
             }
             foreach ($map as $key_map) {
                 if (!isset($current[$key_map])) {
