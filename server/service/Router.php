@@ -359,9 +359,13 @@ class Router extends AltoRouter {
             $sql,
             array(":id" => EXPERIMENT_PAGE_ID, ":key" => $this->route['name'])
         );
+        $url = $_SERVER['REQUEST_URI'] ?? '';
+        if (strlen($url) > 200) {
+            $url = substr($url, 0, 197) . '...';
+        }
         $this->db->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
+            "url" => $url,
             "exec_time" => (microtime(true) - $this->debug_start_time),
             "keyword" => $this->route['name'],
             "params" => json_encode($this->route['params']),
