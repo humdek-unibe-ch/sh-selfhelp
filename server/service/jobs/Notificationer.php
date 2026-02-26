@@ -76,6 +76,7 @@ class Notificaitoner extends BasicJob
             return true;
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
             // Handle the exception
+            error_log("Error sending notification: " . $e->getMessage());
             return false;
         }
     }

@@ -96,47 +96,47 @@ class Login
                 session_name(PROJECT_NAME);
             }
         }
-        if (isset($_POST['mobile']) && $_POST['mobile'] && (!isset($_POST['mobile_web']) || !$_POST['mobile_web'])) {
-            // Native mobile app requests (CapacitorHttp) - use Lax with relaxed settings
-            // so the native HTTP client can properly persist session cookies
-            $session_timeout_cookie = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
+        $is_mobile = isset($_POST['mobile']) && filter_var($_POST['mobile'], FILTER_VALIDATE_BOOLEAN);
+        $is_mobile_web = isset($_POST['mobile_web']) && filter_var($_POST['mobile_web'], FILTER_VALIDATE_BOOLEAN);
+        $session_timeout_cookie = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
+
+        // Detect HTTPS: check direct HTTPS, reverse proxy headers, and port
+        $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+            || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+
+        if ($is_mobile && !$is_mobile_web) {
+            // Native mobile app requests (CapacitorHttp)
             session_set_cookie_params(
                 [
                     'lifetime' => $session_timeout_cookie,
                     'path' => '/',
-                    'secure' => DEBUG ? false : true,
-                    'httponly' => DEBUG ? true : false,
+                    'secure' => !DEBUG || $is_https,
+                    'httponly' => true,
                     'samesite' => 'Lax'
                 ]
             );
-        } else if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
-            // Mobile web preview (live reload / browser-based debug) - needs cross-origin cookies
-            $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
-            if ($is_https) {
-                session_set_cookie_params(
-                    [
-                        'secure' => true,
-                        'samesite' => 'None'
-                    ]
-                );
-            } else {
-                // HTTP: SameSite=None requires Secure, which won't work on plain HTTP.
-                // Fall back to Lax so the cookie is at least accepted.
-                session_set_cookie_params(
-                    [
-                        'secure' => false,
-                        'samesite' => 'Lax'
-                    ]
-                );
-            }
-        } else if (!isset($_POST['mobile']) || !$_POST['mobile']) {
+        } else if ($is_mobile_web) {
+            // Mobile web preview (browser-based debug at e.g. localhost:8100)
+            // Cross-origin cookies require SameSite=None + Secure (only works over HTTPS)
+            session_set_cookie_params(
+                [
+                    'lifetime' => $session_timeout_cookie,
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'None'
+                ]
+            );
+        } else if (!$is_mobile) {
             // web calls only
             if (PHP_VERSION_ID < 70300) {
                 session_set_cookie_params(6000, '/; samesite=' . 'Lax', null, true);
             } else {
                 session_set_cookie_params(
                     [
-                        'secure' => DEBUG ? false : true,
+                        'secure' => !DEBUG || $is_https,
                         'samesite' => 'Lax'
                     ]
                 );
@@ -146,7 +146,32 @@ class Login
         $session_timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
         ini_set('session.gc_maxlifetime', $session_timeout);
         ini_set('session.cookie_lifetime', $session_timeout);
-        session_start();                
+
+        // For mobile_web: force cookie re-emission so SameSite=None; Secure
+        // is always applied, even when resuming an existing session
+        if ($is_mobile_web && isset($_COOKIE[session_name()])) {
+            session_start();
+            $sid = session_id();
+            // Manually re-send the Set-Cookie header with correct attributes
+            $cookie_params = session_get_cookie_params();
+            $expire = $cookie_params['lifetime'] > 0
+                ? time() + $cookie_params['lifetime']
+                : 0;
+            setcookie(
+                session_name(),
+                $sid,
+                [
+                    'expires'  => $expire,
+                    'path'     => $cookie_params['path'],
+                    'domain'   => $cookie_params['domain'],
+                    'secure'   => $cookie_params['secure'],
+                    'httponly'  => $cookie_params['httponly'],
+                    'samesite' => $cookie_params['samesite']
+                ]
+            );
+        } else {
+            session_start();
+        }                
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
