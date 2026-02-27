@@ -390,7 +390,7 @@ class PageDb extends BaseDb
                                 SELECT 
                                     COALESCE(
                                         (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 1),
-                                        sf.default_value
+                                        ''
                                     )
                             )
                             ELSE (
