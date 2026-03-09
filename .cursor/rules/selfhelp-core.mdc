@@ -1,0 +1,92 @@
+# SelfHelp Core Memory
+
+## What is SelfHelp
+SelfHelp is a modular CMS built in vanilla PHP (8.2+) with MySQL 8.0+, Bootstrap 4.6, jQuery, and APCu caching. No external PHP frameworks. It implements MVC architecture with component-based UI, plugin extensibility, and role-based access control.
+
+## Entry Point Flow
+`index.php` → `Selfhelp.php` (loads plugins, creates Services) → Router (AltoRouter) → Page types (SectionPage, ComponentPage, AjaxRequest, CallbackRequest) → Components (MVC per style)
+
+## Service Locator
+`$services->get_db()` (PageDb), `$services->get_router()`, `$services->get_acl()`, `$services->get_user_input()`, `$services->get_job_scheduler()`, `$services->get_transaction()`, `$services->get_condition()`
+
+## Component Architecture
+Every UI element = Component + Model + View (+ optional Controller):
+- **Component**: `server/component/style/{name}/{Name}Component.php` extends `BaseComponent`
+- **Model**: `{Name}Model.php` extends `StyleModel` — loads fields via `$this->get_db_field('field_name', 'default')`
+- **View**: `{Name}View.php` extends `StyleView` — renders HTML via `output_content()`, mobile via `output_content_mobile()`
+- **Controller**: `{Name}Controller.php` extends `BaseController` — handles POST/AJAX
+
+## Style Registration Pattern
+Styles are registered in DB (`styles` table) linked to `styleType` (component/container) and `styleGroup` (Form/Wrapper/etc).
+Fields defined in `fields` table, linked via `styles_fields` with `default_value` and `help`.
+
+```sql
+-- Register style
+INSERT IGNORE INTO `styles` (`name`, `id_type`, `id_group`, `description`)
+VALUES ('styleName', (SELECT id FROM styleType WHERE name='component'), (SELECT id FROM styleGroup WHERE name='Form'), 'Description');
+
+-- Register field
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'field_name', get_field_type_id('text'), '0');
+
+-- Link field to style
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('styleName'), get_field_id('field_name'), 'default', 'Help text');
+```
+
+Field `display`: `0` = internal (not translatable), `1` = external (translatable, user-visible)
+
+## Form System (formUserInput)
+Core form style at `server/component/style/formUserInput/`:
+- **FormUserInputModel** extends StyleModel: `is_log`, `ajax`, `own_entries_only`, `name`, `redirect_at_end`
+- **FormUserInputView** extends StyleView: renders `<form>` with children, confirmation modal
+- **FormUserInputController** extends BaseController: validates with GUMP, saves via `UserInput::save_data()`, triggers `queue_job_from_actions()`
+
+### Data storage: `dataTables` → `dataCols` → `dataRows` → `dataCells`
+Table name = `sprintf('%010d', section_id)`
+
+### formUserInputRecord vs formUserInputLog
+Both reuse FormUserInputModel/View/Controller. Only style DB config differs:
+- **Record** (`is_log=0`): One record per user, continuously updated
+- **Log** (`is_log=1`): Append-only, new row per submission
+
+## Interpolation
+`PageDb::replace_calced_values($text, $values)` replaces `{{field_name}}` with values.
+Regex: `~{{({{)?(.*?)(}})?}}~s`
+
+## Confirmation Dialog
+Uses `jquery-confirm.min.js` (`$.confirm()`).
+PHP passes `data-confirmation` JSON attribute on `<form>`.
+JS reads it and intercepts submit: `$.confirm({ title, content, buttons: { confirm: { action }, cancel: {} } })`
+
+## Lookups Table
+Enums stored in `lookups` table: `type_code` (category), `lookup_code` (constant), `lookup_value`, `lookup_description`.
+Access: `$this->db->get_lookup_id_by_value($type, $value)`
+
+## CSS / Mobile Classes
+Every style gets `css` and `css_mobile` fields. Applied via `StyleView` constructor to root element.
+Additional auto-class: `style-section-{id}`, `selfHelp-locale-{locale}`
+
+## AJAX Form Submission
+Hidden input `name="ajax" value="1"`. JS (`styles.min.js`) intercepts submit, uses `$.ajax()`, injects response alerts.
+
+## Database Migrations
+Located in `server/db/update_scripts/`. Format: `{number}_update_{from}_v{to}.sql`.
+Plugin migrations: `server/plugins/{name}/server/db/v{version}.sql`.
+Helpers: `get_style_id()`, `get_field_id()`, `get_field_type_id()`, `add_table_column()`.
+
+## Plugin System
+Located in `server/plugins/`. Auto-loaded via `Selfhelp::loadPluginGlobals()` → `globals.php`.
+Hooks: registered in `hooks` table, executed via `uopz` extension.
+Types: `hook_on_function_execute` (side-effect) and `hook_overwrite_return` (replace return).
+
+## Key Paths
+| Purpose | Path |
+|---------|------|
+| Core components | `server/component/style/` |
+| Base classes | `server/component/Base*.php` |
+| Services | `server/service/` |
+| DB migrations | `server/db/update_scripts/` |
+| DB helpers | `server/db/FUN_PRO_VIEWS/` |
+| Plugins | `server/plugins/` |
+| JS/CSS | `js/ext/`, `css/ext/` |
+| Templates | `server/component/style/{name}/tpl/` |

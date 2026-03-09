@@ -1,3 +1,6 @@
+# v7.8.1 (Not released yet)
+ - propelry check for unsaved changes in textarea
+
 # v7.8.0
 ### Bug Fix
  - **Fix hook_overwrite_return cross-chain collision**: Rewrote the `schedule_hook_overwrite_return` chaining mechanism in `Hooks.php` to only place `uopz_set_return` on target methods, never on intermediate hook methods. The old approach chained hooks by setting `uopz_set_return` on each hook's `exec_function` to redirect to the next hook, which caused collisions when two different chains (e.g. `CmsView::create_field_form_item` and `CmsView::create_field_item`) shared the same `exec_function` — the second chain's override would silently overwrite the first, routing edit-mode hooks through view-mode logic (disabled dropdowns). The new implementation stores the full hook chain in a static registry and passes chain context (`_hook_chain_key`, `_hook_chain_index`) through the args array. `BaseHooks::execute_private_method` is now chain-aware: it traverses the chain by decrementing the index and calling the previous hook, falling through to the original method via reflection when the chain is exhausted. This fix is fully backward compatible — existing plugins require no changes, and plugins can now safely reuse the same `exec_function` name across multiple hook registrations without risk of collision.

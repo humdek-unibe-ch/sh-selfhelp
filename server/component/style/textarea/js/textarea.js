@@ -207,7 +207,9 @@ function initMarkdownFields() {
             }
         });
         editor.codemirror.on("change", () => {
-            unsavedChanges.push(this);
+            if (typeof unsavedChanges !== 'undefined') {
+                unsavedChanges.push(this);
+            }
         });
         editor.codemirror.on("cursorActivity", () => {
             if (!simpleMDEEidtorRefreshed) {

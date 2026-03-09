@@ -1,0 +1,96 @@
+# LLM Plugin (sh-shp-llm) Memory
+
+## Overview
+SelfHelp LLM plugin at `server/plugins/sh-shp-llm/`. Provides AI chat, LLM scripts, admin console, and response components. Built with PHP backend + React 18 TypeScript frontend compiled to UMD bundles via Vite.
+
+## Directory Structure
+```
+sh-shp-llm/
+├── server/
+│   ├── component/
+│   │   ├── LlmHooks.php              # Hook implementations (CMS field overrides, task execution)
+│   │   ├── LlmJsonResponseTrait.php   # JSON response helper trait
+│   │   ├── style/
+│   │   │   ├── llmChat/               # Main chat component (MVC + Controller)
+│   │   │   └── llmResponse/           # Response display component
+│   │   └── module*/                   # Admin console, scripts manager
+│   ├── service/                       # 20+ service classes
+│   │   ├── globals.php                # Constants (models, limits, file types)
+│   │   ├── LlmService.php            # Core: conversations, messages, API calls
+│   │   ├── LlmContextService.php      # Context building for API
+│   │   ├── LlmResponseService.php     # Response parsing + schema validation
+│   │   ├── LlmDataSavingService.php   # Save form data to UserInput/dataTables
+│   │   ├── provider/                  # LLM provider abstraction
+│   │   └── ...
+│   └── db/v1.0.0.sql                 # Initial schema
+├── react/
+│   ├── src/
+│   │   ├── LLMChat.tsx               # Chat entry point (mounts on .llm-chat-root)
+│   │   ├── components/styles/
+│   │   │   ├── chat/LlmChat.tsx       # Main chat component
+│   │   │   ├── chat/FloatingChat.tsx   # Floating button mode
+│   │   │   └── shared/                # MarkdownRenderer, MessageList, FormRenderer, etc.
+│   │   ├── types/index.ts            # TypeScript interfaces
+│   │   └── utils/api.ts              # API utilities
+│   └── vite.config.ts
+├── css/ext/llm-chat.css              # Built CSS
+├── js/ext/llm-chat.umd.js           # Built JS (UMD)
+└── CHANGELOG.md
+```
+
+## Database Tables
+- `llmConversations`: id, id_users, id_sections, id_llm_scripts, title, model, temperature, max_tokens, blocked, deleted
+- `llmMessages`: id, id_llmConversations, role (user/assistant/system), content, attachments, model, tokens_used, raw_response, sent_context, reasoning, id_dataRows, is_validated, request_payload, deleted
+- `llmConversationProgress`: id, id_llmConversations, id_sections, progress_percentage, topic_coverage
+- `llm_scripts`: id, generated_id, name, script, data_config, test_variables, async, model, temperature, max_tokens
+
+## Registered Styles
+- **llmChat**: Full chat interface (React-powered), style group "Form"
+- **llmResponse**: Display LLM response data with `{{field.path}}` interpolation
+- **llmFormRecord** (v1.1.0): LLM-enhanced form in record mode (extends formUserInputRecord + LLM generation)
+- **llmFormLog** (v1.1.0): LLM-enhanced form in log mode (extends formUserInputLog + LLM generation)
+
+## Key Service Classes
+| Service | Purpose |
+|---------|---------|
+| LlmService | Core: conversations CRUD, messages CRUD, `callLlmApi()` (synchronous POST, no SSE) |
+| LlmContextService | Builds API messages array from conversation history + system context |
+| LlmResponseService | `callLlmWithSchemaValidation()` — calls LLM + validates JSON schema + retries |
+| LlmDataSavingService | Saves form data to `dataTables` via `UserInput::save_data()` |
+| LlmFormModeService | Handles form mode metadata |
+| LlmDangerDetectionService | Safety keyword detection + blocking |
+
+## LLM API Call Flow
+1. Controller receives POST request
+2. `LlmContextService::buildApiMessages()` builds message array with context
+3. `LlmResponseService::callLlmWithSchemaValidation()` calls LLM
+4. Inside: `LlmService::callLlmApi()` — synchronous HTTP POST to provider (stream: false)
+5. Response validated against JSON schema, retries up to 3x on failure
+6. Result saved to `llmMessages` table
+7. JSON response returned to React frontend
+
+## React Architecture
+- Entry: `LLMChat.tsx` finds `.llm-chat-root` elements, parses `data-config` JSON, renders `<LlmChatLoader>`
+- Config loaded via API (`?action=get_config`) with data-attribute fallback
+- Key shared components: `MarkdownRenderer`, `MessageList`, `FormRenderer`, `LoadingIndicator`
+- All markdown rendered via `react-markdown` + `remark-gfm` + `rehype-highlight` + `rehype-raw`
+
+## Hook Registrations
+- `field-llm-model-edit/view`: Custom CMS field for LLM model dropdown
+- `field-floating-button-position-edit/view`: Position dropdown
+- `field-audio-model-edit/view`: Audio model dropdown
+- `field-llm_panel-edit/view`: Admin panel widget
+- `llm-execute-llm-task`: Execute LLM script tasks
+- `llm-jobConfig-schema`, `llm-get-task-config`, `llm-get-job-type`: Job scheduler integration
+
+## Constants (globals.php)
+`LLM_DEFAULT_MODEL`, `LLM_DEFAULT_TEMPERATURE` (1), `LLM_DEFAULT_MAX_TOKENS` (2048), `LLM_DEFAULT_TIMEOUT` (30), `TRANSACTION_BY_LLM_PLUGIN`, `LLM_VISION_MODELS`, `LLM_AUDIO_MODELS`
+
+## Template Pattern
+PHP view includes template: `include __DIR__ . '/tpl/template.php'`
+Template outputs `<div class="..." data-config="<?php echo htmlspecialchars($this->getReactConfig()); ?>">`
+React mounts on the div, reads config from `data-config` attribute.
+
+## Build System
+Vite builds three separate UMD bundles: `llm-chat.umd.js`, `llm-admin.umd.js`, `llm-scripts.umd.js`
+Gulp wrapper in `gulp/` handles npm install + Vite build.
