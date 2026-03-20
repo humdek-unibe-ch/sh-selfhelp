@@ -1,4 +1,4 @@
-# v7.8.1 (Not released yet)
+# v7.8.1
  - propelry check for unsaved changes in textarea
 
 # v7.8.0
