@@ -23,9 +23,11 @@
     <style type="text/css">
         <?php $this->output_custom_css(); ?>        
     </style>
- <?php
+<?php
     $this->output_js_includes_after();
 ?>   
+<!-- Cookie consent + Google Ads tag bootstrap -->
+<script src="<?php echo BASE_PATH . '/js/ext/google-ads-gtag.js'; ?>"></script>
 </head>
 <body class="ui-cms-body">
 <?php
