@@ -370,7 +370,8 @@ abstract class BasePage
      */
     private function getCspRules()
     {
-        $csp_rules = "default-src 'self'; font-src 'self' data:;  style-src 'self' 'unsafe-inline'; object-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-"
+        // 'unsafe-eval' required by Plotly.js
+        $csp_rules = "default-src 'self'; font-src 'self' data:;  style-src 'self' 'unsafe-inline'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
         return $csp_rules;
     }
