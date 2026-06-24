@@ -591,13 +591,25 @@ class Login
     function generate_2fa_code($user, $email){
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
         // Check if TWO_FA_EXPIRATION is defined, otherwise use default value of 10
-        $expiration_minutes = defined('TWO_FA_EXPIRATION') ? TWO_FA_EXPIRATION : 10;
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+' . $expiration_minutes . ' minutes'));
-        $this->db->insert('users_2fa_codes', array(
-            'id_users' => $user['id'],
-            'code' => $code,
-            'expires_at' => $expiresAt
-        ));
+        $expiration_minutes = (int)(defined('TWO_FA_EXPIRATION') ? TWO_FA_EXPIRATION : 10);
+        // Compute expires_at with MySQL's own clock (DATE_ADD(NOW(), ...)) instead
+        // of PHP's date()/strtotime(). Verification compares expires_at against
+        // MySQL NOW(), so when the PHP timezone differs from the MySQL timezone
+        // (typical on a Linux production host where PHP runs in UTC while MySQL
+        // uses the system/local zone) a PHP-computed expires_at lands in the past
+        // from MySQL's perspective. The code then looks "expired" the instant it
+        // is issued and every verification fails (-> verification_failed -> login).
+        // Keeping both the write and the check on MySQL's clock makes 2FA
+        // timezone-agnostic. The interval is an integer cast above, so it is safe
+        // to inline (parameters are not allowed inside an INTERVAL expression).
+        $this->db->execute_update_db(
+            "INSERT INTO users_2fa_codes (id_users, code, expires_at)
+             VALUES (:id_users, :code, DATE_ADD(NOW(), INTERVAL " . $expiration_minutes . " MINUTE))",
+            array(
+                ':id_users' => $user['id'],
+                ':code' => $code
+            )
+        );
 
         $email_templates = $this->db->fetch_page_info(SH_EMAIL);
         $global_vars = $this->db->get_global_vars();
