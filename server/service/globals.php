@@ -227,6 +227,7 @@ define('ACTION_JOB_TYPE', 'job_type');
 define('ACTION_JOB_ADD_REMOVE_GROUPS', 'job_add_remove_groups');
 define('ACTION_JOB_TYPE_ADD_GROUP', 'add_group');
 define('ACTION_JOB_TYPE_REMOVE_GROUP', 'remove_group');
+define('ACTION_JOB_TYPE_BMZ_EVALUATE', 'bmz_evaluate');
 define('ACTION_JOB_TYPE_NOTIFICATION', 'notification');
 define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER', 'notification_with_reminder');
 define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY', 'notification_with_reminder_for_diary');

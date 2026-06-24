@@ -113,7 +113,7 @@ class Services
 
         $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router, $this->condition);        
 
-        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition, $this->user_input);
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition, $this->user_input, $this);
         $this->user_input->setJobSchedulerService($this->job_scheduler);
         
         if ($fullMode) {

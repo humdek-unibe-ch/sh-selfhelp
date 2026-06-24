@@ -14,14 +14,22 @@ class Task  extends BasicJob
 {
 
     /**
+     * The services handler. Needed by plugin task types (e.g. bmz_evaluate) that
+     * instantiate plugin models requiring the full service container. May be null
+     * for the built-in task types (add_group / remove_group).
+     */
+    private $services;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $condition)
+    public function __construct($db, $transaction, $condition, $services = null)
     {
         parent::__construct($db, $transaction, $condition);
+        $this->services = $services;
     }
 
     /* Private Methods *********************************************************/
@@ -48,6 +56,9 @@ class Task  extends BasicJob
         } else if ($task_info['config']['type'] == "remove_group") {
             // remove group from user
             $res = $this->remove_group_from_user($task_info, $sent_by, $user['id_users'], $execute_user_id)  && $res;
+        } else if ($task_info['config']['type'] == "bmz_evaluate") {
+            // run the BMZ sport motivation profile calculation for the saved survey record
+            $res = $this->execute_bmz_evaluate($task_info, $sent_by, $user['id_users'], $execute_user_id) && $res;
         }
         return $res;
     }
@@ -197,6 +208,51 @@ class Task  extends BasicJob
             }
         }
         return $res;
+    }
+
+    /**
+     * Run the BMZ sport motivation profile calculation for a saved survey record.
+     *
+     * The actual work lives in the bmz_evaluate_motive plugin, exposed as the
+     * global function bmz_evaluate_run_for_record() so core has no hard
+     * dependency on the plugin. The task config carries the survey record id and
+     * form id stored when the formAction scheduled this job.
+     *
+     * @param array $task_info  The scheduled job row; config holds record_id / form_id / form_name.
+     * @param string $sent_by   Who triggered the execution.
+     * @param int $id_users     The user the result belongs to.
+     * @param int $execute_user_id  The user who executed the job, null if automated.
+     * @retval boolean  True on success.
+     */
+    private function execute_bmz_evaluate($task_info, $sent_by, $id_users, $execute_user_id)
+    {
+        $config = $task_info['config'];
+        $ok = false;
+        $msg = '';
+        if (!function_exists('bmz_evaluate_run_for_record')) {
+            $msg = 'bmz_evaluate_run_for_record() is not defined; is the bmz_evaluate_motive plugin installed?';
+        } else if (!$this->services) {
+            $msg = 'Services container not available to the task; cannot run bmz_evaluate.';
+        } else {
+            $result = bmz_evaluate_run_for_record(
+                $this->services,
+                isset($config['record_id']) ? $config['record_id'] : null,
+                isset($config['form_id']) ? $config['form_id'] : null,
+                $id_users
+            );
+            $ok = isset($result['result']) ? (bool) $result['result'] : (bool) $result;
+            $msg = is_array($result) ? json_encode($result) : (string) $result;
+        }
+        $this->transaction->add_transaction(
+            $ok ? transactionTypes_execute_task_ok : transactionTypes_execute_task_fail,
+            $sent_by,
+            $execute_user_id,
+            $this->transaction::TABLE_SCHEDULED_JOBS,
+            $task_info['id'],
+            false,
+            'BMZ evaluate for user ' . $id_users . ': ' . $msg
+        );
+        return $ok;
     }
 
     /**

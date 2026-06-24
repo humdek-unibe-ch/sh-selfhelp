@@ -214,16 +214,33 @@ class StyleModel extends BaseModel implements IStyleModel
     private function parse_params($data_config)
     {
         $str_data = json_encode($data_config);
-        preg_match_all('~#\w+\b~', $str_data, $m);
-        foreach ($m as $key => $value) {
-            if ($value) {
-                $param_name = str_replace('#', '', $value[0]);
-                if (isset($this->params[$param_name])) {
-                    $ser_data = str_replace($value[0], $this->params[$param_name], $str_data);
+        $replaced = false;
+        // Match every #token in the config. `\w+` is greedy, so a placeholder
+        // glued to a suffix (e.g. `#code_static`) is captured as the whole
+        // token `code_static`. For each token we resolve the longest known
+        // param name that the token starts with, so `#code_static` correctly
+        // expands the `code` param and keeps the trailing `_static`.
+        if (preg_match_all('~#(\w+)~', $str_data, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $token = $match[1]; // e.g. "code_static" or "code"
+                $param_name = $token;
+                // Shrink the token from the right until it matches a known param.
+                while ($param_name !== '' && !isset($this->params[$param_name])) {
+                    $pos = strrpos($param_name, '_');
+                    if ($pos === false) {
+                        $param_name = '';
+                        break;
+                    }
+                    $param_name = substr($param_name, 0, $pos);
+                }
+                if ($param_name !== '' && isset($this->params[$param_name])) {
+                    // Replace only the resolved "#param" part, leaving any suffix intact.
+                    $str_data = str_replace('#' . $param_name, $this->params[$param_name], $str_data);
+                    $replaced = true;
                 }
             }
         }
-        return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
+        return $replaced ? json_decode($str_data, true) : $data_config;
     }
     
     /**

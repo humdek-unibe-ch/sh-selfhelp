@@ -1013,7 +1013,7 @@
                         "remove_group",
                         "notification",
                         "notification_with_reminder",
-                        "notification_with_reminder_for_diary"
+                        "bmz_evaluate"
                     ],
                     "options": {
                         "enum_titles": [
@@ -1021,7 +1021,7 @@
                             "Remove group",
                             "Schedule notification",
                             "Schedule notification with reminders",
-                            "Schedule notification with reminders for a diary"
+                            "BMZ evaluate motive"
                         ],
                         "grid_columns": 6
                     }

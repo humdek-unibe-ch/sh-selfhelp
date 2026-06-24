@@ -125,7 +125,7 @@ class UserInput
      */
     private function get_job_type($job)
     {
-        if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+        if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP || $job['job_type'] == ACTION_JOB_TYPE_BMZ_EVALUATE) {
             return jobTypes_task;
         } else if (
             $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
@@ -336,8 +336,17 @@ class UserInput
         $task_config = array(
             "type" => $job[ACTION_JOB_TYPE],
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
-            "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
+            "group" => isset($job[ACTION_JOB_ADD_REMOVE_GROUPS]) ? $job[ACTION_JOB_ADD_REMOVE_GROUPS] : null
         );
+        if ($job[ACTION_JOB_TYPE] == ACTION_JOB_TYPE_BMZ_EVALUATE) {
+            // The bmz_evaluate task reloads the saved survey response by record id
+            // and form id when the scheduler fires, then runs the BMZ calculation.
+            // Only surveys completed after the action exists are processed; there
+            // is no backfill of historical responses.
+            $task_config["record_id"] = isset($form_data['form_fields'][ENTRY_RECORD_ID]) ? $form_data['form_fields'][ENTRY_RECORD_ID] : null;
+            $task_config["form_id"] = isset($form_data['form_id']) ? $form_data['form_id'] : null;
+            $task_config["form_name"] = isset($form_data['form_name']) ? $form_data['form_name'] : null;
+        }
         return $task_config;
     }
 
