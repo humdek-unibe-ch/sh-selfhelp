@@ -1,6 +1,4 @@
-# v7.8.1
- - propelry check for unsaved changes in textarea
-
+# v7.8.2
 ### Bug Fix
  - **Fix 2FA "Invalid verification code" after the code was already consumed**: A duplicate or concurrent verification request could send the same 6-digit code twice. The first request consumed the code (marked `users_2fa_codes.is_used = TRUE`) and logged the user in, while the second request failed because the code was already used — showing "Invalid verification code" and leaving the user stuck on the 2FA page even though they were effectively authenticated. This was reproducible in production but not locally, where network/proxy/auto-submit timing made the duplicate submit far more likely. Fixes:
    - `TwoFactorAuthController`: short-circuit at the top of the controller — if the session is already logged in (a prior same-session request already verified and consumed the code), forward the user to the post-login target URL (or return a JSON success for mobile) instead of re-verifying. Same-session requests are serialized by the PHP session lock (`session_write_close()` is intentionally not called in `Login::init_session()`), so the second request reliably observes the completed login.
@@ -13,6 +11,9 @@
    - **HTTPS detection behind a proxy** — in production `DEBUG=0` forces the session cookie `Secure` flag, so the app must correctly see HTTPS (direct `HTTPS`, `X-Forwarded-Proto: https`, `X-Forwarded-SSL: on`, or port 443) or the cookie is dropped.
    - **Load balancing** — multiple app servers need sticky sessions or a shared session store; otherwise the verify request and the follow-up land on different session stores.
    - **PHP vs MySQL timezone** — `expires_at` is written with PHP's `date()` while the lookup compares against MySQL `NOW()`; a timezone mismatch can make codes appear expired.
+
+# v7.8.1
+ - propelry check for unsaved changes in textarea
 
 # v7.8.0
 ### Bug Fix
