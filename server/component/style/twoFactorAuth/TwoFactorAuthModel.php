@@ -46,28 +46,53 @@ class TwoFactorAuthModel extends StyleModel
      *  True if the code is valid, false otherwise.
      */
     public function verify_2fa_code($code)
-    {        
-        // Get the latest unexpired and unused code for this user
-        $query = "SELECT * FROM users_2fa_codes 
-                 WHERE id_users = :id_users
-                 AND code = :code 
-                 AND expires_at > NOW() 
-                 AND is_used = FALSE 
-                 ORDER BY created_at DESC 
-                 LIMIT 1";
-        
-        $result = $this->db->query_db_first($query, array(':id_users' => $_SESSION['2fa_user']['id'], ':code' => $code));
-        
-        if (!empty($result)) {
-            // Mark the code as used
-            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array('id' => $result['id']));
+    {
+        $user_id = $_SESSION['2fa_user']['id'];
+
+        // Atomically claim the code: flip is_used 0 -> 1 in a single UPDATE so
+        // that if the same code is submitted twice (e.g. a duplicate POST over
+        // HTTP/2, which production enables) only one request can consume it.
+        // This avoids the race where two requests both read the code as unused,
+        // one logs in and the other "fails" and overwrites the session with a
+        // logged-out state — which bounced the user back to the login page.
+        $claim = "UPDATE users_2fa_codes
+                     SET is_used = 1
+                   WHERE id_users = :id_users
+                     AND code = :code
+                     AND expires_at > NOW()
+                     AND is_used = 0";
+        $affected = $this->db->execute_update_db($claim, array(
+            ':id_users' => $user_id,
+            ':code' => $code
+        ));
+
+        if ($affected && $affected > 0) {
+            // This request consumed the code -> log the user in.
             $this->login->log_user($_SESSION['2fa_user']);
-            // Clear the pending 2FA marker so a duplicate/retried request does not
-            // try to re-verify an already-consumed code (which would fail).
             unset($_SESSION['2fa_user']);
             return true;
         }
-        
+
+        // No row was claimed. Either the code is wrong/expired, or a concurrent
+        // duplicate request already consumed this exact (still valid) code. In
+        // the latter case log this request in too, so a duplicate submit ends up
+        // authenticated instead of failing and being redirected to login.
+        $already_used = $this->db->query_db_first(
+            "SELECT id FROM users_2fa_codes
+              WHERE id_users = :id_users
+                AND code = :code
+                AND is_used = 1
+                AND expires_at > NOW()
+              ORDER BY created_at DESC
+              LIMIT 1",
+            array(':id_users' => $user_id, ':code' => $code)
+        );
+        if (!empty($already_used)) {
+            $this->login->log_user($_SESSION['2fa_user']);
+            unset($_SESSION['2fa_user']);
+            return true;
+        }
+
         return false;
     }
 

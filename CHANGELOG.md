@@ -15,6 +15,7 @@
    - `Login::get_target_url()`: validate `last_url` with `Router::is_frontend_page()` before redirecting to it; if it is not a valid frontend page, fall back to the default (home). The `target_url` path was already validated; this brings `last_url` to parity.
    - `Router::is_frontend_page()`: explicitly exclude the `two-factor-authentication` page (in addition to `login`) so it can never be stored as `last_url` nor used as a redirect target — this also prevents a redirect loop back to the 2FA form.
    - No database migration required; the validation on read makes existing stale `last_url` values harmless, and `update_user_last_url()` already filters them out going forward.
+ - **Make 2FA code consumption atomic (HTTP/2 duplicate-submit hardening)**: `TwoFactorAuthModel::verify_2fa_code()` now claims the code with a single conditional `UPDATE ... SET is_used = 1 WHERE ... AND is_used = 0` and decides success from the affected-row count, instead of `SELECT`-then-`UPDATE`. Production enables HTTP/2 (`Protocols h2 http/1.1`), so a browser can deliver two near-simultaneous POSTs of the same code; previously one request consumed the code and logged in while the other "failed" and could overwrite the session with a logged-out state, bouncing the user back to login. Now whichever request loses the atomic claim detects that the same still-valid code was just consumed and also logs in, so both requests end up authenticated and redirect to the target page. No database migration required.
 
 # v7.8.1
  - propelry check for unsaved changes in textarea
