@@ -24,6 +24,8 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
@@ -56,6 +58,8 @@ DROP FUNCTION IF EXISTS get_page_fields_helper //
 
 CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
 -- page_id -1 returns all pages
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
@@ -83,6 +87,8 @@ DROP FUNCTION IF EXISTS get_sections_fields_helper //
 
 CREATE FUNCTION get_sections_fields_helper(section_id INT, language_id INT, gender_id INT) RETURNS TEXT
 -- section_id -1 returns all sections
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
@@ -152,11 +158,12 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_field_type_id //
 
 CREATE FUNCTION get_field_type_id(field_type varchar(100)) RETURNS INT
+READS SQL DATA
 BEGIN 
 	DECLARE field_type_id INT;    
 	SELECT id INTO field_type_id
 	FROM fieldType
-	WHERE name = field_type COLLATE utf8_unicode_ci;
+	WHERE name = field_type;
     RETURN field_type_id;
 END
 //
@@ -166,11 +173,12 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_field_id //
 
 CREATE FUNCTION get_field_id(field varchar(100)) RETURNS INT
+READS SQL DATA
 BEGIN 
 	DECLARE field_id INT;    
 	SELECT id INTO field_id
 	FROM fields
-	WHERE name = field COLLATE utf8_unicode_ci;
+	WHERE name = field;
     RETURN field_id;
 END
 //
@@ -180,11 +188,12 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_style_id //
 
 CREATE FUNCTION get_style_id(style varchar(100)) RETURNS INT
+READS SQL DATA
 BEGIN 
 	DECLARE style_id INT;    
 	SELECT id INTO style_id
 	FROM styles
-	WHERE name = style COLLATE utf8_unicode_ci;
+	WHERE name = style;
     RETURN style_id;
 END
 //
@@ -194,11 +203,12 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_style_group_id //
 
 CREATE FUNCTION get_style_group_id(style_group varchar(100)) RETURNS INT
+READS SQL DATA
 BEGIN 
 	DECLARE style_group_id INT;    
 	SELECT id INTO style_group_id
 	FROM styleGroup
-	WHERE name = style_group COLLATE utf8_unicode_ci;
+	WHERE name = style_group;
     RETURN style_group_id;
 END
 //
