@@ -181,6 +181,13 @@ class Router extends AltoRouter {
         if ($keyword === 'login') {
             return false;
         }
+
+        // Exclude the two-factor-authentication page explicitly so it is never
+        // stored as last_url nor used as a post-login redirect target (which
+        // would create a redirect loop back to the 2FA form).
+        if ($keyword === 'two-factor-authentication') {
+            return false;
+        }
         
         // Check $_GET/$_POST first, as they are most reliable for current request
         if (isset($_GET['action']) || isset($_POST['action'])) {

@@ -471,9 +471,10 @@ class Login
      */
     public function get_target_url($default_url)
     {
+        $router = $this->services ? $this->services->get_router() : null;
+
         // Priority 1: if target_url is set and is a frontend page, use it
         if($_SESSION['target_url'] !== null) {
-            $router = $this->services ? $this->services->get_router() : null;
             if($router && $router->is_frontend_page($_SESSION['target_url'])) {
                 return $_SESSION['target_url'];
             }
@@ -487,8 +488,16 @@ class Login
         $url_db = $this->db->query_db_first($sql,
             array(':uid' => $_SESSION['id_user']));
 
-        if($url_db && !empty($url_db['last_url']))
-            return $url_db['last_url'];
+        // Only follow last_url if it is a real frontend page. This guards against
+        // stale or invalid values (e.g. an old `login` or
+        // `two-factor-authentication` URL stored before URL filtering existed)
+        // that would otherwise bounce the user straight back to the login page
+        // right after a successful 2FA verification.
+        if($url_db && !empty($url_db['last_url'])) {
+            if($router === null || $router->is_frontend_page($url_db['last_url'])) {
+                return $url_db['last_url'];
+            }
+        }
 
         return $default_url;
     }

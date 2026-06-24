@@ -11,6 +11,10 @@
    - **HTTPS detection behind a proxy** — in production `DEBUG=0` forces the session cookie `Secure` flag, so the app must correctly see HTTPS (direct `HTTPS`, `X-Forwarded-Proto: https`, `X-Forwarded-SSL: on`, or port 443) or the cookie is dropped.
    - **Load balancing** — multiple app servers need sticky sessions or a shared session store; otherwise the verify request and the follow-up land on different session stores.
    - **PHP vs MySQL timezone** — `expires_at` is written with PHP's `date()` while the lookup compares against MySQL `NOW()`; a timezone mismatch can make codes appear expired.
+ - **Fix redirect to the login page after a successful 2FA verification (production-only)**: After entering the correct 2FA code, users on production were redirected back to the login page instead of home / their last visited page, while it worked locally. Root cause: `Login::get_target_url()` returned `users.last_url` from the database **without validating it**, so a stale or invalid value (e.g. an old `login` or `two-factor-authentication` URL stored before URL filtering was introduced in v7.6.6) was used as the post-login redirect target and bounced the user straight back to login. Local databases were clean, so the bug only surfaced on existing production databases. Fixes:
+   - `Login::get_target_url()`: validate `last_url` with `Router::is_frontend_page()` before redirecting to it; if it is not a valid frontend page, fall back to the default (home). The `target_url` path was already validated; this brings `last_url` to parity.
+   - `Router::is_frontend_page()`: explicitly exclude the `two-factor-authentication` page (in addition to `login`) so it can never be stored as `last_url` nor used as a redirect target — this also prevents a redirect loop back to the 2FA form.
+   - No database migration required; the validation on read makes existing stale `last_url` values harmless, and `update_user_last_url()` already filters them out going forward.
 
 # v7.8.1
  - propelry check for unsaved changes in textarea
