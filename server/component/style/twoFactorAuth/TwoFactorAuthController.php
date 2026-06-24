@@ -28,6 +28,23 @@ class TwoFactorAuthController extends BaseController
     {
         parent::__construct($model);
 
+        // If the user is already logged in, a previous (possibly duplicate or
+        // concurrent) verification request in this same session already consumed
+        // the code and logged the user in. PHP serializes same-session requests
+        // through the session lock, so by the time a second request runs the
+        // login is already in place. Re-verifying would fail because the code is
+        // now flagged as used, wrongly showing "Invalid verification code".
+        // Forward such requests to the target page instead.
+        if ($model->is_logged_in()) {
+            unset($_SESSION['2fa_user']);
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                echo json_encode(['success' => true, 'message' => 'Verification code verified successfully.']);
+                exit;
+            }
+            header('Location: ' . $model->get_target_url());
+            exit;
+        }
+
         // if 2fa_user is not set in the session redirect to login
         if (!isset($_SESSION['2fa_user'])) {
             header('Location: ' . $model->get_link_url(SH_LOGIN));

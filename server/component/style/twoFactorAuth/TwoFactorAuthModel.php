@@ -62,10 +62,25 @@ class TwoFactorAuthModel extends StyleModel
             // Mark the code as used
             $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array('id' => $result['id']));
             $this->login->log_user($_SESSION['2fa_user']);
+            // Clear the pending 2FA marker so a duplicate/retried request does not
+            // try to re-verify an already-consumed code (which would fail).
+            unset($_SESSION['2fa_user']);
             return true;
         }
         
         return false;
+    }
+
+    /**
+     * A wrapper function for the login service to check whether the current
+     * session already belongs to a logged-in user.
+     *
+     * @return bool
+     *  True if the user is logged in, false otherwise.
+     */
+    public function is_logged_in()
+    {
+        return $this->login->is_logged_in();
     }
 
     /**

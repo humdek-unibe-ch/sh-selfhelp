@@ -6,6 +6,31 @@ $(document).ready(() => {
 function init_2fa_inputs() {
     const inputs = $('.selfhelp-2fa-input');
     const form = $('#selfhelp-2fa-form');
+    if (!form.length) {
+        return;
+    }
+
+    // Guard against double initialization (e.g. the init function running more
+    // than once). Without it the auto-submit handlers get bound twice and POST
+    // the same code twice: the first request consumes the code and logs the user
+    // in, the second fails because the code is already used and shows "Invalid
+    // verification code". The flag lives on the form element so it survives
+    // independent init calls.
+    if (form.data('2faInitialized')) {
+        return;
+    }
+    form.data('2faInitialized', true);
+
+    // Submit the form only once. The flag is stored on the form element (not a
+    // local closure) so a single page load can only ever POST the code once,
+    // regardless of how many handlers attempt to submit.
+    function submitFormOnce() {
+        if (form.data('2faSubmitting')) {
+            return;
+        }
+        form.data('2faSubmitting', true);
+        form.get(0).submit();
+    }
 
     // Handle paste event on the first input
     $(inputs[0]).on('paste', function(e) {
@@ -17,7 +42,7 @@ function init_2fa_inputs() {
             if (index < inputs.length) {
                 $(inputs[index]).val(digit);
                 if (index === digits.length - 1 && digits.length === 6) {
-                    form.submit();
+                    submitFormOnce();
                 }
             }
         });
@@ -35,7 +60,7 @@ function init_2fa_inputs() {
                     inputs.each(function() {
                         if (!this.value) allFilled = false;
                     });
-                    if (allFilled) form.submit();
+                    if (allFilled) submitFormOnce();
                 }
             }
         });
