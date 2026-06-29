@@ -45,25 +45,32 @@ END
 
 DELIMITER ;
 DELIMITER //
-DROP PROCEDURE IF EXISTS add_table_column //
-CREATE PROCEDURE add_table_column(param_table VARCHAR(100), param_column VARCHAR(100), param_column_type VARCHAR(500))
-BEGIN	
-    SET @sqlstmt = (SELECT IF(
-		(
-			SELECT COUNT(*) 
-			FROM information_schema.COLUMNS
-			WHERE `table_schema` = DATABASE()
-			AND `table_name` = param_table
-			AND `COLUMN_NAME` = param_column 
-		) > 0,
-        "SELECT 'Column already exists in the table'",
-        CONCAT('ALTER TABLE ', param_table, ' ADD COLUMN ', param_column, ' ', param_column_type, ' ;')
-    ));
-	PREPARE st FROM @sqlstmt;
-	EXECUTE st;
-	DEALLOCATE PREPARE st;	
-END
 
+DROP PROCEDURE IF EXISTS add_table_column //
+CREATE PROCEDURE add_table_column(
+    IN param_table VARCHAR(100), 
+    IN param_column VARCHAR(100), 
+    IN param_column_type VARCHAR(500)
+)
+BEGIN
+    SET @sqlstmt = (
+        SELECT IF(
+            (
+                SELECT COUNT(*) 
+                FROM information_schema.COLUMNS
+                WHERE `table_schema` = DATABASE()
+                AND `table_name` = param_table
+                AND `COLUMN_NAME` = param_column 
+            ) > 0,
+            "SELECT 'Column already exists in the table'",
+            CONCAT('ALTER TABLE `', param_table, '` ADD COLUMN `', param_column, '` ', param_column_type, ';')
+        )
+    );
+
+    PREPARE st FROM @sqlstmt;
+    EXECUTE st;
+    DEALLOCATE PREPARE st;
+END
 //
 
 DELIMITER ;
@@ -113,6 +120,29 @@ END
 
 DELIMITER ;
 DELIMITER //
+DROP PROCEDURE IF EXISTS drop_index //
+CREATE PROCEDURE drop_index(param_table VARCHAR(100), param_index_name VARCHAR(100))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*)
+            FROM information_schema.STATISTICS 
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+            AND `index_name` = param_index_name
+		) > 0,        
+        CONCAT('ALTER TABLE ', param_table, ' DROP INDEX ', param_index_name),
+        "SELECT 'The index does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
 DROP PROCEDURE IF EXISTS drop_table_column //
 CREATE PROCEDURE drop_table_column(param_table VARCHAR(100), param_column VARCHAR(100))
 BEGIN	
@@ -125,7 +155,7 @@ BEGIN
 			AND `COLUMN_NAME` = param_column 
 		) = 0,
         "SELECT 'Column does not exist'",
-        CONCAT('ALTER TABLE ', param_table, ' DROP COLUMN ', param_column, ' ;')
+        CONCAT('ALTER TABLE `', param_table, '` DROP COLUMN `', param_column, '` ;')
     ));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
@@ -227,10 +257,58 @@ END
 //
 
 DELIMITER ;
+DELIMITER //
+DROP PROCEDURE IF EXISTS rename_table //
+CREATE PROCEDURE rename_table(param_old_table_name VARCHAR(100), param_new_table_name VARCHAR(100))
+BEGIN	
+	DECLARE tableExists INT;
+    SELECT COUNT(*) 
+            INTO tableExists
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_old_table_name; 
+    SET @sqlstmt = (SELECT IF(
+		tableExists > 0,        
+        CONCAT('RENAME TABLE ', param_old_table_name, ' TO ', param_new_table_name),
+        "SELECT 'Table does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
+DROP PROCEDURE IF EXISTS rename_table_column //
+CREATE PROCEDURE rename_table_column(param_table VARCHAR(100), param_old_column_name VARCHAR(100), param_new_column_name VARCHAR(100))
+BEGIN	
+	DECLARE columnExists INT;
+    DECLARE columnType VARCHAR(255);
+    SELECT COUNT(*), COLUMN_TYPE 
+            INTO columnExists, columnType
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+			AND `COLUMN_NAME` = param_old_column_name; 
+    SET @sqlstmt = (SELECT IF(
+		columnExists > 0,        
+        CONCAT('ALTER TABLE ', param_table, ' CHANGE COLUMN ', param_old_column_name, ' ', param_new_column_name, ' ', columnType, ';'),
+        "SELECT 'Column does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
 DROP VIEW IF EXISTS view_cmsPreferences;
 CREATE VIEW view_cmsPreferences
 AS
-SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale, p.fcm_api_key, p.fcm_sender_id, p.anonymous_users
+SELECT p.callback_api_key, p.default_language_id, l.`language` AS default_language, l.locale, p.firebase_config, p.anonymous_users
 FROM cmsPreferences p
 LEFT JOIN languages l ON (l.id = p.default_language_id)
 WHERE p.id = 1;
@@ -257,30 +335,6 @@ sf.default_value, sf.help, sf.disabled, sf.hidden
 from view_styles s
 left join styles_fields sf on (s.style_id = sf.id_styles)
 left join view_fields f on (f.field_id = sf.id_fields);
-DROP VIEW IF EXISTS view_user_input;
-
-CREATE VIEW view_user_input AS
-SELECT 
-    CAST(ui.id AS UNSIGNED) AS id,
-    CAST(u.id AS UNSIGNED) AS user_id,
-    u.`name` AS user_name,
-    vc.`code` AS user_code,
-    CAST(form.id AS UNSIGNED) AS form_id,
-    sft_if.content AS form_name,
-    CAST(field.id AS UNSIGNED) AS field_id,
-    sft_in.content AS field_name,
-    ui.`value`,
-    record.id AS record_id,
-    ui.edit_time,
-    ui.removed
-FROM user_input ui
-LEFT JOIN users u ON (ui.id_users = u.id)
-LEFT JOIN validation_codes vc ON (ui.id_users = vc.id_users)
-LEFT JOIN sections field ON (ui.id_sections = field.id)
-LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
-LEFT JOIN sections form ON (record.id_sections = form.id)
-LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57;
 DELIMITER //
 DROP FUNCTION IF EXISTS get_field_type_id //
 
@@ -343,59 +397,15 @@ END
 DELIMITER ;
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS get_form_data //
+DROP PROCEDURE IF EXISTS get_dataTable_with_filter //
 
-CREATE PROCEDURE get_form_data( form_id_param INT )
-BEGIN  
-    CALL get_form_data_with_filter(form_id_param, '');
-END 
-//
-
-DELIMITER ;
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_form_data_for_user //
-
-CREATE PROCEDURE get_form_data_for_user( form_id_param INT, user_id_param INT )
-BEGIN  
-    CALL get_form_data_for_user_with_filter(form_id_param, user_id_param, '');
-END 
-//
-
-DELIMITER ;
-drop view if exists view_uploadTables;
-create view view_uploadTables
-as
-select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp, r.id_users
-from uploadTables t
-inner join uploadRows r on (t.id = r.id_uploadTables)
-inner join uploadCells cell on (cell.id_uploadRows = r.id)
-inner join uploadCols col on (col.id = cell.id_uploadCols);
-DROP VIEW IF EXISTS view_form;
-CREATE VIEW view_form
-AS
-SELECT DISTINCT cast(form.id AS UNSIGNED) form_id, sft_if.content AS form_name, IFNULL(sft_intern.content, 0) AS internal
-FROM user_input_record record 
-INNER JOIN sections form ON (record.id_sections = form.id)
-LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
-LEFT JOIN sections_fields_translation AS sft_intern ON sft_intern.id_sections = record.id_sections AND sft_intern.id_fields = (SELECT id
-FROM `fields`
-WHERE `name` = 'internal');
-DROP VIEW IF EXISTS view_data_tables;
-CREATE VIEW view_data_tables
-AS
-SELECT 'INTERNAL' AS `type`, form_id AS id, form_name AS orig_name, concat(form_name, '_dynamic') AS `table_name`, CONCAT(form_id,"-","INTERNAL") AS form_id_plus_type, internal
-FROM view_form
-
-UNION
-
-SELECT 'EXTERNAL' AS `type`, id AS id, `name` AS orig_name, CONCAT(`name`, '_static') AS `table_name`, CONCAT(FLOOR(id),"-","EXTERNAL") AS form_id_plus_type, 0  AS internal
-FROM uploadTables;
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
-
-CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
+CREATE PROCEDURE get_dataTable_with_filter( 
+    IN table_id_param INT, 
+    IN user_id_param INT, 
+    IN filter_param VARCHAR(1000),
+    IN exclude_deleted_param BOOLEAN, -- If true it will exclude the deleted records and it will not return them
+    IN selected_columns_param VARCHAR(4000) -- Comma separated list of data column names to be loaded
+)
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 READS SQL DATA
 DETERMINISTIC
@@ -405,67 +415,70 @@ BEGIN
     SELECT
     GROUP_CONCAT(DISTINCT
         CONCAT(
-            'max(case when col.name = "',
+            'MAX(CASE WHEN col.`name` = "',
                 col.name,
-                '" then value end) as `',
+                '" THEN `value` END) AS `',
             replace(col.name, ' ', ''), '`'
         )
     ) INTO @sql
-    FROM  uploadTables t
-	INNER JOIN uploadCols col on (t.id = col.id_uploadTables)
-    WHERE t.id = table_id_param AND col.`name` != 'id_users';
+    FROM  dataTables t
+    INNER JOIN dataCols col on (t.id = col.id_dataTables)
+    WHERE t.id = table_id_param
+        AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code')
+        AND (
+            IFNULL(TRIM(selected_columns_param), '') = ''
+            OR FIND_IN_SET(col.`name`, selected_columns_param) > 0
+        );
 
     IF (@sql is null) THEN
-        SELECT table_name from view_uploadTables where 1=2;
+        SELECT `name` from view_dataTables where 1=2;
     ELSE
         BEGIN
-			SET @user_filter = '';
+            SET @user_filter = '';
             IF user_id_param > 0 THEN
-				SET @user_filter = CONCAT(' AND r.id_users = ', user_id_param);
+                SET @user_filter = CONCAT(' AND r.id_users = ', user_id_param);
             END IF;	
             
             SET @time_period_filter = '';
             CASE 
-				WHEN filter_param LIKE '%LAST_HOUR%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
-				WHEN filter_param LIKE '%LAST_DAY%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 DAY';
-				WHEN filter_param LIKE '%LAST_WEEK%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 WEEK';
-				WHEN filter_param LIKE '%LAST_MONTH%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 MONTH';
-				WHEN filter_param LIKE '%LAST_YEAR%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 YEAR';
-				ELSE
-					SET @time_period_filter = '';					
-			END CASE;
+                WHEN filter_param LIKE '%LAST_HOUR%' THEN
+                    SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
+                WHEN filter_param LIKE '%LAST_DAY%' THEN
+                    SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 DAY';
+                WHEN filter_param LIKE '%LAST_WEEK%' THEN
+                    SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 WEEK';
+                WHEN filter_param LIKE '%LAST_MONTH%' THEN
+                    SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 MONTH';
+                WHEN filter_param LIKE '%LAST_YEAR%' THEN
+                    SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 YEAR';
+                ELSE
+                    SET @time_period_filter = '';					
+            END CASE;
             
-            SET @sql = CONCAT('select * from (select r.id as record_id, 
-					r.timestamp as entry_date, r.id_users, u.name as user_name,', @sql, 
-					' from uploadTables t
-					inner join uploadRows r on (t.id = r.id_uploadTables)
-					inner join uploadCells cell on (cell.id_uploadRows = r.id)
-					inner join uploadCols col on (col.id = cell.id_uploadCols)
-                    left join users u on (r.id_users = u.id)
-					where t.id = ', table_id_param, @user_filter, @time_period_filter,
-					' group by r.id ) as r where 1=1  ', filter_param);
-            -- select @sql;
+            SET @exclude_deleted_filter = '';
+            CASE 
+                WHEN exclude_deleted_param = TRUE THEN
+                    SET @exclude_deleted_filter = CONCAT(' AND IFNULL(r.id_actionTriggerTypes, 0) <> ', (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' LIMIT 0,1));				
+                ELSE
+                    SET @exclude_deleted_filter = '';					
+            END CASE;
+            
+            SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
+                    r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, MAX(vc.code) AS user_code, r.id_actionTriggerTypes, l.lookup_code AS triggerType,', @sql, 
+                    ' FROM dataTables t
+                    INNER JOIN dataRows r ON (t.id = r.id_dataTables)
+                    INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
+                    INNER JOIN dataCols col ON (col.id = cell.id_dataCols)
+                    LEFT JOIN users u ON (r.id_users = u.id)
+                    LEFT JOIN validation_codes vc ON (u.id = vc.id_users)
+                    LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
+                    WHERE t.id = ', table_id_param, @user_filter, @time_period_filter, @exclude_deleted_filter, 
+                    ' GROUP BY r.id ) AS r WHERE 1=1  ', filter_param);
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
         END;
     END IF;
-END
-//
-
-DELIMITER ;
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_uploadTable //
-
-CREATE PROCEDURE get_uploadTable( table_id_param INT )
-BEGIN
-    CALL get_uploadTable_with_filter(table_id_param, -1, '');
 END
 //
 
@@ -533,42 +546,6 @@ UNION
 
 SELECT *
 FROM view_acl_users_pages;
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
-
-CREATE PROCEDURE get_form_data_for_user_with_filter( form_id_param INT, user_id_param INT, filter_param VARCHAR(1000) )
-READS SQL DATA
-DETERMINISTIC
-BEGIN  
-    SET @@group_concat_max_len = 32000000;
-	SET @sql = NULL;
-	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
-	
-    IF (@sql is null) THEN
-		select user_id, form_name from view_user_input where 1=2;
-    ELSE 
-		begin
-		SET @sql = CONCAT('select * from (select  record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
-		left join users u on (ui.id_users = u.id)
-		left join validation_codes vc on (ui.id_users = vc.id_users)
-		left join sections field on (ui.id_sections = field.id)		
-		left join user_input_record record  on (ui.id_user_input_record = record.id)
-        LEFT JOIN sections form ON (record.id_sections = form.id)
-		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-		where form.id = ', form_id_param, ' and u.id = ', user_id_param,
-		' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
-
-		
-		PREPARE stmt FROM @sql;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-        end;
-    END IF;
-END 
-//
-
-DELIMITER ;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_group_acl //
@@ -697,12 +674,12 @@ SELECT
     us.description, 
     u.blocked, 
     CASE
-        WHEN u.`name` = 'admin' THEN 'admin'
-        WHEN u.`name` = 'tpf' THEN 'tpf'    
+        WHEN u.`email` = 'admin' THEN 'admin'
+        WHEN u.`email` = 'tpf' THEN 'tpf'    
         ELSE IFNULL(vc.code, '-') 
     END AS code,
     GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
-    user_activity.activity_count,
+    user_activity.activity_count AS user_activity,
     user_activity.distinct_url_count AS ac,
     u.intern, 
     u.id_userTypes, 
@@ -748,6 +725,7 @@ SELECT
    s.id AS id_sections,
    s.name AS section_name,
    IFNULL(sft.content, '') AS content,
+   IFNULL(sft.meta, '') AS meta,
    s.id_styles,
    fields.style_name,
    field_id AS id_fields,
@@ -762,19 +740,18 @@ LEFT JOIN genders g ON (sft.id_genders = g.id);
 DROP VIEW IF EXISTS view_scheduledJobs;
 CREATE VIEW view_scheduledJobs
 AS
-SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, sj.config,
-sj.date_create, date_to_be_executed, date_executed, description, 
+SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS `status`, 
+l_types.lookup_code AS type_code, l_types.lookup_value AS `type`, sj.config,
+sj.date_create, date_to_be_executed, date_executed, `description`, 
 CASE
-	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails
-    -- WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
-    -- WHEN l_types.lookup_code = 'task' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails    
     WHEN l_types.lookup_code = 'notification' THEN ''
     WHEN l_types.lookup_code = 'task' THEN ''
     ELSE ""
 END AS recipient,
 CASE
-	WHEN l_types.lookup_code = 'email' THEN mq.subject
-    WHEN l_types.lookup_code = 'notification' THEN n.subject
+	WHEN l_types.lookup_code = 'email' THEN mq.`subject`
+    WHEN l_types.lookup_code = 'notification' THEN n.`subject`
     ELSE ""
 END AS title,
 CASE
@@ -782,14 +759,8 @@ CASE
     WHEN l_types.lookup_code = 'notification' THEN n.body
     ELSE ""
 END AS message,
-sj_mq.id_mailQueue,
-id_jobTypes,
-id_jobStatus,
-a.id_formActions,
-id_user_input_record,
-sft_if.content AS internal_table,
-id_uploadRows,
-ut.`name` AS external_table
+sj_mq.id_mailQueue, id_jobTypes, id_jobStatus, a.id_formActions,
+a.id_dataRows, dt.`name` AS dataTables_name
 FROM scheduledJobs sj
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
 INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
@@ -798,12 +769,8 @@ LEFT JOIN mailQueue mq ON (mq.id = sj_mq.id_mailQueue)
 LEFT JOIN scheduledJobs_notifications sj_n ON (sj_n.id_scheduledJobs = sj.id)
 LEFT JOIN notifications n ON (n.id = sj_n.id_notifications)
 LEFT JOIN scheduledJobs_formActions a ON (a.id_scheduledJobs = sj.id)
-
-LEFT JOIN user_input_record uir ON (id_user_input_record = uir.id)
-LEFT JOIN sections_fields_translation AS sft_if ON (sft_if.id_sections = uir.id_sections AND sft_if.id_fields = 57)
-
-LEFT JOIN uploadRows ur ON (id_uploadRows = ur.id)
-LEFT JOIN uploadTables ut ON (ur.id_uploadTables = ut.id);
+LEFT JOIN dataRows r ON (r.id = a.id_dataRows)
+LEFT JOIN view_dataTables dt ON (r.id_dataTables = dt.id);
 DROP VIEW IF EXISTS view_scheduledJobs_transactions;
 CREATE VIEW view_scheduledJobs_transactions
 AS
@@ -819,7 +786,7 @@ SELECT sj.id AS id, from_email, from_name,
 status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
 reply_to, recipient_emails, cc_emails, bcc_emails, `subject`, body, is_html, mq.id AS id_mailQueue, id_jobTypes,
-id_jobStatus, sj.config, id_user_input_record, id_uploadRows, internal_table, external_table
+id_jobStatus, sj.config, id_dataRows, dataTables_name
 FROM mailQueue mq
 INNER JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_mailQueue = mq.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
@@ -830,7 +797,7 @@ SELECT sj.id AS id,
 status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
 recipient, `subject`, body, url, id_notifications, id_jobTypes,
-id_jobStatus, sj.config, id_user_input_record, id_uploadRows, internal_table, external_table
+id_jobStatus, sj.config, id_dataRows, dataTables_name
 FROM notifications n
 INNER JOIN scheduledJobs_notifications sj_n ON (sj_n.id_notifications = n.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_n.id_scheduledJobs);
@@ -840,66 +807,24 @@ AS
 SELECT sj.id AS id,
 status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
-recipient, t.config, id_tasks, id_jobTypes, id_jobStatus, `description`, id_user_input_record, id_uploadRows, internal_table, external_table
+recipient, t.config, id_tasks, id_jobTypes, id_jobStatus, `description`, id_dataRows, dataTables_name
 FROM tasks t
 INNER JOIN scheduledJobs_tasks sj_t ON (sj_t.id_tasks = t.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_t.id_scheduledJobs);
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS get_form_data_with_filter //
-
-CREATE PROCEDURE get_form_data_with_filter( form_id_param INT, filter_param VARCHAR(1000) )
-READS SQL DATA
-DETERMINISTIC
-BEGIN  
-    SET @@group_concat_max_len = 32000000;
-	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
-	
-    IF (@sql is null) THEN
-		select user_id, form_name from view_user_input where 1=2;
-    ELSE 
-		begin
-		SET @sql = CONCAT('select * from (select record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
-		left join users u on (ui.id_users = u.id)
-		left join validation_codes vc on (ui.id_users = vc.id_users)
-		left join sections field on (ui.id_sections = field.id)		
-		left join user_input_record record  on (ui.id_user_input_record = record.id)
-        LEFT JOIN sections form ON (record.id_sections = form.id)
-		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57		
-		where form.id = ', form_id_param, ' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
-
-		
-		PREPARE stmt FROM @sql;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-        end;
-    END IF;
-END 
-//
-
-DELIMITER ;
 DROP VIEW IF EXISTS view_formActions;
 CREATE VIEW view_formActions
 AS
-SELECT fa.id AS id, fa.`name` AS action_name, orig_name AS form_name,
+SELECT fa.id AS id, fa.`name` AS action_name, dt.`name` AS dataTable_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value AS trigger_type, trig.lookup_code AS trigger_type_code,
 config,
-CASE
-	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
-	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
-END AS id_forms
+dt.id AS id_dataTables
 FROM formActions fa 
 INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
-LEFT JOIN formActions_EXTERNAL ex ON (fa.id = ex.id_formActions)
-LEFT JOIN formActions_INTERNAL inter ON (fa.id = inter.id_formActions)
-LEFT JOIN view_data_tables dt ON (dt.form_id_plus_type = CASE
-	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
-	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
-END);
+LEFT JOIN view_dataTables dt ON (dt.id = fa.id_dataTables);
 DROP VIEW IF EXISTS view_scheduledJobs_reminders;
 CREATE VIEW view_scheduledJobs_reminders
 AS
-SELECT r.id_scheduledJobs, r.id_forms_INTERNAL, r.id_forms_EXTERNAL,
+SELECT r.id_scheduledJobs, r.id_dataTables,
 r.session_start_date, r.session_end_date, sju.id_users,l_status.lookup_code as job_status_code, l_status.lookup_value as job_status
 FROM scheduledJobs_reminders r
 INNER JOIN scheduledJobs sj ON (sj.id = r.id_scheduledJobs)
@@ -1006,3 +931,29 @@ END
 //
 
 DELIMITER ;
+DROP VIEW IF EXISTS view_dataTables;
+CREATE VIEW view_dataTables
+AS
+SELECT id, 
+`name` AS name_id,
+CASE 
+	WHEN IFNULL(displayName, '') = '' THEN `name`
+    ELSE displayName
+END AS `name`,
+`timestamp`,
+id AS `value`, -- used for slect dropdowns
+CASE 
+	WHEN IFNULL(displayName, '') = '' THEN `name`
+    ELSE displayName
+END AS `text` -- used for slect dropdowns
+FROM dataTables;
+DROP VIEW IF EXISTS view_dataTables_data;
+CREATE VIEW view_dataTables_data
+AS
+SELECT t.id as table_id, r.id AS row_id, r.`timestamp` AS entry_date, col.id AS col_id, 
+t.`name` AS `table_name`, col.`name` AS col_name, cell.`value` AS `value`, t.`timestamp`, r.id_users,
+t.displayName AS displayName
+FROM dataTables t
+LEFT JOIN dataRows r ON (t.id = r.id_dataTables)
+LEFT JOIN dataCells cell ON (cell.id_dataRows = r.id)
+LEFT JOIN dataCols col ON (col.id = cell.id_dataCols);
