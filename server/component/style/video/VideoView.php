@@ -34,6 +34,27 @@ class VideoView extends StyleView
      */
     private $is_fluid;
 
+    /**
+     * DB field 'track_interval_seconds' (0).
+     * Heartbeat interval for watch-progress logging. 0 disables tracking.
+     */
+    private $track_interval_seconds;
+
+    /**
+     * Whether watch-progress tracking attributes should be rendered.
+     */
+    private $tracking_enabled = false;
+
+    /**
+     * Page keyword used in user_activity.keyword for track events.
+     */
+    private $track_page_keyword = '';
+
+    /**
+     * Primary source filename for track events.
+     */
+    private $track_source = '';
+
     /* Constructors ***********************************************************/
 
     /**
@@ -48,6 +69,33 @@ class VideoView extends StyleView
         $this->alt = $this->model->get_db_field("alt");
         $this->sources = $this->model->get_db_field("sources");
         $this->is_fluid = $this->model->get_db_field("is_fluid", true);
+        $this->track_interval_seconds = intval($this->model->get_db_field("track_interval_seconds", 0));
+        if ($this->track_interval_seconds < 0) {
+            $this->track_interval_seconds = 0;
+        }
+
+        $login = $this->model->get_services()->get_login();
+        $router = $this->model->get_services()->get_router();
+        $this->track_page_keyword = '';
+        if ($router && !empty($router->route['name'])) {
+            $this->track_page_keyword = $router->route['name'];
+        }
+
+        if (is_array($this->sources)) {
+            foreach ($this->sources as $source) {
+                if (!empty($source['source'])) {
+                    $this->track_source = basename((string)$source['source']);
+                    break;
+                }
+            }
+        }
+
+        $this->tracking_enabled = (
+            $this->track_interval_seconds > 0
+            && $login->is_logged_in()
+            && $this->id_section
+            && $this->track_page_keyword !== ''
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -93,6 +141,27 @@ class VideoView extends StyleView
             }
         }
         $style['sources']['content'] = $sources;
+
+        // TODO(mobile): mobile clients should POST the same payload as web
+        // to /request/AjaxVideoTrack/track when track_interval_seconds > 0
+        // for logged-in users (play/heartbeat/ended lifecycle).
+        $style['track_interval_seconds'] = array(
+            'content' => $this->track_interval_seconds,
+            'type' => 'number',
+        );
+        $style['track_enabled'] = array(
+            'content' => $this->tracking_enabled ? 1 : 0,
+            'type' => 'number',
+        );
+        $style['track_page_keyword'] = array(
+            'content' => $this->track_page_keyword,
+            'type' => 'text',
+        );
+        $style['track_source'] = array(
+            'content' => $this->track_source,
+            'type' => 'text',
+        );
+
         return $style;
     }
 }

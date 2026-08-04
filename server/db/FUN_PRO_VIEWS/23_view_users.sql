@@ -30,7 +30,7 @@ INNER JOIN lookups l_user_type ON u.id_userTypes = l_user_type.id
 LEFT JOIN (
     SELECT 
         id_users, 
-        COUNT(*) AS activity_count,
+        SUM(CASE WHEN id_type <> (SELECT id FROM activityType WHERE `name` = 'video' LIMIT 1) THEN 1 ELSE 0 END) AS activity_count,
         COUNT(DISTINCT CASE WHEN id_type = 1 THEN url ELSE NULL END) AS distinct_url_count
     FROM user_activity
     GROUP BY id_users
@@ -53,4 +53,3 @@ GROUP BY
     l_user_type.lookup_code, 
     l_user_type.lookup_value
 ORDER BY u.email;
-

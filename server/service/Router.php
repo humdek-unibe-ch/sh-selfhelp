@@ -36,7 +36,17 @@ class Router extends AltoRouter {
      * The current keyword
      */
     public $current_keyword;
-    
+
+    /**
+     * Optional override for the next user_activity insert (keyword/params/id_type).
+     * Cleared after log_user_activity() runs.
+     */
+    private $activity_override = null;
+
+    /**
+     * When true, the next log_user_activity() call is a no-op.
+     */
+    private $skip_activity_log = false;
 
     /**
      * The constructor which calls the parent constructor.
@@ -354,34 +364,86 @@ class Router extends AltoRouter {
     }
 
     /**
+     * Override fields for the next user_activity insert.
+     * Supported keys: keyword, params (JSON string), url, id_type, skip_last_url.
+     *
+     * @param array $override
+     */
+    public function set_activity_override($override)
+    {
+        $this->activity_override = is_array($override) ? $override : null;
+        $this->skip_activity_log = false;
+    }
+
+    /**
+     * Skip the next automatic user_activity insert (e.g. failed video track).
+     */
+    public function skip_next_activity_log()
+    {
+        $this->skip_activity_log = true;
+        $this->activity_override = null;
+    }
+
+    /**
      * Log user activity for performance monitoring and user tracking
      * @param float $debug_start_time
      * @param bool $mobile
      * Is the request from a mobile app. The default is false
      */
     public function log_user_activity($mobile = false){
+        if ($this->skip_activity_log) {
+            $this->skip_activity_log = false;
+            $this->activity_override = null;
+            return;
+        }
+
+        $override = $this->activity_override;
+        $this->activity_override = null;
+
+        $keyword = $this->route['name'];
+        if (is_array($override) && !empty($override['keyword'])) {
+            $keyword = $override['keyword'];
+        }
+
         // Always log with keyword for proper tracking
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
         $exp = $this->db->query_db_first(
             $sql,
-            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $this->route['name'])
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $keyword)
         );
         $url = $_SERVER['REQUEST_URI'] ?? '';
+        if (is_array($override) && isset($override['url']) && $override['url'] !== '') {
+            $url = $override['url'];
+        }
         if (strlen($url) > 200) {
             $url = substr($url, 0, 197) . '...';
         }
+
+        $params = json_encode($this->route['params']);
+        if (is_array($override) && array_key_exists('params', $override)) {
+            $params = $override['params'];
+        }
+
+        $id_type = $exp ? 1 : 2;
+        if (is_array($override) && isset($override['id_type'])) {
+            $id_type = intval($override['id_type']);
+        }
+
         $this->db->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $url,
             "exec_time" => (microtime(true) - $this->debug_start_time),
-            "keyword" => $this->route['name'],
-            "params" => json_encode($this->route['params']),
+            "keyword" => $keyword,
+            "params" => $params,
             "mobile" => (int)$mobile,
-            "id_type" => $exp ? 1 : 2,
+            "id_type" => $id_type,
         ));
 
-        // Update user's last visited URL
-        $this->update_user_last_url($_SESSION['id_user'], $_SERVER['REQUEST_URI']);
+        $skip_last_url = is_array($override) && !empty($override['skip_last_url']);
+        if (!$skip_last_url) {
+            // Update user's last visited URL
+            $this->update_user_last_url($_SESSION['id_user'], $_SERVER['REQUEST_URI']);
+        }
     }
 
     /**

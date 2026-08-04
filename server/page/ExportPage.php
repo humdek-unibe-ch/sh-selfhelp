@@ -113,14 +113,34 @@ class ExportPage extends BasePage
      */
     private function export_user_activity($output)
     {
-        $this->fputcsv_wrap($output, array("user_code", "url", "timestamp"));
-        $sql = "SELECT ua.url, vc.code, ua.timestamp
+        $this->fputcsv_wrap($output, array(
+            "user_code",
+            "timestamp",
+            "keyword",
+            "url",
+            "activity_type",
+            "params",
+            "exec_time",
+            "mobile"
+        ));
+        $sql = "SELECT vc.code, ua.timestamp, ua.keyword, ua.url,
+                       at.name AS activity_type, ua.params, ua.exec_time, ua.mobile
             FROM user_activity AS ua
-            LEFT JOIN validation_codes AS vc ON vc.id_users = ua.id_users";
+            LEFT JOIN validation_codes AS vc ON vc.id_users = ua.id_users
+            LEFT JOIN activityType AS at ON at.id = ua.id_type
+            ORDER BY ua.timestamp ASC, ua.id ASC";
         $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
-            $this->fputcsv_wrap($output, array($field['code'], $field['url'],
-                $field['timestamp']));
+            $this->fputcsv_wrap($output, array(
+                $field['code'],
+                $field['timestamp'],
+                $field['keyword'],
+                $field['url'],
+                $field['activity_type'],
+                $field['params'],
+                $field['exec_time'],
+                $field['mobile']
+            ));
     }
 
     /**
