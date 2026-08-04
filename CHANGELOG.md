@@ -1,4 +1,4 @@
-# v7.9.0 (Work in Progress)
+# v7.9.0
 ### New Feature
  - **Video watch-progress tracking in `user_activity`**: The `video` style has a CMS field `track_interval_seconds` (default `0` = off). When enabled for a logged-in user, the browser logs `play` and `ended` immediately and `heartbeat` events on the configured interval into `user_activity` (no new table). Each row uses the page `keyword`, `activityType` = `video`, and compact `params` JSON (`event`, `section_id`, `currentTime`, `duration`, `percent`, `source`). Multiple videos on one page are tracked independently by `section_id`. Heartbeats stop after `ended` until the user plays again (replay starts a new session). Guests get no track attributes and the AJAX endpoint refuses non-logged-in requests; `id_users` always comes from the session. Admin `view_users` activity counts exclude `video` rows so heartbeats do not inflate engagement metrics. User activity CSV export now includes `keyword`, `activity_type`, `params`, `exec_time`, and `mobile`. **TODO (mobile):** clients should POST the same payload to `/request/AjaxVideoTrack/track` using the track fields already exposed in `output_content_mobile()`.
 
