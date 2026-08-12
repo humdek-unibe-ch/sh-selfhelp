@@ -1,3 +1,19 @@
+/* Sticky footer: make the page fill the viewport and push the footer to the
+   bottom on short pages. Body is already class="ui-cms-body"; the CMS editor
+   defines its own flex rules for that class in cms_ui.css, but that file is not
+   loaded on front-end pages, so define the front-end layout here where the
+   footer css is always loaded. margin-top:auto works without a single content
+   wrapper because content sections are direct body children next to the footer. */
+body.ui-cms-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.footer-holder {
+    margin-top: auto;
+}
+
 .footer > .active {
     font-weight: bold;
 }
