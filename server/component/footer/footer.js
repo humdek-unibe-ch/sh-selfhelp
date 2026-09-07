@@ -1,20 +1,2 @@
-$(document).ready(function () {
-
-    $('#defaultLanguage select').on('change', function () {
-        var id_languages = $(this).val();
-        $.post(
-            BASE_PATH + '/request/AjaxLanguage/ajax_set_user_language',
-            { id_languages: id_languages},
-            function (data) {
-                if (data.success) {
-                    location.reload();
-                }
-                else {
-                    console.log(data);
-                }
-            },
-            'json'
-        );
-    });
-
-});
+/* The language control is rendered by the `languagePicker` style and driven by
+   its own `language-picker.js`. Binding it here too would fire the change twice. */

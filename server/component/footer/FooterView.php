@@ -47,23 +47,20 @@ class FooterView extends BaseView
     private function output_footer_languages()
     {
         $languages = $this->model->get_languages();
-        $options = [];
-        foreach ($languages as $language)
-            array_push($options, array(
-                "value" => $language['id'],
-                "text" => $language['title']
-            ));
-        if (count($options) > 1) {
-            //show footer only if there are more than 1 language
-            $langOptions = new BaseStyleComponent("select", array(
-                //"label" => "CMS Content Language",
-                "css" => "text-dark smallOverwitten",
-                "value" => $_SESSION['user_language'],
-                "name" => "default_language_locale",
-                "items" => $options,
-            ));
-            $langOptions->output_content();
+        // One language is not a choice.
+        if (count($languages) < 2) {
+            return;
         }
+        // Rendered by the `languagePicker` style so the footer and a placed picker
+        // stay one implementation. `BaseStyleModel` has no db access, so the
+        // languages are passed in. The footer is chrome: always a dropdown.
+        $picker = new BaseStyleComponent("languagePicker", array(
+            "languages" => $languages,
+            "display_style" => "select",
+            "highlight_selected" => 1,
+            "css" => "text-dark smallOverwitten",
+        ));
+        $picker->output_content();
     }
 
     /**
@@ -91,7 +88,11 @@ class FooterView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/footer.css");
+        // Stylesheet comes from the style that renders the picker.
+        $local = array(
+            __DIR__ . "/footer.css",
+            __DIR__ . "/../style/languagePicker/css/language-picker.css"
+        );
         return parent::get_css_includes($local);
     }
 
@@ -105,7 +106,11 @@ class FooterView extends BaseView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            $local = array(__DIR__ . "/footer.js");
+            // The picker is driven by the style's own js.
+            $local = array(
+                __DIR__ . "/footer.js",
+                __DIR__ . "/../style/languagePicker/js/language-picker.js"
+            );
         }
         return parent::get_js_includes($local);
     }

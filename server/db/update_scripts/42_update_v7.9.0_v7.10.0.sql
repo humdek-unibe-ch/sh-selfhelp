@@ -28,8 +28,23 @@ VALUES (
 
 -- `display_style` picks how the options are drawn. A select suits a footer or a
 -- dense form; buttons suit a landing page where the choice is the point.
+--
+-- Fixed choices, so `lookups` and a dropdown rather than free text, like
+-- `pageAccessTypes`. Stores the `lookup_code`, not the row id: the view
+-- compares it against the literal "select".
+INSERT IGNORE INTO `lookups` (`type_code`, `lookup_code`, `lookup_value`, `lookup_description`)
+VALUES
+    ('languagePickerDisplayStyles', 'buttons', 'Buttons', 'One button per language.'),
+    ('languagePickerDisplayStyles', 'select', 'Dropdown', 'A single dropdown listing every language.');
+
+INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('select-language-picker-display-style', 8);
+
 INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
-VALUES ('display_style', get_field_type_id('text'), 0);
+VALUES ('display_style', get_field_type_id('select-language-picker-display-style'), 0);
+
+-- An install that already ran this script has the field as free text.
+UPDATE `fields` SET `id_type` = get_field_type_id('select-language-picker-display-style')
+ WHERE `name` = 'display_style';
 
 -- `redirect_at_select` names the page to open once a language is chosen. Empty
 -- reloads the current page, which is what the footer does.

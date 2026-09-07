@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="selfHelp-language-picker selfHelp-language-picker--<?php echo $style; ?> <?php echo $this->css; ?>"
+<div class="selfHelp-language-picker selfHelp-language-picker--<?php echo $style; ?> <?php echo $css; ?>"
      data-redirect="<?php echo htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8'); ?>">
-<?php if ($this->label !== "") { ?>
-    <span class="selfHelp-language-picker__label"><?php echo htmlspecialchars($this->label, ENT_QUOTES, 'UTF-8'); ?></span>
+<?php if ($label !== "") { ?>
+    <span class="selfHelp-language-picker__label"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
 <?php } ?>
 <?php if ($style === "select") { ?>
     <select class="form-control selfHelp-language-picker__select">

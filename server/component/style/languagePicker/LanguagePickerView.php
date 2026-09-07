@@ -79,14 +79,39 @@ class LanguagePickerView extends StyleView
         // A router keyword where one is registered - core pages are - and a path
         // otherwise: pages a plugin creates are not registered as named routes,
         // so get_link_url() returns an empty string for them.
-        $url = $this->model->get_link_url($target);
-        if ($url !== "") {
-            return $url;
+        // Only a section-backed model can resolve a router keyword. Rendered
+        // without one, fall through to treating the target as a path.
+        if ($this->model instanceof BaseModel) {
+            $url = $this->model->get_link_url($target);
+            if ($url !== "") {
+                return $url;
+            }
         }
         if (strpos($target, "/") === 0) {
             return $target;
         }
         return BASE_PATH . "/" . ltrim($target, "/");
+    }
+
+    /**
+     * The languages to offer.
+     *
+     * A section-backed model reads them from the database. `BaseStyleModel`,
+     * which `BaseStyleComponent` builds when the style is rendered without a
+     * section, has no database access, so a caller in that position passes the
+     * list in as a `languages` field instead. Both arrive here as the same
+     * `id` / `title` rows the template expects.
+     *
+     * @return array
+     *  The languages, each with an `id` and a `title`.
+     */
+    private function get_languages()
+    {
+        $languages = $this->model->get_db_field("languages", array());
+        if (!empty($languages)) {
+            return $languages;
+        }
+        return $this->model instanceof BaseModel ? $this->model->get_languages() : array();
     }
 
     /* Public Methods *********************************************************/
@@ -96,8 +121,8 @@ class LanguagePickerView extends StyleView
      */
     public function output_content()
     {
-        $languages = $this->model->get_languages();
-        // One language is not a choice; render nothing rather than a control
+        $languages = $this->get_languages();
+       // One language is not a choice; render nothing rather than a control
         // that cannot do anything, which is how the footer behaves.
         if (count($languages) < 2) {
             return;
@@ -107,6 +132,10 @@ class LanguagePickerView extends StyleView
         $current = $this->highlight_selected && isset($_SESSION['language']) ? $_SESSION['language'] : null;
         $style = $this->display_style === "select" ? "select" : "buttons";
         $redirect = $this->get_redirect_url();
+        // Passed as locals, not read off $this: the template is the contract
+        // between this view and anything else that renders the same markup.
+        $css = $this->css;
+        $label = $this->label;
         require __DIR__ . "/tpl_language_picker.php";
     }
 
