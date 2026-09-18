@@ -138,6 +138,51 @@ class Condition
     }
 
     /**
+     * Decode a section `condition` field value (JSON string or array).
+     *
+     * @param mixed $content
+     * @return mixed
+     *  Decoded array, or empty string when absent/invalid.
+     */
+    public function decode_condition_content($content)
+    {
+        if ($content === '' || $content === null) {
+            return '';
+        }
+        if (is_array($content)) {
+            return $content;
+        }
+        $decoded = json_decode($content, true);
+        return (json_last_error() === JSON_ERROR_NONE) ? $decoded : '';
+    }
+
+    /**
+     * Load the condition field of a section and evaluate it for the current user.
+     * Uses cached section fields (CACHE_SECTIONS).
+     *
+     * @param int $section_id
+     * @param bool $skip_condition
+     *  When true (e.g. CMS editing), always returns true.
+     * @param int|null $id_users
+     * @return bool
+     */
+    public function section_is_visible($section_id, $skip_condition = false, $id_users = null)
+    {
+        if ($skip_condition) {
+            return true;
+        }
+        $condition_payload = '';
+        foreach ($this->db->fetch_section_fields($section_id) as $field) {
+            if ($field['name'] === 'condition') {
+                $condition_payload = $this->decode_condition_content($field['content']);
+                break;
+            }
+        }
+        $result = $this->compute_condition($condition_payload, $id_users, $section_id);
+        return !empty($result['result']);
+    }
+
+    /**
      * Use the JsonLogic libarary to compute whether the json condition is true
      * or false.
      *
