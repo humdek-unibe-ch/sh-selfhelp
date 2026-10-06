@@ -47,23 +47,32 @@ class FooterView extends BaseView
     private function output_footer_languages()
     {
         $languages = $this->model->get_languages();
-        $options = [];
-        foreach ($languages as $language)
-            array_push($options, array(
-                "value" => $language['id'],
-                "text" => $language['title']
-            ));
-        if (count($options) > 1) {
-            //show footer only if there are more than 1 language
-            $langOptions = new BaseStyleComponent("select", array(
-                //"label" => "CMS Content Language",
-                "css" => "text-dark smallOverwitten",
-                "value" => $_SESSION['user_language'],
-                "name" => "default_language_locale",
-                "items" => $options,
-            ));
-            $langOptions->output_content();
+        // One language is not a choice.
+        if (count($languages) < 2) {
+            return;
         }
+        // Rendered by the `languagePicker` style so the footer and a placed picker
+        // stay one implementation. `BaseStyleModel` has no db access, so the
+        // languages are passed in. The footer is chrome: always a dropdown.
+        $picker = new BaseStyleComponent("languagePicker", array(
+            "languages" => $languages,
+            "display_style" => languagePickerDisplayStyles_select,
+            "highlight_selected" => 1,
+            "css" => "text-dark smallOverwitten",
+        ));
+        $picker->output_content();
+    }
+
+    /**
+     * Language picker instance used only to collect its asset includes.
+     * `BaseStyleComponent` is not registered on the page asset pipeline when
+     * rendered from the footer, so the footer pulls the style's css/js here.
+     *
+     * @return BaseStyleComponent
+     */
+    private function get_language_picker_for_assets()
+    {
+        return new BaseStyleComponent("languagePicker", array());
     }
 
     /**
@@ -91,7 +100,10 @@ class FooterView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/footer.css");
+        $local = array_merge(
+            array(__DIR__ . "/footer.css"),
+            $this->get_language_picker_for_assets()->get_css_includes()
+        );
         return parent::get_css_includes($local);
     }
 
@@ -105,7 +117,7 @@ class FooterView extends BaseView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            $local = array(__DIR__ . "/footer.js");
+            $local = $this->get_language_picker_for_assets()->get_js_includes();
         }
         return parent::get_js_includes($local);
     }
