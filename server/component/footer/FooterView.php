@@ -56,11 +56,23 @@ class FooterView extends BaseView
         // languages are passed in. The footer is chrome: always a dropdown.
         $picker = new BaseStyleComponent("languagePicker", array(
             "languages" => $languages,
-            "display_style" => "select",
+            "display_style" => languagePickerDisplayStyles_select,
             "highlight_selected" => 1,
             "css" => "text-dark smallOverwitten",
         ));
         $picker->output_content();
+    }
+
+    /**
+     * Language picker instance used only to collect its asset includes.
+     * `BaseStyleComponent` is not registered on the page asset pipeline when
+     * rendered from the footer, so the footer pulls the style's css/js here.
+     *
+     * @return BaseStyleComponent
+     */
+    private function get_language_picker_for_assets()
+    {
+        return new BaseStyleComponent("languagePicker", array());
     }
 
     /**
@@ -88,10 +100,9 @@ class FooterView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        // Stylesheet comes from the style that renders the picker.
-        $local = array(
-            __DIR__ . "/footer.css",
-            __DIR__ . "/../style/languagePicker/css/language-picker.css"
+        $local = array_merge(
+            array(__DIR__ . "/footer.css"),
+            $this->get_language_picker_for_assets()->get_css_includes()
         );
         return parent::get_css_includes($local);
     }
@@ -106,11 +117,7 @@ class FooterView extends BaseView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            // The picker is driven by the style's own js.
-            $local = array(
-                __DIR__ . "/footer.js",
-                __DIR__ . "/../style/languagePicker/js/language-picker.js"
-            );
+            $local = $this->get_language_picker_for_assets()->get_js_includes();
         }
         return parent::get_js_includes($local);
     }

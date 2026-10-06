@@ -1070,7 +1070,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "is_required" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => 'languagePickerDisplayStyles'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => languagePickerDisplayStyles))
             ));
         } else if ($field['type'] == "select-data_table") {
             $children[] = new BaseStyleComponent("select", array(
@@ -1221,7 +1221,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => 'languagePickerDisplayStyles'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => languagePickerDisplayStyles))
             ));
         }
         else if ($field['type'] == "select-data_table") {

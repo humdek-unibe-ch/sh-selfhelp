@@ -56,7 +56,7 @@ class LanguagePickerView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->display_style = $this->model->get_db_field("display_style", "buttons");
+        $this->display_style = $this->model->get_db_field("display_style", languagePickerDisplayStyles_buttons);
         $this->label = $this->model->get_db_field("label", "");
         $this->redirect_at_select = $this->model->get_db_field("redirect_at_select", "");
         $this->highlight_selected = $this->model->get_db_field("highlight_selected", 1);
@@ -129,8 +129,11 @@ class LanguagePickerView extends StyleView
         }
         // Before anyone has chosen, marking the session default reads as a
         // selection the visitor did not make, so a first-choice page turns it off.
-        $current = $this->highlight_selected && isset($_SESSION['language']) ? $_SESSION['language'] : null;
-        $style = $this->display_style === "select" ? "select" : "buttons";
+        // UI preference language (same key the old footer used), not content language.
+        $current = $this->highlight_selected && isset($_SESSION['user_language']) ? $_SESSION['user_language'] : null;
+        $style = $this->display_style === languagePickerDisplayStyles_select
+            ? languagePickerDisplayStyles_select
+            : languagePickerDisplayStyles_buttons;
         $redirect = $this->get_redirect_url();
         // Passed as locals, not read off $this: the template is the contract
         // between this view and anything else that renders the same markup.

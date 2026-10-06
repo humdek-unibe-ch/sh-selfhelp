@@ -150,6 +150,7 @@ define('hookTypes', 'hookTypes');
 define('assetTypes', 'assetTypes');
 define('groupTypes', 'groupTypes');
 define('userTypes', 'userTypes');
+define('languagePickerDisplayStyles', 'languagePickerDisplayStyles');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -219,6 +220,8 @@ define('assetTypes_static', 'static');
 define('groupTypes_db_role', 'db_role');
 define('groupTypes_group', 'group');
 define('userTypes_user', 'user');
+define('languagePickerDisplayStyles_buttons', 'buttons');
+define('languagePickerDisplayStyles_select', 'select');
 
 /* Action config */
 define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');

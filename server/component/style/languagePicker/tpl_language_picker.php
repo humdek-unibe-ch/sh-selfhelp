@@ -8,7 +8,7 @@
 <?php if ($label !== "") { ?>
     <span class="selfHelp-language-picker__label"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
 <?php } ?>
-<?php if ($style === "select") { ?>
+<?php if ($style === languagePickerDisplayStyles_select) { ?>
     <select class="form-control selfHelp-language-picker__select">
     <?php foreach ($languages as $language) { ?>
         <option value="<?php echo intval($language['id']); ?>"<?php echo ($current == $language['id']) ? ' selected' : ''; ?>>
