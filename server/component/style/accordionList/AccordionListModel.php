@@ -51,7 +51,8 @@ class AccordionListModel extends StyleModel
             if($id_nav)
             {
                 $nav = new Navigation($this->router, $this->db,
-                    $items['nav_page'], $id_nav["id_nav"]);
+                    $items['nav_page'], $id_nav["id_nav"],
+                    $this->services->get_condition());
                 $this->set_db_field("items", $nav->get_navigation_items());
             }
         }

@@ -127,12 +127,25 @@ class NavModel extends BaseModel
     {
         if($id_parent === null)
             return;
-        $sql = 'SELECT child FROM sections_navigation
-            WHERE parent = :parent ORDER BY position';
-        $id_child = $this->db->query_db_first($sql,
-            array(':parent' => $id_parent));
-        if($id_child && $id_child['child'])
-            return intval($id_child['child']);
+        // Prefer the already-built, condition-filtered navigation for this page
+        if ($this->nav != null && intval($this->nav->get_root_id()) === intval($id_parent)) {
+            $items = $this->nav->get_navigation_items();
+            if (!empty($items) && isset($items[0]['id'])) {
+                return intval($items[0]['id']);
+            }
+            return null;
+        }
+        // Other nav pages in the site menu: walk root children with the same
+        // condition rules (uses CACHE_SECTIONS for children + fields)
+        $children = $this->db->fetch_nav_children($id_parent);
+        $condition = $this->services->get_condition();
+        $skip_condition = $this->is_cms_page_editing();
+        foreach ($children as $child) {
+            $section_id = intval($child['id']);
+            if ($condition->section_is_visible($section_id, $skip_condition)) {
+                return $section_id;
+            }
+        }
         return null;
     }
 

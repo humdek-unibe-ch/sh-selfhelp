@@ -23,6 +23,11 @@ class Navigation
     private $router;
 
     /**
+     * The condition service used to evaluate navigationContainer conditions.
+     */
+    private $condition;
+
+    /**
      * The identification name of the page.
      */
     private $keyword;
@@ -65,11 +70,15 @@ class Navigation
      *  The identification name of the page.
      * @param int $root_id
      *  The id of the root section.
+     * @param object|null $condition
+     *  The Condition service. When provided, navigation items whose section
+     *  condition fails are omitted from the tree and flat list.
      */
-    public function __construct($router, $db, $keyword, $root_id)
+    public function __construct($router, $db, $keyword, $root_id, $condition = null)
     {
         $this->db = $db;
         $this->router = $router;
+        $this->condition = $condition;
         $this->keyword = $keyword;
         $this->root_id = $root_id;
         $this->current_id = $root_id;
@@ -80,8 +89,61 @@ class Navigation
     /* Private Methods ********************************************************/
 
     /**
+     * Whether the current route is a CMS editing page where conditions must
+     * not hide navigation structure (matches BaseComponent behaviour).
+     *
+     * @return bool
+     */
+    private function is_cms_editing()
+    {
+        $name = ($this->router->route && isset($this->router->route['name']))
+            ? $this->router->route['name'] : '';
+        return in_array($name, array('cmsUpdate', 'cmsInsert', 'cmsDelete'), true);
+    }
+
+    /**
+     * Extract the decoded condition payload from already-fetched section fields.
+     *
+     * @param array $db_fields
+     * @return mixed
+     */
+    private function extract_condition_from_fields($db_fields)
+    {
+        if ($this->condition === null) {
+            return '';
+        }
+        foreach ($db_fields as $field) {
+            if ($field['name'] === 'condition') {
+                return $this->condition->decode_condition_content($field['content']);
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Whether a navigation section should appear for the current user.
+     *
+     * Condition results are intentionally not APCu-cached: they depend on the
+     * current user, groups, platform, and time-based placeholders. Section
+     * fields themselves come from CACHE_SECTIONS.
+     *
+     * @param mixed $condition
+     * @param int $section_id
+     * @return bool
+     */
+    private function is_section_visible($condition, $section_id)
+    {
+        if ($this->condition === null || $this->is_cms_editing()) {
+            return true;
+        }
+        $result = $this->condition->compute_condition($condition, null, $section_id);
+        return !empty($result['result']);
+    }
+
+    /**
      * Fetches all navigation items from the database and assembles them
      * hierarchically in an array. Further, items are added to list structure.
+     * Sections whose condition fails are skipped (and their children with them).
      *
      * @param int $id_section
      *  The root item id.
@@ -96,21 +158,27 @@ class Navigation
     private function fetch_children($id_section)
     {
         $children = array();
-        $sql = "SELECT child AS id FROM sections_navigation
-            WHERE parent = :id
-            ORDER BY position";
-        $ids = $this->db->query_db($sql, array(":id" => $id_section));
-        foreach($ids as $id)
-        {
+        // Cached under CACHE_SECTIONS via PageDb::fetch_nav_children
+        $ids = $this->db->fetch_nav_children($id_section);
+        foreach ($ids as $id) {
+            $section_id = intval($id['id']);
+            // Cached under CACHE_SECTIONS via PageDb::fetch_section_fields
+            $db_fields = $this->db->fetch_section_fields($section_id);
+            if (!$this->is_section_visible(
+                $this->extract_condition_from_fields($db_fields),
+                $section_id
+            )) {
+                continue;
+            }
             $fields = array();
-            $db_fields = $this->db->fetch_section_fields($id['id']);
-            foreach($db_fields as $field)
+            foreach ($db_fields as $field) {
                 $fields[$field['name']] = $field['content'];
-            $fields['id'] = intval($id['id']);
+            }
+            $fields['id'] = $section_id;
             array_push($this->items_list, $fields);
-            $fields['children'] = $this->fetch_children(intval($id['id']));
+            $fields['children'] = $this->fetch_children($section_id);
             $fields['url'] = $this->router->generate($this->keyword,
-                array("nav" => intval($id['id'])));
+                array("nav" => $section_id));
             array_push($children, $fields);
         }
         return $children;

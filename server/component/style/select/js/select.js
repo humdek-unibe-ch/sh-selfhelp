@@ -4,16 +4,78 @@ $(document).ready(function () {
 
 function initSelect() {
     clearOptionHack();
-    $('.bootstrapSelect').selectpicker({
-        showTick: true,
-        allowClear: true
+    $('.bootstrapSelect').each(function () {
+        var $select = $(this);
+        var options = {
+            showTick: true,
+            allowClear: true
+        };
+        // Honour data-size explicitly so `max` from PHP always reaches selectpicker.
+        var sizeAttr = $select.attr('data-size');
+        if (sizeAttr !== undefined && sizeAttr !== null && sizeAttr !== '') {
+            var parsedSize = parseInt(sizeAttr, 10);
+            options.size = isNaN(parsedSize) ? sizeAttr : parsedSize;
+        }
+        $select.selectpicker(options);
     });
+
+    // Re-apply size after open so max-height matches real rendered row height
+    // (bootstrap-select may have measured before layout finished).
+    $(document)
+        .off('shown.bs.select.selfhelpSize')
+        .on('shown.bs.select.selfhelpSize', '.bootstrapSelect', function () {
+            applyBootstrapSelectMaxSize($(this));
+        });
 
     $('.selectImage').each((index, value) => {
         initSelectImage(value);
     })
 
     check_select_locked_after_submit();
+}
+
+/**
+ * Enforce data-size / max as N visible option rows.
+ *
+ * @param {jQuery} $select Underlying <select.bootstrapSelect>
+ */
+function applyBootstrapSelectMaxSize($select) {
+    var sizeAttr = $select.attr('data-size');
+    if (sizeAttr === undefined || sizeAttr === null || sizeAttr === '' || sizeAttr === 'false' || sizeAttr === 'auto') {
+        return;
+    }
+    var size = parseInt(sizeAttr, 10);
+    if (!size || size < 1) {
+        return;
+    }
+
+    var picker = $select.data('selectpicker');
+    if (!picker || !picker.$menuInner || !picker.$menuInner.length) {
+        return;
+    }
+
+    var $li = picker.$menuInner
+        .find('li:not(.dropdown-header):not(.divider):not(.hidden):not(.disabled)')
+        .filter(function () {
+            return $(this).css('display') !== 'none';
+        })
+        .first();
+
+    if (!$li.length) {
+        return;
+    }
+
+    var liHeight = $li.outerHeight(true);
+    if (!liHeight) {
+        return;
+    }
+
+    var innerHeight = Math.ceil(liHeight * size);
+    picker.$menuInner.css('max-height', innerHeight + 'px');
+    if (picker.sizeInfo) {
+        picker.sizeInfo.liHeight = liHeight;
+        picker.sizeInfo.menuInnerHeight = innerHeight;
+    }
 }
 
 function initSelectImage(el) {

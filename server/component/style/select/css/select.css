@@ -2,6 +2,21 @@
     display: none !important;
 }
 
-.dropdown-menu .text {
-    text-wrap: wrap;
+/*
+ * Keep select option labels on one line.
+ *
+ * Previously `.dropdown-menu .text { text-wrap: wrap; }` made long labels
+ * wrap in narrow panels (e.g. CMS properties). bootstrap-select then
+ * measured liHeight from those tall rows and multiplied by data-size /
+ * `max`, so max=8 could open a ~640px menu that showed far more than 8
+ * visual rows. Single-line rows make `max` / data-size behave correctly.
+ * Full text remains available via title/tooltip and live search.
+ */
+.bootstrap-select .dropdown-menu li a,
+.bootstrap-select .dropdown-menu li .text {
+    white-space: nowrap;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }

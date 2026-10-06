@@ -28,11 +28,59 @@ class NavView extends BaseView
 
 
     /**
+     * Whether a navbar page link should be shown.
+     * Navigation pages with no visible containers (all conditions failed) are
+     * hidden so the menu does not generate a broken /[i:nav] URL.
+     *
+     * @param array $page
+     * @param mixed $nav_child
+     *  First visible navigation section id, or null.
+     * @return bool
+     */
+    private function is_nav_page_reachable($page, $nav_child)
+    {
+        if (empty($page['id_navigation_section'])) {
+            return true;
+        }
+        return $nav_child !== null;
+    }
+
+    /**
+     * Drop unreachable navigation pages (and empty parent menus) from a
+     * hierarchical page list used by the site navbar.
+     *
+     * @param array $pages
+     * @return array
+     */
+    private function filter_reachable_nav_pages($pages)
+    {
+        $result = array();
+        foreach ($pages as $key => $page) {
+            if (!empty($page['children'])) {
+                $page['children'] = $this->filter_reachable_nav_pages($page['children']);
+                if (empty($page['children'])) {
+                    continue;
+                }
+                $result[$key] = $page;
+                continue;
+            }
+            $nav_child = $this->model->get_first_nav_section(
+                $page['id_navigation_section'] ?? null
+            );
+            if (!$this->is_nav_page_reachable($page, $nav_child)) {
+                continue;
+            }
+            $result[$key] = $page;
+        }
+        return $result;
+    }
+
+    /**
      * Render all navigation links.
      */
     private function output_nav_items()
     {
-        $pages = $this->model->get_pages();
+        $pages = $this->filter_reachable_nav_pages($this->model->get_pages());
         foreach ($pages as $page) {
             $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
             if (empty($page['children'])) {
@@ -155,6 +203,7 @@ class NavView extends BaseView
      */
     private function output_nav_menu_items($children)
     {
+        $children = $this->filter_reachable_nav_pages($children);
         foreach($children as $page)
         {
             if(empty($page['children']))
@@ -232,6 +281,7 @@ class NavView extends BaseView
             }
         }
 
+        $res = $this->filter_reachable_nav_pages($res);
         foreach ($res as $arr_key => $page) {
             // get navigation page url corectly
             $key = $page['keyword'];
@@ -242,7 +292,7 @@ class NavView extends BaseView
             }
         }
 
-        return $res;
+        return array_values($res);
     }
 
     /**

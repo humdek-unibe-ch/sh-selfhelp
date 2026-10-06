@@ -186,7 +186,8 @@ abstract class BasePage
         if($this->id_navigation_section != null)
             $this->services->set_nav(new Navigation(
                 $this->services->get_router(), $this->services->get_db(),
-                $keyword, $this->id_navigation_section));
+                $keyword, $this->id_navigation_section,
+                $this->services->get_condition()));
         $this->add_component("nav",
             new NavComponent($this->services));
         $this->add_component("footer",
