@@ -1,6 +1,7 @@
 # v7.11.0
 ### Bug Fix
  - **Missing static files no longer stall CMS pages**: Requests for missing images, fonts, stylesheets or `*.js.map` source maps were rewritten to `index.php`, rendered the full "missing" page and held the PHP session lock, so the page's own AJAX calls queued for seconds. Fix: `.htaccess` answers those extensions with a plain 404 (`/admin/asset_delete/...` exempt). Behind nginx: `location ~* \.(?:css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot)$ { try_files $uri =404; }`. No database change.
+ - **Unmatched URLs no longer re-match every route hundreds of times**: `Router::is_active()` cached only a successful match, so an unmatched URL re-ran `match()` over all routes for every nav check. A failed match is now cached too (`NULL` = not resolved yet). No database change.
 
 # v7.10.1
 ### Bug Fix

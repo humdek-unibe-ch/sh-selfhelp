@@ -273,7 +273,9 @@ class Router extends AltoRouter {
      */
     public function is_active( $route_name )
     {
-        if(!$this->current_route){
+        // NULL = not resolved yet. A failed match (false) must stay cached, otherwise
+        // every is_active() call of an unmatched URL re-runs match() over all routes.
+        if($this->current_route === NULL){
             $this->current_route = $this->match();
         }        
         // if(!$match){
