@@ -3,7 +3,7 @@
  - **Missing static files no longer stall CMS pages**: Requests for missing images, fonts, stylesheets or `*.js.map` source maps were rewritten to `index.php`, rendered the full "missing" page and held the PHP session lock, so the page's own AJAX calls queued for seconds. Fix: `.htaccess` answers those extensions with a plain 404 (`/admin/asset_delete/...` exempt). Behind nginx: `location ~* \.(?:css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot)$ { try_files $uri =404; }`. No database change.
  - **Unmatched URLs no longer re-match every route hundreds of times**: `Router::is_active()` cached only a successful match, so an unmatched URL re-ran `match()` over all routes for every nav check. A failed match is now cached too (`NULL` = not resolved yet). No database change.
  - **Remove duplicate other-users query and index `user_activity.timestamp`**: The discarded `get_other_users_editing_this_page()` call in `Selfhelp.php` is gone; the real check stays in `BaseView::output_check_multiple_users()`. Migration `43_update_v7.10.0_v7.11.0.sql` adds `idx_user_activity_timestamp` and sets the database version to v7.11.0.
- - **Markdown HTML balancing no longer rewrites author content**: Closing unclosed tags via `DOMDocument` cut off text after stray end tags, broke inline scripts and rewrote URLs/attributes. Fragments are now scanned and only the missing end tags are appended. No database change.
+ - **Unclosed HTML in markdown no longer swallows the CMS chrome**: Missing end tags in section content could pull `#properties` and the add-section modal into the page tree. Fragments are scanned and only the missing end tags are appended; author content is otherwise left unchanged. No database change.
 
 # v7.10.1
 ### Bug Fix
