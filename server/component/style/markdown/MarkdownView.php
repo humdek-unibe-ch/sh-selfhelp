@@ -56,7 +56,43 @@ class MarkdownView extends StyleView
             $md = $pd->text($this->text_md);
         } else
             $md = $this->text_md;
+        $md = $this->balance_html_fragment($md);
         require __DIR__ . "/tpl_markdown.php";
+    }
+
+    /**
+     * Auto-close unclosed tags in a raw HTML fragment.
+     * Authors can embed HTML in markdown; a missing </div> otherwise breaks
+     * everything that follows in the page (including the CMS chrome).
+     *
+     * @param string $html
+     * @return string
+     */
+    private function balance_html_fragment($html)
+    {
+        if ($html === null || $html === '' || strpos($html, '<') === false) {
+            return $html;
+        }
+        $prev = libxml_use_internal_errors(true);
+        $doc = new DOMDocument();
+        $loaded = $doc->loadHTML(
+            '<?xml encoding="UTF-8"><div id="sh-html-root">' . $html . '</div>',
+            LIBXML_HTML_NODEFDTD
+        );
+        libxml_clear_errors();
+        libxml_use_internal_errors($prev);
+        if (!$loaded) {
+            return $html;
+        }
+        $root = $doc->getElementById('sh-html-root');
+        if (!$root) {
+            return $html;
+        }
+        $out = '';
+        foreach ($root->childNodes as $child) {
+            $out .= $doc->saveHTML($child);
+        }
+        return $out;
     }
 
 }

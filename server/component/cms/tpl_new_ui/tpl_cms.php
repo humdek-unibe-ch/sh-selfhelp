@@ -8,6 +8,10 @@
     <?php $this->output_breadcrumb(); ?>
 </div>
 <div id="ui-cms">
-    <?php $this->output_page_preview(); ?>
-    <?php $this->output_modal_add_section(); ?>
+    <?php
+    // Modal before page preview so unclosed tags in section HTML cannot nest
+    // #ui-add-section-modal inside #section-page-view.
+    $this->output_modal_add_section();
+    $this->output_page_preview();
+    ?>
 </div>
