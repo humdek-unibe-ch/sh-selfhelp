@@ -249,7 +249,6 @@ class Selfhelp
             }
             // log user activity
             $router->log_user_activity();
-            $router->get_other_users_editing_this_page();
         } else {
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
