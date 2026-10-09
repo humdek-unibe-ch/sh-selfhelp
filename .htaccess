@@ -1,4 +1,15 @@
 RewriteEngine On
 RewriteRule ^assets/ - [L]
+
+# A missing static file is a plain 404, never a CMS page. Without this, every
+# broken <img>, font, stylesheet or DevTools source-map (*.map) request falls
+# through to index.php, renders the whole "missing" page (HTTP 200, ~1.5 s) and
+# queues behind the user's PHP session lock, which stalls the page's own AJAX
+# calls for seconds.
+# /admin/asset_delete/<mode>/<file> is a real route that ends in a file name.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !/admin/asset_delete/ [NC]
+RewriteRule \.(?:css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot)$ - [NC,R=404,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php [L]

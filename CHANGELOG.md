@@ -1,3 +1,7 @@
+# v7.11.0
+### Bug Fix
+ - **Missing static files no longer stall CMS pages**: Requests for missing images, fonts, stylesheets or `*.js.map` source maps were rewritten to `index.php`, rendered the full "missing" page and held the PHP session lock, so the page's own AJAX calls queued for seconds. Fix: `.htaccess` answers those extensions with a plain 404 (`/admin/asset_delete/...` exempt). Behind nginx: `location ~* \.(?:css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot)$ { try_files $uri =404; }`. No database change.
+
 # v7.10.1
 ### Bug Fix
  - **CMS properties panel no longer vanishes when page HTML is unbalanced**: Unclosed tags in section content (commonly raw HTML inside markdown) were pulling `#properties` and `#ui-add-section-modal` into the page tree, so the properties panel height collapsed to ~0. Fix: auto-balance markdown HTML fragments via `DOMDocument` on render, and emit the add-section modal before the page preview so it cannot be nested into broken content. No database migration required.
