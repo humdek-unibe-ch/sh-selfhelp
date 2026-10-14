@@ -796,7 +796,17 @@ class PageDb extends BaseDb
                     $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)), $field_content);
                 } else if ($var) {
                     if ($var_value !== null) {
+                        // Escape control chars that break JSON string literals (SurveyJS config,
+                        // JSON Mapper meta, etc.). addslashes alone does not handle \t / other C0.
                         $var_value = preg_replace('/\r|\n/', '\n', trim($var_value));
+                        $var_value = str_replace("\t", '\t', $var_value);
+                        $var_value = preg_replace_callback(
+                            '/[\x00-\x08\x0B\x0C\x0E-\x1F]/',
+                            static function ($m) {
+                                return sprintf('\\u%04x', ord($m[0]));
+                            },
+                            $var_value
+                        );
                     }
                     // if (json_decode($field_content)) {
                     //     // if the variable is array then do not add slashes

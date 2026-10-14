@@ -1,3 +1,7 @@
+# v7.11.3
+### Bug Fix
+ - **`{{}}` interpolation no longer breaks SurveyJS / JSON Mapper when values contain tabs or other control characters**: `PageDb::replace_calced_values()` already turned newlines into `\n`, but left raw TAB and other C0 controls in the string. Those invalidate JSON (`Bad control character in string literal`), so `json_decode` of survey config and JSON Mapper meta failed for some users (empty survey: “Es sind keine Fragen vorhanden”). Tabs are now escaped as `\t`; remaining C0 controls as `\uXXXX`. No database change.
+
 # v7.11.2
 ### Bug Fix
  - **Custom `data_config` fields that use meta columns (`id_users`, `record_id`, …) with `all_fields: false` work again**: `get_data_config_selected_columns()` no longer passes meta/system column names into `get_dataTable_with_filter`'s `selected_columns` filter. Those columns are not dataCols, so filtering on them alone made the procedure return no rows (while `all_fields: true` still worked). Meta names are excluded from the filter; if only meta fields remain, all columns are loaded so the custom `field_holder` can still resolve. No database change.
