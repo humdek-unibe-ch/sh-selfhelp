@@ -247,49 +247,53 @@ class CmsView extends BaseView
             }
         }
 
-        $page_components = array();
-        if($this->model->get_active_root_section_id() == null)
-            foreach($page_sections as $section)
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
+        $has_active_section = ($this->model->get_active_section_id() != null);
+        if (!$is_new_ui || !$has_active_section) {
+            $page_components = array();
+            if($this->model->get_active_root_section_id() == null)
+                foreach($page_sections as $section)
+                    $page_components[] = new StyleComponent(
+                        $this->model->get_services(),
+                        intval($section['id']), $section,
+                        $this->model->get_cms_page_id());
+            else
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']), $section,
+                    $this->model->get_active_root_section_id(), array(),
                     $this->model->get_cms_page_id());
-        else
-            $page_components[] = new StyleComponent(
-                $this->model->get_services(),
-                $this->model->get_active_root_section_id(), array(),
-                $this->model->get_cms_page_id());
-        if (count($page_components) == 0) {
-            $text = new BaseStyleComponent("plaintext", array(
-                "text" => "No CMS view available for this page."
-            ));
-            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
-                $new_section = new BaseStyleComponent("template", array(
-                    "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
-                    "items" => array(
-                        "data_section" => array(
-                            "can_have_children" => $this->model->get_mode() == "update",
-                            "children" => 0,
-                            "relation" => 'RELATION_PAGE_CHILDREN'
-                        ),
-                        "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
-                        "page_id" => $this->page_info ? intval($this->page_info['id']): null
-                    ),
+            if (count($page_components) == 0) {
+                $text = new BaseStyleComponent("plaintext", array(
+                    "text" => "No CMS view available for this page."
                 ));
-                $page_components[] = $new_section;
+                if ($is_new_ui) {
+                    $new_section = new BaseStyleComponent("template", array(
+                        "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
+                        "items" => array(
+                            "data_section" => array(
+                                "can_have_children" => $this->model->get_mode() == "update",
+                                "children" => 0,
+                                "relation" => 'RELATION_PAGE_CHILDREN'
+                            ),
+                            "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
+                            "page_id" => $this->page_info ? intval($this->page_info['id']): null
+                        ),
+                    ));
+                    $page_components[] = $new_section;
+                }
             }
+            $this->add_local_component("page-view",
+                new BaseStyleComponent("card", array(
+                    "id" => "page-view",
+                    "title" => "Page View",
+                    "is_collapsible" => true,
+                    "is_expanded" => !$has_active_section,
+                    "css" => "mb-3 section-view w-100",
+                    "children" => $page_components,
+                ))
+            );
         }
-        $this->add_local_component("page-view",
-            new BaseStyleComponent("card", array(
-                "id" => "page-view",
-                "title" => "Page View",
-                "is_collapsible" => true,
-                "is_expanded" => ($this->model->get_active_section_id() == null),
-                "css" => "mb-3 section-view w-100",
-                "children" => $page_components,
-            ))
-        );
-        if ($this->model->get_active_section_id() != null){
+        if ($has_active_section){
             $section_path = $this->model->get_section_path();
             $params = isset($section_path[count($section_path) - 1]) ? isset($section_path[count($section_path) - 1]) : array();
             if (!is_array($params)) {
