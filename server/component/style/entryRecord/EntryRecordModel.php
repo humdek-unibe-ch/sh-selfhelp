@@ -51,9 +51,11 @@ class EntryRecordModel extends StyleModel
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
-        $this->init_properties();
-        if ($this->entry_record) {
-            $this->entry_record = array_merge($this->entry_record, $entry_record);
+        if (!$this->is_cms_page()) {
+            $this->init_properties();
+            if ($this->entry_record) {
+                $this->entry_record = array_merge($this->entry_record, $entry_record);
+            }
         }
     }
 

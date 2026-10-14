@@ -57,10 +57,14 @@ class EntryListModel extends StyleModel
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
-        $this->init_properties();
-        if ($this->entry_list) {
-            foreach ($this->entry_list as $key => $value) {
-                $this->entry_list[$key] = array_merge($value, $entry_record);
+        if (!$this->is_cms_page()) {
+            if ($this->entry_list === null) {
+                $this->init_properties();
+            }
+            if ($this->entry_list) {
+                foreach ($this->entry_list as $key => $value) {
+                    $this->entry_list[$key] = array_merge($value, $entry_record);
+                }
             }
         }
     }

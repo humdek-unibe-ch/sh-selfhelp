@@ -143,7 +143,9 @@ class StyleModel extends BaseModel implements IStyleModel
             return;
         }         
 
-        $this->calc_condition();
+        if (!$this->is_cms_page()) {
+            $this->calc_condition();
+        }
 
         if (($this->is_cms_page() || $this->condition_result['result'])) {
             $this->loadChildren($this->entry_record);
@@ -238,12 +240,15 @@ class StyleModel extends BaseModel implements IStyleModel
      * Return the field content
      */
     protected function calc_dynamic_values($field, $data_config, $field_key = 'content'){
-        $user_name = $this->db->fetch_user_name();
-        $user_code = $this->db->get_user_code();
-        $user_email = $this->db->fetch_user_email();
         //adjust entry records 
         $this->debug_data['field'] = $field;
         $this->debug_data['data_config'] = $data_config;
+        if ($this->is_cms_page()) {
+            return $field[$field_key];
+        }
+        $user_name = $this->db->fetch_user_name();
+        $user_code = $this->db->get_user_code();
+        $user_email = $this->db->fetch_user_email();
         if ($this->entry_record) {
             //adjust entry value
             $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
@@ -272,7 +277,13 @@ class StyleModel extends BaseModel implements IStyleModel
             }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is not data_config, try to get dynamic data
-                $fields = $this->retrieve_data($data_config);
+                if (!is_array($this->interpolation_data) || !array_key_exists('data_config_retrieved', $this->interpolation_data)) {
+                    $fields = $this->retrieve_data($data_config);
+                    $this->debug_data['data_config_retrieved'] = $fields;
+                    $this->interpolation_data['data_config_retrieved'] = $fields;
+                } else {
+                    $fields = $this->interpolation_data['data_config_retrieved'];
+                }
                 $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
@@ -281,8 +292,6 @@ class StyleModel extends BaseModel implements IStyleModel
                         }
                     }
                 }
-                $this->debug_data['data_config_retrieved'] = $fields;
-                $this->interpolation_data['data_config_retrieved'] = $fields;
             }
         }
         $this->debug_data['new_field_' . $field_key] = $field[$field_key];
@@ -367,33 +376,37 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function set_db_fields($fields)
     {        
-        $user_name = $this->db->fetch_user_name();
-        $user_code = $this->db->get_user_code();
-        $user_email = $this->db->fetch_user_email();
-        $data_config_key = array_search('data_config', array_column($fields, 'name'));
-        $data_config = $data_config_key ? $fields[$data_config_key]['content'] : null;
-        if ($data_config) {
-            if ($this->entry_record) {
-                //adjust entry value
-                $data_config = $this->get_entry_value($this->entry_record, $data_config);
+        $is_cms = $this->is_cms_page();
+        $data_config = null;
+        if (!$is_cms) {
+            $user_name = $this->db->fetch_user_name();
+            $user_code = $this->db->get_user_code();
+            $user_email = $this->db->fetch_user_email();
+            $data_config_key = array_search('data_config', array_column($fields, 'name'));
+            $data_config = $data_config_key !== false ? $fields[$data_config_key]['content'] : null;
+            if ($data_config) {
+                if ($this->entry_record) {
+                    //adjust entry value
+                    $data_config = $this->get_entry_value($this->entry_record, $data_config);
+                }
+                // if data_config is set replace if there are any globals
+                $global_vars = $this->get_global_vars();
+                if(strpos($data_config, '__language__') !== false){
+                    $language = $this->db->get_user_language_id($_SESSION['id_user']);
+                    $global_vars['__language__'] = $language;
+                }
+                $data_config = $this->db->replace_calced_values($data_config, $global_vars);
+                
+                $data_config = str_replace('@user_code', $user_code, $data_config);
+                $data_config = str_replace('@project', $_SESSION['project'], $data_config);
+                $data_config = str_replace('@user_email', $user_email, $data_config);
+                $data_config = str_replace('@user', $user_name, $data_config);            
+                $global_values = $this->db->get_global_values(); 
+                if($global_values){
+                    $data_config = $this->db->replace_calced_values($data_config,  $global_values);
+                }
+                $data_config = json_decode($data_config, true);
             }
-            // if data_config is set replace if there are any globals
-            $global_vars = $this->get_global_vars();
-            if(strpos($data_config, '__language__') !== false){
-                $language = $this->db->get_user_language_id($_SESSION['id_user']);
-                $global_vars['__language__'] = $language;
-            }
-            $data_config = $this->db->replace_calced_values($data_config, $global_vars);
-            
-            $data_config = str_replace('@user_code', $user_code, $data_config);
-            $data_config = str_replace('@project', $_SESSION['project'], $data_config);
-            $data_config = str_replace('@user_email', $user_email, $data_config);
-            $data_config = str_replace('@user', $user_name, $data_config);            
-            $global_values = $this->db->get_global_values(); 
-            if($global_values){
-                $data_config = $this->db->replace_calced_values($data_config,  $global_values);
-            }
-            $data_config = json_decode($data_config, true);
         }
         foreach($fields as $field)
         {            
@@ -404,9 +417,14 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->section_name = $field['section_name'];
             
             // load dynamic data if needed
-            $field['content'] = $this->calc_dynamic_values($field, $data_config);
-            if(isset($field['meta']) && $field['meta']){
-                $field['meta'] = $this->calc_dynamic_values($field, $data_config, 'meta');    
+            if (!$is_cms) {
+                $field['content'] = $this->calc_dynamic_values($field, $data_config);
+                if(isset($field['meta']) && $field['meta']){
+                    $field['meta'] = $this->calc_dynamic_values($field, $data_config, 'meta');    
+                }
+            } else {
+                $this->debug_data['field'] = $field;
+                $this->debug_data['data_config'] = $data_config;
             }
             
 
