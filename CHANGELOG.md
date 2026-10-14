@@ -1,3 +1,7 @@
+# v7.11.2
+### Bug Fix
+ - **Custom `data_config` fields that use meta columns (`id_users`, `record_id`, …) with `all_fields: false` work again**: `get_data_config_selected_columns()` no longer passes meta/system column names into `get_dataTable_with_filter`'s `selected_columns` filter. Those columns are not dataCols, so filtering on them alone made the procedure return no rows (while `all_fields: true` still worked). Meta names are excluded from the filter; if only meta fields remain, all columns are loaded so the custom `field_holder` can still resolve. No database change.
+
 # v7.11.1
 ### Improvement
  - **Skip `data_config` retrieval, dynamic interpolation, and condition calculation in CMS**: `StyleModel` no longer fetches `data_config` tables, resolves dynamic placeholders, or evaluates section conditions when rendering CMS pages, and `EntryListModel` / `EntryRecordModel` skip loading entry records in CMS mode. In the new CMS UI, `CmsView` also skips instantiating the unused `page-view` component tree when a specific section is selected.

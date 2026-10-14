@@ -143,6 +143,13 @@ abstract class BaseModel
     /**
      * Build a comma-separated list of columns needed for a data-config query.
      *
+     * Meta/system columns (id_users, record_id, …) are always selected by
+     * get_dataTable_with_filter and are not dataCols. Passing only those as
+     * selected_columns makes the procedure find no pivoted columns and return
+     * an empty result — so they must be excluded from this filter list. If
+     * nothing else remains, return '' (load all) so meta-only custom fields
+     * still resolve.
+     *
      * @param array $config
      *  A single data-config source definition.
      * @return string
@@ -154,6 +161,17 @@ abstract class BaseModel
         if (isset($config['all_fields']) && $config['all_fields']) {
             return '';
         }
+
+        // Must stay in sync with get_dataTable_with_filter's NOT IN list.
+        $meta_columns = array(
+            'id_users',
+            'record_id',
+            'user_name',
+            'id_actionTriggerTypes',
+            'triggerType',
+            'entry_date',
+            'user_code',
+        );
 
         $columns = array();
         if (isset($config['fields']) && is_array($config['fields'])) {
@@ -171,8 +189,9 @@ abstract class BaseModel
             }
         }
 
-        $columns = array_values(array_unique(array_filter($columns, function ($column) {
-            return preg_match('/^[a-zA-Z0-9_]+$/', $column);
+        $columns = array_values(array_unique(array_filter($columns, function ($column) use ($meta_columns) {
+            return preg_match('/^[a-zA-Z0-9_]+$/', $column)
+                && !in_array($column, $meta_columns, true);
         })));
 
         return count($columns) > 0 ? implode(',', $columns) : '';
