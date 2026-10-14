@@ -156,17 +156,14 @@ abstract class BaseModel
         }
 
         $columns = array();
-        if (isset($config['map_fields']) && is_array($config['map_fields'])) {
-            foreach ($config['map_fields'] as $field) {
+        if (isset($config['fields']) && is_array($config['fields'])) {
+            foreach ($config['fields'] as $field) {
                 if (isset($field['field_name']) && $field['field_name'] !== '') {
                     $columns[] = trim($field['field_name']);
                 }
             }
         }
-
-        // For JSON mode, map_fields can still require source columns.
-        if (isset($config['retrieve']) && $config['retrieve'] === 'JSON'
-            && isset($config['map_fields']) && is_array($config['map_fields'])) {
+        if (isset($config['map_fields']) && is_array($config['map_fields'])) {
             foreach ($config['map_fields'] as $field) {
                 if (isset($field['field_name']) && $field['field_name'] !== '') {
                     $columns[] = trim($field['field_name']);
