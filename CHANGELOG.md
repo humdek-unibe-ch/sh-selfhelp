@@ -1,3 +1,8 @@
+# v7.11.1
+### Improvement
+ - **Skip `data_config` retrieval, dynamic interpolation, and condition calculation in CMS**: `StyleModel` no longer fetches `data_config` tables, resolves dynamic placeholders, or evaluates section conditions when rendering CMS pages, and `EntryListModel` / `EntryRecordModel` skip loading entry records in CMS mode. In the new CMS UI, `CmsView` also skips instantiating the unused `page-view` component tree when a specific section is selected.
+ - **Cache `data_config` results per section and respect `fields` column selection**: `StyleModel::calc_dynamic_values()` reuses retrieved `data_config` data across fields of the same section instead of querying once per field, and `BaseModel::get_data_config_selected_columns()` includes columns listed in `fields` when `all_fields` is disabled.
+
 # v7.11.0
 ### Bug Fix
  - **Missing static files no longer stall CMS pages**: Requests for missing images, fonts, stylesheets or `*.js.map` source maps were rewritten to `index.php`, rendered the full "missing" page and held the PHP session lock, so the page's own AJAX calls queued for seconds. Fix: `.htaccess` answers those extensions with a plain 404 (`/admin/asset_delete/...` exempt). Behind nginx: `location ~* \.(?:css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot)$ { try_files $uri =404; }`. No database change.
