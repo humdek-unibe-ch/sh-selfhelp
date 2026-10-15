@@ -55,6 +55,41 @@ class DataModel extends BaseModel
     }
 
     /**
+     * Build comma-separated dataCols for Admin Data, skipping names that start
+     * with `_` (e.g. `_json`, large SurveyJS payloads). Those columns are
+     * still stored; they are only omitted from the admin grid query so the
+     * page does not pull huge cell values into HTML.
+     *
+     * @param int $formId
+     * @return string
+     */
+    private function get_admin_data_selected_columns($formId)
+    {
+        $rows = $this->db->query_db(
+            "SELECT `name` FROM dataCols
+             WHERE id_dataTables = :id
+               AND LEFT(`name`, 1) <> '_'
+               AND `name` REGEXP '^[a-zA-Z0-9_]+$'",
+            array(':id' => $formId)
+        );
+        if (!$rows) {
+            // Sentinel: FIND_IN_SET matches nothing → no pivoted payload cols.
+            return '__admin_skip_underscore__';
+        }
+        $selected = '';
+        foreach ($rows as $row) {
+            $name = $row['name'];
+            $next = ($selected === '') ? $name : ($selected . ',' . $name);
+            // selected_columns_param is VARCHAR(4000) in get_dataTable_with_filter
+            if (strlen($next) > 3900) {
+                break;
+            }
+            $selected = $next;
+        }
+        return $selected !== '' ? $selected : '__admin_skip_underscore__';
+    }
+
+    /**
      * Get the all fields from a form
      * @param int $formId
      * form id
@@ -74,12 +109,12 @@ class DataModel extends BaseModel
      */
     public function getFormFields($formId, $user_ids)
     {
+        $selected_columns = $this->get_admin_data_selected_columns($formId);
         if ($user_ids == 'all') {
             // add limit or the table will not load if too much data is shown
-            return $this->user_input->get_data($formId, '', false, -1, false, false);
-        } else {
-            return $this->user_input->get_data($formId, '', false, $user_ids, false, false);
+            return $this->user_input->get_data($formId, '', false, -1, false, false, $selected_columns);
         }
+        return $this->user_input->get_data($formId, '', false, $user_ids, false, false, $selected_columns);
     }
 
     /**

@@ -1,3 +1,7 @@
+# v7.11.4
+### Improvement
+ - **Admin Data no longer loads columns whose names start with `_`**: `DataModel::getFormFields()` now passes an explicit `selected_columns` list (all `dataCols` except `_…`) into `get_data()`, so large SurveyJS payloads such as `_json` or `_my_question` stay out of the admin grid query and HTML. API export, `data_config`, and other `get_data()` callers are unchanged. Client-side column hide in `data.js` remains as a backup. No database change.
+
 # v7.11.3
 ### Bug Fix
  - **`{{}}` interpolation no longer breaks SurveyJS / JSON Mapper when values contain tabs or other control characters**: `PageDb::replace_calced_values()` already turned newlines into `\n`, but left raw TAB and other C0 controls in the string. Those invalidate JSON (`Bad control character in string literal`), so `json_decode` of survey config and JSON Mapper meta failed for some users (empty survey: “Es sind keine Fragen vorhanden”). Tabs are now escaped as `\t`; remaining C0 controls as `\uXXXX`. No database change.

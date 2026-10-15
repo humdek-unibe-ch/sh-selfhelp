@@ -11,7 +11,8 @@ $(document).ready(function () {
             ]
         });
 
-        // hide all columns starting with "_"
+        // Backup: server already omits `_…` cols from Admin Data queries.
+        // Keep client hide in case any underscore column still appears.
         table.columns().every(function () {
             var column = this;
             var header = $(column.header()).text().trim();
