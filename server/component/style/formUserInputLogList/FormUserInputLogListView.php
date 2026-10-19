@@ -162,8 +162,13 @@ class FormUserInputLogListView extends FormUserInputView
                 "value" => $this->selected_record_id,
             ));
         }
-        $cancel_url = '';
-        if (!$for_modal) {
+        // Form cancel button needs both label and url (ButtonView skips empty).
+        // Modal: dismiss via JS; page: return to list / url_cancel.
+        if ($for_modal) {
+            $cancel_label = $this->ful_label_cancel !== '' ? $this->ful_label_cancel : 'Cancel';
+            $cancel_url = '#';
+        } else {
+            $cancel_label = $this->ful_label_cancel;
             $cancel_url = $this->ful_url_cancel !== ''
                 ? $this->model->get_services()->get_router()->get_url($this->ful_url_cancel)
                 : $this->model->get_list_url();
@@ -171,7 +176,7 @@ class FormUserInputLogListView extends FormUserInputView
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
-            "label_cancel" => $for_modal ? '' : $this->ful_label_cancel,
+            "label_cancel" => $cancel_label,
             "type" => $this->type,
             "url" => $url,
             "children" => $children,

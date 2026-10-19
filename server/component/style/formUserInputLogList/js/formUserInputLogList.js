@@ -101,6 +101,12 @@ function initFormUserInputLogListModal($root, config) {
         $modal.find('.formUserInputLogList-modal-title').text(config.labelNew || 'New');
     });
 
+    // Form cancel in modal dismisses instead of navigating (url is "#").
+    $modal.find('.form-cancel-btn').off('click.ful-cancel').on('click.ful-cancel', function (e) {
+        e.preventDefault();
+        $modal.modal('hide');
+    });
+
     if (config.urlRecordRaw !== null && config.urlRecordRaw !== undefined && String(config.urlRecordRaw) !== '') {
         $modal.modal('show');
         if (parseInt(config.urlRecordId, 10) > 0) {
