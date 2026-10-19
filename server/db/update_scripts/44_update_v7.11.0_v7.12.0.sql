@@ -98,6 +98,12 @@ VALUES (get_style_id('formUserInputLogList'), get_field_id('filter'), '', 'Optio
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('formUserInputLogList'), get_field_id('fields_map'), '', 'Map which columns appear in the list. Use the field name as key and the column label as value. Only mapped fields are shown. This field is translatable (`display=1`), so each language can show a different set/labels. Example:\n```\n{\n  "title": "Title",\n  "timestamp": "Entry Date"\n}\n```');
 
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('values_map', get_field_type_id('json'), 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('values_map'), '', 'Optional per-field display templates for list cells. Key = form field name. Independent of `fields_map`: with `fields_map`, only listed columns appear (labels from the map); without it, all columns appear and templates still apply by field name. Value = HTML/text template. Placeholders: `{{value}}` (this cell, escaped), `{{ASSET_PATH}}` (asset base path), `{{other_field}}` (same row, escaped). Fields omitted here show the raw value escaped. Example:\n```\n{\n  "icon": "<img class=\\"ful-list-img\\" src=\\"{{ASSET_PATH}}/{{value}}\\" alt=\\"\\">",\n  "module": "Modul {{value}}"\n}\n```');
+
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('formUserInputLogList'), get_field_id('label_new'), 'New', 'Label of the button that creates a new record.');
 
