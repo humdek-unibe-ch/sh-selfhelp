@@ -219,14 +219,19 @@ class FormUserInputModel extends StyleModel
      */
     public function update_user_input($user_input, $record_id)
     {
+        // Pass style own_entries_only into save_data (5th arg). Default true
+        // matches save_data's default, but when CMS sets own_entries_only=0
+        // (edit any user's rows), update must look up/update without the
+        // id_users ownership filter — otherwise save_row returns false.
         $res = $this->user_input->save_data(
             transactionBy_by_user,
             $this->get_table_name_from_form_id(),
             (array)$user_input,
             array(
                 "record_id" => $record_id
-            )
-        );        
+            ),
+            $this->get_db_field("own_entries_only", 1)
+        );
         return $res;
     }
 
@@ -237,38 +242,34 @@ class FormUserInputModel extends StyleModel
      * * @param int $own_entries_only
      * If true it loads only records created by the same user
      * @retval @array
-     * the record row
+     * the record row (single associative row, or false/empty)
      */
     public function get_form_entry_record($record_id, $own_entries_only)
     {
         $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
-        $filter = " AND record_id = " . $record_id;
+        $filter = " AND record_id = " . intval($record_id);
         if (!$form_id) {
             return false;
         }
-        return $this->user_input->get_data($form_id, $filter, $own_entries_only);
+        // db_first=true: one assoc row {field=>value}, not [[field=>value]].
+        // Inputs / propagate_input_fields need field names as top-level keys.
+        return $this->user_input->get_data($form_id, $filter, $own_entries_only, null, true);
     }
 
     /**
-     * Mark this user input as removed in the database.
+     * Soft-delete a form record (shared path for all formUserInput* styles).
+     * Delegates to UserInput::delete_data (status → deleted, cancel jobs,
+     * queue formActions with trigger "deleted").
      *
      * @param int $record_id
-     *  The record_id of the fields to be marked as removed.
+     * @return bool
      */
     public function delete_user_input($record_id)
     {
-        $this->db->begin_transaction();
-        $res = $this->db->update_by_ids('user_input', array('removed' => 1), array('id_user_input_record' => $record_id));
-        $this->queue_job_from_actions(actionTriggerTypes_deleted, $record_id);
-        $this->transaction->add_transaction(
-            transactionTypes_delete,
-            transactionBy_by_user,
-            $_SESSION['id_user'],
-            $this->transaction::TABLE_USER_INPUT,
-            $record_id
+        return $this->user_input->delete_data(
+            $record_id,
+            $this->get_db_field("own_entries_only", 1)
         );
-        $this->db->commit();
-        return $res;
     }
 
     /**
@@ -294,10 +295,12 @@ class FormUserInputModel extends StyleModel
      */
     public function queue_job_from_actions($trigger_type, $record_id = null)
     {
+        // formActions are keyed by dataTables id (same as save_data), not section id.
+        $data_table_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
         $form_data = array(
             "trigger_type" => $trigger_type,
             "form_name" => $this->get_db_field("name"),
-            "form_id" => $this->section_id,
+            "form_id" => $data_table_id ? $data_table_id : $this->section_id,
             "form_fields" => ($record_id ? array_merge($_POST, array('record_id' => $record_id)) : $_POST)
         );
         $this->user_input->queue_job_from_actions($form_data);
