@@ -37,6 +37,12 @@ class FormUserInputLogListModel extends FormUserInputModel
      */
     private $list_rows = null;
 
+    /**
+     * Column labels whose cells were built from values_map (trusted HTML).
+     * Key = header label, value = true.
+     */
+    private $list_html_headers = array();
+
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
@@ -203,6 +209,11 @@ class FormUserInputLogListModel extends FormUserInputModel
         if (!is_array($fields_map)) {
             $fields_map = array();
         }
+        $values_map = $this->get_db_field('values_map', array());
+        if (!is_array($values_map)) {
+            $values_map = array();
+        }
+        $this->list_html_headers = array();
         $selected_columns = '';
         if (count($fields_map) > 0) {
             $cols = array_keys($fields_map);
@@ -221,17 +232,139 @@ class FormUserInputLogListModel extends FormUserInputModel
                 $mappedRow = array();
                 $mappedRow[ENTRY_RECORD_ID] = $row[ENTRY_RECORD_ID];
                 foreach ($fields_map as $field => $label) {
-                    if (array_key_exists($field, $row)) {
-                        $mappedRow[$label] = $row[$field];
+                    if (!array_key_exists($field, $row)) {
+                        continue;
                     }
+                    $mappedRow[$label] = $this->map_list_cell_value(
+                        $field,
+                        $label,
+                        $row[$field],
+                        $row,
+                        $values_map
+                    );
                 }
                 $mappedRows[] = $mappedRow;
             }
             $this->list_rows = $mappedRows;
         } else {
-            $this->list_rows = $res;
+            // No fields_map: show all columns; still apply values_map by field name.
+            $mappedRows = array();
+            foreach ($res as $row) {
+                $mappedRow = array();
+                foreach ($row as $field => $raw) {
+                    if ($field === ENTRY_RECORD_ID) {
+                        $mappedRow[ENTRY_RECORD_ID] = $raw;
+                        continue;
+                    }
+                    $mappedRow[$field] = $this->map_list_cell_value(
+                        $field,
+                        $field,
+                        $raw,
+                        $row,
+                        $values_map
+                    );
+                }
+                $mappedRows[] = $mappedRow;
+            }
+            $this->list_rows = $mappedRows;
         }
         return $this->list_rows;
+    }
+
+    /**
+     * Resolve a list cell: apply values_map template when present, else raw value.
+     * Marks $header_key in list_html_headers when a template is used.
+     *
+     * @param string $field Field name (values_map key)
+     * @param string $header_key Column header key (label or field name)
+     * @param mixed $raw
+     * @param array $row
+     * @param array $values_map
+     * @return mixed
+     */
+    private function map_list_cell_value($field, $header_key, $raw, $row, $values_map)
+    {
+        if (
+            isset($values_map[$field])
+            && is_string($values_map[$field])
+            && $values_map[$field] !== ''
+        ) {
+            $this->list_html_headers[$header_key] = true;
+            return $this->apply_list_value_template($values_map[$field], $raw, $row);
+        }
+        return $raw;
+    }
+
+    /**
+     * Whether a list column header was rendered via values_map (HTML-safe output).
+     *
+     * @param string $header
+     * @return bool
+     */
+    public function is_list_header_html($header)
+    {
+        // Ensure headers flags are built (get_list_rows may not have run yet).
+        if ($this->list_rows === null) {
+            $this->get_list_rows();
+        }
+        return !empty($this->list_html_headers[$header]);
+    }
+
+    /**
+     * Apply a values_map template. CMS template is trusted; row values are escaped.
+     *
+     * Placeholders: {{value}}, {{ASSET_PATH}}, {{field_name}} from the same row.
+     *
+     * @param string $template
+     * @param mixed $value
+     * @param array $row
+     * @return string
+     */
+    private function apply_list_value_template($template, $value, $row)
+    {
+        $asset_path = defined('ASSET_PATH') ? ASSET_PATH : '';
+        $replacements = array(
+            '{{ASSET_PATH}}' => $asset_path,
+            '{{value}}' => $this->escape_list_template_value($value, true),
+        );
+        if (is_array($row)) {
+            foreach ($row as $field => $field_value) {
+                if ($field === ENTRY_RECORD_ID || !is_scalar($field_value)) {
+                    continue;
+                }
+                $replacements['{{' . $field . '}}'] = $this->escape_list_template_value($field_value, false);
+            }
+        }
+        return strtr($template, $replacements);
+    }
+
+    /**
+     * Escape a row value for use inside a values_map template.
+     * When $reject_unsafe_path is true ({{value}}), reject .. / URL schemes.
+     *
+     * @param mixed $value
+     * @param bool $reject_unsafe_path
+     * @return string
+     */
+    private function escape_list_template_value($value, $reject_unsafe_path = false)
+    {
+        if ($value === null) {
+            return '';
+        }
+        $str = (string)$value;
+        if ($str === '') {
+            return '';
+        }
+        if ($reject_unsafe_path) {
+            if (
+                strpos($str, '..') !== false
+                || preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', $str)
+                || strpos($str, '//') === 0
+            ) {
+                return '';
+            }
+        }
+        return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
     }
 
     /**
