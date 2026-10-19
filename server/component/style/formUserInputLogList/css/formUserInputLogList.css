@@ -1,0 +1,44 @@
+.formUserInputLogList {
+    position: relative;
+}
+
+.formUserInputLogList-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.formUserInputLogList-list {
+    width: 100%;
+}
+
+.formUserInputLogList-table {
+    width: 100%;
+}
+
+.formUserInputLogList-actions {
+    white-space: nowrap;
+    width: 1%;
+}
+
+.formUserInputLogList-actions-col {
+    width: 1%;
+}
+
+.formUserInputLogList-empty:empty {
+    display: none;
+}
+
+.formUserInputLogList-modal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.formUserInputLogList-form {
+    width: 100%;
+}
+
+.formUserInputLogList-btn-delete {
+    cursor: pointer;
+}
