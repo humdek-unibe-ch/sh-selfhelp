@@ -258,6 +258,7 @@ class FormUserInputLogListView extends FormUserInputView
     {
         foreach ($headers as $header) {
             $value = isset($row[$header]) ? $row[$header] : '';
+            $is_html = $this->model->is_list_header_html($header);
             require __DIR__ . "/tpl/tpl_cell.php";
         }
     }
