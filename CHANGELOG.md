@@ -1,3 +1,12 @@
+# v7.12.0 - Work in Progress
+### New Feature
+ - **`formUserInputLogList`**: log form with built-in list, create/edit (modal or page), and optional delete. Configure children like `formUserInputLog`; list columns via translatable `fields_map`, plus `filter`, `own_entries_only`, `alert_success` / `alert_fail`. Deep-links use fixed query keys `record` and `sid` (section id). Without `redirect_at_end`, submit/delete stays on / returns to the list (AJAX soft-refresh or redirect). Denied deep-links render only the missing page (no list underneath). CMS preview shows the shell without live participant data. Migration: `44_update_v7.11.0_v7.12.0.sql`.
+
+### Improvement
+ - Soft-delete (`UserInput::delete_data`, used by formUserInput / showUserInput / entryRecordDelete) queues formActions with trigger `deleted`. Existing queued jobs for that record are cancelled first so actions on delete can schedule new jobs without being cleared immediately.
+ - Form updates pass the style’s `own_entries_only` into `save_data` (admins can update other users’ rows when that flag is off).
+ - `get_form_entry_record` returns a single associative row for edit preload.
+
 # v7.11.4
 ### Improvement
  - **Admin Data no longer loads columns whose names start with `_`**: `DataModel::getFormFields()` now passes an explicit `selected_columns` list (all `dataCols` except `_…`) into `get_data()`, so large SurveyJS payloads such as `_json` or `_my_question` stay out of the admin grid query and HTML. API export, `data_config`, and other `get_data()` callers are unchanged. Client-side column hide in `data.js` remains as a backup. No database change.
