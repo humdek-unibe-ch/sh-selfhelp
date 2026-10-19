@@ -79,26 +79,8 @@ class ShowUserInputModel extends StyleModel
      */
     public function delete_record($record_id)
     {
+        // UserInput::delete_data soft-deletes and queues formActions (trigger deleted).
         return $this->user_input->delete_data($record_id, $this->get_db_field("own_entries_only", 1));
-    }
-
-    /**
-     * Prepare the form data and call the queue_job_from_actions
-     * @param string $trigger_type
-     * Form started or finished
-     */
-    public function queue_job_from_actions($trigger_type, $record_id = null)
-    {
-        $filter = "AND record_id = " . $record_id;
-        $form_id = $this->user_input->get_dataTable_id($this->get_db_field("source"));
-        $form_fields = $this->user_input->get_data($form_id, $filter, true, null, true);
-        $form_data = array(
-            "trigger_type" => $trigger_type,
-            "form_name" => $this->get_db_field("name"),
-            "form_id" => $this->section_id,
-            "form_fields" => $form_fields
-        );
-        $this->user_input->queue_job_from_actions($form_data);
     }
 
     /**
