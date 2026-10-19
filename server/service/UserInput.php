@@ -1360,6 +1360,19 @@ class UserInput
             $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
+
+            // Cancel outstanding jobs for this record BEFORE scheduling deleted-trigger
+            // actions. Running this after the loop would also delete jobs just queued
+            // below (they link via scheduledJobs_formActions.id_dataRows).
+            if (
+                $form_data['trigger_type'] == actionTriggerTypes_deleted
+                && !empty($form_data['form_fields'][ENTRY_RECORD_ID])
+            ) {
+                $result['deleted_jobs'] = $this->delete_jobs_for_record(
+                    $form_data['form_fields'][ENTRY_RECORD_ID]
+                );
+            }
+
             foreach ($actions as $action) {
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
@@ -1548,11 +1561,6 @@ class UserInput
                     $this->delete_reminders($scheduled_reminders);
                     $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
                 }
-            }
-
-            if ($form_data['trigger_type'] == actionTriggerTypes_deleted) {
-                // if the trigger type is deleted and the record id exists, check for scheduled jobs with that record and move them to status deleted
-                $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_fields'][ENTRY_RECORD_ID]);
             }
 
             $end_time = microtime(true);
@@ -1949,11 +1957,21 @@ class UserInput
      */
     public function delete_data($record_id, $own_entries_only = true)
     {
-
-
         try {
             $this->db->begin_transaction();
-            $res = true;
+            $record_id = intval($record_id);
+            $select_sql = "SELECT id, id_dataTables, id_users FROM dataRows WHERE id = :id";
+            $select_params = array(':id' => $record_id);
+            if ($own_entries_only) {
+                $select_sql .= " AND id_users = :id_users";
+                $select_params[':id_users'] = $_SESSION['id_user'];
+            }
+            $row = $this->db->query_db_first($select_sql, $select_params);
+            if (!$row) {
+                $this->db->rollback();
+                return false;
+            }
+
             $params = array('id' => $record_id);
             if ($own_entries_only) {
                 $params['id_users'] = $_SESSION['id_user'];
@@ -1967,7 +1985,28 @@ class UserInput
             );
             $this->db->commit();
             if ($res) {
-                $this->delete_jobs_for_record($record_id);
+                // Fire formActions with trigger "deleted" (same dataTable id as
+                // save_data). queue_job_from_actions cancels existing jobs for
+                // this record first, then schedules deleted-trigger actions.
+                $form_fields = $this->get_data(
+                    $row['id_dataTables'],
+                    " AND record_id = " . $record_id,
+                    false,
+                    null,
+                    true,
+                    false
+                );
+                if (!$form_fields || !is_array($form_fields)) {
+                    $form_fields = array();
+                }
+                $form_fields[ENTRY_RECORD_ID] = $record_id;
+                $form_fields['id_users'] = $row['id_users'];
+                $this->queue_job_from_actions(array(
+                    'trigger_type' => actionTriggerTypes_deleted,
+                    'form_name' => $this->get_dataTable_name($row['id_dataTables']) ?: '',
+                    'form_id' => $row['id_dataTables'],
+                    'form_fields' => $form_fields,
+                ));
             }
             $this->clear_user_input_cache();
             return $res;
