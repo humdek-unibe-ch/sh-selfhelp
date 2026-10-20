@@ -151,6 +151,8 @@ define('assetTypes', 'assetTypes');
 define('groupTypes', 'groupTypes');
 define('userTypes', 'userTypes');
 define('languagePickerDisplayStyles', 'languagePickerDisplayStyles');
+define('formUserInputLogListLayouts', 'formUserInputLogListLayouts');
+define('formUserInputLogListActionsPositions', 'formUserInputLogListActionsPositions');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -222,6 +224,10 @@ define('groupTypes_group', 'group');
 define('userTypes_user', 'user');
 define('languagePickerDisplayStyles_buttons', 'buttons');
 define('languagePickerDisplayStyles_select', 'select');
+define('formUserInputLogListLayouts_table', 'table');
+define('formUserInputLogListLayouts_cards', 'cards');
+define('formUserInputLogListActionsPositions_left', 'left');
+define('formUserInputLogListActionsPositions_right', 'right');
 
 /* Action config */
 define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');

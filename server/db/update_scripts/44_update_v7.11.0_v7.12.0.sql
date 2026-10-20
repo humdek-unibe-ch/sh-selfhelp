@@ -18,7 +18,7 @@ VALUES (
     'formUserInputLogList',
     (SELECT id FROM styleType WHERE name = 'component'),
     (SELECT id FROM styleGroup WHERE name = 'Form'),
-    'Log form with built-in list: configure form children as usual, then list/create/edit/delete records in one style. List uses fields_map (translatable). Form can open in a Bootstrap modal or as a full-page form (list hidden). Deep-links use fixed query keys `record` and `sid` (section id) so multiple instances on one page do not collide.'
+    'Log form with built-in list: configure form children as usual, then list/create/edit/delete records in one style. List uses fields_map / values_map, list_layout (table|cards), actions_position (left|right), and optional empty_title / empty_text. Form can open in a Bootstrap modal or as a full-page form (list hidden). Deep-links use fixed query keys `record` and `sid` (section id) so multiple instances on one page do not collide.'
 );
 
 INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
@@ -102,7 +102,48 @@ INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
 VALUES ('values_map', get_field_type_id('json'), 0);
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
-VALUES (get_style_id('formUserInputLogList'), get_field_id('values_map'), '', 'Optional per-field display templates for list cells. Key = form field name. Independent of `fields_map`: with `fields_map`, only listed columns appear (labels from the map); without it, all columns appear and templates still apply by field name. Value = HTML/text template. Placeholders: `{{value}}` (this cell, escaped), `{{ASSET_PATH}}` (asset base path), `{{other_field}}` (same row, escaped). Fields omitted here show the raw value escaped. Example:\n```\n{\n  "icon": "<img class=\\"ful-list-img\\" src=\\"{{ASSET_PATH}}/{{value}}\\" alt=\\"\\">",\n  "module": "Modul {{value}}"\n}\n```');
+VALUES (get_style_id('formUserInputLogList'), get_field_id('values_map'), '', 'Optional per-field display templates for list cells. Key = form field name. Independent of `fields_map`: with `fields_map`, only listed columns appear (labels from the map); without it, all columns appear and templates still apply by field name. Value = HTML/text template. Placeholders: `{{value}}` (this cell, escaped), `{{ASSET_PATH}}` (asset base path), `{{other_field}}` (same row, escaped — those fields are auto-loaded even if not in `fields_map`). Fields omitted here show the raw value escaped. Example:\n```\n{\n  "icon": "<img class=\\"ful-list-img\\" src=\\"{{ASSET_PATH}}/{{value}}\\" alt=\\"\\">",\n  "module": "Modul {{value}}"\n}\n```');
+
+-- List layout / actions position (CMS selects via lookups)
+INSERT IGNORE INTO `lookups` (`type_code`, `lookup_code`, `lookup_value`, `lookup_description`)
+VALUES
+    ('formUserInputLogListLayouts', 'table', 'Table', 'Classic table with column headers.'),
+    ('formUserInputLogListLayouts', 'cards', 'Cards', 'Card rows without a header row; suited to custom CSS.'),
+    ('formUserInputLogListActionsPositions', 'left', 'Left', 'Edit/delete actions on the left of each row or card.'),
+    ('formUserInputLogListActionsPositions', 'right', 'Right', 'Edit/delete actions on the right of each row or card.');
+
+INSERT IGNORE INTO `fieldType` (`name`, `position`)
+VALUES ('select-ful-list-layout', 8);
+
+INSERT IGNORE INTO `fieldType` (`name`, `position`)
+VALUES ('select-ful-actions-position', 8);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('list_layout', get_field_type_id('select-ful-list-layout'), 0);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('actions_position', get_field_type_id('select-ful-actions-position'), 0);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('empty_title', get_field_type_id('text'), 1);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('empty_text', get_field_type_id('text'), 1);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('list_layout'), 'table', 'How the list is rendered: `table` (default) shows a classic table with headers; `cards` renders each row as a card shell without a header row (style with CSS / values_map).');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('actions_position'), 'right', 'Where edit/delete actions appear on each row or card: `left` or `right` (default).');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('empty_title'), '', 'Optional title shown when the list has no rows. Leave empty to omit.');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('empty_text'), '', 'Optional supporting text under the empty title. Leave empty to omit.');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (get_style_id('formUserInputLogList'), get_field_id('debug'), 0, 'If checked, dumps list debug data on the page and to the browser console (raw rows, mapped rows, fields_map, values_map). Uncheck on production pages.');
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('formUserInputLogList'), get_field_id('label_new'), 'New', 'Label of the button that creates a new record.');
