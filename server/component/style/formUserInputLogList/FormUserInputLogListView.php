@@ -121,6 +121,9 @@ class FormUserInputLogListView extends FormUserInputView
      * DEBUG loads per-style js/css via BasePage::collect_style_includes().
      * Production uses gulp bundles (styles.min.js / styles.min.css).
      * Do not also push get_js_includes paths (would double-load in DEBUG).
+     *
+     * Debug UI: use StyleView::output_debug (universal). List payload is added
+     * in FormUserInputLogListModel::get_debug_data() for console via show_debug.js.
      */
 
     protected function output_list_section()

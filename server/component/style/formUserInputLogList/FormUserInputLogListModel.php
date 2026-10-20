@@ -38,6 +38,11 @@ class FormUserInputLogListModel extends FormUserInputModel
     private $list_rows = null;
 
     /**
+     * Raw list rows from get_data (before fields_map / values_map).
+     */
+    private $list_raw_rows = null;
+
+    /**
      * Column labels whose cells were built from values_map (trusted HTML).
      * Key = header label, value = true.
      */
@@ -200,6 +205,7 @@ class FormUserInputLogListModel extends FormUserInputModel
         $table_name = sprintf('%010d', $this->section_id);
         $form_id = $this->user_input->get_dataTable_id($table_name);
         if (!$form_id) {
+            $this->list_raw_rows = array();
             $this->list_rows = array();
             return $this->list_rows;
         }
@@ -219,9 +225,11 @@ class FormUserInputLogListModel extends FormUserInputModel
         $selected_columns = $this->build_list_selected_columns($fields_map, $values_map);
         $res = $this->user_input->get_data($form_id, $filter, $own, null, false, true, $selected_columns);
         if (!$res) {
+            $this->list_raw_rows = array();
             $this->list_rows = array();
             return $this->list_rows;
         }
+        $this->list_raw_rows = $res;
         if (count($fields_map) > 0) {
             $mappedRows = array();
             foreach ($res as $row) {
@@ -476,6 +484,33 @@ class FormUserInputLogListModel extends FormUserInputModel
     {
         $id = intval($this->section_id);
         return $id > 0 ? '#section-' . $id : '';
+    }
+
+    /**
+     * Extend style debug payload with list raw/mapped rows and map config.
+     * Consumed by StyleView::output_debug + show_debug.js (console.log).
+     *
+     * @return array
+     */
+    public function get_debug_data()
+    {
+        $data = parent::get_debug_data();
+        if (!is_array($data)) {
+            $data = array();
+        }
+        // Ensure list is built so raw/mapped rows are available.
+        $mapped = $this->get_list_rows();
+        $data['list_layout'] = $this->get_db_field('list_layout', formUserInputLogListLayouts_table);
+        $data['actions_position'] = $this->get_db_field(
+            'actions_position',
+            formUserInputLogListActionsPositions_right
+        );
+        $data['fields_map'] = $this->get_db_field('fields_map', array());
+        $data['values_map'] = $this->get_db_field('values_map', array());
+        $data['list_headers'] = $this->get_list_headers();
+        $data['list_raw_rows'] = $this->list_raw_rows !== null ? $this->list_raw_rows : array();
+        $data['list_rows'] = $mapped;
+        return $data;
     }
 
     /**
