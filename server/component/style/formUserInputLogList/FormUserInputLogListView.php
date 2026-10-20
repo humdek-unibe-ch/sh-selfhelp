@@ -27,6 +27,10 @@ class FormUserInputLogListView extends FormUserInputView
     private $ful_confirmation_message;
     private $ful_url_cancel;
     private $ful_label_cancel;
+    private $list_layout;
+    private $actions_position;
+    private $empty_title;
+    private $empty_text;
 
     public function __construct($model, $controller)
     {
@@ -50,6 +54,19 @@ class FormUserInputLogListView extends FormUserInputView
         if ($this->ful_url_cancel === '' && !$this->show_form_in_modal) {
             $this->ful_url_cancel = $this->model->get_list_url();
         }
+        $layout = $this->model->get_db_field("list_layout", formUserInputLogListLayouts_table);
+        $this->list_layout = ($layout === formUserInputLogListLayouts_cards)
+            ? formUserInputLogListLayouts_cards
+            : formUserInputLogListLayouts_table;
+        $actions_pos = $this->model->get_db_field(
+            "actions_position",
+            formUserInputLogListActionsPositions_right
+        );
+        $this->actions_position = ($actions_pos === formUserInputLogListActionsPositions_left)
+            ? formUserInputLogListActionsPositions_left
+            : formUserInputLogListActionsPositions_right;
+        $this->empty_title = $this->model->get_db_field("empty_title", '');
+        $this->empty_text = $this->model->get_db_field("empty_text", '');
     }
 
     public function output_content()
@@ -70,7 +87,12 @@ class FormUserInputLogListView extends FormUserInputView
             $this->output_missing();
             return;
         }
-        $root_css = trim($this->css . " formUserInputLogList");
+        $root_css = trim(
+            $this->css
+            . " formUserInputLogList"
+            . " formUserInputLogList-layout-" . $this->list_layout
+            . " formUserInputLogList-actions-" . $this->actions_position
+        );
         $config = $this->get_frontend_config();
         require __DIR__ . "/tpl/tpl_root.php";
     }
@@ -85,6 +107,10 @@ class FormUserInputLogListView extends FormUserInputView
         $style['label_new'] = $this->label_new;
         $style['label_edit'] = $this->label_edit;
         $style['label_delete'] = $this->label_delete;
+        $style['list_layout'] = $this->list_layout;
+        $style['actions_position'] = $this->actions_position;
+        $style['empty_title'] = $this->empty_title;
+        $style['empty_text'] = $this->empty_text;
         $style['url_param'] = $this->model->get_url_param_name();
         $style['record_access_denied'] = $this->model->is_record_access_denied();
         $style['is_log']['content'] = 1;
@@ -263,6 +289,55 @@ class FormUserInputLogListView extends FormUserInputView
         }
     }
 
+    /**
+     * Card-layout cell wrappers (div instead of td).
+     *
+     * @param array $row
+     * @param array $headers
+     */
+    protected function output_list_card_cells($row, $headers)
+    {
+        foreach ($headers as $header) {
+            $value = isset($row[$header]) ? $row[$header] : '';
+            $is_html = $this->model->is_list_header_html($header);
+            require __DIR__ . "/tpl/tpl_card_cell.php";
+        }
+    }
+
+    /**
+     * Edit / delete controls for a list row or card.
+     *
+     * @param int $record_id
+     */
+    protected function output_list_actions($record_id)
+    {
+        require __DIR__ . "/tpl/tpl_actions.php";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function has_list_actions()
+    {
+        return $this->can_delete || $this->label_edit !== '';
+    }
+
+    /**
+     * @return bool
+     */
+    protected function is_cards_layout()
+    {
+        return $this->list_layout === formUserInputLogListLayouts_cards;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function is_actions_left()
+    {
+        return $this->actions_position === formUserInputLogListActionsPositions_left;
+    }
+
     private function get_frontend_config()
     {
         return array(
@@ -279,6 +354,8 @@ class FormUserInputLogListView extends FormUserInputView
             'canDelete' => $this->can_delete,
             'labelNew' => $this->label_new,
             'labelEdit' => $this->label_edit,
+            'listLayout' => $this->list_layout,
+            'actionsPosition' => $this->actions_position,
         );
     }
 }
