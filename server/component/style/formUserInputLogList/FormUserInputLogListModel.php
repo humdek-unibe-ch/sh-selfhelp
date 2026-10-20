@@ -443,11 +443,12 @@ class FormUserInputLogListModel extends FormUserInputModel
         }
         unset($query[self::URL_RECORD_PARAM], $query[self::URL_SECTION_PARAM]);
         $qs = http_build_query($query);
-        return $path . ($qs !== '' ? '?' . $qs : '');
+        return $path . ($qs !== '' ? '?' . $qs : '') . $this->get_section_hash();
     }
 
     /**
-     * Deep-link for create/edit. Always includes sid=<this section id>.
+     * Deep-link for create/edit. Always includes sid=<this section id>
+     * and #section-<id> so the browser lands on this style.
      *
      * @param string|int $record_value
      * @return string
@@ -463,7 +464,18 @@ class FormUserInputLogListModel extends FormUserInputModel
         }
         $query[self::URL_RECORD_PARAM] = $record_value;
         $query[self::URL_SECTION_PARAM] = intval($this->section_id);
-        return $path . '?' . http_build_query($query);
+        return $path . '?' . http_build_query($query) . $this->get_section_hash();
+    }
+
+    /**
+     * Fragment pointing at this style's root element (`id="section-{id}"`).
+     *
+     * @return string
+     */
+    private function get_section_hash()
+    {
+        $id = intval($this->section_id);
+        return $id > 0 ? '#section-' . $id : '';
     }
 
     /**

@@ -20,8 +20,79 @@ function initFormUserInputLogList() {
         initFormUserInputLogListTable($root);
         initFormUserInputLogListDelete($root, config);
         initFormUserInputLogListModal($root, config);
+        initFormUserInputLogListDeepLinkFocus($root, config);
         initFormUserInputLogListAjax($root, config);
     });
+}
+
+/**
+ * On ?record=&sid= deep-links, scroll this list/form into view so the user
+ * is not left mid-page looking for the form (modal or page mode).
+ */
+function scrollFormUserInputLogListIntoView($root) {
+    if (!$root || !$root.length || !$root[0] || typeof $root[0].scrollIntoView !== 'function') {
+        return;
+    }
+    try {
+        $root[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+        $root[0].scrollIntoView(true);
+    }
+}
+
+function hasFormUserInputLogListDeepLink(config) {
+    return config.urlRecordRaw !== null
+        && config.urlRecordRaw !== undefined
+        && String(config.urlRecordRaw) !== '';
+}
+
+/**
+ * After save/cancel: drop ?record=&sid= and land on the list section.
+ * Always resolves the live DOM root — never scroll a detached jQuery node
+ * left over after soft-refresh replaceWith.
+ */
+function returnToFormUserInputLogListView(config) {
+    if (config.listUrl && window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', config.listUrl);
+    }
+    window.setTimeout(function () {
+        scrollFormUserInputLogListIntoView(findLiveFormUserInputLogListRoot(config));
+    }, 50);
+}
+
+function findLiveFormUserInputLogListRoot(config) {
+    var sectionClass = 'style-section-' + config.sectionId;
+    var $live = $('.' + sectionClass + '.formUserInputLogList').first();
+    if ($live.length === 0) {
+        $live = $('.formUserInputLogList.' + sectionClass).first();
+    }
+    return $live;
+}
+
+/**
+ * Tear down modal listeners before soft-refresh closes/replaces the root.
+ * Prevents hidden.bs.modal from racing with DOM replacement.
+ */
+function unbindFormUserInputLogListModalHandlers(config) {
+    if (!config.modalId) {
+        return $();
+    }
+    var $modal = $('#' + config.modalId);
+    if ($modal.length) {
+        $modal.off('.ful');
+        $modal.find('.form-cancel-btn').off('.ful');
+    }
+    return $modal;
+}
+
+function initFormUserInputLogListDeepLinkFocus($root, config) {
+    if (!hasFormUserInputLogListDeepLink(config)) {
+        return;
+    }
+    // Defer until after layout/modals so scroll targets the visible block.
+    window.setTimeout(function () {
+        scrollFormUserInputLogListIntoView($root);
+    }, 50);
 }
 
 function initFormUserInputLogListTable($root) {
@@ -96,37 +167,40 @@ function initFormUserInputLogListModal($root, config) {
         return;
     }
 
-    $root.find('.formUserInputLogList-btn-new').off('click.ful-new').on('click.ful-new', function () {
+    // Namespaced .ful so soft-refresh can unbind without touching Bootstrap internals.
+    $root.find('.formUserInputLogList-btn-new').off('click.ful').on('click.ful', function () {
         prepareFormUserInputLogListFormForCreate($root);
         $modal.find('.formUserInputLogList-modal-title').text(config.labelNew || 'New');
     });
 
     // Form cancel in modal dismisses instead of navigating (url is "#").
-    $modal.find('.form-cancel-btn').off('click.ful-cancel').on('click.ful-cancel', function (e) {
+    $modal.find('.form-cancel-btn').off('click.ful').on('click.ful', function (e) {
         e.preventDefault();
         $modal.modal('hide');
     });
 
-    if (config.urlRecordRaw !== null && config.urlRecordRaw !== undefined && String(config.urlRecordRaw) !== '') {
-        $modal.modal('show');
+    $modal.off('shown.bs.modal.ful').on('shown.bs.modal.ful', function () {
+        if (hasFormUserInputLogListDeepLink(config)) {
+            scrollFormUserInputLogListIntoView($root);
+        }
+    });
+
+    // User dismiss (Cancel / X / backdrop): clean URL + scroll to live list.
+    // Soft-refresh unbinds this handler before hide so it does not race replaceWith.
+    $modal.off('hidden.bs.modal.ful').on('hidden.bs.modal.ful', function () {
+        returnToFormUserInputLogListView(config);
+    });
+
+    if (hasFormUserInputLogListDeepLink(config)) {
+        scrollFormUserInputLogListIntoView($root);
         if (parseInt(config.urlRecordId, 10) > 0) {
             $modal.find('.formUserInputLogList-modal-title').text(config.labelEdit || 'Edit');
         } else {
             $modal.find('.formUserInputLogList-modal-title').text(config.labelNew || 'New');
             prepareFormUserInputLogListFormForCreate($root);
         }
+        $modal.modal('show');
     }
-
-    $modal.on('hidden.bs.modal', function () {
-        if (config.urlRecordRaw && config.listUrl) {
-            var current = window.location.pathname + (window.location.search || '');
-            if (current !== config.listUrl) {
-                if (window.history && window.history.replaceState) {
-                    window.history.replaceState({}, '', config.listUrl);
-                }
-            }
-        }
-    });
 }
 
 /**
@@ -373,6 +447,9 @@ function closeFormUserInputLogListModals(config) {
  * navigation to listUrl so the list is always visible.
  */
 function softRefreshFormUserInputLogList($root, htmlDoc, config) {
+    // Unbind first so modal('hide') cannot fire return-to-list against a root
+    // that we are about to detach/replace.
+    unbindFormUserInputLogListModalHandlers(config);
     closeFormUserInputLogListModals(config);
 
     var $newRoot = findFormUserInputLogListRoot(htmlDoc, config);
@@ -384,7 +461,7 @@ function softRefreshFormUserInputLogList($root, htmlDoc, config) {
     }
 
     // Page-form responses still include the form shell without a usable list —
-    // navigate hard so the user always lands on the list.
+    // navigate hard so the user always lands on the list (#section-… included).
     if ($newRoot.find('.formUserInputLogList-list').length === 0
         && $newRoot.find('.formUserInputLogList-table').length === 0) {
         window.location = listUrl;
@@ -392,9 +469,8 @@ function softRefreshFormUserInputLogList($root, htmlDoc, config) {
     }
 
     $root.replaceWith($newRoot);
-    if (listUrl && window.history && window.history.replaceState) {
-        window.history.replaceState({}, '', listUrl);
-    }
     // Re-bind this style (and leave other page forms to their own handlers).
     initFormUserInputLogList();
+    // Single return path after save (live root only).
+    returnToFormUserInputLogListView(config);
 }

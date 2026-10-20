@@ -189,15 +189,26 @@ class FormUserInputLogListView extends FormUserInputView
             ));
         }
         // Form cancel button needs both label and url (ButtonView skips empty).
-        // Modal: dismiss via JS; page: return to list / url_cancel.
+        // Modal: dismiss via JS (scrolls back to list); page: list URL with #section-id.
         if ($for_modal) {
             $cancel_label = $this->ful_label_cancel !== '' ? $this->ful_label_cancel : 'Cancel';
             $cancel_url = '#';
         } else {
             $cancel_label = $this->ful_label_cancel;
-            $cancel_url = $this->ful_url_cancel !== ''
-                ? $this->model->get_services()->get_router()->get_url($this->ful_url_cancel)
-                : $this->model->get_list_url();
+            $configured_cancel = $this->model->get_db_field("url_cancel", '');
+            if ($configured_cancel !== '') {
+                $cancel_url = $this->model->get_services()->get_router()->get_url($configured_cancel);
+                // Keep the section anchor when the router URL has no hash.
+                if (is_string($cancel_url) && strpos($cancel_url, '#') === false) {
+                    $hash = $this->model->get_list_url();
+                    $hash_pos = is_string($hash) ? strpos($hash, '#') : false;
+                    if ($hash_pos !== false) {
+                        $cancel_url .= substr($hash, $hash_pos);
+                    }
+                }
+            } else {
+                $cancel_url = $this->model->get_list_url();
+            }
         }
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $form = new BaseStyleComponent("form", array(
