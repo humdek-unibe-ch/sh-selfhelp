@@ -180,6 +180,9 @@ function initFormUserInputLogListModal($root, config) {
     });
 
     $modal.off('shown.bs.modal.ful').on('shown.bs.modal.ful', function () {
+        // Selects/IconSelect init on page load while the modal is display:none,
+        // so they often render blank (0-width). Refresh once the modal is visible.
+        refreshFormUserInputLogListModalWidgets($modal);
         if (hasFormUserInputLogListDeepLink(config)) {
             scrollFormUserInputLogListIntoView($root);
         }
@@ -193,6 +196,7 @@ function initFormUserInputLogListModal($root, config) {
 
     if (hasFormUserInputLogListDeepLink(config)) {
         scrollFormUserInputLogListIntoView($root);
+        // Clear/title before show so shown.bs.modal refresh sees the create state.
         if (parseInt(config.urlRecordId, 10) > 0) {
             $modal.find('.formUserInputLogList-modal-title').text(config.labelEdit || 'Edit');
         } else {
@@ -201,6 +205,41 @@ function initFormUserInputLogListModal($root, config) {
         }
         $modal.modal('show');
     }
+}
+
+/**
+ * Re-init / refresh form widgets that were built while the modal was hidden.
+ * - bootstrap-select (Status, etc.): selectpicker('refresh')
+ * - image_selector IconSelect: rebuild from data-values once visible
+ */
+function refreshFormUserInputLogListModalWidgets($modal) {
+    if (!$modal || !$modal.length) {
+        return;
+    }
+
+    $modal.find('select.bootstrapSelect').each(function () {
+        var $select = $(this);
+        if (typeof $select.selectpicker !== 'function') {
+            return;
+        }
+        if ($select.data('selectpicker')) {
+            $select.selectpicker('refresh');
+        } else {
+            $select.selectpicker({
+                showTick: true,
+                allowClear: true
+            });
+        }
+    });
+
+    // IconSelect replaces class with "icon-select"; match by id prefix from tpl_select_image.
+    $modal.find('[id^="selectImage-"]').each(function () {
+        if (typeof initSelectImage !== 'function') {
+            return;
+        }
+        $(this).off('changed');
+        initSelectImage(this);
+    });
 }
 
 /**
@@ -271,6 +310,10 @@ function clearFormUserInputLogListUserFields($form) {
                 $empty.prop('selected', true);
                 $empty[0].defaultSelected = true;
                 el.value = '';
+            }
+            // Visual refresh happens on modal shown (refreshFormUserInputLogListModalWidgets).
+            if ($(el).data('selectpicker') && typeof $(el).selectpicker === 'function') {
+                $(el).selectpicker('refresh');
             }
             return;
         }
