@@ -214,13 +214,9 @@ class FormUserInputLogListModel extends FormUserInputModel
             $values_map = array();
         }
         $this->list_html_headers = array();
-        $selected_columns = '';
-        if (count($fields_map) > 0) {
-            $cols = array_keys($fields_map);
-            $selected_columns = implode(',', array_filter(array_map('trim', $cols), function ($v) {
-                return $v !== '';
-            }));
-        }
+        // fields_map limits visible columns; still load any fields referenced by
+        // values_map templates (e.g. {{module}} inside the title template).
+        $selected_columns = $this->build_list_selected_columns($fields_map, $values_map);
         $res = $this->user_input->get_data($form_id, $filter, $own, null, false, true, $selected_columns);
         if (!$res) {
             $this->list_rows = array();
@@ -269,6 +265,49 @@ class FormUserInputLogListModel extends FormUserInputModel
             $this->list_rows = $mappedRows;
         }
         return $this->list_rows;
+    }
+
+    /**
+     * Columns to request from get_data.
+     * With fields_map: visible keys plus any {{field}} refs in values_map.
+     * Without fields_map: empty string = all columns.
+     *
+     * @param array $fields_map
+     * @param array $values_map
+     * @return string
+     */
+    private function build_list_selected_columns($fields_map, $values_map)
+    {
+        if (!is_array($fields_map) || count($fields_map) === 0) {
+            return '';
+        }
+        $cols = array();
+        foreach (array_keys($fields_map) as $field) {
+            $field = trim((string)$field);
+            if ($field !== '') {
+                $cols[$field] = true;
+            }
+        }
+        if (is_array($values_map)) {
+            foreach ($values_map as $field => $template) {
+                $field = trim((string)$field);
+                if ($field !== '') {
+                    $cols[$field] = true;
+                }
+                if (!is_string($template) || $template === '') {
+                    continue;
+                }
+                if (preg_match_all('/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/', $template, $matches)) {
+                    foreach ($matches[1] as $name) {
+                        if ($name === 'value' || $name === 'ASSET_PATH') {
+                            continue;
+                        }
+                        $cols[$name] = true;
+                    }
+                }
+            }
+        }
+        return implode(',', array_keys($cols));
     }
 
     /**
