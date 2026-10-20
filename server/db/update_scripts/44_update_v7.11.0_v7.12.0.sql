@@ -160,4 +160,18 @@ VALUES (get_style_id('formUserInputLogList'), get_field_id('delete_title'), 'Rem
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('formUserInputLogList'), get_field_id('delete_content'), 'Do you want to remove the entry?', 'Content of the delete confirmation modal.');
 
+-- Opt-in edit history: each successful update appends a JSON snapshot of the
+-- previous form field values into internal dataCol `_history_log` (underscore
+-- prefix keeps it out of Admin Data; list/edit UI also strip it).
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('history_log', get_field_type_id('checkbox'), 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (
+    get_style_id('formUserInputLogList'),
+    get_field_id('history_log'),
+    '0',
+    'If enabled, each edit appends a JSON snapshot of the previous form field values (plus entry_date, id_users, _edited_by) into the internal column `_history_log`. Not shown in the list, edit form, or Admin Data. Off by default; history starts from the next edit (no backfill).'
+);
+
 COMMIT;

@@ -59,6 +59,8 @@ class FormUserInputLogListModel extends FormUserInputModel
                     $this->get_db_field("own_entries_only", 1)
                 );
                 if ($record) {
+                    // Keep internal history out of children / interpolation.
+                    unset($record[USER_INPUT_HISTORY_LOG_COL]);
                     $this->set_entry_record(array_merge($this->get_entry_record() ?: array(), $record));
                     $this->loadChildren($this->get_entry_record());
                 } else {
@@ -77,6 +79,111 @@ class FormUserInputLogListModel extends FormUserInputModel
     public function is_log()
     {
         return true;
+    }
+
+    /**
+     * Create never writes history; strip client spoof of `_history_log`.
+     *
+     * @param array $user_input
+     * @return int|false
+     */
+    public function save_user_input($user_input)
+    {
+        unset($user_input[USER_INPUT_HISTORY_LOG_COL]);
+        return parent::save_user_input($user_input);
+    }
+
+    /**
+     * On update, optionally append a pre-edit snapshot to `_history_log`.
+     * Client-supplied `_history_log` is never trusted.
+     *
+     * @param array $user_input
+     * @param int $record_id
+     * @return int|false
+     */
+    public function update_user_input($user_input, $record_id)
+    {
+        unset($user_input[USER_INPUT_HISTORY_LOG_COL]);
+        if (!$this->get_db_field('history_log', 0)) {
+            return parent::update_user_input($user_input, $record_id);
+        }
+        $current = $this->get_form_entry_record(
+            $record_id,
+            $this->get_db_field('own_entries_only', 1)
+        );
+        // Do not update without a snapshot when history is required.
+        if (!is_array($current) || count($current) === 0) {
+            return false;
+        }
+        $history = $this->decode_history_log(
+            isset($current[USER_INPUT_HISTORY_LOG_COL])
+                ? $current[USER_INPUT_HISTORY_LOG_COL]
+                : null
+        );
+        $history[] = $this->build_history_snapshot($current);
+        $user_input[USER_INPUT_HISTORY_LOG_COL] = json_encode($history);
+        return parent::update_user_input($user_input, $record_id);
+    }
+
+    /**
+     * Build one history entry from the current row (pre-update values).
+     *
+     * @param array $row
+     * @return array
+     */
+    private function build_history_snapshot($row)
+    {
+        $exclude = array(
+            ENTRY_RECORD_ID => true,
+            'user_name' => true,
+            'user_code' => true,
+            'id_actionTriggerTypes' => true,
+            'triggerType' => true,
+            'trigger_type' => true,
+            USER_INPUT_HISTORY_LOG_COL => true,
+        );
+        $snapshot = array();
+        foreach ($row as $key => $value) {
+            if (isset($exclude[$key])) {
+                continue;
+            }
+            $snapshot[$key] = $value;
+        }
+        // Actor of this edit (underscore key avoids colliding with a form field).
+        $snapshot['_edited_by'] = isset($_SESSION['id_user'])
+            ? $_SESSION['id_user']
+            : GUEST_USER_ID;
+        return $snapshot;
+    }
+
+    /**
+     * @param mixed $raw
+     * @return array
+     */
+    private function decode_history_log($raw)
+    {
+        if ($raw === null || $raw === '') {
+            return array();
+        }
+        if (is_array($raw)) {
+            return $raw;
+        }
+        $decoded = json_decode((string)$raw, true);
+        return is_array($decoded) ? $decoded : array();
+    }
+
+    /**
+     * Remove `_history_log` from a list/debug row.
+     *
+     * @param array $row
+     * @return array
+     */
+    private function strip_history_log_from_row($row)
+    {
+        if (is_array($row)) {
+            unset($row[USER_INPUT_HISTORY_LOG_COL]);
+        }
+        return $row;
     }
 
     /**
@@ -229,13 +336,20 @@ class FormUserInputLogListModel extends FormUserInputModel
             $this->list_rows = array();
             return $this->list_rows;
         }
-        $this->list_raw_rows = $res;
+        $raw_rows = array();
+        foreach ($res as $row) {
+            $raw_rows[] = $this->strip_history_log_from_row($row);
+        }
+        $this->list_raw_rows = $raw_rows;
         if (count($fields_map) > 0) {
             $mappedRows = array();
-            foreach ($res as $row) {
+            foreach ($raw_rows as $row) {
                 $mappedRow = array();
                 $mappedRow[ENTRY_RECORD_ID] = $row[ENTRY_RECORD_ID];
                 foreach ($fields_map as $field => $label) {
+                    if ($field === USER_INPUT_HISTORY_LOG_COL) {
+                        continue;
+                    }
                     if (!array_key_exists($field, $row)) {
                         continue;
                     }
@@ -253,11 +367,14 @@ class FormUserInputLogListModel extends FormUserInputModel
         } else {
             // No fields_map: show all columns; still apply values_map by field name.
             $mappedRows = array();
-            foreach ($res as $row) {
+            foreach ($raw_rows as $row) {
                 $mappedRow = array();
                 foreach ($row as $field => $raw) {
                     if ($field === ENTRY_RECORD_ID) {
                         $mappedRow[ENTRY_RECORD_ID] = $raw;
+                        continue;
+                    }
+                    if ($field === USER_INPUT_HISTORY_LOG_COL) {
                         continue;
                     }
                     $mappedRow[$field] = $this->map_list_cell_value(
