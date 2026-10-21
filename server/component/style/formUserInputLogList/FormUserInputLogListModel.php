@@ -16,6 +16,56 @@ class FormUserInputLogListModel extends FormUserInputModel
 {
     const URL_RECORD_PARAM = 'record';
     const URL_SECTION_PARAM = 'sid';
+    const QUICK_ACTION_RESERVED = array('edit' => true, 'delete' => true);
+
+    /**
+     * System keys from get_data rows that must not become writable dataCols.
+     * id_users is kept on purpose so quick-action updates preserve row ownership.
+     */
+    const QUICK_ACTION_WRITE_EXCLUDE = array(
+        'record_id' => true,
+        'user_name' => true,
+        'user_code' => true,
+        'id_actionTriggerTypes' => true,
+        'triggerType' => true,
+        'trigger_type' => true,
+        'entry_date' => true,
+    );
+
+    /**
+     * Cached validated quick_actions for this instance.
+     *
+     * @var array|null
+     */
+    private $parsed_quick_actions = null;
+
+    /**
+     * Cached resolved actions_order keys.
+     *
+     * @var array|null
+     */
+    private $resolved_actions_order = null;
+
+    /**
+     * Config/validation issues for debug console.
+     *
+     * @var array
+     */
+    private $quick_action_issues = array();
+
+    /**
+     * Known form/dataCol field names for quick_actions when/set validation.
+     *
+     * @var array|null
+     */
+    private $known_data_fields = null;
+
+    /**
+     * record_id => raw list row (built once after get_list_rows).
+     *
+     * @var array|null
+     */
+    private $list_raw_rows_by_id = null;
 
     /**
      * Resolved record id from URL (-1 = none, 0 = new, >0 = edit).
@@ -313,6 +363,7 @@ class FormUserInputLogListModel extends FormUserInputModel
         $form_id = $this->user_input->get_dataTable_id($table_name);
         if (!$form_id) {
             $this->list_raw_rows = array();
+            $this->list_raw_rows_by_id = array();
             $this->list_rows = array();
             return $this->list_rows;
         }
@@ -333,6 +384,7 @@ class FormUserInputLogListModel extends FormUserInputModel
         $res = $this->user_input->get_data($form_id, $filter, $own, null, false, true, $selected_columns);
         if (!$res) {
             $this->list_raw_rows = array();
+            $this->list_raw_rows_by_id = array();
             $this->list_rows = array();
             return $this->list_rows;
         }
@@ -341,6 +393,7 @@ class FormUserInputLogListModel extends FormUserInputModel
             $raw_rows[] = $this->strip_history_log_from_row($row);
         }
         $this->list_raw_rows = $raw_rows;
+        $this->list_raw_rows_by_id = null;
         if (count($fields_map) > 0) {
             $mappedRows = array();
             foreach ($raw_rows as $row) {
@@ -394,7 +447,8 @@ class FormUserInputLogListModel extends FormUserInputModel
 
     /**
      * Columns to request from get_data.
-     * With fields_map: visible keys plus any {{field}} refs in values_map.
+     * With fields_map: visible keys plus any {{field}} refs in values_map
+     * and any when/set fields from quick_actions.
      * Without fields_map: empty string = all columns.
      *
      * @param array $fields_map
@@ -432,7 +486,533 @@ class FormUserInputLogListModel extends FormUserInputModel
                 }
             }
         }
+        foreach ($this->get_quick_action_data_fields() as $field) {
+            $cols[$field] = true;
+        }
         return implode(',', array_keys($cols));
+    }
+
+    /**
+     * Field names referenced by quick_actions when/set (for list column selection).
+     *
+     * @return array
+     */
+    private function get_quick_action_data_fields()
+    {
+        $fields = array();
+        foreach ($this->get_parsed_quick_actions() as $action) {
+            if (!empty($action['when']) && is_array($action['when'])) {
+                foreach (array_keys($action['when']) as $key) {
+                    $key = trim((string)$key);
+                    if ($key !== '') {
+                        $fields[$key] = true;
+                    }
+                }
+            }
+            if (!empty($action['set']) && is_array($action['set'])) {
+                foreach (array_keys($action['set']) as $key) {
+                    $key = trim((string)$key);
+                    if ($key !== '') {
+                        $fields[$key] = true;
+                    }
+                }
+            }
+        }
+        return array_keys($fields);
+    }
+
+    /**
+     * Validated quick actions (invalid entries omitted; issues in debug).
+     * Requires non-empty scalar when/set maps; unknown fields skip the action.
+     *
+     * @return array
+     */
+    public function get_parsed_quick_actions()
+    {
+        if ($this->parsed_quick_actions !== null) {
+            return $this->parsed_quick_actions;
+        }
+        $raw = $this->get_db_field('quick_actions', array());
+        if (!is_array($raw)) {
+            $raw = array();
+        }
+        $seen = array();
+        $actions = array();
+        foreach ($raw as $item) {
+            if (!is_array($item)) {
+                $this->add_quick_action_issue('invalid_action_entry', 'Non-object entry in quick_actions');
+                continue;
+            }
+            $id = isset($item['id']) ? trim((string)$item['id']) : '';
+            if ($id === '') {
+                $this->add_quick_action_issue('missing_id', 'quick_actions entry missing id');
+                continue;
+            }
+            if (isset(self::QUICK_ACTION_RESERVED[$id])) {
+                $this->add_quick_action_issue('reserved_id', 'Reserved id: ' . $id);
+                continue;
+            }
+            if (isset($seen[$id])) {
+                $this->add_quick_action_issue('duplicate_id', 'Duplicate id: ' . $id);
+                continue;
+            }
+            if (!isset($item['when']) || !is_array($item['when']) || count($item['when']) === 0) {
+                $this->add_quick_action_issue('empty_when', 'Missing or empty when for id: ' . $id);
+                continue;
+            }
+            $set_raw = isset($item['set']) && is_array($item['set']) ? $item['set'] : array();
+            if (count($set_raw) === 0) {
+                $this->add_quick_action_issue('empty_set', 'Empty set for id: ' . $id);
+                continue;
+            }
+            $when = $this->sanitize_quick_action_value_map($item['when'], $id, 'when');
+            if ($when === null) {
+                continue;
+            }
+            $set = $this->sanitize_quick_action_value_map($set_raw, $id, 'set');
+            if ($set === null) {
+                continue;
+            }
+            $unknown = $this->find_unknown_quick_action_fields($when, $set);
+            if (count($unknown) > 0) {
+                $this->add_quick_action_issue(
+                    'unknown_field',
+                    'Unknown data fields for id ' . $id . ': ' . implode(', ', $unknown)
+                );
+                continue;
+            }
+            $seen[$id] = true;
+            $actions[] = array(
+                'id' => $id,
+                'when' => $when,
+                'set' => $set,
+                'confirm' => !empty($item['confirm']),
+                'css' => isset($item['css']) ? trim((string)$item['css']) : '',
+            );
+        }
+        $this->parsed_quick_actions = $actions;
+        return $this->parsed_quick_actions;
+    }
+
+    /**
+     * Coerce when/set values to strings; reject arrays/objects.
+     *
+     * @param array $map
+     * @param string $id
+     * @param string $which when|set
+     * @return array|null
+     */
+    private function sanitize_quick_action_value_map($map, $id, $which)
+    {
+        $clean = array();
+        foreach ($map as $key => $value) {
+            $key = trim((string)$key);
+            if ($key === '') {
+                $this->add_quick_action_issue(
+                    'empty_' . $which . '_key',
+                    'Empty ' . $which . ' key for id: ' . $id
+                );
+                return null;
+            }
+            if (is_array($value) || is_object($value)) {
+                $this->add_quick_action_issue(
+                    'non_scalar_' . $which,
+                    'Non-scalar ' . $which . ' value for id ' . $id . ', field: ' . $key
+                );
+                return null;
+            }
+            if (is_bool($value)) {
+                $clean[$key] = $value ? '1' : '0';
+            } elseif ($value === null) {
+                $clean[$key] = '';
+            } else {
+                $clean[$key] = (string)$value;
+            }
+        }
+        return $clean;
+    }
+
+    /**
+     * Form field names (children) plus existing dataCols for this section table.
+     *
+     * @return array name => true
+     */
+    private function get_known_data_field_names()
+    {
+        if ($this->known_data_fields !== null) {
+            return $this->known_data_fields;
+        }
+        $known = array();
+        $this->collect_form_field_names_from_children($this->get_children(), $known);
+
+        $table_name = sprintf('%010d', $this->section_id);
+        $form_id = $this->user_input->get_dataTable_id($table_name);
+        if ($form_id) {
+            $rows = $this->db->query_db(
+                'SELECT `name` FROM dataCols WHERE id_dataTables = :tid',
+                array(':tid' => $form_id)
+            );
+            if (is_array($rows)) {
+                foreach ($rows as $row) {
+                    $name = isset($row['name']) ? trim((string)$row['name']) : '';
+                    if ($name === '' || $name === USER_INPUT_HISTORY_LOG_COL) {
+                        continue;
+                    }
+                    $known[$name] = true;
+                }
+            }
+        }
+        $this->known_data_fields = $known;
+        return $this->known_data_fields;
+    }
+
+    /**
+     * @param array $children
+     * @param array $known
+     */
+    private function collect_form_field_names_from_children($children, &$known)
+    {
+        if (!is_array($children)) {
+            return;
+        }
+        foreach ($children as $child) {
+            if (!is_object($child) || !method_exists($child, 'get_style_instance')) {
+                continue;
+            }
+            $style = $child->get_style_instance();
+            if (is_a($style, 'FormFieldComponent') && method_exists($style, 'get_view')) {
+                $view = $style->get_view();
+                if ($view && method_exists($view, 'get_name_base')) {
+                    $name = trim((string)$view->get_name_base());
+                    if ($name !== '' && $name !== '__form_name') {
+                        $known[$name] = true;
+                    }
+                }
+            }
+            if (method_exists($child, 'get_children')) {
+                $this->collect_form_field_names_from_children($child->get_children(), $known);
+            }
+        }
+    }
+
+    /**
+     * Keys in when/set that are not known form/dataCol fields.
+     *
+     * @param array $when
+     * @param array $set
+     * @return array
+     */
+    private function find_unknown_quick_action_fields($when, $set)
+    {
+        $known = $this->get_known_data_field_names();
+        $unknown = array();
+        foreach (array($when, $set) as $map) {
+            if (!is_array($map)) {
+                continue;
+            }
+            foreach (array_keys($map) as $key) {
+                $key = trim((string)$key);
+                if ($key === '' || !isset($known[$key])) {
+                    $unknown[$key === '' ? '(empty)' : $key] = true;
+                }
+            }
+        }
+        return array_keys($unknown);
+    }
+
+    /**
+     * @return array id => label string
+     */
+    public function get_quick_actions_labels()
+    {
+        $labels = $this->get_db_field('quick_actions_labels', array());
+        return is_array($labels) ? $labels : array();
+    }
+
+    /**
+     * Resolved action order keys (edit / delete / quick ids).
+     * Empty order → edit, all quick actions, delete.
+     * Non-empty order → listed keys only (de-duplicated); omitting edit/delete
+     * hides them. Unlisted quick action ids are appended at the end.
+     *
+     * @return array
+     */
+    public function get_resolved_actions_order()
+    {
+        if ($this->resolved_actions_order !== null) {
+            return $this->resolved_actions_order;
+        }
+        $order = $this->get_db_field('actions_order', array());
+        if (!is_array($order)) {
+            $order = array();
+        }
+        $quick_ids = array();
+        foreach ($this->get_parsed_quick_actions() as $action) {
+            $quick_ids[$action['id']] = true;
+        }
+        if (count($order) === 0) {
+            $resolved = array('edit');
+            foreach (array_keys($quick_ids) as $id) {
+                $resolved[] = $id;
+            }
+            $resolved[] = 'delete';
+            $this->resolved_actions_order = $resolved;
+            return $this->resolved_actions_order;
+        }
+        $resolved = array();
+        $seen = array();
+        $used_quick = array();
+        foreach ($order as $key) {
+            $key = trim((string)$key);
+            if ($key === '') {
+                continue;
+            }
+            if (isset($seen[$key])) {
+                $this->add_quick_action_issue('order_duplicate_key', 'Duplicate actions_order key: ' . $key);
+                continue;
+            }
+            if ($key === 'edit' || $key === 'delete') {
+                $resolved[] = $key;
+                $seen[$key] = true;
+                continue;
+            }
+            if (!isset($quick_ids[$key])) {
+                $this->add_quick_action_issue('order_unknown_key', 'Unknown actions_order key: ' . $key);
+                continue;
+            }
+            $resolved[] = $key;
+            $seen[$key] = true;
+            $used_quick[$key] = true;
+        }
+        // Append quick actions not listed in order (edit/delete stay omitted if unlisted).
+        foreach (array_keys($quick_ids) as $id) {
+            if (!isset($used_quick[$id])) {
+                $resolved[] = $id;
+            }
+        }
+        $this->resolved_actions_order = $resolved;
+        return $this->resolved_actions_order;
+    }
+
+    /**
+     * Whether a quick action's when clause matches a raw list/entry row.
+     * Empty when → no match (fail closed; parser also rejects empty when).
+     * Missing when-keys on the row → no match (action hidden).
+     *
+     * @param array $action
+     * @param array $row
+     * @return bool
+     */
+    public function quick_action_matches_row($action, $row)
+    {
+        if (!is_array($action) || !is_array($row)) {
+            return false;
+        }
+        $when = isset($action['when']) && is_array($action['when']) ? $action['when'] : array();
+        if (count($when) === 0) {
+            return false;
+        }
+        foreach ($when as $field => $expected) {
+            $field = trim((string)$field);
+            if ($field === '' || !array_key_exists($field, $row)) {
+                return false;
+            }
+            if ((string)$row[$field] !== (string)$expected) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Look up a validated action by id.
+     *
+     * @param string $id
+     * @return array|null
+     */
+    public function get_quick_action_by_id($id)
+    {
+        $id = trim((string)$id);
+        foreach ($this->get_parsed_quick_actions() as $action) {
+            if ($action['id'] === $id) {
+                return $action;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Build record_id => row index once after list fetch.
+     */
+    private function ensure_list_raw_index()
+    {
+        if ($this->list_raw_rows_by_id !== null) {
+            return;
+        }
+        if ($this->list_raw_rows === null) {
+            $this->get_list_rows();
+        }
+        $this->list_raw_rows_by_id = array();
+        if (!is_array($this->list_raw_rows)) {
+            return;
+        }
+        foreach ($this->list_raw_rows as $row) {
+            if (isset($row[ENTRY_RECORD_ID])) {
+                $this->list_raw_rows_by_id[intval($row[ENTRY_RECORD_ID])] = $row;
+            }
+        }
+    }
+
+    /**
+     * Raw list row (field names) for a record id, after get_list_rows().
+     *
+     * @param int $record_id
+     * @return array
+     */
+    public function get_list_raw_row($record_id)
+    {
+        $this->ensure_list_raw_index();
+        $record_id = intval($record_id);
+        return isset($this->list_raw_rows_by_id[$record_id])
+            ? $this->list_raw_rows_by_id[$record_id]
+            : array();
+    }
+
+    /**
+     * Merge current row + CMS set for a quick-action write.
+     * Full field map feeds formAction placeholders; id_users is preserved so
+     * ownership does not flip to the clicking admin. System get_data keys are
+     * stripped so they are not written as dataCols.
+     *
+     * @param array $current
+     * @param array $set
+     * @return array
+     */
+    public function build_quick_action_write_payload($current, $set)
+    {
+        $merged = array();
+        if (is_array($current)) {
+            foreach ($current as $key => $value) {
+                if (isset(self::QUICK_ACTION_WRITE_EXCLUDE[$key])) {
+                    continue;
+                }
+                if ($key === ENTRY_RECORD_ID || $key === USER_INPUT_HISTORY_LOG_COL) {
+                    continue;
+                }
+                if (is_array($value) || is_object($value)) {
+                    continue;
+                }
+                if ($value === null) {
+                    $merged[$key] = '';
+                } elseif (is_bool($value)) {
+                    $merged[$key] = $value ? '1' : '0';
+                } else {
+                    $merged[$key] = (string)$value;
+                }
+            }
+        }
+        if (is_array($set)) {
+            foreach ($set as $key => $value) {
+                $merged[$key] = $value;
+            }
+        }
+        return $merged;
+    }
+
+    /**
+     * Shared confirm UI strings from quick_actions_labels meta keys.
+     *
+     * @return array{ok:string,cancel:string,default_message:string}
+     */
+    public function get_quick_action_confirm_ui()
+    {
+        $labels = $this->get_quick_actions_labels();
+        return array(
+            'ok' => isset($labels['_ok']) && (string)$labels['_ok'] !== ''
+                ? (string)$labels['_ok']
+                : 'OK',
+            'cancel' => isset($labels['_cancel']) && (string)$labels['_cancel'] !== ''
+                ? (string)$labels['_cancel']
+                : 'Cancel',
+            'default_message' => isset($labels['_default_confirm'])
+                && (string)$labels['_default_confirm'] !== ''
+                ? (string)$labels['_default_confirm']
+                : 'Do you want to continue?',
+        );
+    }
+
+    /**
+     * Button label / confirm strings for an action id.
+     * Missing label falls back to a generic "Action" (never the raw id).
+     *
+     * @param string $id
+     * @return array{label:string,confirm_title:string,confirm_message:string}
+     */
+    public function get_quick_action_label_bundle($id)
+    {
+        $labels = $this->get_quick_actions_labels();
+        $ui = $this->get_quick_action_confirm_ui();
+        $id = trim((string)$id);
+        if (isset($labels[$id]) && (string)$labels[$id] !== '') {
+            $label = (string)$labels[$id];
+        } else {
+            $label = 'Action';
+            $this->add_quick_action_issue('missing_label', 'Missing label for id: ' . $id);
+        }
+        $confirm_title = isset($labels[$id . '_confirm_title'])
+            ? (string)$labels[$id . '_confirm_title']
+            : $label;
+        $confirm_message = isset($labels[$id . '_confirm'])
+            ? (string)$labels[$id . '_confirm']
+            : $ui['default_message'];
+        $action = $this->get_quick_action_by_id($id);
+        if ($action && !empty($action['confirm']) && !isset($labels[$id . '_confirm'])) {
+            $this->add_quick_action_issue('missing_confirm', 'Missing confirm message for id: ' . $id);
+        }
+        return array(
+            'label' => $label,
+            'confirm_title' => $confirm_title,
+            'confirm_message' => $confirm_message,
+        );
+    }
+
+    /**
+     * @return bool
+     */
+    public function has_quick_actions()
+    {
+        return count($this->get_parsed_quick_actions()) > 0;
+    }
+
+    /**
+     * @param string $code
+     * @param string $message
+     */
+    private function add_quick_action_issue($code, $message)
+    {
+        foreach ($this->quick_action_issues as $issue) {
+            if ($issue['code'] === $code && $issue['message'] === $message) {
+                return;
+            }
+        }
+        $this->quick_action_issues[] = array(
+            'code' => $code,
+            'message' => $message,
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function get_quick_action_issues()
+    {
+        // Force parse so issues from config are collected.
+        $this->get_parsed_quick_actions();
+        $this->get_resolved_actions_order();
+        foreach ($this->get_parsed_quick_actions() as $action) {
+            $this->get_quick_action_label_bundle($action['id']);
+        }
+        return $this->quick_action_issues;
     }
 
     /**
@@ -624,6 +1204,10 @@ class FormUserInputLogListModel extends FormUserInputModel
         );
         $data['fields_map'] = $this->get_db_field('fields_map', array());
         $data['values_map'] = $this->get_db_field('values_map', array());
+        $data['quick_actions'] = $this->get_parsed_quick_actions();
+        $data['quick_actions_labels'] = $this->get_quick_actions_labels();
+        $data['actions_order'] = $this->get_resolved_actions_order();
+        $data['quick_action_issues'] = $this->get_quick_action_issues();
         $data['list_headers'] = $this->get_list_headers();
         $data['list_raw_rows'] = $this->list_raw_rows !== null ? $this->list_raw_rows : array();
         $data['list_rows'] = $mapped;
