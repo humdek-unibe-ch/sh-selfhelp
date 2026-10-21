@@ -174,4 +174,42 @@ VALUES (
     'If enabled, each edit appends a JSON snapshot of the previous form field values (plus entry_date, id_users, _edited_by) into the internal column `_history_log`. Not shown in the list, edit form, or Admin Data. Off by default; history starts from the next edit (no backfill).'
 );
 
+-- Configurable row quick actions (status toggles, etc.)
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('quick_actions', get_field_type_id('json'), 0);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('quick_actions_labels', get_field_type_id('json'), 1);
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('actions_order', get_field_type_id('json'), 0);
+
+-- Upsert so re-running 44 refreshes help without duplicating the long strings.
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (
+    get_style_id('formUserInputLogList'),
+    get_field_id('quick_actions'),
+    '[]',
+    'Row quick actions (not translated). Each item needs `id`, non-empty `when` (field=value match; omitted/empty `when` skips the action), and non-empty `set` (fields to write; applied server-side only). Optional `confirm` (bool), optional `css`. Values in `when`/`set` must be scalars. Reserved ids: `edit`, `delete`. Missing/unknown data fields skip that action. Writes use trigger `updated` (not `finished`) and merge the current row with `set` for formAction placeholders; configure formActions with trigger Updated if they should run on toggles. Copy-paste example:\n```\n[\n  {\n    "id": "mark_done",\n    "when": { "status": "active" },\n    "set": { "status": "inactive" },\n    "confirm": false,\n    "css": "badge badge-info"\n  },\n  {\n    "id": "reactivate",\n    "when": { "status": "inactive" },\n    "set": { "status": "active" },\n    "confirm": false,\n    "css": "badge badge-secondary"\n  }\n]\n```'
+)
+ON DUPLICATE KEY UPDATE `help` = VALUES(`help`);
+
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (
+    get_style_id('formUserInputLogList'),
+    get_field_id('quick_actions_labels'),
+    '{}',
+    'Translated labels for quick actions (per language). Flat map:\n- `"<id>"` — button label (required; missing → generic \"Action\")\n- `"<id>_confirm"` — confirm message when `confirm` is true\n- `"<id>_confirm_title"` — optional confirm title (falls back to the button label)\n- `"_ok"` / `"_cancel"` / `"_default_confirm"` — shared confirm dialog strings\nExample:\n```\n{\n  "mark_done": "Als erledigt",\n  "mark_done_confirm": "Diesen Eintrag als erledigt markieren?",\n  "reactivate": "Reaktivieren",\n  "_ok": "OK",\n  "_cancel": "Abbrechen",\n  "_default_confirm": "Fortfahren?"\n}\n```'
+)
+ON DUPLICATE KEY UPDATE `help` = VALUES(`help`);
+
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (
+    get_style_id('formUserInputLogList'),
+    get_field_id('actions_order'),
+    '[]',
+    'Order of row actions (left-to-right / top-to-bottom). Reserved keys: `edit`, `delete`. Other keys must match `quick_actions[].id`. Empty = `edit`, then all quick actions, then `delete`. Non-empty: listed keys only (duplicates ignored); omit `edit`/`delete` to hide them. Unlisted quick-action ids are appended at the end. Example:\n```\n["edit", "mark_done", "reactivate", "delete"]\n```'
+)
+ON DUPLICATE KEY UPDATE `help` = VALUES(`help`);
+
 COMMIT;

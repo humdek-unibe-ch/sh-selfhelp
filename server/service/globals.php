@@ -30,6 +30,8 @@ define('MAX_USER_COUNT', 100000);
 define('ENTRY_RECORD_ID', 'record_id');
 define('SELECTED_RECORD_ID', 'selected_record_id');
 define('DELETE_RECORD_ID', 'delete_record_id');
+/** POST key for formUserInputLogList configurable row quick actions. */
+define('QUICK_ACTION_ID', 'quick_action_id');
 /** Internal dataCol: JSON array of pre-edit field snapshots (formUserInputLogList). */
 define('USER_INPUT_HISTORY_LOG_COL', '_history_log');
 
