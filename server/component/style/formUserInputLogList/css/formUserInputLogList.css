@@ -20,8 +20,9 @@
 
 .formUserInputLogList-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    justify-content: flex-start;
     gap: 0.5rem;
     white-space: nowrap;
 }
@@ -35,6 +36,42 @@
 
 .formUserInputLogList-btn-delete {
     cursor: pointer;
+    /* Keep trash on the trailing edge so missing quicks do not shift it left. */
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.formUserInputLogList-btn-edit {
+    flex: 0 0 auto;
+}
+
+.formUserInputLogList-btn-quick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    cursor: pointer;
+    text-decoration: none !important;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: #f3f5f7;
+    color: inherit;
+    white-space: nowrap;
+}
+
+.formUserInputLogList-btn-quick:hover,
+.formUserInputLogList-btn-quick:focus {
+    text-decoration: none !important;
+    background: #e8ecf0;
+}
+
+.formUserInputLogList-btn-quick.ful-quick-busy {
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .formUserInputLogList-modal .modal-body {
@@ -85,6 +122,8 @@
 .formUserInputLogList-layout-cards .formUserInputLogList-actions {
     flex: 0 0 auto;
     margin-left: auto;
+    /* Stable width so Öffnen / quick / delete line up across rows. */
+    min-width: 13.5rem;
 }
 
 .formUserInputLogList-layout-cards.formUserInputLogList-actions-left .formUserInputLogList-actions {
@@ -99,12 +138,23 @@
 
     .formUserInputLogList-layout-cards .formUserInputLogList-actions {
         width: 100%;
+        min-width: 0;
         margin-left: 0;
-        justify-content: flex-end;
+        justify-content: flex-start;
     }
 
     .formUserInputLogList-layout-cards.formUserInputLogList-actions-left .formUserInputLogList-actions {
         justify-content: flex-start;
+    }
+
+    .formUserInputLogList-layout-cards .formUserInputLogList-btn-edit,
+    .formUserInputLogList-layout-cards .formUserInputLogList-btn-quick {
+        flex: 1 1 auto;
+    }
+
+    .formUserInputLogList-layout-cards .formUserInputLogList-btn-delete {
+        margin-left: 0.5rem;
+        flex: 0 0 auto;
     }
 }
 
