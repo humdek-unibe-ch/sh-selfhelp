@@ -23,4 +23,5 @@ if ($this->controller !== null) {
     <?php $this->output_form_section(false); ?>
     <?php $this->output_form_modal(); ?>
     <?php $this->output_delete_modal(); ?>
+    <?php $this->output_quick_action_form(); ?>
 </div>

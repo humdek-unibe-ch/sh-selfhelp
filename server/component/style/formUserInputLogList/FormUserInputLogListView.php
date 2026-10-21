@@ -32,6 +32,13 @@ class FormUserInputLogListView extends FormUserInputView
     private $empty_title;
     private $empty_text;
 
+    /**
+     * Cached actions_order for this render (avoids re-resolving per row).
+     *
+     * @var array|null
+     */
+    private $actions_order_keys = null;
+
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
@@ -319,7 +326,7 @@ class FormUserInputLogListView extends FormUserInputView
     }
 
     /**
-     * Edit / delete controls for a list row or card.
+     * Edit / delete / quick-action controls for a list row or card.
      *
      * @param int $record_id
      */
@@ -329,11 +336,37 @@ class FormUserInputLogListView extends FormUserInputView
     }
 
     /**
+     * Resolved actions_order for this render (shared across all rows).
+     *
+     * @return array
+     */
+    protected function get_actions_order_keys()
+    {
+        if ($this->actions_order_keys === null) {
+            $this->actions_order_keys = $this->model->get_resolved_actions_order();
+        }
+        return $this->actions_order_keys;
+    }
+
+    /**
      * @return bool
      */
     protected function has_list_actions()
     {
-        return $this->can_delete || $this->label_edit !== '';
+        return $this->can_delete
+            || $this->label_edit !== ''
+            || $this->model->has_quick_actions();
+    }
+
+    /**
+     * Hidden form used by quick-action POSTs (AJAX or full submit).
+     */
+    protected function output_quick_action_form()
+    {
+        if (!$this->model->has_quick_actions()) {
+            return;
+        }
+        require __DIR__ . "/tpl/tpl_quick_action_form.php";
     }
 
     /**
@@ -354,6 +387,7 @@ class FormUserInputLogListView extends FormUserInputView
 
     private function get_frontend_config()
     {
+        $confirm_ui = $this->model->get_quick_action_confirm_ui();
         return array(
             'sectionId' => $this->id_section,
             'modalId' => $this->modal_id,
@@ -370,6 +404,10 @@ class FormUserInputLogListView extends FormUserInputView
             'labelEdit' => $this->label_edit,
             'listLayout' => $this->list_layout,
             'actionsPosition' => $this->actions_position,
+            'hasQuickActions' => $this->model->has_quick_actions(),
+            'quickConfirmOk' => $confirm_ui['ok'],
+            'quickConfirmCancel' => $confirm_ui['cancel'],
+            'quickConfirmDefault' => $confirm_ui['default_message'],
         );
     }
 }
