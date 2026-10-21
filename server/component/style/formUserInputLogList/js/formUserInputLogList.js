@@ -19,6 +19,7 @@ function initFormUserInputLogList() {
 
         initFormUserInputLogListTable($root);
         initFormUserInputLogListDelete($root, config);
+        initFormUserInputLogListQuickActions($root, config);
         initFormUserInputLogListModal($root, config);
         initFormUserInputLogListDeepLinkFocus($root, config);
         initFormUserInputLogListAjax($root, config);
@@ -153,6 +154,89 @@ function initFormUserInputLogListDelete($root, config) {
         }
         $input.val(recordId);
     });
+}
+
+/**
+ * Configurable row quick actions: optional confirm, then POST via the hidden
+ * quick form (AJAX soft-refresh or full reload depending on style ajax).
+ * Delegated from the root so rows DataTables detaches for pagination still work.
+ */
+function initFormUserInputLogListQuickActions($root, config) {
+    if (!config.hasQuickActions) {
+        return;
+    }
+    $root.off('click.fulQuick', '.formUserInputLogList-btn-quick').on('click.fulQuick', '.formUserInputLogList-btn-quick', function (e) {
+        e.preventDefault();
+        if ($root.data('ful-quick-busy')) {
+            return;
+        }
+        var $btn = $(this);
+        var actionId = String($btn.attr('data-action-id') || '');
+        var recordId = parseInt($btn.attr('data-record-id'), 10);
+        if (!actionId || !(recordId > 0)) {
+            return;
+        }
+        var defaultMsg = config.quickConfirmDefault || 'Do you want to continue?';
+        var okLabel = config.quickConfirmOk || 'OK';
+        var cancelLabel = config.quickConfirmCancel || 'Cancel';
+        var needsConfirm = String($btn.attr('data-confirm') || '') === '1';
+        var run = function () {
+            submitFormUserInputLogListQuickAction($root, config, actionId, recordId);
+        };
+        if (needsConfirm) {
+            if (typeof $.confirm !== 'function') {
+                if (window.confirm($btn.attr('data-confirm-message') || defaultMsg)) {
+                    run();
+                }
+                return;
+            }
+            $.confirm({
+                type: 'blue',
+                title: $btn.attr('data-confirm-title') || '',
+                content: $btn.attr('data-confirm-message') || defaultMsg,
+                buttons: {
+                    confirm: {
+                        text: okLabel,
+                        action: run
+                    },
+                    cancel: {
+                        text: cancelLabel,
+                        action: function () { }
+                    }
+                }
+            });
+            return;
+        }
+        run();
+    });
+}
+
+function setFormUserInputLogListQuickBusy($root, busy) {
+    $root.data('ful-quick-busy', !!busy);
+    $root.find('.formUserInputLogList-btn-quick').toggleClass('ful-quick-busy', !!busy);
+    if (busy) {
+        $root.find('.formUserInputLogList-btn-quick').attr('aria-disabled', 'true');
+    } else {
+        $root.find('.formUserInputLogList-btn-quick').removeAttr('aria-disabled');
+    }
+}
+
+function submitFormUserInputLogListQuickAction($root, config, actionId, recordId) {
+    if ($root.data('ful-quick-busy')) {
+        return;
+    }
+    var $form = $root.find('.formUserInputLogList-quick-form').first();
+    if ($form.length === 0) {
+        return;
+    }
+    setFormUserInputLogListQuickBusy($root, true);
+    $form.find('input[name="quick_action_id"]').val(actionId);
+    $form.find('input[name="selected_record_id"]').val(String(recordId));
+    if (config.listUrl) {
+        $form.attr('action', String(config.listUrl).split('#')[0]);
+    }
+    // Trigger the same fulAjax / native submit path as delete and edit forms.
+    $form.trigger('submit');
 }
 
 function initFormUserInputLogListModal($root, config) {
@@ -428,10 +512,25 @@ function submitFormUserInputLogListAjax($root, $form, config) {
                 $(element.btn).html(element.origLabel);
             });
 
+            var isQuick = $form.hasClass('formUserInputLogList-quick-form');
+
             if (hasFail) {
-                $(htmlDoc).find('.alert-danger').each(function () {
-                    $(this).insertBefore($form[0]);
-                });
+                // Quick actions: soft-refresh so row buttons match current when
+                // (stale clicks). Alerts come from the replaced root markup.
+                if (isQuick && $newRoot.length) {
+                    softRefreshFormUserInputLogList($root, htmlDoc, config, {
+                        preserveView: true
+                    });
+                    return;
+                }
+                if (isQuick) {
+                    setFormUserInputLogListQuickBusy($root, false);
+                }
+                placeFormUserInputLogListAjaxAlerts(
+                    $root,
+                    $form,
+                    $(htmlDoc).find('.alert-danger')
+                );
                 return;
             }
 
@@ -441,26 +540,66 @@ function submitFormUserInputLogListAjax($root, $form, config) {
             }
 
             if (hasSuccess) {
-                softRefreshFormUserInputLogList($root, htmlDoc, config);
+                softRefreshFormUserInputLogList($root, htmlDoc, config, {
+                    preserveView: isQuick
+                });
                 return;
             }
 
             // No explicit success/fail marker (e.g. empty alert_success): still return
             // to the list after a processed write with no danger alerts.
             if ($(htmlDoc).find('.alert-danger').length === 0) {
-                softRefreshFormUserInputLogList($root, htmlDoc, config);
+                softRefreshFormUserInputLogList($root, htmlDoc, config, {
+                    preserveView: isQuick
+                });
                 return;
             }
 
-            $(htmlDoc).find('.alert-danger, .alert-success').each(function () {
-                $(this).insertBefore($form[0]);
-            });
+            if (isQuick) {
+                setFormUserInputLogListQuickBusy($root, false);
+            }
+            placeFormUserInputLogListAjaxAlerts(
+                $root,
+                $form,
+                $(htmlDoc).find('.alert-danger, .alert-success')
+            );
         },
         error: function () {
             btnLabels.forEach(function (element) {
                 $(element.btn).html(element.origLabel);
             });
+            if ($form.hasClass('formUserInputLogList-quick-form')) {
+                setFormUserInputLogListQuickBusy($root, false);
+            }
         }
+    });
+}
+
+/**
+ * Insert AJAX alerts where they are visible. Quick-action posts use a hidden
+ * form at the end of the root — do not insertBefore that form.
+ */
+function placeFormUserInputLogListAjaxAlerts($root, $form, $alerts) {
+    if (!$alerts || !$alerts.length) {
+        return;
+    }
+    var useRoot = $form.hasClass('formUserInputLogList-quick-form');
+    if (useRoot) {
+        var $anchor = $root.find(
+            '.formUserInputLogList-list, .formUserInputLogList-table, .formUserInputLogList-cards, .formUserInputLogList-empty, .formUserInputLogList-toolbar'
+        ).first();
+        // Prepend in document order (reverse walk so first alert stays on top).
+        $($alerts.get().reverse()).each(function () {
+            if ($anchor.length) {
+                $(this).insertBefore($anchor[0]);
+            } else {
+                $root.prepend(this);
+            }
+        });
+        return;
+    }
+    $alerts.each(function () {
+        $(this).insertBefore($form[0]);
     });
 }
 
@@ -485,11 +624,69 @@ function closeFormUserInputLogListModals(config) {
 }
 
 /**
+ * Capture DataTables page/order/search so quick-action soft-refresh can restore them.
+ *
+ * @returns {Array<{page:number,order:*,search:string}>}
+ */
+function captureFormUserInputLogListTableState($root) {
+    var saved = [];
+    if (!$.fn.DataTable) {
+        return saved;
+    }
+    $root.find('.formUserInputLogList-table').each(function () {
+        if (!$.fn.DataTable.isDataTable(this)) {
+            saved.push(null);
+            return;
+        }
+        var api = $(this).DataTable();
+        saved.push({
+            page: api.page(),
+            order: api.order(),
+            search: api.search()
+        });
+    });
+    return saved;
+}
+
+function restoreFormUserInputLogListTableState($root, saved) {
+    if (!saved || !saved.length || !$.fn.DataTable) {
+        return;
+    }
+    $root.find('.formUserInputLogList-table').each(function (idx) {
+        if (!saved[idx] || !$.fn.DataTable.isDataTable(this)) {
+            return;
+        }
+        var api = $(this).DataTable();
+        var state = saved[idx];
+        if (typeof state.search === 'string') {
+            api.search(state.search);
+        }
+        if (state.order) {
+            api.order(state.order);
+        }
+        if (typeof state.page === 'number') {
+            api.page(state.page);
+        }
+        api.draw(false);
+    });
+}
+
+/**
  * After a successful write with no redirect_at_end: close modals and show the list.
  * Prefers soft-replacing the component from the AJAX HTML; falls back to a full
  * navigation to listUrl so the list is always visible.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.preserveView] Keep scroll + DataTables state (quick actions).
  */
-function softRefreshFormUserInputLogList($root, htmlDoc, config) {
+function softRefreshFormUserInputLogList($root, htmlDoc, config, options) {
+    options = options || {};
+    var preserveView = !!options.preserveView;
+    var savedTables = preserveView ? captureFormUserInputLogListTableState($root) : [];
+    var scrollY = preserveView
+        ? (window.scrollY || window.pageYOffset || 0)
+        : 0;
+
     // Unbind first so modal('hide') cannot fire return-to-list against a root
     // that we are about to detach/replace.
     unbindFormUserInputLogListModalHandlers(config);
@@ -514,6 +711,13 @@ function softRefreshFormUserInputLogList($root, htmlDoc, config) {
     $root.replaceWith($newRoot);
     // Re-bind this style (and leave other page forms to their own handlers).
     initFormUserInputLogList();
-    // Single return path after save (live root only).
+
+    if (preserveView) {
+        var $live = findLiveFormUserInputLogListRoot(config);
+        restoreFormUserInputLogListTableState($live, savedTables);
+        window.scrollTo(0, scrollY);
+        return;
+    }
+    // Single return path after create/edit/delete (live root only).
     returnToFormUserInputLogListView(config);
 }
