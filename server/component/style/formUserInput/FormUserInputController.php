@@ -206,6 +206,44 @@ class FormUserInputController extends BaseController
     {
     }
 
+    /**
+     * Trigger type stored on the row / passed to formActions for this write.
+     * Subclasses (e.g. quick actions) may return actionTriggerTypes_updated.
+     *
+     * @param int $selected_record_id
+     * @param int $delete_record_id
+     * @return string
+     */
+    protected function get_write_trigger_type($selected_record_id, $delete_record_id)
+    {
+        return actionTriggerTypes_finished;
+    }
+
+    /**
+     * Single hook for the write payload + trigger + decode flag.
+     * Called once from execute() after authorize_write. Subclasses that supply
+     * a prepared field map (e.g. CMS quick actions) override this instead of
+     * intercepting check_user_input / get_write_trigger_type separately.
+     *
+     * @param object $gump
+     * @param int $selected_record_id
+     * @param int $delete_record_id
+     * @return array{fields:mixed,trigger_type:string,decode:bool}
+     *  fields: false on GUMP failure, else field => value map (no trigger_type yet)
+     *  decode: when true, execute() runs the html_entity_decode / json round-trip
+     */
+    protected function prepare_write_data($gump, $selected_record_id, $delete_record_id)
+    {
+        return array(
+            'fields' => $this->check_user_input($gump),
+            'trigger_type' => $this->get_write_trigger_type(
+                $selected_record_id,
+                $delete_record_id
+            ),
+            'decode' => true,
+        );
+    }
+
     public function execute()
     {
         if (count($_POST) === 0) {
@@ -247,16 +285,25 @@ class FormUserInputController extends BaseController
         $this->alert_success = $this->model->get_db_field("alert_success");
         $this->alert_fail = $this->model->get_db_field("alert_fail", "");
         $gump = new GUMP('de');
-        $user_input = $this->check_user_input($gump);
-        if (is_array($user_input)) {
+        $write = $this->prepare_write_data($gump, $selected_record_id, $delete_record_id);
+        $user_input = isset($write['fields']) ? $write['fields'] : false;
+        if (is_array($user_input) && !empty($write['decode'])) {
             array_walk_recursive($user_input, function (&$v) {
                 $v = html_entity_decode($v, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             });
             $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
         }
-        $user_input['trigger_type'] = actionTriggerTypes_finished;
-        unset($user_input[DELETE_RECORD_ID]);
-        unset($user_input[SELECTED_RECORD_ID]);
+        if (!is_array($user_input)) {
+            $user_input = false;
+        } else {
+            $user_input['trigger_type'] = isset($write['trigger_type'])
+                ? $write['trigger_type']
+                : $this->get_write_trigger_type($selected_record_id, $delete_record_id);
+        }
+        if (is_array($user_input)) {
+            unset($user_input[DELETE_RECORD_ID]);
+            unset($user_input[SELECTED_RECORD_ID]);
+        }
         foreach ($_POST as $key => $value) {
             if (isset($_POST[$key]['id'])) {
                 $_POST[$key] = isset($value['value']) ? $value['value'] : '';
