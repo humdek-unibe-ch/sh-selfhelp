@@ -385,7 +385,16 @@ class FormUserInputLogListView extends FormUserInputView
         return $this->actions_position === formUserInputLogListActionsPositions_left;
     }
 
-    private function get_frontend_config()
+    /**
+     * New-record button. Extracted into a seam so inheriting styles can
+     * replace the CTA without duplicating tpl_list / tpl_empty.
+     */
+    protected function output_new_button()
+    {
+        require __DIR__ . "/tpl/tpl_new_button.php";
+    }
+
+    protected function get_frontend_config()
     {
         $confirm_ui = $this->model->get_quick_action_confirm_ui();
         return array(

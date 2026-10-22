@@ -15,6 +15,6 @@
         </p>
     <?php } ?>
     <div class="formUserInputLogList-empty-cta">
-        <?php require __DIR__ . "/tpl_new_button.php"; ?>
+        <?php $this->output_new_button(); ?>
     </div>
 </div>

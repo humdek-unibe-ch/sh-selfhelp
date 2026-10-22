@@ -9,7 +9,7 @@ $show_toolbar = !$is_empty;
 ?>
 <?php if ($show_toolbar) { ?>
 <div class="formUserInputLogList-toolbar mb-3">
-    <?php require __DIR__ . "/tpl_new_button.php"; ?>
+    <?php $this->output_new_button(); ?>
 </div>
 <?php } ?>
 <div class="formUserInputLogList-list">
