@@ -74,9 +74,31 @@
     opacity: 0.6;
 }
 
-.formUserInputLogList-modal .modal-body {
-    max-height: 70vh;
+/*
+ * Do not clip dropdowns inside the body: overflow-y:auto on .modal-body hid
+ * bootstrap-select menus (Status on edit). Scroll the modal shell instead;
+ * JS also attaches menus with container:body as a second line of defense.
+ */
+.formUserInputLogList-modal {
     overflow-y: auto;
+}
+
+.formUserInputLogList-modal .modal-content {
+    overflow: visible;
+}
+
+.formUserInputLogList-modal .modal-body {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 1.25rem;
+}
+
+/*
+ * bootstrap-select with container:body appends a .bs-container to <body>.
+ * Raise it above Bootstrap's .modal (1050) so the open list is clickable.
+ */
+body > .bs-container {
+    z-index: 2060 !important;
 }
 
 .formUserInputLogList-form {

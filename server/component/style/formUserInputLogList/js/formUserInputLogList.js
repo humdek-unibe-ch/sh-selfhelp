@@ -264,9 +264,11 @@ function initFormUserInputLogListModal($root, config) {
     });
 
     $modal.off('shown.bs.modal.ful').on('shown.bs.modal.ful', function () {
-        // Selects/IconSelect init on page load while the modal is display:none,
-        // so they often render blank (0-width). Refresh once the modal is visible.
-        refreshFormUserInputLogListModalWidgets($modal);
+        // Defer past other document.ready handlers (select.js) and layout so
+        // edit deep-link open gets the same working picker as a late "New" click.
+        window.setTimeout(function () {
+            refreshFormUserInputLogListModalWidgets($modal);
+        }, 0);
         if (hasFormUserInputLogListDeepLink(config)) {
             scrollFormUserInputLogListIntoView($root);
         }
@@ -287,13 +289,18 @@ function initFormUserInputLogListModal($root, config) {
             $modal.find('.formUserInputLogList-modal-title').text(config.labelNew || 'New');
             prepareFormUserInputLogListFormForCreate($root);
         }
-        $modal.modal('show');
+        // Defer show: opening during the same ready turn as select.js leaves
+        // edit-mode pickers without a body-attached menu (New click is later).
+        window.setTimeout(function () {
+            $modal.modal('show');
+        }, 0);
     }
 }
 
 /**
  * Re-init / refresh form widgets that were built while the modal was hidden.
- * - bootstrap-select (Status, etc.): selectpicker('refresh')
+ * - bootstrap-select (Status, etc.): destroy + re-init with container:body so the
+ *   dropdown menu is not clipped by .modal-body overflow / modal-content
  * - image_selector IconSelect: rebuild from data-values once visible
  */
 function refreshFormUserInputLogListModalWidgets($modal) {
@@ -302,28 +309,52 @@ function refreshFormUserInputLogListModalWidgets($modal) {
     }
 
     $modal.find('select.bootstrapSelect').each(function () {
-        var $select = $(this);
-        if (typeof $select.selectpicker !== 'function') {
-            return;
-        }
-        if ($select.data('selectpicker')) {
-            $select.selectpicker('refresh');
-        } else {
-            $select.selectpicker({
-                showTick: true,
-                allowClear: true
-            });
-        }
+        ensureFormUserInputLogListModalSelectpicker($(this));
     });
 
-    // IconSelect replaces class with "icon-select"; match by id prefix from tpl_select_image.
-    $modal.find('[id^="selectImage-"]').each(function () {
+    // Root only (.selectImage). Do not use [id^="selectImage-"] — IconSelect
+    // also creates #selectImage-N-box-scroll; re-initing that child breaks it.
+    $modal.find('.selectImage').each(function () {
         if (typeof initSelectImage !== 'function') {
             return;
         }
         $(this).off('changed');
         initSelectImage(this);
     });
+}
+
+/**
+ * bootstrap-select menus are position:absolute inside .modal-body. With
+ * overflow-y:auto (and page CSS overflow:hidden on .modal-content) the open
+ * list is clipped — especially for the last field (Status). Attach the menu
+ * to document.body instead.
+ *
+ * @param {jQuery} $select
+ */
+function ensureFormUserInputLogListModalSelectpicker($select) {
+    if (!$select || !$select.length || typeof $select.selectpicker !== 'function') {
+        return;
+    }
+    var options = {
+        showTick: true,
+        allowClear: true,
+        container: 'body'
+    };
+    var sizeAttr = $select.attr('data-size');
+    if (sizeAttr !== undefined && sizeAttr !== null && sizeAttr !== '') {
+        var parsedSize = parseInt(sizeAttr, 10);
+        options.size = isNaN(parsedSize) ? sizeAttr : parsedSize;
+    }
+    var picker = $select.data('selectpicker');
+    // Already correct (e.g. second shown refresh) — only refresh visuals.
+    if (picker && picker.options && picker.options.container === 'body') {
+        $select.selectpicker('refresh');
+        return;
+    }
+    if (picker) {
+        $select.selectpicker('destroy');
+    }
+    $select.selectpicker(options);
 }
 
 /**
