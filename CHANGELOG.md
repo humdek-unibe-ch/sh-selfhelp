@@ -6,6 +6,8 @@
  - Soft-delete (`UserInput::delete_data`, used by formUserInput / showUserInput / entryRecordDelete) queues formActions with trigger `deleted`. Existing queued jobs for that record are cancelled first so actions on delete can schedule new jobs without being cleared immediately.
  - Form updates pass the style’s `own_entries_only` into `save_data` (admins can update other users’ rows when that flag is off).
  - `get_form_entry_record` returns a single associative row for edit preload.
+ - **`formUserInputLogList` soft-refresh lifecycle events**: the AJAX soft-refresh dispatches `selfhelp:loglist:before-replace` on the old root (before it is replaced) and `selfhelp:loglist:after-replace` on the new root, each bubbling with `detail: {root, sectionId}`, so extensions that mount widgets inside the list can unmount/remount cleanly. No behavior change for existing sections.
+ - **`formUserInputLogList` extension seams**: `FormUserInputLogListView` extracts the New-record CTA into an overridable `output_new_button()` (used by `tpl_list`/`tpl_empty`) and widens `get_frontend_config()` to `protected`, so subclass styles (e.g. plugin interview styles) can replace the CTA or extend the frontend config without duplicating the list markup.
 
 # v7.11.4
 ### Improvement
