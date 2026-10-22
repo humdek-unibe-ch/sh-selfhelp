@@ -708,9 +708,21 @@ function softRefreshFormUserInputLogList($root, htmlDoc, config, options) {
         return;
     }
 
+    if ($root[0]) {
+        $root[0].dispatchEvent(new CustomEvent('selfhelp:loglist:before-replace', {
+            bubbles: true,
+            detail: { root: $root[0], sectionId: config.sectionId }
+        }));
+    }
     $root.replaceWith($newRoot);
     // Re-bind this style (and leave other page forms to their own handlers).
     initFormUserInputLogList();
+    if ($newRoot[0]) {
+        $newRoot[0].dispatchEvent(new CustomEvent('selfhelp:loglist:after-replace', {
+            bubbles: true,
+            detail: { root: $newRoot[0], sectionId: config.sectionId }
+        }));
+    }
 
     if (preserveView) {
         var $live = findLiveFormUserInputLogListRoot(config);
