@@ -12,13 +12,13 @@ $record_id = isset($row[ENTRY_RECORD_ID]) ? intval($row[ENTRY_RECORD_ID]) : 0;
 ?>
 <tr class="formUserInputLogList-row" data-record-id="<?php echo $record_id; ?>">
     <?php if ($this->has_list_actions() && $this->is_actions_left()) { ?>
-        <td class="formUserInputLogList-actions-cell">
+        <td class="formUserInputLogList-cell formUserInputLogList-actions-cell">
             <?php $this->output_list_actions($record_id); ?>
         </td>
     <?php } ?>
     <?php $this->output_list_row_cells($row, $headers); ?>
     <?php if ($this->has_list_actions() && !$this->is_actions_left()) { ?>
-        <td class="formUserInputLogList-actions-cell">
+        <td class="formUserInputLogList-cell formUserInputLogList-actions-cell">
             <?php $this->output_list_actions($record_id); ?>
         </td>
     <?php } ?>

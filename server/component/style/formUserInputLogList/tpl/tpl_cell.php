@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<td><?php
+<td class="formUserInputLogList-cell" data-field="<?php echo htmlspecialchars($this->model->get_list_header_field($header), ENT_QUOTES, 'UTF-8'); ?>"><?php
 if (!empty($is_html)) {
     // values_map template: CMS HTML trusted; row interpolations already escaped.
     echo $value;

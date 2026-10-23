@@ -20,16 +20,16 @@ $show_toolbar = !$is_empty;
             <?php $this->output_list_rows($rows, $headers); ?>
         </div>
     <?php } else { ?>
-        <div class="table-responsive">
+        <div class="table-responsive formUserInputLogList-table-wrap">
             <table class="table formUserInputLogList-table <?php echo htmlspecialchars($this->css); ?>">
                 <thead>
                     <tr>
                         <?php if ($this->has_list_actions() && $this->is_actions_left()) { ?>
-                            <th class="formUserInputLogList-actions-col"></th>
+                            <th class="formUserInputLogList-col formUserInputLogList-actions-col"></th>
                         <?php } ?>
                         <?php $this->output_list_header_cells($headers); ?>
                         <?php if ($this->has_list_actions() && !$this->is_actions_left()) { ?>
-                            <th class="formUserInputLogList-actions-col"></th>
+                            <th class="formUserInputLogList-col formUserInputLogList-actions-col"></th>
                         <?php } ?>
                     </tr>
                 </thead>
