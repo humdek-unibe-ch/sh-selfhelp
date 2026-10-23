@@ -96,6 +96,27 @@ function initFormUserInputLogListDeepLinkFocus($root, config) {
     }, 50);
 }
 
+/**
+ * DataTables rounds every column width up to a whole pixel, so a scroll table
+ * that just fits ends up a few pixels wider than its box and shows a stray
+ * scrollbar. Such a table may shrink to its box (CSS: .ful-dt-fit); a table
+ * that really overflows keeps scrolling with aligned header and body columns.
+ *
+ * @param {jQuery} $table the DataTable's body table
+ */
+function fitFormUserInputLogListTable($table) {
+    var $wrapper = $table.closest('.dataTables_wrapper');
+    var body = $wrapper.find('.dataTables_scrollBody')[0];
+    if (!body) {
+        return;
+    }
+    $wrapper.removeClass('ful-dt-fit');
+    var overflow = body.scrollWidth - body.clientWidth;
+    if (overflow > 0 && overflow <= $table.find('thead th').length) {
+        $wrapper.addClass('ful-dt-fit');
+    }
+}
+
 function initFormUserInputLogListTable($root) {
     $root.find('.formUserInputLogList-table').each(function () {
         var $table = $(this);
@@ -139,6 +160,10 @@ function initFormUserInputLogListTable($root) {
             }
         }
 
+        // Also fires when DataTables re-measures (window resize, redraw).
+        $table.on('init.dt draw.dt column-sizing.dt', function () {
+            fitFormUserInputLogListTable($table);
+        });
         $table.DataTable(dataTableConfig);
     });
 }
