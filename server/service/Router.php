@@ -209,6 +209,14 @@ class Router extends AltoRouter {
             if (isset($query_params['action'])) {
                 return false; // This is an API request, not a frontend page
             }
+            // Parameters starting with `__` (e.g. a plugin's `__llm_interview_action`) mark
+            // background JSON/AJAX calls that only share the URL of their page. They are
+            // never a page to send the user back to.
+            foreach (array_keys($query_params) as $param_name) {
+                if (strpos((string)$param_name, '__') === 0) {
+                    return false;
+                }
+            }
         }
         
         // Additional check: Exclude URLs that look like API endpoints based on path patterns
@@ -442,10 +450,32 @@ class Router extends AltoRouter {
         ));
 
         $skip_last_url = is_array($override) && !empty($override['skip_last_url']);
-        if (!$skip_last_url) {
+        if (!$skip_last_url && $this->is_document_request()) {
             // Update user's last visited URL
             $this->update_user_last_url($_SESSION['id_user'], $_SERVER['REQUEST_URI']);
         }
+    }
+
+    /**
+     * Whether the current request is a browser page navigation, as opposed to a background
+     * fetch/XHR (e.g. a plugin's JSON protocol on the page URL). Only navigations are pages a
+     * user can be sent back to after login. Browsers label every request with Fetch Metadata;
+     * the X-Requested-With and Accept checks cover clients that do not send it.
+     *
+     * @retval bool
+     *  True for a page navigation (or when the request cannot be classified).
+     */
+    private function is_document_request()
+    {
+        $dest = strtolower($_SERVER['HTTP_SEC_FETCH_DEST'] ?? '');
+        if ($dest !== '') {
+            return $dest === 'document';
+        }
+        if (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') {
+            return false;
+        }
+        $accept = strtolower($_SERVER['HTTP_ACCEPT'] ?? '');
+        return $accept === '' || strpos($accept, 'text/html') !== false || strpos($accept, '*/*') !== false;
     }
 
     /**
