@@ -208,3 +208,249 @@ body > .bs-container {
 .formUserInputLogList-empty-cta {
     margin-top: 0.5rem;
 }
+
+/* ==========================================================================
+ * Default look
+ *
+ * A finished look for both layouts (table / cards) and the form modals, built
+ * on Bootstrap 4 tokens only (--primary, #dee2e6, #f8f9fa, #6c757d). The
+ * llmFormLogList style shows exactly the same look.
+ *
+ * - Every rule is scoped with :not(.formUserInputLogList-bare *): a list that
+ *   carries `formUserInputLogList-bare` (add it to the section's CSS field)
+ *   gets none of the look and keeps the structure only. Use it for fully
+ *   custom lists.
+ * - The look rules have class-level specificity (0,2,0), so a rule such as
+ *   `.my-list .formUserInputLogList-card { ... }` loaded after this file
+ *   overrides them.
+ * - Theme it with custom properties on the section, a wrapper or :root:
+ *     --ful-accent    hover / active colour         (default: Bootstrap --primary)
+ *     --ful-border    outlines and dividers         (default: #dee2e6)
+ *     --ful-surface   table and card background     (default: #fff)
+ *     --ful-muted     table headers, card labels    (default: #6c757d)
+ *     --ful-radius    corner radius                 (default: 0.5rem)
+ *   The rules read the private aliases --_ful-* declared below. A style that
+ *   extends the list (e.g. llmFormLogList) can feed its own theme in by
+ *   redefining the aliases on its root with a higher specificity.
+ * - Styling hooks: -table-wrap, -col, -cell, -row, -actions-col, -actions-cell,
+ *   -card, -card-body, -card-cell, -btn-edit, -btn-quick, -btn-delete, -modal,
+ *   -delete-modal. Every column carries data-field="<fields_map key>" (stable)
+ *   and every card cell data-header="<label>" (translated).
+ * - Maintainers: no :where(), :is() or :has() in this file. The gulp build
+ *   minifies with csso 2, which cannot parse them and aborts.
+ * ========================================================================== */
+.formUserInputLogList {
+    --_ful-accent: var(--ful-accent, var(--primary, #007bff));
+    --_ful-border: var(--ful-border, #dee2e6);
+    --_ful-surface: var(--ful-surface, #fff);
+    --_ful-muted: var(--ful-muted, #6c757d);
+    --_ful-radius: var(--ful-radius, 0.5rem);
+}
+
+.formUserInputLogList-list:not(.formUserInputLogList-bare *) {
+    margin-bottom: 1rem;
+}
+
+/* The edit action */
+.formUserInputLogList-btn-edit:not(.formUserInputLogList-bare *) {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--_ful-accent);
+    border-radius: 999px;
+    color: var(--_ful-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.formUserInputLogList-btn-edit:not(.formUserInputLogList-bare *):hover,
+.formUserInputLogList-btn-edit:not(.formUserInputLogList-bare *):focus {
+    background-color: var(--_ful-accent);
+    color: #fff;
+    text-decoration: none;
+}
+
+.formUserInputLogList-actions-right .formUserInputLogList-actions:not(.formUserInputLogList-bare *) {
+    justify-content: flex-end;
+}
+
+/* Table: one bordered, rounded box (the table-responsive wrapper) */
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) {
+    border: 1px solid var(--_ful-border);
+    border-radius: var(--_ful-radius);
+    background: var(--_ful-surface);
+    overflow: hidden;
+}
+
+.formUserInputLogList-table:not(.formUserInputLogList-bare *) {
+    margin-bottom: 0;
+}
+
+.formUserInputLogList-col:not(.formUserInputLogList-bare *) {
+    padding: 0.7rem 1rem;
+    border-top: 0;
+    border-bottom: 1px solid var(--_ful-border);
+    background-color: #f8f9fa;
+    color: var(--_ful-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.formUserInputLogList-cell:not(.formUserInputLogList-bare *) {
+    padding: 0.8rem 1rem;
+    border-top: 1px solid #eef0f2;
+    vertical-align: middle;
+}
+
+.formUserInputLogList-row:first-child .formUserInputLogList-cell:not(.formUserInputLogList-bare *) {
+    border-top: 0;
+}
+
+.formUserInputLogList-row:hover .formUserInputLogList-cell:not(.formUserInputLogList-bare *) {
+    background-color: rgba(0, 0, 0, 0.025);
+}
+
+.formUserInputLogList-actions-right .formUserInputLogList-actions-col:not(.formUserInputLogList-bare *),
+.formUserInputLogList-actions-right .formUserInputLogList-actions-cell:not(.formUserInputLogList-bare *) {
+    text-align: right;
+}
+
+/* DataTables controls (search, page length, info, paging) sit inside the box.
+ * The hairlines that separate them from the table are shadows, so they are
+ * clipped by the box (and vanish) when a controls row is switched off. */
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_wrapper > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_wrapper > .row > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_length,
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_filter,
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_info,
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_paginate {
+    padding: 0.5rem 1rem;
+}
+
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_scrollHead {
+    box-shadow: 0 -1px 0 var(--_ful-border);
+}
+
+.formUserInputLogList-table-wrap:not(.formUserInputLogList-bare *) .dataTables_scrollBody {
+    box-shadow: 0 1px 0 var(--_ful-border);
+}
+
+/* Cards: one finished card per entry, label above value */
+.formUserInputLogList-card:not(.formUserInputLogList-bare *) {
+    padding: 0.875rem 1.125rem;
+    border: 1px solid var(--_ful-border);
+    border-radius: var(--_ful-radius);
+    background: var(--_ful-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.formUserInputLogList-card:not(.formUserInputLogList-bare *):hover {
+    border-color: var(--_ful-accent);
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+/* Top-aligned, so an empty cell does not centre its label between its neighbours */
+.formUserInputLogList-card-body:not(.formUserInputLogList-bare *) {
+    align-items: flex-start;
+}
+
+.formUserInputLogList-card-cell:not(.formUserInputLogList-bare *) {
+    /* equal columns, so the values line up from card to card */
+    flex: 1 1 9rem;
+    display: flex;
+    flex-direction: column;
+    /* no stretching: an image keeps its proportions */
+    align-items: flex-start;
+    gap: 0.1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.formUserInputLogList-card-cell:not(.formUserInputLogList-bare *)::before {
+    content: attr(data-header);
+    color: var(--_ful-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.formUserInputLogList-card-cell[data-header=""]:not(.formUserInputLogList-bare *)::before {
+    display: none;
+}
+
+/* Form modals (edit/new and delete): same window as the LLM workspace */
+.formUserInputLogList-modal:not(.formUserInputLogList-bare *) .modal-content,
+.formUserInputLogList-delete-modal:not(.formUserInputLogList-bare *) .modal-content {
+    border: 0;
+    border-radius: var(--_ful-radius);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+}
+
+.formUserInputLogList-modal:not(.formUserInputLogList-bare *) .modal-header,
+.formUserInputLogList-delete-modal:not(.formUserInputLogList-bare *) .modal-header {
+    /* same side padding as Bootstrap's .modal-body, so title and labels line up */
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--_ful-border);
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+}
+
+.formUserInputLogList-modal:not(.formUserInputLogList-bare *) .modal-title,
+.formUserInputLogList-delete-modal:not(.formUserInputLogList-bare *) .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .formUserInputLogList-btn-edit:not(.formUserInputLogList-bare *),
+    .formUserInputLogList-card:not(.formUserInputLogList-bare *) {
+        transition: none;
+    }
+}
+
+/* DataTables fixes for the table above. They have to out-rank the DataTables
+ * stylesheet, hence the longer selectors.
+ *
+ * DataTables reserves room for sort icons on the header cells (and puts an
+ * arrow on column 0 even when ordering is off), which makes the separately
+ * laid out header and body columns drift apart. Columns that cannot be sorted
+ * get neither icon nor room. */
+.formUserInputLogList-table.dataTable thead th.sorting_disabled:not(.formUserInputLogList-bare *) {
+    padding-right: 1rem;
+}
+
+.formUserInputLogList-table.dataTable thead th.sorting_disabled:not(.formUserInputLogList-bare *)::before,
+.formUserInputLogList-table.dataTable thead th.sorting_disabled:not(.formUserInputLogList-bare *)::after {
+    display: none;
+}
+
+/* A table that just fits is a few pixels wider than its box and would show a
+ * stray scrollbar (its own stylesheet pins `max-width: none !important`).
+ * formUserInputLogList.js marks such a table .ful-dt-fit; a table that really
+ * overflows is left alone, so it keeps scrolling with aligned columns. */
+.ful-dt-fit .dataTables_scrollHeadInner:not(.formUserInputLogList-bare *) {
+    max-width: 100%;
+}
+
+.ful-dt-fit .dataTables_scrollHeadInner:not(.formUserInputLogList-bare *) > table,
+.ful-dt-fit .dataTables_scrollBody:not(.formUserInputLogList-bare *) > table {
+    max-width: 100% !important;
+}
