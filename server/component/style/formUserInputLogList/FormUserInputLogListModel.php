@@ -98,6 +98,11 @@ class FormUserInputLogListModel extends FormUserInputModel
      */
     private $list_html_headers = array();
 
+    /**
+     * Header label => fields_map key (built lazily, first label wins).
+     */
+    private $list_header_fields = null;
+
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
@@ -1132,6 +1137,32 @@ class FormUserInputLogListModel extends FormUserInputModel
             $headers[] = $key;
         }
         return $headers;
+    }
+
+    /**
+     * Field name behind a list header (the fields_map key). Rendered as
+     * data-field so custom CSS can target a column without depending on its
+     * translated label. Without fields_map the header already is the field.
+     *
+     * @param string $header
+     * @return string
+     */
+    public function get_list_header_field($header)
+    {
+        if ($this->list_header_fields === null) {
+            $this->list_header_fields = array();
+            $fields_map = $this->get_db_field('fields_map', array());
+            if (is_array($fields_map)) {
+                foreach ($fields_map as $field => $label) {
+                    if (is_scalar($label) && !isset($this->list_header_fields[(string)$label])) {
+                        $this->list_header_fields[(string)$label] = (string)$field;
+                    }
+                }
+            }
+        }
+        return isset($this->list_header_fields[$header])
+            ? $this->list_header_fields[$header]
+            : (string)$header;
     }
 
     /**
