@@ -484,7 +484,7 @@ class Login
             return $default_url;
 
         // Priority 2: use last_url from the DB (source of truth for last visited page)
-        $sql = "SELECT last_url FROM users WHERE id = :uid";
+        $sql = "SELECT last_url, second_last_url FROM users WHERE id = :uid";
         $url_db = $this->db->query_db_first($sql,
             array(':uid' => $_SESSION['id_user']));
 
@@ -492,10 +492,14 @@ class Login
         // stale or invalid values (e.g. an old `login` or
         // `two-factor-authentication` URL stored before URL filtering existed)
         // that would otherwise bounce the user straight back to the login page
-        // right after a successful 2FA verification.
-        if($url_db && !empty($url_db['last_url'])) {
-            if($router === null || $router->is_frontend_page($url_db['last_url'])) {
-                return $url_db['last_url'];
+        // right after a successful 2FA verification. An unusable last_url falls
+        // back to the page visited before it, then to the default.
+        if($url_db) {
+            foreach(array('last_url', 'second_last_url') as $column) {
+                if(!empty($url_db[$column])
+                        && ($router === null || $router->is_frontend_page($url_db[$column]))) {
+                    return $url_db[$column];
+                }
             }
         }
 
