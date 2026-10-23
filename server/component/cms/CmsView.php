@@ -895,7 +895,13 @@ class CmsView extends BaseView
         if(in_array($field['type'],
                 array("text", "number", "markdown-inline", "time", "date", "password")))
             $children[] = new BaseStyleComponent("input", array(
-                "value" => isset($field['content']) ? htmlspecialchars($field['content']) : '',
+                // `text` values are stored already HTML-escaped (CmsUpdateController::secure_field).
+                // Escaping the stored value a second time showed the entities in the input and every
+                // further save escaped them again (`&amp;` -> `&amp;amp;` -> ...). Decode first so the
+                // attribute is escaped exactly once and the save/display round trip is stable.
+                "value" => isset($field['content'])
+                    ? htmlspecialchars($field['type'] === "text" ? htmlspecialchars_decode($field['content']) : $field['content'])
+                    : '',
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
                 "is_required" => isset($field['is_required']) ? $field['is_required'] : 0,
