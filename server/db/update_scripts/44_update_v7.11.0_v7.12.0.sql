@@ -93,7 +93,21 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 VALUES (get_style_id('formUserInputLogList'), get_field_id('show_form_in_modal'), '1', 'If enabled (default), create/edit opens the form in a Bootstrap modal while the list stays visible. If disabled, create/edit replaces the list with the form only (`?record=`).');
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
-VALUES (get_style_id('formUserInputLogList'), get_field_id('filter'), '', 'Optional SQL filter appended when loading list data (same idea as entryList). Leave empty to load all allowed records.');
+VALUES (get_style_id('formUserInputLogList'), get_field_id('filter'), '', 'Optional SQL filter appended when loading list data (same idea as entryList). Leave empty to load all allowed records. URL parameters declared in `extra_params` can be used, e.g. `AND status = ''{{__list_status__}}''`.');
+
+-- URL parameters (StyleModel::accept_url_params): the names, with defaults, the
+-- style accepts from the URL. Same notation as `extra_params` of the
+-- qualtricsSurvey style (the field row is shared), but incoming.
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`)
+VALUES ('extra_params', get_field_type_id('text'), 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
+VALUES (
+    get_style_id('formUserInputLogList'),
+    get_field_id('extra_params'),
+    '',
+    'URL parameters this style accepts, as `name=default&name2=default2` (the notation of `extra_params` of the Qualtrics survey, but incoming). Per name the value is the route parameter, else `?name=` of the page URL, else the default; an empty value counts as absent. The default may use `{{...}}` placeholders (entry record, `{{__earlier_name__}}`). Every declared name is always defined, empty if absent: use `{{__name__}}` in this style and in all its children (`filter`, `data_config`, `css`, texts, button `url`) and `#name` in a `data_config`, e.g. `AND module_id = ''{{__module_id__}}''`. Names: letters, digits and `_`, starting with a letter. Values: letters, digits, `_`, `.` and `-` (max 64), anything else is ignored. Reserved names: `record`, `sid`, `section_id`, `parent_id`, `relation`. Example: `module_id=&list_status=active` with the link `?module_id=module_1`.'
+);
 
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('formUserInputLogList'), get_field_id('fields_map'), '', 'Map which columns appear in the list. Use the field name as key and the column label as value. Only mapped fields are shown. This field is translatable (`display=1`), so each language can show a different set/labels. Example:\n```\n{\n  "title": "Title",\n  "timestamp": "Entry Date"\n}\n```');
