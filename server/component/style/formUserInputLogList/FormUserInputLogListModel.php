@@ -33,6 +33,12 @@ class FormUserInputLogListModel extends FormUserInputModel
     );
 
     /**
+     * URL parameters are declared in the field `extra_params`, see
+     * StyleModel::accept_url_params().
+     */
+    protected $url_params_field = 'extra_params';
+
+    /**
      * Cached validated quick_actions for this instance.
      *
      * @var array|null
