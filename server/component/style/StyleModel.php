@@ -15,6 +15,26 @@ require_once __DIR__ . "/BaseStyleModel.php";
  */
 class StyleModel extends BaseModel implements IStyleModel
 {
+    /* Constants **************************************************************/
+
+    /**
+     * An accepted URL parameter name: starts with a letter, so it can never
+     * collide with the `__` prefixed internal query keys.
+     */
+    const URL_PARAM_NAME_PATTERN = '/^[A-Za-z][A-Za-z0-9_]{0,63}$/';
+
+    /**
+     * An accepted URL parameter value: ids and keys only. The values end up
+     * in raw SQL fragments (`filter`) and in JSON (`data_config`), anything
+     * else counts as absent.
+     */
+    const URL_PARAM_VALUE_PATTERN = '/^[A-Za-z0-9_.-]{0,64}$/';
+
+    /**
+     * Names the core already uses in the query string of style URLs.
+     */
+    const URL_PARAM_RESERVED = array('record', 'sid', 'section_id', 'parent_id', 'relation');
+
     /* Private Properties *****************************************************/
 
     /**
@@ -87,6 +107,18 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected $interpolation_data;
 
+    /**
+     * The name of the text field that declares the URL parameters this style
+     * accepts (`name=default&name2=default2`), or null if it accepts none.
+     * Opt-in per model, see accept_url_params().
+     */
+    protected $url_params_field = null;
+
+    /**
+     * The accepted URL parameters (name => value), see accept_url_params().
+     */
+    protected $url_params = array();
+
     /* Constructors ***********************************************************/
 
     /**
@@ -138,6 +170,10 @@ class StyleModel extends BaseModel implements IStyleModel
             "type" => "internal",
         );                                
         $fields = $this->db->fetch_section_fields($this->section_id);
+        if ($this->url_params_field !== null && !$this->is_cms_page()) {
+            // before set_db_fields(): every field may use {{__name__}}
+            $this->accept_url_params($fields);
+        }
         $this->set_db_fields($fields);   
         if(!$this->style_name){
             return;
@@ -206,6 +242,106 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->children[$child['name']] = new StyleComponent($this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
         }
     }           
+
+    /**
+     * Accept the URL parameters declared in the field `$url_params_field`
+     * (text, `name=default&name2=default2`, same notation as `extra_params`
+     * of the Qualtrics survey, but incoming) and make them available to this
+     * style and all its descendants.
+     *
+     * Per declared name the value is, in this order: a parameter of that name
+     * already in `$this->params` (route parameter or a parameter a parent
+     * style accepted), `?name=` of the query string, the default. A default
+     * may contain placeholders, they are resolved against the entry record
+     * and the global variables (earlier declared names included). Empty
+     * values count as absent; names and values that do not match
+     * URL_PARAM_NAME_PATTERN / URL_PARAM_VALUE_PATTERN as well.
+     *
+     * Every declared name is always defined, possibly as an empty string, and
+     * written into `$this->params`: `{{__name__}}` works in every field of the
+     * style and of its descendants (filter, data_config, css, texts) and
+     * `#name` in a data_config. This matters, a filter that still contains
+     * `{{` is dropped by UserInput::get_data() and lists everything.
+     *
+     * Must run before set_db_fields() so every field can use the values.
+     *
+     * @param array $fields
+     *  The section fields as returned by PageDb::fetch_section_fields().
+     */
+    protected function accept_url_params($fields)
+    {
+        $declaration = '';
+        foreach ($fields as $field) {
+            if ($field['name'] === $this->url_params_field) {
+                $declaration = (string)$field['content'];
+                break;
+            }
+        }
+        // the CMS stores text fields HTML-escaped (`&` as `&amp;`)
+        $declaration = trim(htmlspecialchars_decode($declaration, ENT_QUOTES));
+        $accepted = array();
+        if ($declaration !== '') {
+            $reserved = $this->url_params_reserved();
+            foreach (explode('&', $declaration) as $pair) {
+                $parts = explode('=', $pair, 2);
+                $name = trim($parts[0]);
+                if (!preg_match(self::URL_PARAM_NAME_PATTERN, $name)
+                        || in_array($name, $reserved, true)
+                        || isset($accepted[$name])) {
+                    continue;
+                }
+                $value = $this->url_param_value($this->params[$name] ?? null);
+                if ($value === '') {
+                    $value = $this->url_param_value($_GET[$name] ?? null);
+                }
+                if ($value === '') {
+                    $default = trim($parts[1] ?? '');
+                    if (strpos($default, '{{') !== false) {
+                        if ($this->entry_record) {
+                            $default = $this->get_entry_value($this->entry_record, $default);
+                        }
+                        $default = $this->db->replace_calced_values($default, $this->get_global_vars());
+                    }
+                    $value = $this->url_param_value($default);
+                }
+                $accepted[$name] = $value;
+                // later declared defaults, fields and children see it
+                $this->params[$name] = $value;
+            }
+        }
+        $this->url_params = $accepted;
+    }
+
+    /**
+     * Validate a raw URL parameter value.
+     *
+     * @param mixed $raw
+     *  The raw value: route parameter, query string value or default.
+     * @retval string
+     *  The value, or the empty string if it is absent, not a scalar or does
+     *  not match URL_PARAM_VALUE_PATTERN.
+     */
+    private function url_param_value($raw)
+    {
+        if (!is_string($raw) && !is_int($raw)) {
+            return '';
+        }
+        $raw = (string)$raw;
+        return preg_match(self::URL_PARAM_VALUE_PATTERN, $raw) ? $raw : '';
+    }
+
+    /**
+     * The names a style must not accept as URL parameter because its own
+     * endpoints already use them in the query string. A style overrides this
+     * to add the names of its own endpoints.
+     *
+     * @retval array
+     *  The reserved names.
+     */
+    protected function url_params_reserved()
+    {
+        return self::URL_PARAM_RESERVED;
+    }
 
     /**
      * Parse the page params and if they are needed in the config they are replaced with their values
@@ -835,6 +971,17 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         return $global_vars;
     }    
+
+    /**
+     * Get the URL parameters this style accepted, see accept_url_params().
+     *
+     * @retval array
+     *  name => value, every declared name is present (possibly '').
+     */
+    public function get_url_params()
+    {
+        return $this->url_params;
+    }
 
     /**
      * Sets the entry record.
