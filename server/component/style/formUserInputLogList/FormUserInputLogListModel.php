@@ -1069,6 +1069,9 @@ class FormUserInputLogListModel extends FormUserInputModel
      * Apply a values_map template. CMS template is trusted; row values are escaped.
      *
      * Placeholders: {{value}}, {{ASSET_PATH}}, {{field_name}} from the same row.
+     * Global Values resolve last, so a key can be built from a row value:
+     * {{woop_{{module_id}}_title}} -> {{woop_module_1_title}} -> the text of the
+     * user's language (a list of codes with translated labels).
      *
      * @param string $template
      * @param mixed $value
@@ -1090,7 +1093,9 @@ class FormUserInputLogListModel extends FormUserInputModel
                 $replacements['{{' . $field . '}}'] = $this->escape_list_template_value($field_value, false);
             }
         }
-        return strtr($template, $replacements);
+        $html = strtr($template, $replacements);
+        $global_values = $this->db->get_global_values();
+        return $global_values ? $this->db->replace_calced_values($html, $global_values) : $html;
     }
 
     /**
@@ -1119,7 +1124,9 @@ class FormUserInputLogListModel extends FormUserInputModel
                 return '';
             }
         }
-        return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+        // Braces become entities (same on screen): row text can never form a {{placeholder}}
+        // for the Global Values pass of apply_list_value_template().
+        return str_replace(array('{', '}'), array('&#123;', '&#125;'), htmlspecialchars($str, ENT_QUOTES, 'UTF-8'));
     }
 
     /**
