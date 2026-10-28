@@ -5,6 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
+    <?php $this->output_result(); ?>
     <div class="jumbotron">
         <h1>Import <?php echo $this->type; ?></h1>
         <p>Browse for the JSON file you want to import in the CMS.</p>
@@ -15,7 +16,7 @@
         </div>
         <div class="card-body">
             <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg mr-3"></i>Uploading the file to the server</div>
-            <form id="cmsImportJson" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
+            <form id="cmsImportJson" class="cms-import-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
                 <div class="row">
                     <div class="form-group col">
                         <label>File</label>
@@ -25,9 +26,16 @@
                         </div>
                     </div>
                 </div>
+                <?php if ($this->type == 'page') { ?>
+                <div class="form-group">
+                    <label for="page_keyword">Keyword of the new page</label>
+                    <input id="page_keyword" type="text" class="form-control" name="page_keyword" pattern="[a-zA-Z0-9_\-]+" maxlength="100" placeholder="Leave empty to use the keyword from the file">
+                    <small class="form-text text-muted">The page is created as a new page with a copy of all its sections.</small>
+                </div>
+                <?php } ?>
                 <input id='json' name='json' type="hidden" />
-                <input id='dbVersion' type="hidden" value='<?php $this->get_db_version(); ?>' />
-                <input id='appVersion' type="hidden" value='<?php $this->get_app_version(); ?>' />
+                <input id='dbVersion' class="cms-import-db-version" type="hidden" value='<?php $this->get_db_version(); ?>' />
+                <input id='appVersion' class="cms-import-app-version" type="hidden" value='<?php $this->get_app_version(); ?>' />
                 <button id="ui-import-section-btn" type="submit" class="btn btn-primary">Import</button>
                 <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
             </form>

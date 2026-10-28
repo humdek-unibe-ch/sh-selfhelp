@@ -48,6 +48,27 @@ class CmsImportView extends BaseView
         $this->output_controller_alerts_success();
     }
 
+    /**
+     * Render the result of a successful import. The hidden marker is read by
+     * the javascript of the CMS UI after an ajax import; the link is for the
+     * stand-alone import page.
+     */
+    private function output_result()
+    {
+        if ($this->model->imported_section_id) {
+            echo '<input type="hidden" id="cms-import-result" data-type="section" data-id="' . intval($this->model->imported_section_id) . '">';
+        }
+        if ($this->model->imported_page_id) {
+            $url = $this->model->get_link_url("cmsUpdate", array(
+                "pid" => $this->model->imported_page_id,
+                "mode" => "update",
+                "type" => "prop",
+            ));
+            echo '<input type="hidden" id="cms-import-result" data-type="page" data-id="' . intval($this->model->imported_page_id) . '" data-url="' . htmlspecialchars($url) . '">';
+            echo '<p><a class="btn btn-success" href="' . htmlspecialchars($url) . '">Open the imported page</a></p>';
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
