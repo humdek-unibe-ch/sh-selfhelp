@@ -11,7 +11,46 @@ require_once __DIR__ . "/../BaseModel.php";
  */
 class CmsModel extends BaseModel
 {
+    /* Constants **************************************************************/
+
+    /**
+     * The values of a field of the type `type-input`. This is the only list:
+     * it feeds the dropdown of the editor and it is used to validate the
+     * values of the editor and of the import.
+     */
+    const TYPE_INPUT_VALUES = array(
+        "anonymous-holder",
+        "checkbox",
+        "color",
+        "date",
+        "datetime",
+        "datetime-local",
+        "email",
+        "hidden",
+        "month",
+        "number",
+        "password",
+        "range",
+        "search",
+        "tel",
+        "text",
+        "time",
+        "url",
+        "week",
+    );
+
+    /**
+     * The protocols (http methods) a page can be requested with.
+     */
+    const PAGE_PROTOCOLS = array("GET", "POST", "PUT", "PATCH", "DELETE");
+
     /* Private Properties *****************************************************/
+
+    /**
+     * The reason why the last link operation (insert, remove or move of a
+     * section link) was refused. See CmsModel::get_link_error.
+     */
+    private $link_error = null;
 
     /**
      * All sections the user has select access to. The access rights of sections
@@ -51,6 +90,12 @@ class CmsModel extends BaseModel
      * The current acl mode, i.e. 'select', 'insert', 'update', 'delete'.
      */
     private $mode;
+
+    /**
+     * The acl mode the page was requested with. In contrast to $mode it is
+     * not changed to 'select' after a successful change.
+     */
+    private $requested_mode;
 
     /**
      * The current update mode, i.e. 'insert', 'update', 'delete'.
@@ -111,6 +156,12 @@ class CmsModel extends BaseModel
      */
     private $id_delete;
 
+    /**
+     * The ids of all sections of the outline which is built by
+     * CmsModel::get_page_outline.
+     */
+    private $outline_ids;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -140,6 +191,7 @@ class CmsModel extends BaseModel
         parent::__construct($services);
         $this->id_cms_page = $id_cms_page;
         $this->mode = $mode;
+        $this->requested_mode = $mode;
         $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
         $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0)
             ?  intval($params["sid"]) : null;
@@ -580,20 +632,176 @@ class CmsModel extends BaseModel
     }    
 
     /**
-     * Get the current last position of a list of children.
+     * Describe where the list of a relation is stored.
      *
-     * @param array $sections
-     *  The list of sections where the last position computed.
-     * @retval int
-     *  The last position number from the database or 0 if the list is empty.
+     * @param string $relation
+     *  The database relation, e.g. RELATION_SECTION_CHILDREN.
+     * @param int $id_page
+     *  The id of the page the list belongs to.
+     * @param int $id_parent
+     *  The id of the parent section. The parent of the lists of a page is the
+     *  page itself (children) and the navigation section of the page
+     *  (navigation), this parameter is ignored in these cases.
+     * @retval mixed
+     *  An array with the keys 'table', 'parent_col', 'child_col', 'id_parent'
+     *  and 'fixed' (more columns which each row of the list has) or false for
+     *  an unknown relation.
      */
-    private function get_last_position($sections)
+    protected function get_link_target($relation, $id_page, $id_parent)
     {
-        $count = count($sections);
-        if($count > 0)
-            return intval($sections[$count-1]['position']) + 10;
-        else
-            return 0;
+        $id_page = intval($id_page);
+        if ($relation == RELATION_PAGE_CHILDREN) {
+            return array("table" => "pages_sections", "parent_col" => "id_pages", "child_col" => "id_sections",
+                "id_parent" => $id_page, "fixed" => array());
+        }
+        if ($relation == RELATION_SECTION_CHILDREN) {
+            return array("table" => "sections_hierarchy", "parent_col" => "parent", "child_col" => "child",
+                "id_parent" => intval($id_parent), "fixed" => array());
+        }
+        if ($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV) {
+            if ($relation == RELATION_PAGE_NAV) {
+                $info = ($id_page == $this->id_page) ? $this->page_info : $this->db->fetch_page_info_by_id($id_page);
+                $id_parent = $info ? $info["id_navigation_section"] : null;
+            }
+            return array("table" => "sections_navigation", "parent_col" => "parent", "child_col" => "child",
+                "id_parent" => intval($id_parent), "fixed" => array("id_pages" => $id_page));
+        }
+        return false;
+    }
+
+    /**
+     * Get the position after the last entry of a list.
+     *
+     * @param array $target
+     *  The description of the list, see CmsModel::get_link_target.
+     * @retval int
+     *  The last position of the list plus 10 or 0 if the list is empty.
+     */
+    protected function get_next_position($target)
+    {
+        $row = $this->db->query_db_first(
+            "SELECT MAX(position) AS last FROM " . $target['table'] . " WHERE " . $target['parent_col'] . " = :parent",
+            array(":parent" => $target['id_parent'])
+        );
+        return ($row && $row['last'] !== null) ? intval($row['last']) + 10 : 0;
+    }
+
+    /**
+     * Checks whether a section is in a list.
+     *
+     * @param array $target
+     *  The description of the list, see CmsModel::get_link_target.
+     * @param int $id_section
+     *  The id of the section.
+     * @retval bool
+     *  True if the list contains the section.
+     */
+    private function has_link($target, $id_section)
+    {
+        return (bool)$this->db->query_db_first(
+            "SELECT 1 AS found FROM " . $target['table'] . " WHERE " . $target['parent_col'] . " = :parent AND "
+            . $target['child_col'] . " = :child",
+            array(":parent" => $target['id_parent'], ":child" => intval($id_section))
+        );
+    }
+
+    /**
+     * Checks whether a section is part of a page: the page lists the section
+     * directly or through one of its ancestors. The editor and the import get
+     * the ids of the parents from the request, this check makes sure a
+     * request can only change what belongs to the page the user may edit.
+     *
+     * @param int $id_section
+     *  The id of the section.
+     * @param int $id_page
+     *  The id of the page.
+     * @retval bool
+     *  True if the section is part of the page, false otherwise (also if the
+     *  database failed).
+     */
+    protected function is_section_on_page($id_section, $id_page)
+    {
+        $lineage = $this->db->fetch_section_lineage($id_section);
+        return $lineage !== false && in_array(intval($id_page), $lineage['pages'], true);
+    }
+
+    /**
+     * Checks whether a section belongs to the page that is currently edited
+     * (directly or through an ancestor). Used by CmsComponent::has_access so a
+     * freshly added section is accepted even if the hierarchical page_sections
+     * list is still incomplete.
+     *
+     * @param int $id_section
+     *  The id of the section.
+     * @retval bool
+     *  True if the section is used on the active page.
+     */
+    public function section_belongs_to_active_page($id_section)
+    {
+        $id_page = $this->get_active_page_id();
+        return $id_page && $this->is_section_on_page($id_section, $id_page);
+    }
+
+    /**
+     * Checks whether adding a section as child of another section would
+     * create a circular reference, i.e. the section is already the parent
+     * (on any level) of the new parent.
+     *
+     * @param int $id_section
+     *  The id of the section which would become the child.
+     * @param int $id_parent
+     *  The id of the section which would become the parent.
+     * @retval bool
+     *  True if the link must not be created (also if the database failed).
+     */
+    protected function creates_cycle($id_section, $id_parent)
+    {
+        if (intval($id_section) === intval($id_parent)) {
+            return true;
+        }
+        $lineage = $this->db->fetch_section_lineage($id_parent);
+        return $lineage === false || in_array(intval($id_section), $lineage['sections'], true);
+    }
+
+    /**
+     * Checks whether a section may be added to a list. Lists of sections must
+     * belong to the page which is edited and a section cannot be placed inside
+     * itself (or inside one of its children). The reason is stored if the
+     * check fails.
+     *
+     * @param array $target
+     *  The description of the list, see CmsModel::get_link_target.
+     * @param int $id_section
+     *  The id of the section which will be added.
+     * @retval bool
+     *  True if the section can be added to the list.
+     */
+    private function check_link_target($target, $id_section)
+    {
+        if ($target['table'] === "pages_sections") {
+            return true; // the page is the page which is edited
+        }
+        if (!$this->is_section_on_page($target['id_parent'], $this->get_active_page_id())) {
+            return $this->refuse_link("The target section does not belong to this page.");
+        }
+        if ($this->creates_cycle($id_section, $target['id_parent'])) {
+            return $this->refuse_link("A section cannot be placed inside itself or inside one of its own children (circular reference).");
+        }
+        return true;
+    }
+
+    /**
+     * Store the reason why a link operation was refused.
+     *
+     * @param string $reason
+     *  The reason.
+     * @retval bool
+     *  Always false.
+     */
+    private function refuse_link($reason)
+    {
+        $this->link_error = $reason;
+        return false;
     }
 
     /**
@@ -1084,6 +1292,20 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to export the current page
+     * with all its sections. Only pages with sections can be exported.
+     *
+     * @retval bool
+     *  True if the current user can export the current page, false otherwise.
+     */
+    public function can_export_page()
+    {
+        return $this->page_info && $this->page_info['action'] === 'sections'
+            && $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsExport"));
+    }
+
+    /**
      * Inserts a new page to the bd and sets the basic access rights.
      *
      * @param string $keyword
@@ -1328,6 +1550,19 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Get the acl mode the page was requested with. After a successful change
+     * the controller switches the current mode to 'select' (see get_mode()),
+     * this mode stays as it was requested.
+     *
+     * @retval string
+     *  The acl mode of the request.
+     */
+    public function get_requested_mode()
+    {
+        return $this->requested_mode;
+    }
+
+    /**
      * Fetch navigation sections from the database and return a heirarchical
      * array such that it can be passed to a list style. If the current page
      * is NOT a navigation page, return an empty array.
@@ -1484,6 +1719,298 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch all styles and the information whether they can have children.
+     * The outline needs this to know which sections can contain other sections.
+     *
+     * @retval array
+     *  An array where the key is the id of the style and the value an array
+     *  with the keys 'name' and 'can_have_children'.
+     */
+    private function fetch_outline_styles()
+    {
+        $res = array();
+        $sql = "SELECT s.id, s.name, c.style_id IS NOT NULL AS can_have_children
+            FROM styles AS s
+            LEFT JOIN (SELECT DISTINCT style_id FROM view_style_fields WHERE field_name = 'children') AS c
+            ON c.style_id = s.id";
+        foreach ($this->db->query_db($sql) as $style) {
+            $res[intval($style['id'])] = array(
+                "name" => $style['name'],
+                "can_have_children" => $style['can_have_children'] == 1
+            );
+        }
+        return $res;
+    }
+
+    /**
+     * Shorten and clean a field content such that it can be used as short
+     * description of a section.
+     *
+     * @param string $text
+     *  The content of a field. It can contain html or markdown.
+     * @param int $max_length
+     *  The maximal number of characters of the result.
+     * @retval string
+     *  A plain text with at most $max_length characters.
+     */
+    private function clean_outline_snippet($text, $max_length = 70)
+    {
+        $text = strip_tags($text);
+        $text = preg_replace('/!?\[([^\]]*)\]\([^)]*\)/u', '$1', $text); // keep only the text of markdown links and images
+        $text = preg_replace('/[#*`>~|]+/u', ' ', $text);
+        $text = trim(preg_replace('/\s+/u', ' ', $text));
+        return mb_strlen($text) > $max_length ? mb_substr($text, 0, $max_length) . '...' : $text;
+    }
+
+    /**
+     * Render the description of a style as html. The descriptions are written
+     * in markdown. Raw html is not allowed (safe mode), only the simple links
+     * which some descriptions write as html are converted to markdown links.
+     * A description which continues a sentence ("is a wrapper ...") starts with
+     * the name of the style.
+     *
+     * @param string $name
+     *  The name of the style.
+     * @param string $description
+     *  The description of the style.
+     * @retval string
+     *  The html of the description, empty if the style has no description.
+     */
+    private function render_style_description($name, $description)
+    {
+        $description = trim($description);
+        if ($description === '') {
+            return '';
+        }
+        $description = preg_replace('/<a\s[^>]*href="(https?:\/\/[^"\s]*)"[^>]*>(.*?)<\/a>/is', '[$2]($1)', $description);
+        if (preg_match('/^\p{Ll}/u', $description)) {
+            $description = '`' . $name . '` ' . $description;
+        }
+        $parsedown = new Parsedown();
+        $parsedown->setSafeMode(true);
+        $parsedown->setBreaksEnabled(true);
+        // the links lead to external documentation, open them in a new tab
+        return str_replace('<a href=', '<a target="_blank" rel="noopener noreferrer" href=', $parsedown->text($description));
+    }
+
+    /**
+     * Fetch a short description (the first available text field) for the
+     * sections. This helps to recognize the sections in the outline.
+     *
+     * @param array $ids
+     *  The ids of the sections.
+     * @retval array
+     *  An array where the key is the section id and the value the short text.
+     *  Sections without any text are not part of the array.
+     */
+    private function fetch_outline_snippets($ids)
+    {
+        $snippets = array();
+        if (count($ids) == 0) {
+            return $snippets;
+        }
+        $fields = array('title', 'label', 'text_md', 'text', 'text_md_inline', 'markdown', 'placeholder', 'name', 'alt', 'url');
+        $cms_languages = array_map('intval', explode(',', isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : '2'));
+        $cms_genders = array_map('intval', explode(',', isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : MALE_GENDER_ID));
+        $languages = array_merge($cms_languages, array(ALL_LANGUAGE_ID)); // the order defines which language is preferred
+        $sql = "SELECT sft.id_sections AS id, f.name AS field, sft.id_languages AS id_language, LEFT(sft.content, 300) AS content
+            FROM sections_fields_translation AS sft
+            INNER JOIN fields AS f ON f.id = sft.id_fields
+            WHERE sft.id_sections IN (" . implode(',', array_map('intval', $ids)) . ")
+            AND f.name IN ('" . implode("','", $fields) . "')
+            AND sft.id_languages IN (" . implode(',', $languages) . ")
+            AND sft.id_genders IN (" . implode(',', $cms_genders) . ")
+            AND sft.content <> ''";
+        $contents = array();
+        foreach ($this->db->query_db($sql) as $row) {
+            $id = intval($row['id']);
+            $rank = array_search(intval($row['id_language']), $languages);
+            if (!isset($contents[$id][$row['field']]) || $rank < $contents[$id][$row['field']]['rank']) {
+                $contents[$id][$row['field']] = array("rank" => $rank, "content" => $row['content']);
+            }
+        }
+        foreach ($contents as $id => $section_fields) {
+            foreach ($fields as $field) {
+                if (!isset($section_fields[$field])) {
+                    continue;
+                }
+                $text = $this->clean_outline_snippet($section_fields[$field]['content']);
+                if ($text != '') {
+                    $snippets[$id] = $text;
+                    break;
+                }
+            }
+        }
+        return $snippets;
+    }
+
+    /**
+     * Generate the url of a cms update request which is send by the outline.
+     *
+     * @param string $mode
+     *  The update mode: 'update', 'insert' or 'delete'.
+     * @param string $type
+     *  The relation (type) of the request.
+     * @param int $sid
+     *  The root section id or the section id if there is no root section.
+     * @param int $ssid
+     *  The id of the section which is used as context in a navigation item.
+     * @retval string
+     *  The generated url.
+     */
+    private function get_outline_action_url($mode, $type, $sid = null, $ssid = null)
+    {
+        return $this->get_link_url("cmsUpdate", array(
+            "pid" => $this->id_page,
+            "sid" => $sid,
+            "ssid" => $ssid,
+            "mode" => $mode,
+            "type" => $type,
+        ));
+    }
+
+    /**
+     * Build the hierarchical list of outline nodes. This is a recursive method.
+     *
+     * @param array $rows
+     *  The db rows of the sections of one level.
+     * @param array $styles
+     *  The styles as they are returned from CmsModel::fetch_outline_styles.
+     * @param int $nav_root
+     *  The id of the selected navigation item or null if the outline does not
+     *  show a navigation item.
+     * @param int $selected
+     *  The id of the active section.
+     * @param array $path
+     *  The ids of the parents, to protect against loops in the hierarchy.
+     * @param bool $pinned
+     *  If true the nodes cannot be moved or removed.
+     * @retval array
+     *  An array of nodes (see CmsModel::get_page_outline).
+     */
+    private function build_outline_nodes($rows, $styles, $nav_root, $selected, $path = array(), $pinned = false)
+    {
+        $nodes = array();
+        foreach ($rows as $row) {
+            $id = intval($row['id']);
+            if (in_array($id, $path)) {
+                continue;
+            }
+            $style = isset($styles[intval($row['id_styles'])]) ? $styles[intval($row['id_styles'])] : array("name" => "", "can_have_children" => false);
+            $this->outline_ids[] = $id;
+            $node = array(
+                "id" => $id,
+                "name" => $row['name'],
+                "style" => $style['name'],
+                "position" => intval($row['position']),
+                "url" => ($nav_root && $id != $nav_root) ? $this->get_cms_item_url($this->id_page, $nav_root, $id) : $this->get_cms_item_url($this->id_page, $id),
+                "selected" => $id == $selected,
+                "pinned" => $pinned,
+                "snippet" => "",
+                "list" => null,
+            );
+            if ($style['can_have_children']) {
+                // the requests which change the children of a section need the section as context
+                $sid = $nav_root ? $nav_root : $id;
+                $ssid = ($nav_root && $id != $nav_root) ? $id : null;
+                $node['list'] = array(
+                    "relation" => RELATION_SECTION_CHILDREN,
+                    "parent_id" => $id,
+                    "update_url" => $this->get_outline_action_url(UPDATE, "prop", $sid, $ssid),
+                    "insert_url" => $this->get_outline_action_url(INSERT, RELATION_SECTION_CHILDREN, $sid, $ssid),
+                    "nodes" => $this->build_outline_nodes($this->db->fetch_section_children($id), $styles, $nav_root, $selected, array_merge($path, array($id))),
+                );
+            }
+            $nodes[] = $node;
+        }
+        return $nodes;
+    }
+
+    /**
+     * Add the short text of the sections to the nodes of the outline.
+     *
+     * @param array $nodes
+     *  The nodes as they are created by CmsModel::build_outline_nodes
+     * @param array $snippets
+     *  The short texts (see CmsModel::fetch_outline_snippets)
+     */
+    private function add_outline_snippets(&$nodes, $snippets)
+    {
+        foreach ($nodes as $idx => $node) {
+            if (isset($snippets[$node['id']])) {
+                $nodes[$idx]['snippet'] = $snippets[$node['id']];
+            }
+            if ($node['list']) {
+                $this->add_outline_snippets($nodes[$idx]['list']['nodes'], $snippets);
+            }
+        }
+    }
+
+    /**
+     * Get the structure of the current page as hierarchical list of sections.
+     * The new UI shows this outline instead of the rendered page. A page shows
+     * all its sections. A navigation item shows only the item and its
+     * children because the sections of the other items belong to other urls.
+     *
+     * @retval array
+     *  An array with the following keys:
+     *   - 'context':   Identifies what the outline shows. It stays the same
+     *                  when the user selects another section of the outline.
+     *   - 'selected':  The id of the active section or 0.
+     *   - 'count':     The number of sections in the outline.
+     *   - 'page_url':  The url of the properties of the page.
+     *   - 'nav_item':  True if the outline shows a navigation item.
+     *   - 'add':       The list where new sections are added by default. It
+     *                  is an array with the keys 'relation', 'parent_id',
+     *                  'update_url', 'insert_url' or null.
+     *   - 'list':      The top level list with the keys of 'add' and 'nodes'.
+     *                  Each node has the keys 'id', 'name', 'style',
+     *                  'position', 'url', 'selected', 'pinned', 'snippet' and
+     *                  'list'. The 'list' of a node has the same structure
+     *                  as the top level list and it is null if the section
+     *                  cannot have children.
+     */
+    public function get_page_outline()
+    {
+        $styles = $this->fetch_outline_styles();
+        $selected = $this->get_active_section_id();
+        $nav_root = null;
+        if ($this->is_navigation() && is_array($this->page_sections_nav) && count($this->page_sections_nav) > 0) {
+            $nav_root = intval($this->id_root_section);
+        }
+        $this->outline_ids = array();
+        if ($nav_root) {
+            $info = $this->db->fetch_section_info_by_id($nav_root);
+            $rows = array(array("id" => $nav_root, "name" => $info['name'], "id_styles" => $info['id_styles'], "position" => 0));
+        } else {
+            $rows = $this->db->fetch_page_sections_by_id($this->id_page);
+        }
+        $nodes = $this->build_outline_nodes($rows, $styles, $nav_root, $selected, array(), $nav_root !== null);
+        $this->add_outline_snippets($nodes, $this->fetch_outline_snippets($this->outline_ids));
+        $list = array(
+            "relation" => RELATION_PAGE_CHILDREN,
+            "parent_id" => $this->id_page,
+            "update_url" => $this->get_outline_action_url(UPDATE, "prop"),
+            "insert_url" => $this->get_outline_action_url(INSERT, RELATION_PAGE_CHILDREN),
+            "nodes" => $nodes,
+        );
+        $add = $list;
+        if ($nav_root) {
+            // new sections are added to the navigation item
+            $add = (count($nodes) > 0 && $nodes[0]['list']) ? $nodes[0]['list'] : null;
+        }
+        return array(
+            "context" => $this->id_page . "-" . ($nav_root ? $nav_root : 0),
+            "selected" => $selected ? intval($selected) : 0,
+            "count" => count($this->outline_ids),
+            "page_url" => $this->get_cms_item_url($this->id_page),
+            "nav_item" => $nav_root !== null,
+            "add" => $add,
+            "list" => $list,
+        );
+    }
+
+    /**
      * Return the db relation.
      *
      * @retval string
@@ -1618,6 +2145,36 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch the styles which can be used to create a new section, grouped by
+     * the style groups (internal styles are not included).
+     *
+     * @retval array
+     *  An array of groups where each group has the following keys:
+     *   - name:    The name of the style group.
+     *   - styles:  The styles of the group where each item has the keys
+     *              'value' (the id), 'text' (the name), 'description' (the
+     *              full description as plain text, used for the search) and
+     *              'description_html' (the full description rendered as html).
+     */
+    public function get_grouped_style_list()
+    {
+        $groups = array();
+        foreach ($this->get_style_groups() as $group) {
+            $styles = $this->get_style_list($group['id']);
+            if (count($styles) == 0) {
+                continue;
+            }
+            foreach ($styles as $key => $style) {
+                $description = (string)$style['description'];
+                $styles[$key]['description'] = $this->clean_outline_snippet($description, PHP_INT_MAX);
+                $styles[$key]['description_html'] = $this->render_style_description($style['text'], $description);
+            }
+            $groups[] = array("name" => $group['name'], "styles" => $styles);
+        }
+        return $groups;
+    }
+
+    /**
      * Get all section items that build up the section path.
      *
      * @retval array
@@ -1675,19 +2232,20 @@ class CmsModel extends BaseModel
      */
     public function insert_new_section($name, $id_style, $relation, $position = null)
     {
-        $res = true;
+        $this->link_error = null;
         if(!$this->acl->has_access_update($_SESSION['id_user'],
-            $this->get_active_page_id())) return false;
+            $this->get_active_page_id())) return $this->refuse_link("You do not have the rights to change this page.");
+        // the section and its link are created together: a refused link must not leave an unassigned section behind
+        $this->db->begin_transaction();
         $new_id = $this->db->insert("sections", array(
             "name" => $name,
             "id_styles" => $id_style
         ));
-        if(!$new_id) return false;
-        $res &= $this->insert_section_link($new_id, $relation, $position);
-        if($res) {
+        if($new_id && $this->insert_section_link($new_id, $relation, $position)) {
+            $this->db->commit();
             return $new_id;
         }
-
+        $this->db->rollback();
         return false;
     }
 
@@ -1706,45 +2264,220 @@ class CmsModel extends BaseModel
      */
     public function insert_section_link($id, $relation, $position = null)
     {
+        $this->link_error = null;
+        $id = intval($id);
         if(!$this->acl->has_access_update($_SESSION['id_user'],
-            $this->get_active_page_id())) return false;
-        if($relation == RELATION_PAGE_CHILDREN)
-        {
-            $sections = $this->db->fetch_page_sections_by_id($this->id_page);
-            $res = $this->db->insert("pages_sections", array(
-                "id_pages" => $this->get_active_page_id(),
-                "id_sections" => $id,
-                "position" => $position ? $position : $this->get_last_position($sections)
-            ));
-            $this->adjust_hierarchy($this->get_active_page_id(), $relation);
-            return $res;
+            $this->get_active_page_id())) return $this->refuse_link("You do not have the rights to change this page.");
+        $target = $this->get_link_target($relation, $this->get_active_page_id(), $this->get_active_section_id());
+        if (!$target || !$target['id_parent']) {
+            return $this->refuse_link("There is no list where the section can be added.");
         }
-        else if($relation == RELATION_SECTION_CHILDREN)
-        {
-            $sections = $this->db->fetch_section_children(
-                $this->get_active_section_id());
-            $res = $this->db->insert("sections_hierarchy", array(
-                "parent" => $this->get_active_section_id(),
-                "child" => $id,
-                "position" => $position ? $position : $this->get_last_position($sections)
-            ));
-            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
-            return $res;
+        if (!$this->check_link_target($target, $id)) {
+            return false;
         }
-        else if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
-        {
-            if($relation == RELATION_PAGE_NAV)
-                $id_parent = $this->page_info["id_navigation_section"];
-            else if($relation == RELATION_SECTION_NAV)
-                $id_parent = $this->get_active_section_id();
-            $sections = $this->db->fetch_nav_children($id_parent);
-            return $this->db->insert("sections_navigation", array(
-                "parent" => $id_parent,
-                "child" => $id,
-                "id_pages" => $this->id_page,
-                "position" => $position ? $position : $this->get_last_position($sections)
-            ));
+        if ($this->has_link($target, $id)) {
+            return $this->refuse_link("The section is already in this list.");
         }
+        $res = $this->db->insert($target['table'], array_merge(array(
+            $target['parent_col'] => $target['id_parent'],
+            $target['child_col'] => $id,
+            "position" => ($position === null || $position === "") ? $this->get_next_position($target) : intval($position),
+        ), $target['fixed']));
+        if (!$res) {
+            return $this->refuse_link("The section could not be added.");
+        }
+        if ($relation == RELATION_PAGE_CHILDREN || $relation == RELATION_SECTION_CHILDREN) {
+            $this->adjust_hierarchy($target['id_parent'], $relation);
+        }
+        return $res;
+    }
+
+    /**
+     * Move a section from one list of children to another list of children in
+     * one step: the section is removed from the old list and added to the new
+     * list or nothing is changed at all. The new list is defined by the
+     * current page, section and the relation of the request, like it is for
+     * CmsModel::insert_section_link.
+     *
+     * @param int $id_section
+     *  The id of the section to move.
+     * @param string $from_relation
+     *  The relation of the old list (page or section children).
+     * @param int $id_from_parent
+     *  The id of the section which has the old list. A list of the page is
+     *  always the list of the page which is edited.
+     * @param string $to_relation
+     *  The relation of the new list (page or section children).
+     * @param int $position
+     *  The position in the new list. If not set the section is added at the end.
+     * @retval bool
+     *  True if the section was moved, false otherwise. The reason is available
+     *  with CmsModel::get_link_error.
+     */
+    public function move_section_link($id_section, $from_relation, $id_from_parent, $to_relation, $position = null)
+    {
+        $this->link_error = null;
+        $id_section = intval($id_section);
+        $id_page = $this->get_active_page_id();
+        if(!$this->acl->has_access_update($_SESSION['id_user'], $id_page)) {
+            return $this->refuse_link("You do not have the rights to change this page.");
+        }
+        $children = array(RELATION_PAGE_CHILDREN, RELATION_SECTION_CHILDREN);
+        if (!in_array($from_relation, $children, true) || !in_array($to_relation, $children, true)) {
+            return $this->refuse_link("Only sections of a list of children can be moved.");
+        }
+        $from = $this->get_link_target($from_relation, $id_page, $id_from_parent);
+        $to = $this->get_link_target($to_relation, $id_page, $this->get_active_section_id());
+        if (!$from['id_parent'] || !$to['id_parent']
+            || ($from_relation == RELATION_PAGE_CHILDREN && intval($id_from_parent) !== intval($id_page))) {
+            return $this->refuse_link("The old or the new list of the section is not valid.");
+        }
+        if ($from['table'] === $to['table'] && $from['id_parent'] === $to['id_parent']) {
+            return $this->refuse_link("The section is already in this list.");
+        }
+        foreach (array($from, $to) as $list) {
+            if ($list['table'] !== "pages_sections" && !$this->is_section_on_page($list['id_parent'], $id_page)) {
+                return $this->refuse_link("The old or the new list of the section does not belong to this page.");
+            }
+        }
+        if (!$this->has_link($from, $id_section)) {
+            return $this->refuse_link("The section is not in the old list anymore.");
+        }
+        if ($this->has_link($to, $id_section)) {
+            return $this->refuse_link("The section is already in the new list.");
+        }
+        if (!$this->check_link_target($to, $id_section)) {
+            return false;
+        }
+        $this->db->begin_transaction();
+        $res = $this->db->remove_by_ids($from['table'], array(
+            $from['parent_col'] => $from['id_parent'],
+            $from['child_col'] => $id_section,
+        ));
+        $res = $res && $this->db->insert($to['table'], array(
+            $to['parent_col'] => $to['id_parent'],
+            $to['child_col'] => $id_section,
+            "position" => ($position === null || $position === "") ? $this->get_next_position($to) : intval($position),
+        ));
+        if (!$res) {
+            $this->db->rollback();
+            return $this->refuse_link("The section could not be moved.");
+        }
+        $this->adjust_hierarchy($from['id_parent'], $from_relation);
+        $this->adjust_hierarchy($to['id_parent'], $to_relation);
+        $this->db->commit();
+        return true;
+    }
+
+    /**
+     * Get the reason why the last insert, remove or move of a section link was
+     * refused.
+     *
+     * @retval string
+     *  The reason or an empty string if there is none.
+     */
+    public function get_link_error()
+    {
+        return $this->link_error ? $this->link_error : "";
+    }
+
+    /**
+     * Checks the keyword of a new page: it must have the allowed format, fit
+     * into the database and it must not be used by another page. The
+     * keyword is not escaped in the reason, escape the reason before it is
+     * shown.
+     *
+     * @param string $keyword
+     *  The keyword of the new page.
+     * @retval mixed
+     *  Null if the keyword can be used, otherwise the reason why not.
+     */
+    public function get_keyword_error($keyword)
+    {
+        if (!is_string($keyword) || !preg_match('/^' . NAME_PATTERN . '$/', $keyword) || strlen($keyword) > 100) {
+            return "The keyword '" . $keyword . "' is not valid. Use only letters, numbers, - and _.";
+        }
+        if ($this->db->query_db_first("SELECT id FROM pages WHERE keyword = :keyword", array(":keyword" => $keyword))) {
+            return "A page with the keyword '" . $keyword . "' already exists. Choose another keyword.";
+        }
+        return null;
+    }
+
+    /**
+     * Check if a JSON value is dynamically set with {{}} and if it is accept it.
+     *
+     * @param string $value
+     *  The value of the field.
+     * @retval bool
+     *  True if the value contains a {{}} expression.
+     */
+    private function check_json_for_dynamic_content($value)
+    {
+        preg_match('~{{.*?}}~s', $value, $matches, PREG_OFFSET_CAPTURE);
+        return isset($matches[0]) && $matches[0][0];
+    }
+
+    /**
+     * Checks whether the content of a field corresponds to the expected type.
+     * The editor and the import validate the content with this method.
+     *
+     * @param string $type
+     *  The type of the field.
+     * @param string $value
+     *  The content of the field.
+     * @retval bool
+     *  True if the content is valid.
+     */
+    public function check_field_content($type, $value)
+    {
+        if($type === "json")
+        {
+            if($value === "" || $value == "    ") return true;
+            json_decode($value, true);
+            return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
+        }
+        if($type === "number")
+            return is_numeric($value);
+        if($type === "style-bootstrap")
+            return in_array($value, array(
+                "primary",
+                "secondary",
+                "success",
+                "danger",
+                "warning",
+                "info",
+                "light",
+                "dark",
+                "none",
+            ), true);
+        if($type === "type-input")
+            return in_array($value, self::TYPE_INPUT_VALUES, true);
+        return true;
+    }
+
+    /**
+     * Sanitize the content of a field in order to prevent unwanted injection.
+     * The editor and the import sanitize the content with this method.
+     *
+     * @param string $type
+     *  The type of the field.
+     * @param string $content
+     *  The content of the field.
+     * @param bool $double_encode
+     *  If false existing html entities are not encoded again. Content which
+     *  is already sanitized, e.g. the content of an export, must not be
+     *  encoded twice.
+     * @retval mixed
+     *  The sanitized content.
+     */
+    public function secure_field_content($type, $content, $double_encode = true)
+    {
+        if(in_array($type, array("text", "textarea", "style-list",
+            "style-bootstrap", "type-input", "checkbox")))
+            return htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', $double_encode);
+        if($type === "number")
+            return intval($content);
+        return $content;
     }
 
     /**
@@ -1811,34 +2544,30 @@ class CmsModel extends BaseModel
      */
     public function remove_section_association($id_section, $relation)
     {
+        $this->link_error = null;
+        $id_section = intval($id_section);
         if (!$this->acl->has_access_update(
             $_SESSION['id_user'],
             $this->get_active_page_id()
-        )) return false;
-        if ($relation == RELATION_PAGE_CHILDREN) {
-            $res = $this->db->remove_by_ids("pages_sections", array(
-                "id_pages" => $this->id_page,
-                "id_sections" => $id_section
-            ));
-            $this->adjust_hierarchy($this->id_page, $relation);
-            return $res;
-        } else if ($relation == RELATION_SECTION_CHILDREN) {
-            $res = $this->db->remove_by_ids("sections_hierarchy", array(
-                "parent" => $this->get_active_section_id(),
-                "child" => $id_section
-            ));
-            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
-            return $res;
-        } else if ($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV) {
-            if ($relation == RELATION_PAGE_NAV)
-            $id_parent = $this->page_info["id_navigation_section"];
-            else if ($relation == RELATION_SECTION_NAV)
-            $id_parent = $this->get_active_section_id();
-            return $this->db->remove_by_ids("sections_navigation", array(
-                "parent" => $id_parent,
-                "child" => $id_section
-            ));
+        )) return $this->refuse_link("You do not have the rights to change this page.");
+        $target = $this->get_link_target($relation, $this->get_active_page_id(), $this->get_active_section_id());
+        if (!$target || !$target['id_parent']) {
+            return $this->refuse_link("There is no list where the section can be removed.");
         }
+        if ($target['table'] !== "pages_sections" && !$this->is_section_on_page($target['id_parent'], $this->get_active_page_id())) {
+            return $this->refuse_link("The list does not belong to this page.");
+        }
+        if (!$this->has_link($target, $id_section)) {
+            return $this->refuse_link("The section is not in this list.");
+        }
+        $res = $this->db->remove_by_ids($target['table'], array(
+            $target['parent_col'] => $target['id_parent'],
+            $target['child_col'] => $id_section
+        ));
+        if ($res && ($relation == RELATION_PAGE_CHILDREN || $relation == RELATION_SECTION_CHILDREN)) {
+            $this->adjust_hierarchy($target['id_parent'], $relation);
+        }
+        return $res;
     }
 
     /**
