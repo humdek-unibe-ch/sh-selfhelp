@@ -20,6 +20,12 @@ class CmsView extends BaseView
      */
     private $page_info;
 
+    /**
+     * The outline of the page sections, see CmsModel::get_page_outline. It is
+     * only needed for the new UI and created when it is first used.
+     */
+    private $outline = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -61,6 +67,22 @@ class CmsView extends BaseView
                     "children" => array(
                         new BaseStyleComponent("markdownInline", array(
                             "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                            "css" => ""
+                        ))
+                    )
+                )
+            ));
+        } else {
+            // the new UI imports sections in the page outline; here a complete page is imported (modal of the new UI)
+            $this->add_local_component("import", new BaseStyleComponent("link",
+                array(
+                    "url" => $this->model->get_link_url("cmsImport", array(
+                        "type" => "page"
+                    )),
+                    "css" => "ui-side-menu-button list-group-item list-group-item-action ui-import-page-trigger",
+                    "children" => array(
+                        new BaseStyleComponent("markdownInline", array(
+                            "text_md_inline" => '<div><span class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Page"></span><span class="ml-1 menu-collapsed">Import Page</span></div>',
                             "css" => ""
                         ))
                     )
@@ -201,10 +223,23 @@ class CmsView extends BaseView
                 $this->add_alert_component("alert_insert_success", "success",
                     $msg);
             }
+            $reason = $controller->get_link_error() != "" ? ": " . $controller->get_link_error() : "";
             if($controller->has_insert_failed())
             {
-                $msg = "Failed to add a new section";
+                $msg = "Failed to add a new section" . $reason;
                 $this->add_alert_component("alert_insert_failed", "danger",
+                    $msg);
+            }
+            if($controller->has_move_succeeded())
+            {
+                $msg = "Successfully moved the section.";
+                $this->add_alert_component("alert_move_success", "success",
+                    $msg);
+            }
+            if($controller->has_move_failed())
+            {
+                $msg = "Failed to move the section" . $reason;
+                $this->add_alert_component("alert_move_failed", "danger",
                     $msg);
             }
             if($controller->has_remove_succeeded())
@@ -215,7 +250,7 @@ class CmsView extends BaseView
             }
             if($controller->has_remove_failed())
             {
-                $msg = "Failed to remove a link to a section";
+                $msg = "Failed to remove a link to a section" . $reason;
                 $this->add_alert_component("alert_remove_failed", "danger",
                     $msg);
             }
@@ -249,7 +284,8 @@ class CmsView extends BaseView
 
         $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $has_active_section = ($this->model->get_active_section_id() != null);
-        if (!$is_new_ui || !$has_active_section) {
+        // The new UI does not render the page, it shows the outline of the sections (see output_page_outline).
+        if (!$is_new_ui) {
             $page_components = array();
             if($this->model->get_active_root_section_id() == null)
                 foreach($page_sections as $section)
@@ -262,26 +298,6 @@ class CmsView extends BaseView
                     $this->model->get_services(),
                     $this->model->get_active_root_section_id(), array(),
                     $this->model->get_cms_page_id());
-            if (count($page_components) == 0) {
-                $text = new BaseStyleComponent("plaintext", array(
-                    "text" => "No CMS view available for this page."
-                ));
-                if ($is_new_ui) {
-                    $new_section = new BaseStyleComponent("template", array(
-                        "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
-                        "items" => array(
-                            "data_section" => array(
-                                "can_have_children" => $this->model->get_mode() == "update",
-                                "children" => 0,
-                                "relation" => 'RELATION_PAGE_CHILDREN'
-                            ),
-                            "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
-                            "page_id" => $this->page_info ? intval($this->page_info['id']): null
-                        ),
-                    ));
-                    $page_components[] = $new_section;
-                }
-            }
             $this->add_local_component("page-view",
                 new BaseStyleComponent("card", array(
                     "id" => "page-view",
@@ -293,7 +309,7 @@ class CmsView extends BaseView
                 ))
             );
         }
-        if ($has_active_section){
+        if (!$is_new_ui && $has_active_section){
             $section_path = $this->model->get_section_path();
             $params = isset($section_path[count($section_path) - 1]) ? isset($section_path[count($section_path) - 1]) : array();
             if (!is_array($params)) {
@@ -757,7 +773,7 @@ class CmsView extends BaseView
                 $card_content_fields = new BaseStyleComponent("card", array(
                     "css" => "ui-card-list",
                     "id" => "ui-card-content",
-                    "is_expanded" => false,
+                    "is_expanded" => true,
                     "is_collapsible" => true,
                     "title" => "Content",
                     "children" => $content_fields
@@ -802,9 +818,16 @@ class CmsView extends BaseView
         }
         $section_info = $this->model->get_section_info();
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // sections and pages with sections can be exported (the page export contains all its sections)
+            $export_url = null;
+            if ($this->model->get_id_root_section()) {
+                $export_url = $this->model->get_link_url("cmsExport", array("type" => "section", "id" => $this->model->get_active_section_id()));
+            } else if ($this->model->can_export_page()) {
+                $export_url = $this->model->get_link_url("cmsExport", array("type" => "page", "id" => $this->model->get_active_page_id()));
+            }
             $export_btn = new BaseStyleComponent("button", array(
                 "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
-                "url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsExport", array("type" => "section", "id" => $this->model->get_active_section_id())) : null,
+                "url" => $export_url,
                 "css" => "w-100 mb-2 btn-sm",
                 "id" => "new-ui-export"
             ));
@@ -829,8 +852,10 @@ class CmsView extends BaseView
                     "css" => "w-100 mb-2 btn-sm",
                     "id" => "new-ui-create-child-page"
                 )),
-                $export_btn
             );
+            if ($export_url) {
+                $buttons[] = $export_btn;
+            }
             if ($this->page_info && $this->page_info['id_actions'] > 1) {
                 $buttons[] = $delete_btn;
             }
@@ -926,24 +951,9 @@ class CmsView extends BaseView
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => $field['type'],
-                "items" => array(
-                    array("value" => "color", "text" => "color"),
-                    array("value" => "date", "text" => "date"),
-                    array("value" => "datetime-local", "text" => "datetime-local"),
-                    array("value" => "datetime", "text" => "datetime"),
-                    array("value" => "email", "text" => "email"),
-                    array("value" => "month", "text" => "month"),
-                    array("value" => "number", "text" => "number"),
-                    array("value" => "password", "text" => "password"),
-                    array("value" => "range", "text" => "range"),
-                    array("value" => "search", "text" => "search"),
-                    array("value" => "tel", "text" => "tel"),
-                    array("value" => "text", "text" => "text"),
-                    array("value" => "time", "text" => "time"),
-                    array("value" => "url", "text" => "url"),
-                    array("value" => "week", "text" => "week"),
-                    array("value" => "anonymous-holder", "text" => "anonymous-holder")
-                ),
+                "items" => array_map(function ($type) {
+                    return array("value" => $type, "text" => $type);
+                }, CmsModel::TYPE_INPUT_VALUES),
             ));
         }
         else if($field['type'] == "html-tag")
@@ -1479,8 +1489,21 @@ class CmsView extends BaseView
      */
     private function output_import_button()
     {
-        if($this->model->can_import_section())
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
+        // the new UI imports complete pages here: this is only possible if pages can be created
+        if($this->model->can_import_section() && (!$is_new_ui || $this->model->can_create_new_page()))
             $this->output_local_component("import");
+    }
+
+    /**
+     * Render the modal which imports a complete page (new UI)
+     */
+    private function output_modal_import_page()
+    {
+        if ($this->model->can_import_section() && $this->model->can_create_new_page()) {
+            $import_url = $this->model->get_link_url("cmsImport", array("type" => "page"));
+            require __DIR__ . "/tpl_new_ui/tpl_modal_import_page.php";
+        }
     }
 
     /**
@@ -1568,23 +1591,142 @@ class CmsView extends BaseView
     private function output_page_preview()
     {
         if ($this->page_info && $this->page_info['id_actions'] > 1) {
-            if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
+            if ($this->model->is_navigation_main())
                 require __DIR__ . "/tpl_intro_nav.php";
             else {
-                if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
-                    // show section if a section is selected otherwise show the whole page
-                    $section_view = $this->get_local_component('section-view');
-                    if ($section_view != null) {
-                        $this->output_local_component("section-view");
-                    } else {
-                        $this->output_local_component("page-view");
-                    }
-                } else {
-                    $this->output_local_component("section-view");
-                    $this->output_local_component("page-view");
-                }
+                $this->output_local_component("section-view");
+                $this->output_local_component("page-view");
             }
         }
+    }
+
+    /**
+     * Get the outline of the page sections. The outline is created only once.
+     *
+     * @retval array
+     *  The outline (see CmsModel::get_page_outline).
+     */
+    private function get_outline()
+    {
+        if ($this->outline === null) {
+            $this->outline = $this->model->get_page_outline();
+        }
+        return $this->outline;
+    }
+
+    /**
+     * Checks whether the outline can be changed by the user. The requested
+     * mode is used because the model is switched to 'select' after a
+     * successful change and the outline must stay editable in the answer.
+     *
+     * @retval bool
+     *  True if sections can be added, moved and removed, false otherwise.
+     */
+    private function is_outline_editable()
+    {
+        return $this->model->get_requested_mode() == "update";
+    }
+
+    /**
+     * Escape a value for the use in a html attribute or text.
+     *
+     * @param mixed $value
+     *  The value to escape.
+     * @retval string
+     *  The escaped value.
+     */
+    private function esc($value)
+    {
+        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Renders the toolbar of the outline: the buttons to add and import
+     * sections, the filter and the expand and collapse buttons.
+     */
+    private function output_outline_toolbar()
+    {
+        if (!$this->page_info || $this->page_info['action'] !== 'sections') {
+            return;
+        }
+        $outline = $this->get_outline();
+        $editable = $this->is_outline_editable();
+        $can_import = $editable && $this->model->can_import_section();
+        require __DIR__ . "/tpl_new_ui/tpl_outline_toolbar.php";
+    }
+
+    /**
+     * Renders the sections of the page as an outline. The page content is not
+     * rendered, the user sees the structure and selects the section he wants
+     * to edit. The properties of the selected section are loaded on the right.
+     */
+    private function output_page_outline()
+    {
+        if (!$this->page_info || $this->page_info['id_actions'] <= 1) {
+            return;
+        }
+        if ($this->page_info['action'] === 'sections') {
+            $outline = $this->get_outline();
+            $editable = $this->is_outline_editable();
+            require __DIR__ . "/tpl_new_ui/tpl_page_outline.php";
+        } else {
+            require __DIR__ . "/tpl_new_ui/tpl_outline_info.php";
+        }
+    }
+
+    /**
+     * Renders a list of the outline with all its nodes. This is a recursive
+     * method.
+     *
+     * @param array $list
+     *  A list of the outline (see CmsModel::get_page_outline).
+     * @param bool $editable
+     *  If true the list can be changed by the user.
+     * @param int $depth
+     *  The depth of the list. The top level list has depth 0.
+     */
+    private function output_outline_list($list, $editable, $depth)
+    {
+        require __DIR__ . "/tpl_new_ui/tpl_outline_list.php";
+    }
+
+    /**
+     * Renders a node of the outline and the list of its children.
+     *
+     * @param array $node
+     *  A node of the outline (see CmsModel::get_page_outline).
+     * @param int $index
+     *  The index of the node in its list (the order of the database).
+     * @param bool $editable
+     *  If true the node can be changed by the user.
+     * @param int $depth
+     *  The depth of the list which contains the node.
+     */
+    private function output_outline_node($node, $index, $editable, $depth)
+    {
+        // automatically generated names (timestamp-style) are not helpful: show the content of the section instead
+        $auto_name = preg_match('/^\d{9,}-/', $node['name']) === 1;
+        $label = $auto_name ? ($node['snippet'] !== '' ? $node['snippet'] : $node['style']) : $node['name'];
+        $secondary = (!$auto_name && $node['snippet'] !== '') ? $node['snippet'] : '';
+        $has_children = $node['list'] && count($node['list']['nodes']) > 0;
+        $classes = 'ui-outline-node'
+            . ($node['selected'] ? ' is-selected' : '')
+            . ($node['list'] ? ' is-container' : '')
+            . ($has_children ? ' has-children' : '')
+            . ($node['pinned'] ? ' is-pinned' : '');
+        $search = mb_strtolower($node['name'] . ' ' . $node['style'] . ' ' . $node['snippet'] . ' ' . $node['id']);
+        require __DIR__ . "/tpl_new_ui/tpl_outline_node.php";
+    }
+
+    /**
+     * Renders the action buttons of an outline node: add, move and remove.
+     *
+     * @param array $node
+     *  A node of the outline (see CmsModel::get_page_outline).
+     */
+    private function output_outline_actions($node)
+    {
+        require __DIR__ . "/tpl_new_ui/tpl_outline_actions.php";
     }
 
     /* Public Methods *********************************************************/
@@ -1618,6 +1760,7 @@ class CmsView extends BaseView
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
             array_push($local, __DIR__ . "/../cmsImport/js/import.js");
             array_push($local, __DIR__ . "/cms_ui.js");
+            array_push($local, __DIR__ . "/cms_outline.js");
         }
         return parent::get_js_includes($local);
     }
@@ -1659,7 +1802,7 @@ class CmsView extends BaseView
      */
     public function output_add_new_section()
     {
-        $styles = $this->model->get_style_list();
+        $groups = $this->model->get_grouped_style_list();
         require __DIR__ . "/tpl_new_ui/tpl_add_new_section.php";
     }
 
