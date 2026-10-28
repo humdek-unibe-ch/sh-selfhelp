@@ -61,12 +61,7 @@ abstract class BaseComponent
             return; // Skip rendering if conditions not met
         }
 
-        // CMS editing mode vs normal mode
-        if ($this->is_cms_editing_mode()) {
-            $this->view->output_style_for_cms();
-        } else {
-            $this->view->output_content();
-        }
+        $this->view->output_content();
     }
 
     public function output_content_mobile() {

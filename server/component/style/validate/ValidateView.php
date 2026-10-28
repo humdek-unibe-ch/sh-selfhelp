@@ -236,15 +236,7 @@ class ValidateView extends StyleView
         if (count($this->children) === 0) {
             require __DIR__ . "/tpl_cms_children_holder.php";
         } else {
-            if (
-                method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
-                method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
-                $this->model->get_services()->get_user_input()->is_new_ui_enabled()
-            ) {
-                require __DIR__ . "/tpl_custom_fields_edit.php";
-            } else {
-                $this->output_custom_fields();
-            }            
+            $this->output_custom_fields();
         }        
     }
 
