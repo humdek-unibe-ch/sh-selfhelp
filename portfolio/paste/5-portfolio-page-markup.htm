@@ -1,0 +1,42 @@
+<div class="container minHeight">
+    <div class="card mb-5 projectCard">
+        <div class="card-header primary-color lighten-1 white-text headerImg" style="background-image: url(storage/app/media/projectImgs/streamix_eval.png)">
+            <div class="platformsHolder mb-5">
+                <div class="platform">Linux</div>
+                <div class="platform">Streamix</div>
+             </div>        
+             <h4 class="projectTitle">Streamix</h4>                                                
+        </div>
+        <div class="card-body">
+            <div class="pr-5">      
+                <div class="projectDescription">
+                    <p>Streamix is an experiment management system for research experiments relying on continuous data stream capturing and live interaction through feedback loops. Streamix allows to interface several hardware devices for data capture and actuation. This includes eye tracking, motion tracking, EEG signals, muscle stimulation, video playback, audio recording, and others.</p>
+                    <p>With Streamix an experiment is tightly controllable and reproducible through a logic-driven protocol structure where trials are defined by finite state machines (FSMs) that change states based on Streamix event interaction. A Browser-based user interface allows for convenient monitoring and controlling of a live experiment while the time-critical elements of the experiment are executed with a performance-optimized C application that is custom tailored for the exact needs of the experiment.</p></div>
+                <a href="portfolio/streamix" class="btn TPFBGColor btn-sm my-0 waves-effect waves-light"><i class="fa fa-book fa-fw"></i> Read more</a>                              
+            </div>                                            
+        </div>
+    </div>
+    {# ===== SelfHelp card - start (remove everything up to "SelfHelp card - end" to take it off the page) ===== #}
+    <div class="card mb-5 projectCard">
+        <div class="card-header primary-color lighten-1 white-text headerImg" style="background-image: url(/storage/app/media/projectImgs/selfhelp/selfhelp_eval.png)">
+            <div class="platformsHolder mb-5">
+                <div class="platform">Web</div>
+                <div class="platform">Mobile</div>
+                <div class="platform">Open source</div>
+            </div>
+            <h4 class="projectTitle">SelfHelp</h4>
+        </div>
+        <div class="card-body">
+            <div class="pr-5">
+                <div class="projectDescription">
+                    <p>SelfHelp is an open-source platform to build, run and automate web and mobile studies, interventions and self-help programmes. Pages, forms, surveys, rules, reminders and permissions are configured in the browser, while every answer lands in one structured data model that is ready for analysis.</p>
+                    <p>A small PHP and MySQL core is extended by 15 public plugins &ndash; from SurveyJS and lab.js experiments to Qualtrics, R, Plotly and AI chat &ndash; and the same pages serve a responsive website and a JSON interface for mobile apps. Studies built with SelfHelp are reported in 15 journal articles in clinical psychology, health behaviour change and education.</p></div>
+                <a href="/portfolio/selfhelp" class="btn TPFBGColor btn-sm my-0 waves-effect waves-light"><i class="fa fa-book fa-fw"></i> Read more</a>
+            </div>
+        </div>
+    </div>
+    {# ===== SelfHelp card - end ===== #}
+    {% for record in records if (record.status == 'finished' and record.hidden == 0 and record.portfolio == 1) %} 
+        {% partial 'projects/projectCard' record=record %}            
+    {% endfor %}
+</div>
