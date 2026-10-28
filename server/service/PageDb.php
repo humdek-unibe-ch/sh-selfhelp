@@ -340,6 +340,62 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Collect where a section is used: all its ancestor sections (through
+     * the children hierarchy and the navigation hierarchy) and all pages which
+     * list the section or one of its ancestors. A section can have several
+     * parents, therefore the search goes level by level and visits every
+     * section only once. This ends on circular references too.
+     *
+     * @param int $id
+     *  The id of the section.
+     * @retval mixed
+     *  An array with the keys 'sections' (the ids of all ancestor sections,
+     *  without the section itself) and 'pages' (the ids of all pages the
+     *  section is used on). Both lists are empty for a section which is not
+     *  assigned. False if the database failed, callers must not grant
+     *  anything in this case.
+     */
+    public function fetch_section_lineage($id)
+    {
+        $id = intval($id);
+        $visited = array($id => true);
+        $pages = array();
+        $level = array($id);
+        while (count($level) > 0) {
+            $in = implode(',', array_fill(0, count($level), '?'));
+            $rows = $this->query_db(
+                "SELECT parent AS id FROM sections_hierarchy WHERE child IN ($in)
+                UNION SELECT parent FROM sections_navigation WHERE child IN ($in)",
+                array_merge($level, $level)
+            );
+            $page_rows = $this->query_db(
+                "SELECT id_pages AS id FROM pages_sections WHERE id_sections IN ($in)
+                UNION SELECT id FROM pages WHERE id_navigation_section IN ($in)",
+                array_merge($level, $level)
+            );
+            if ($rows === false || $page_rows === false) {
+                return false;
+            }
+            foreach ($page_rows as $row) {
+                $pages[intval($row['id'])] = true;
+            }
+            $level = array();
+            foreach ($rows as $row) {
+                $parent = intval($row['id']);
+                if (!isset($visited[$parent])) {
+                    $visited[$parent] = true;
+                    $level[] = $parent;
+                }
+            }
+        }
+        unset($visited[$id]);
+        return array(
+            "sections" => array_keys($visited),
+            "pages" => array_keys($pages),
+        );
+    }
+
+    /**
      * Fetch the content of the section fields from the database given a section
      * id.
      *
