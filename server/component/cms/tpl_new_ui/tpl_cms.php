@@ -6,12 +6,13 @@
 <div class="sticky-top">   
     <div id="multiple-users-warning"><?php $this->output_check_multiple_users(); ?></div>    
     <?php $this->output_breadcrumb(); ?>
+    <?php $this->output_outline_toolbar(); ?>
 </div>
 <div id="ui-cms">
     <?php
-    // Modal before page preview so unclosed tags in section HTML cannot nest
-    // #ui-add-section-modal inside #section-page-view.
+    // The page is not rendered in the CMS. The sections are shown as an outline
+    // and the properties of the selected section are loaded on the right.
     $this->output_modal_add_section();
-    $this->output_page_preview();
+    $this->output_page_outline();
     ?>
 </div>

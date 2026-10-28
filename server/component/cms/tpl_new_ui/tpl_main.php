@@ -27,6 +27,7 @@
     </div>
 
     <?php $this->output_ui_middle(); ?>
+    <?php $this->output_modal_import_page(); ?>
 
     <div id="properties" class="properties-expanded <?php echo $this->expand_ui_properties(); ?>" data-styles="<?php echo htmlspecialchars(json_encode($this->get_styles()), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="d-flex h-100 flex-column">
