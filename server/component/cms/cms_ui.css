@@ -1,85 +1,7 @@
 /************************* UI CMS **********************************************************************************************/
 
-.ui-section-btn {
-    cursor: pointer;
-    height: 36px;
-    padding: 10px;
-    pointer-events: auto;
-}
-
-.ui-menu-btn {
-    cursor: pointer;
-    pointer-events: auto;
-    height: 36px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-top: -10px;
-}
-
-.ui-menu-holder {
-    border: 1.5px solid;
-    border-color: var(--primary);
-    height: 27px;
-}
-
-.ui-section-holder {
-    border: 1.5px solid;
-    position: relative;
-    border-color: var(--secondary);
-}
-
 #ui-middle {
     width: calc(100% - 720px);
-}
-
-.ui-buttons-holder {
-    display: none;
-    top: -18px;
-    bottom: -18px;
-    left: -18px;
-    right: -18px;
-    pointer-events: none;
-}
-
-.ui-section-holder:hover {
-    border-color: var(--primary);
-}
-
-.ui-section-holder:hover>.ui-buttons-holder {
-    display: flex !important;
-    z-index: 100;
-}
-
-.grabbable {
-    cursor: move;
-    /* fallback if grab cursor is unsupported */
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-}
-
-/* (Optional) Apply a "closed-hand" cursor during drag operation. */
-.grabbable:active {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
-}
-
-.section-children-ui-cms {
-    min-height: 50px;
-    border: 1.5px dotted !important;
-    border-color: var(--secondary) !important;
-}
-
-.drag-ghost {
-    opacity: 0.4;
-    background-color: var(--primary) !important;
-    width: 200px;
-    height: 100px;
-}
-
-.ui-icon-button-white {
-    background-image: radial-gradient(at center, white 20%, transparent 20%);
 }
 
 .ui-card-list {
@@ -97,10 +19,6 @@
 
 #properties {
     border-left: 1px solid rgba(0, 0, 0, .125);
-}
-
-#properties .section-children-ui-cms {
-    border: none !important;
 }
 
 #collapsePropertiesBtn {
@@ -203,19 +121,6 @@
     border-top: none;
 }
 
-#ui-cms>.section-view {
-    margin: 0 !important;
-    border: none;
-}
-
-#ui-cms>.card>.card-body {
-    padding: 0.5rem;
-}
-
-#ui-cms>.section-view>.card-header {
-    display: none !important;
-}
-
 .sidebar-expanded {
     min-width: 220px;
     max-width: 300px;
@@ -310,24 +215,11 @@
 }
 
 #ui-add-section-modal .modal-dialog {
-    max-width: 80% !important;
-}
-
-.ui-marked-section {
-    border-color: var(--success);
-}
-
-.ui-marked-section:hover {
-    border-color: var(--success);
+    max-width: 760px;
 }
 
 .ui-nav-help {
     max-width: 420px;
-}
-
-.ui-dotted-border {
-    border: 1.5px dotted !important;
-    border-color: var(--secondary) !important;
 }
 
 .sticky-top #multiple-users-warning #section-multiple-users-warning-alert {
@@ -341,4 +233,354 @@
     border-left: 0;
     border-bottom: 0;
     border-right: 0;
+}
+
+/************************* Outline of the page sections ************************************************************************/
+
+#ui-middle>.sticky-top {
+    background-color: var(--white);
+}
+
+.ui-outline-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    background-color: var(--white);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+}
+
+.ui-outline-filter {
+    position: relative;
+    flex: 1 1 200px;
+    max-width: 360px;
+}
+
+.ui-outline-filter>i {
+    position: absolute;
+    left: .6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: .8rem;
+    pointer-events: none;
+}
+
+.ui-outline-filter>input {
+    padding-left: 1.9rem;
+}
+
+.ui-outline-count {
+    min-width: 4.5rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.ui-outline {
+    padding: .5rem .5rem 4rem .5rem;
+}
+
+.ui-outline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ui-outline-list .ui-outline-list {
+    margin-left: 1.15rem;
+    padding-left: .4rem;
+    border-left: 1px solid #dee2e6;
+}
+
+.ui-outline-node.is-collapsed>.ui-outline-list {
+    display: none;
+}
+
+.ui-outline.is-filtering .ui-outline-node.is-collapsed>.ui-outline-list {
+    display: block;
+}
+
+.ui-outline.is-filtering .ui-outline-node.is-filtered-out,
+.ui-outline.is-filtering .ui-outline-placeholder {
+    display: none;
+}
+
+.ui-outline-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 2.15rem;
+    padding: 0 .25rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+
+.ui-outline-row:hover {
+    background-color: #f1f3f5;
+}
+
+.ui-outline-row.is-selected {
+    background-color: #e7f1ff;
+    border-color: #b6d4fe;
+}
+
+.ui-outline-page-row {
+    margin-bottom: .35rem;
+    font-weight: 600;
+}
+
+.ui-outline-twisty {
+    flex: 0 0 1.4rem;
+    width: 1.4rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #6c757d;
+    font-size: .7rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.ui-outline-twisty.is-empty {
+    cursor: default;
+}
+
+.ui-outline-twisty i {
+    transition: transform .15s;
+}
+
+.ui-outline-node.is-collapsed>.ui-outline-row .ui-outline-twisty i {
+    transform: rotate(-90deg);
+}
+
+.ui-outline-handle {
+    flex: 0 0 auto;
+    margin-right: .25rem;
+    color: #adb5bd;
+    font-size: .75rem;
+    cursor: grab;
+    visibility: hidden;
+}
+
+.ui-outline-row:hover .ui-outline-handle {
+    visibility: visible;
+}
+
+.ui-outline-link {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    padding: .3rem .25rem;
+    color: #212529;
+    text-decoration: none;
+}
+
+.ui-outline-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.ui-outline-style {
+    flex: 0 0 auto;
+    margin-right: .5rem;
+    font-weight: 500;
+}
+
+.ui-outline-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.ui-outline-name.is-auto {
+    font-weight: 400;
+}
+
+.ui-outline-snippet {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-left: .6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #6c757d;
+    font-size: .85rem;
+}
+
+.ui-outline-id {
+    flex: 0 0 auto;
+    margin: 0 .5rem;
+    color: #adb5bd;
+    font-size: .72rem;
+}
+
+.ui-outline-actions {
+    display: none;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+.ui-outline-row:hover .ui-outline-actions,
+.ui-outline-row:focus-within .ui-outline-actions,
+.ui-outline-row.is-selected .ui-outline-actions {
+    display: inline-flex;
+}
+
+.ui-outline-btn {
+    padding: .2rem .4rem;
+    border: 0;
+    border-radius: .2rem;
+    background: none;
+    font-size: .9rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.ui-outline-btn:hover {
+    background-color: rgba(0, 0, 0, .08);
+}
+
+.ui-outline-actions .dropdown-menu {
+    min-width: 12rem;
+    font-size: .875rem;
+}
+
+.ui-outline-placeholder {
+    padding: .1rem 0 .1rem 1.4rem;
+}
+
+.ui-outline-placeholder .btn-link {
+    padding: .1rem .3rem;
+    color: #6c757d;
+    font-size: .8rem;
+}
+
+.ui-outline-ghost {
+    opacity: .7;
+}
+
+.ui-outline-ghost>.ui-outline-row {
+    border: 1px dashed var(--success);
+    background-color: #d1e7dd;
+}
+
+@keyframes ui-outline-flash {
+    from {
+        background-color: #ffe69c;
+    }
+
+    to {
+        background-color: transparent;
+    }
+}
+
+.ui-outline-row.is-flash {
+    animation: ui-outline-flash 1.8s ease-out;
+}
+
+.ui-outline-empty-state,
+.ui-outline-no-match {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.ui-outline-no-match {
+    padding: 1.5rem 1rem;
+}
+
+.ui-outline-note {
+    font-size: .875rem;
+}
+
+/* the UI is blocked while a request is running */
+body.cms-busy {
+    cursor: progress;
+}
+
+body.cms-busy #ui-middle,
+body.cms-busy #properties {
+    opacity: .6;
+    pointer-events: none;
+}
+
+/* quick search in the properties header (next to the collapse button) */
+#collapsePropertiesBtn .ui-field-search {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: .5rem;
+}
+
+#collapsePropertiesBtn .ui-field-search>input {
+    padding-left: 1.75rem;
+}
+
+#collapsePropertiesBtn .ui-field-search-icon {
+    position: absolute;
+    left: .55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: .8rem;
+    pointer-events: none;
+}
+
+#collapsePropertiesBtn .ui-field-search-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    padding: .1rem .25rem 0;
+    line-height: 1.1;
+    font-size: .7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+/* when the properties panel is collapsed only the toggle icon stays */
+#properties.sidebar-collapsed .ui-field-search {
+    display: none !important;
+}
+
+/* modal which adds sections: the full description of the selected style */
+.ui-add-section-description {
+    max-height: 13rem;
+    margin-top: .75rem;
+    padding: .6rem .85rem;
+    overflow-y: auto;
+    border: 1px solid #b6d4fe;
+    border-left: 4px solid var(--info);
+    border-radius: .25rem;
+    background-color: #f1f7ff;
+    color: #343a40;
+    font-size: .9rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+}
+
+.ui-add-section-description p {
+    margin-bottom: .5rem;
+}
+
+.ui-add-section-description p:last-child {
+    margin-bottom: 0;
+}
+
+.ui-add-section-description code {
+    padding: .1rem .3rem;
+    border-radius: .2rem;
+    background-color: rgba(0, 0, 0, .06);
+}
+
+#ui-add-section-modal .bootstrap-select {
+    flex: 1 1 auto;
+    width: auto !important;
 }
