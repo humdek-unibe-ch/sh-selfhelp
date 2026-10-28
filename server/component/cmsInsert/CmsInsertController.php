@@ -41,15 +41,14 @@ class CmsInsertController extends BaseController
             && isset($_POST['protocol']) && isset($_POST['type']))
         {
             $this->name = filter_var($_POST["keyword"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            if (!preg_match_all('/^' . NAME_PATTERN . '$/', $this->name, $res)) {
+            $keyword_error = $this->model->get_keyword_error($this->name);
+            if ($keyword_error) {
                 $this->fail = true;
-                $this->error_msgs[] = "The name is not in the correct format!";
+                $this->error_msgs[] = $keyword_error; // the name is already html encoded by the filter
                 return;
             }
             foreach($_POST['protocol'] as $protocol)
-                if($protocol != "GET" && $protocol != "POST"
-                    && $protocol != "PATCH" && $protocol != "PUT"
-                    && $protocol != "DELTE")
+                if(!in_array($protocol, CmsModel::PAGE_PROTOCOLS, true))
                 {
                     $this->fail = true;
                     $this->error_msgs[] = "Failed to create new page: Invalid protocol settings.";
@@ -58,6 +57,12 @@ class CmsInsertController extends BaseController
             $protocol = implode('|', $_POST['protocol']);
             $url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
             $type = filter_var($_POST['type'], FILTER_SANITIZE_NUMBER_INT);
+            if(!$url && $this->name && $type)
+            {
+                // The url field is filled by javascript while typing the
+                // keyword. Derive it if it was left empty (e.g. autofill/paste).
+                $url = '/' . $this->name . (intval($type) == 4 ? '/[i:nav]' : '');
+            }
             if(!$this->name || !$url || !$type)
             {
                 $this->fail = true;
@@ -89,6 +94,17 @@ class CmsInsertController extends BaseController
                 $this->error_msgs[] = "Failed to create new page.";
             }
             $this->model->get_db()->clear_cache();
+            if($this->success)
+            {
+                // Go straight to the editor of the new page, so sections can be
+                // added right away instead of showing an extra success screen.
+                header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
+                    "pid" => $this->pid,
+                    "mode" => "update",
+                    "type" => "prop",
+                )));
+                exit();
+            }
         }
     }
 

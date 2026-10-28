@@ -30,7 +30,7 @@ $(document).ready(function() {
             $headless_check.addClass("d-none");
         }
     });
-    $('input[name="keyword"]').keyup(function() {
+    $('input[name="keyword"]').on('keyup input', function() {
         keyword = $(this).val();
         $url_input.val("/" + keyword + nav);
         $('#sections-field-new > .label').text($(this).val());
