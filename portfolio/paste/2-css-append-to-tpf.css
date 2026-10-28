@@ -1,0 +1,67 @@
+/* ==========================================================================
+   SelfHelp portfolio page  (/portfolio/selfhelp)
+
+   Paste this whole block at the VERY END of  assets/css/tpf.css
+   (October back end: CMS > Assets > css > tpf.css, press Ctrl+End, paste, save).
+   Nothing in it touches the other portfolio pages: every rule starts with
+   .selfhelpTitle, .selfhelpPage or .selfhelpSection.
+   ========================================================================== */
+
+/* Banner of the page (2560 x 512 px image from the same media folder as all other SelfHelp images) */
+.selfhelpTitle{
+    background-image: url('/storage/app/media/projectImgs/selfhelp/selfhelp_banner.jpg');
+    background-position: right center;
+}
+
+/* The banner picture is already dark. On desktop a mask that fades out towards the illustrations keeps the
+   white text readable and the artwork bright. On tablets and phones the text column reaches over the
+   illustrations, so the mask is uniform there and the artwork becomes a subtle background. */
+.selfhelpTitle .maskDim{
+    opacity: 1;
+    background: linear-gradient(90deg, rgba(10,24,48,.55) 0%, rgba(10,24,48,.35) 45%, rgba(10,24,48,0) 75%);
+}
+
+@media (max-width: 991.98px){
+    .selfhelpTitle .maskDim{
+        background: rgba(10,24,48,.75);
+    }
+}
+
+@media (max-width: 767.98px){
+    .selfhelpTitle .maskDim{
+        background: rgba(10,24,48,.86);
+    }
+}
+
+/* .projectTitle is limited to 70% of its column; the longer SelfHelp headings should not wrap early */
+.selfhelpPage .projectTitle{
+    max-width: 100%;
+}
+
+/* Chapter dividers between the groups of rows: "01 . Build", "02 . Collect", ... */
+.selfhelpSection{
+    display: flex;
+    align-items: center;
+    margin: 5rem 1rem 0 1rem;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.selfhelpSection:before{
+    content: '';
+    flex: 0 0 40px;
+    height: 4px;
+    margin-right: 1rem;
+    background-color: #FF0739;
+}
+
+.selfhelpSection:after{
+    content: '';
+    flex: 1 1 auto;
+    height: 1px;
+    margin-left: 1rem;
+    background-color: #dee2e6;
+}
