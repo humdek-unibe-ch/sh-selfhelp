@@ -34,6 +34,15 @@ class CmsExportModel extends BaseModel
      */
     public $json;
 
+    /* Private Properties *****************************************************/
+
+    /**
+     * The ids of the sections which are being exported at the moment (the
+     * section and all its parents). A section which is exported inside itself
+     * is a circular reference.
+     */
+    private $path = array();
+
     /* Constructors ***********************************************************/
 
     /**
@@ -60,6 +69,7 @@ class CmsExportModel extends BaseModel
      */
     private function fetch_section_children($parent_id)
     {
+        $this->enter_section($parent_id);
         $sql = "SELECT parent, child, sh.position, parent.name as psarent_section_name, children.section_name as children_section_name,
                 content, meta, style_name, field_name, locale, gender, children.id_styles, children.id_fields
                 FROM sections_hierarchy sh
@@ -78,7 +88,7 @@ class CmsExportModel extends BaseModel
                 // new child
                 $child = array();
                 $child['section_name'] = $field['children_section_name'];
-                $child['id_sections'] = intval($field['parent']);
+                $child['id_sections'] = intval($field['child']);
                 $child['style_name'] = $field['style_name'];
                 $child['id_styles'] = intval($field['id_styles']);
                 $child['position'] = intval($field['position']);
@@ -101,7 +111,49 @@ class CmsExportModel extends BaseModel
             // add the child only if exists
             $children[] = $child;
         }
+        unset($this->path[intval($parent_id)]);
         return $children;
+    }
+
+    /**
+     * Mark a section as being exported. A section can be used in several
+     * places (it is exported in each of them) but it can never contain itself.
+     * @param int $id the id of the section
+     * @throws Exception if the section is already being exported
+     */
+    private function enter_section($id)
+    {
+        $id = intval($id);
+        if (isset($this->path[$id])) {
+            throw new Exception("The section with the id " . $id . " contains itself (circular reference). It cannot be exported.");
+        }
+        $this->path[$id] = true;
+    }
+
+    /**
+     * Checks whether the user may export a section. The access rights of
+     * sections are inherited from pages: the user needs select access to at
+     * least one page which uses the section. A section which is not assigned
+     * to a page has no page to inherit from, the access to the export is
+     * granted by the route.
+     * @param int $id the id of the section
+     * @retval bool true if the section can be exported
+     */
+    private function can_export_section($id)
+    {
+        $lineage = $this->db->fetch_section_lineage($id);
+        if ($lineage === false) {
+            return false;
+        }
+        if (count($lineage['pages']) === 0) {
+            return true;
+        }
+        foreach ($lineage['pages'] as $id_page) {
+            if ($this->acl->has_access_select($_SESSION['id_user'], $id_page)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -145,6 +197,113 @@ class CmsExportModel extends BaseModel
         return $json;
     }
 
+    /**
+     * Add the navigation items (`sections_navigation`) to a section and to all
+     * its descendants. Navigation items are linked to a page and not to the
+     * section hierarchy, so they are not part of a plain section export.
+     * @param array $section
+     * the exported section, it is extended with the key `nav_children`
+     */
+    private function attach_nav_children(&$section)
+    {
+        $this->enter_section($section['id_sections']);
+        $items = $this->db->query_db(
+            "SELECT child, position FROM sections_navigation WHERE parent = :id ORDER BY position, child",
+            array(":id" => $section['id_sections'])
+        );
+        foreach ($items as $item) {
+            $nav_json = $this->fetch_section(intval($item['child']));
+            if (!isset($nav_json['section'])) {
+                continue;
+            }
+            $nav_section = $nav_json['section'];
+            $nav_section['position'] = intval($item['position']);
+            $this->attach_nav_children($nav_section);
+            $section['nav_children'][] = $nav_section;
+        }
+        foreach ($section['children'] as $idx => $child) {
+            $this->attach_nav_children($section['children'][$idx]);
+        }
+        unset($this->path[intval($section['id_sections'])]);
+    }
+
+    /**
+     * Fetch the page that we want to export. The page contains its own
+     * properties, the page fields (title, description, ...) and all sections
+     * (including their children) which are assigned to the page. Navigation
+     * pages also contain the navigation container and its items.
+     * @param int $id page id that we want to export
+     * @retval array
+     * Array with the page information or false if the page does not exist
+     */
+    private function fetch_page($id)
+    {
+        $page = $this->db->query_db_first(
+            "SELECT p.id, p.keyword, p.url, p.protocol, p.is_headless, p.id_navigation_section,
+                    a.name AS action, pt.name AS page_type, l.lookup_code AS page_access_type
+            FROM pages AS p
+            LEFT JOIN actions AS a ON a.id = p.id_actions
+            LEFT JOIN pageType AS pt ON pt.id = p.id_type
+            LEFT JOIN lookups AS l ON l.id = p.id_pageAccessTypes
+            WHERE p.id = :id",
+            array(":id" => $id)
+        );
+        if (!$page) {
+            return false;
+        }
+        $json = array();
+        $json['page'] = array(
+            'keyword' => $page['keyword'],
+            'url' => (string)$page['url'],
+            'protocol' => (string)$page['protocol'],
+            'action' => (string)$page['action'],
+            'page_type' => (string)$page['page_type'],
+            'page_access_type' => (string)$page['page_access_type'],
+            'is_headless' => (bool)intval($page['is_headless']),
+            'fields' => array(),
+            'sections' => array()
+        );
+        $fields = $this->db->query_db(
+            "SELECT f.name AS field_name, l.locale, pft.content
+            FROM pages_fields_translation AS pft
+            INNER JOIN fields AS f ON f.id = pft.id_fields
+            INNER JOIN languages AS l ON l.id = pft.id_languages
+            WHERE pft.id_pages = :id
+            ORDER BY f.name, l.id",
+            array(":id" => $id)
+        );
+        foreach ($fields as $field) {
+            $json['page']['fields'][] = array(
+                "field_name" => $field['field_name'],
+                "locale" => $field['locale'],
+                "content" => (string)$field['content']
+            );
+        }
+        $sections = $this->db->query_db(
+            "SELECT id_sections, position FROM pages_sections WHERE id_pages = :id ORDER BY position, id_sections",
+            array(":id" => $id)
+        );
+        foreach ($sections as $row) {
+            $section_json = $this->fetch_section(intval($row['id_sections']));
+            if (!isset($section_json['section'])) {
+                continue;
+            }
+            $section = $section_json['section'];
+            $section['position'] = intval($row['position']);
+            $this->attach_nav_children($section);
+            $json['page']['sections'][] = $section;
+        }
+        if ($page['id_navigation_section']) {
+            $nav_json = $this->fetch_section(intval($page['id_navigation_section']));
+            if (isset($nav_json['section'])) {
+                $nav_section = $nav_json['section'];
+                $this->attach_nav_children($nav_section);
+                $json['page']['navigation_section'] = $nav_section;
+            }
+        }
+        return $json;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -154,21 +313,48 @@ class CmsExportModel extends BaseModel
     public function export_json()
     {
         $this->json = null;
-        if ($this->type == 'section' && $this->id > 0) {
-            $this->json = $this->fetch_section($this->id);
+        $schema_file = null;
+        $file_name = PROJECT_NAME . '_' . $this->type . '_' . $this->id;
+        try {
+            if ($this->type == 'section' && $this->id > 0) {
+                if (!$this->can_export_section($this->id)) {
+                    $this->json = 'Error: You do not have access to this section.';
+                    return false;
+                }
+                $this->json = $this->fetch_section($this->id);
+                $schema_file = 'section.json';
+            } else if ($this->type == 'page' && $this->id > 0) {
+                if (!$this->acl->has_access_select($_SESSION['id_user'], $this->id)) {
+                    $this->json = 'Error: You do not have access to this page.';
+                    return false;
+                }
+                $this->json = $this->fetch_page($this->id);
+                $schema_file = 'page.json';
+                if ($this->json) {
+                    $file_name = PROJECT_NAME . '_page_' . $this->json['page']['keyword'];
+                }
+            }
+        } catch (Exception $e) {
+            // e.g. a circular reference in the sections
+            $this->json = 'Error: ' . $e->getMessage();
+            return false;
         }
-        $this->json['file_name'] = PROJECT_NAME . '_' . $this->type . '_' . $this->id;
+        if ($schema_file === null) {
+            $this->json = 'Error: Unknown export type.';
+            return false;
+        }
+        if (!$this->json) {
+            $this->json = 'Error: The ' . $this->type . ' was not found.';
+            return false;
+        }
+        $this->json['file_name'] = $file_name;
         $this->json['time'] = date("Y-m-d H:i:s");
         $this->json['platform'] = PROJECT_NAME;
         $this->json['version'] = array(
             "application" => $this->db->get_git_version(__DIR__),
             "database" => $this->db->query_db_first('SELECT version FROM version')['version']
         );
-        if ($this->type == 'section') {
-            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../../schemas/section.json')));
-        } else {
-            // $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/page.json')));
-        }
+        $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../../schemas/' . $schema_file)));
         try {
             $validate = json_decode(json_encode($this->json), FALSE);
             $schema->in($validate);
