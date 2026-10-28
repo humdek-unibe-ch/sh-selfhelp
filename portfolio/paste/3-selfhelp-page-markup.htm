@@ -1,0 +1,539 @@
+{% partial 'site/backButton' link = '/portfolio' label = 'Portfolio' %}    
+<div>        
+    <div class='portfolioTitle selfhelpTitle'>
+        <div class='maskDim'></div>
+        <div class="container py-5 holder">
+            <div class="row align-items-center my-4">
+                <div class="col-md-auto text-center mb-md-0 mb-3">
+                    <img src="/storage/app/media/projectImgs/selfhelp/selfhelp.png" width='96' alt="SelfHelp logo">
+                </div>
+                <div class="col-md">
+                    <h1 class='text-light'>SelfHelp</h1>
+                    <h5 class='text-light w-md-50'>Build, run and automate web and mobile studies, interventions and self-help programmes &ndash; without writing code.</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container my-5 selfhelpPage">    
+        <div class='row mt-5'>
+            <div class="col-md m-3">
+                <div class = 'card'>
+                    <div class="card-header TPFBGColor lighten-1 white-text headerImg">
+                         <h3 class="mb-0">SelfHelp Summary</h3>                                                
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item">Compose pages from ready-made styles &ndash; 69 in the core, more from every plugin &ndash; directly in the browser</li>
+                          <li class="list-group-item">Collect answers with forms, surveys and experiments in one structured data model</li>
+                          <li class="list-group-item">Show data back to participants as dashboards, progress feedback and personalised texts</li>
+                          <li class="list-group-item">Automate e-mails, push notifications and reminders with form actions and scheduled jobs</li>
+                          <li class="list-group-item">Decide with a visual condition builder who sees what &ndash; and when</li>
+                          <li class="list-group-item">Run every study in as many languages as you need</li>
+                          <li class="list-group-item">Protect data with roles, groups, page-level permissions and two-factor authentication</li>
+                          <li class="list-group-item">Extend the system with 15 public plugins: SurveyJS, lab.js, Qualtrics, R, Plotly, LLM chat and more</li>
+                          <li class="list-group-item">Serve one set of pages as a responsive website and as JSON for mobile apps</li>
+                          <li class="list-group-item">Open source (Mozilla Public License 2.0) &ndash; vanilla PHP and MySQL, no framework to learn</li>
+                          <li class="list-group-item">Studies built with SelfHelp are reported in 15 journal articles &ndash; clinical psychology, health behaviour change and education</li>
+                        </ul>                                           
+                    </div>
+                </div>
+            </div>
+            <div class = 'col-md m-3'>
+                <h4 class='projectTitle'>The story behind SelfHelp</h4>
+                <p class='text-muted'>SelfHelp is a web platform developed at the University of Bern for conducting research experiments and intervention studies. Instead of building a new application for each study, researchers can define their studies through a browser-based interface. Pages, forms, texts, rules, and reminders are stored in a database and can be easily managed and updated without programming.
+
+                    SelfHelp is now in its seventh major version and continues to evolve with a growing ecosystem of plugins.</p>
+                <div class="d-flex mt-2">
+                    <i class="fa fa-lightbulb-o fa-3x" style='min-width:60px;'></i>
+                    <div class = "ml-2">
+                        <h5><b>Idea</b></h5>
+                        <div>One platform instead of a custom application per study. Every study gets a clean website and a mobile-ready interface from the same configuration.</div>
+                    </div>
+                </div>
+                <div class="d-flex mt-2">
+                    <i class="fa fa-dot-circle-o fa-3x" style='min-width:60px;'></i>
+                    <div class = "ml-2 ">
+                        <h5><b>Goals</b></h5>
+                        <ul>
+                            <li>Let researchers build and change a study without a developer</li>
+                            <li>Store every answer in a structure that is ready for analysis</li>
+                            <li>Keep participants engaged with reminders and personal feedback</li>
+                            <li>Protect sensitive data with fine-grained permissions</li>
+                            <li>Stay open: open source and extensible through plugins and hooks</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="d-flex mt-2">
+                    <i class="fa fa-github fa-3x" style='min-width:60px;'></i>
+                    <div class = "ml-2">
+                        <h5><b>Open source</b></h5>
+                        <div>The code, the releases and all public plugins are available on GitHub &ndash; see the links at the bottom of this page.</div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>01 &middot; Build</h3>
+        <div class='row my-5'>            
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>One system, two sides</h4>
+                <p>SelfHelp separates what you edit from what participants see. Authors work in a browser-based editor; participants get a clean, responsive website &ndash; and the very same pages are available as JSON for the mobile app.</p>
+                <p>Pages, sections, styles, fields, routes and permissions are stored in the database. A study can therefore be changed live, exported as JSON and imported into another installation.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/01_overview.jpg" data-toggle="lightbox" data-title="One system, two sides" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/01_overview.jpg" class='w-100 img-thumbnail' alt="The SelfHelp page editor next to the website that participants see" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/02_page_builder.jpg" data-toggle="lightbox" data-title="Build pages from blocks" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/02_page_builder.jpg" class='w-100 img-thumbnail' alt="Section tree and field editor of the SelfHelp page builder" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Build pages from blocks</h4>
+                <p>A page is a tree of sections. Every section has a style &ndash; container, card, markdown, form, progress bar and many more &ndash; and every style brings its own fields.</p>
+                <ul>
+                    <li>Add, move and delete sections in place</li>
+                    <li>Filter the tree by name, style or text</li>
+                    <li>Edit every field in a side panel</li>
+                    <li>Import and export pages as JSON</li>
+                </ul>
+            </div>            
+        </div>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>77 ready-made styles</h4>
+                <p>Layout containers, navigation, forms, inputs, media, lists, text, conditional containers, account pages and more. Each style renders HTML for the web and JSON for the mobile app. In the demo installation shown here the core ships 69 styles and four plugins (SurveyJS, lab.js, LLM and the formula parser) add eight more.</p>
+                <p>Every style is a small component built from a model, a view and an optional controller &ndash; adding your own follows the same pattern.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/03_components.jpg" data-toggle="lightbox" data-title="77 ready-made styles" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/03_components.jpg" class='w-100 img-thumbnail' alt="Overview of all SelfHelp styles grouped by purpose" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/04_languages.jpg" data-toggle="lightbox" data-title="Every language, one page" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/04_languages.jpg" class='w-100 img-thumbnail' alt="The same page in English, German and French next to the translation editor" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Every language, one page</h4>
+                <p>Each field holds one translation per language. Switch the language and everything follows &ndash; menus, headings, form questions and answer options.</p>
+                <p>Participants choose their language with the language picker. The demo study shown here runs in German, English and French.</p>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>02 &middot; Collect</h3>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>Forms that store structured data</h4>
+                <p>Combine inputs, sliders, radio buttons, selects, check boxes and text areas into forms. <b>Record forms</b> keep one entry per participant and update it on every save; <b>log forms</b> append a new entry each time &ndash; ideal for diaries and repeated measures.</p>
+                <p>Answers are validated on the server and stored as data you can query. Every save can also trigger automation.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/05_forms.jpg" data-toggle="lightbox" data-title="Forms that store structured data" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/05_forms.jpg" class='w-100 img-thumbnail' alt="A daily check-in form on desktop and on a phone" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/06_surveys.jpg" data-toggle="lightbox" data-title="Surveys and experiments" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/06_surveys.jpg" class='w-100 img-thumbnail' alt="The SurveyJS designer and its live preview" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Surveys and experiments</h4>
+                <p>The <b>SurveyJS</b> plugin adds a drag-and-drop survey designer with live preview, themes, logic, translations, versions and a results dashboard. For behavioural tasks, the <b>lab.js</b> plugin runs experiments in the browser and stores the results like any other form.</p>
+                <p>Prefer Qualtrics? The Qualtrics plugin manages surveys and processes their responses.</p>
+            </div>            
+        </div>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>One data model for everything</h4>
+                <p>Forms, surveys, experiments, AI chats, API calls and wearables all write through the same four tables: <em>dataTables</em>, <em>dataCols</em>, <em>dataRows</em> and <em>dataCells</em>. A new form simply defines new columns &ndash; no new database table is needed.</p>
+                <p>Each record keeps its participant, a timestamp and the trigger that saved it (started, updated, finished or deleted). Reading pivots the cells back into a table with one row per record.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/07_data_model.jpg" data-toggle="lightbox" data-title="One data model for everything" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/07_data_model.jpg" class='w-100 img-thumbnail' alt="Diagram of the unified data model with sources, core tables and uses" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/08_data_browser.jpg" data-toggle="lightbox" data-title="Browse and export every answer" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/08_data_browser.jpg" class='w-100 img-thumbnail' alt="The data table of a form with export buttons and search" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Browse and export every answer</h4>
+                <p>Every form and survey gets its own table in the admin area. Search, sort and copy or export to CSV and Excel with one click.</p>
+                <p>The same data feeds dashboards, reports and automation.</p>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>03 &middot; Use the data</h3>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>Show data back to participants</h4>
+                <p>A data config loads records into a section &ndash; the first, the last or all of them, for the logged-in participant or for everyone. Text fields accept placeholders such as <code>&#123;&#123;last.mood&#125;&#125;</code>, and lists repeat for every record.</p>
+                <p>Dashboards, progress feedback and personalised messages need no custom code.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/09_show_data.jpg" data-toggle="lightbox" data-title="Show data back to participants" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/09_show_data.jpg" class='w-100 img-thumbnail' alt="The data config builder and the resulting progress dashboard" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/10_conditions.jpg" data-toggle="lightbox" data-title="The right content for the right person" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/10_conditions.jpg" class='w-100 img-thumbnail' alt="The visual condition builder with nested AND and OR groups" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>The right content for the right person</h4>
+                <p>A visual condition builder combines rules with AND / OR and nests groups as deep as needed. Rules can check the user group, form field values, the current date or time, the page, the platform, the language or the last login &ndash; and are stored as JsonLogic.</p>
+                <p>Attach them to sections, navigation entries, form actions and scheduled jobs.</p>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>04 &middot; Automate</h3>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>From one tap to the right message</h4>
+                <p>A form action watches a form or survey. When it is started, updated, finished or deleted, the action checks its rules and schedules jobs: an e-mail right away, a push notification tomorrow, a reminder on Monday at 09:00.</p>
+                <p>No scripts to write &ndash; the job scheduler queues and executes mails, push notifications and tasks, and every change is written to the audit trail.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/11_automation.jpg" data-toggle="lightbox" data-title="From one tap to the right message" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/11_automation.jpg" class='w-100 img-thumbnail' alt="Workflow from a saved form to e-mails and reminders" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/12_action_editor.jpg" data-toggle="lightbox" data-title="Configure automation in the browser" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/12_action_editor.jpg" class='w-100 img-thumbnail' alt="The form action editor with blocks, jobs, schedule and message" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Configure automation in the browser</h4>
+                <p>Group jobs into blocks, randomise participants into blocks or limit them to target groups. A job can send an e-mail or push notification, run a custom task or add and remove the participant from a group.</p>
+                <p>Schedule jobs immediately, at a fixed date and time, after a period from seconds to months, or on a chosen weekday and time. Messages support placeholders such as <code>@user_name</code>, and reminders can repeat until a date.</p>
+            </div>            
+        </div>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>A transparent job queue</h4>
+                <p>The scheduled-jobs module lists what is queued and what is done, with entry date, planned date and actual execution date. Run the queue on demand, compose a one-off e-mail or notification, or open the calendar view.</p>
+                <p>Copy or export the list to CSV or Excel.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/13_job_queue.jpg" data-toggle="lightbox" data-title="A transparent job queue" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/13_job_queue.jpg" class='w-100 img-thumbnail' alt="The scheduled jobs list with status, type and dates" loading="lazy">
+                </a>
+            </div>
+        </div>
+
+        <h3 class='selfhelpSection'>05 &middot; Protect and extend</h3>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/14_access_control.jpg" data-toggle="lightbox" data-title="Fine-grained access control" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/14_access_control.jpg" class='w-100 img-thumbnail' alt="A database role with its two-factor setting and page permission matrix" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Fine-grained access control</h4>
+                <p>Users belong to groups and database roles. For every role you decide, page by page and module by module, who may select, insert, update or delete &ndash; and whether two-factor authentication is required.</p>
+                <p>Every change in the system is written to the transactions audit trail.</p>
+            </div>            
+        </div>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>AI built in &ndash; on your terms</h4>
+                <p>The LLM plugin adds an AI chat component, scripts and AI-enhanced forms. Connect self-hosted models or any OpenAI-compatible endpoint, set defaults for model, temperature and token limits, and keep conversations, scripts and memory in one admin console.</p>
+                <p>Safety checks detect critical keywords and can block a conversation. Further plugins add a therapist and patient chat with AI drafts and a multi-persona agent chat.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/15_ai.jpg" data-toggle="lightbox" data-title="AI built in &ndash; on your terms" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/15_ai.jpg" class='w-100 img-thumbnail' alt="The LLM admin console with several configured model servers" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/16_plugins.jpg" data-toggle="lightbox" data-title="Fifteen plugins and your own" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/16_plugins.jpg" class='w-100 img-thumbnail' alt="The fifteen public SelfHelp plugins grouped by purpose" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>Fifteen plugins &ndash; and your own</h4>
+                <p>Plugins extend the core without touching it. Each plugin lives in its own repository, ships its own SQL migrations and version number and registers styles, admin modules, jobs and hooks.</p>
+                <p>Hooks let a plugin run alongside a core method or replace its result &ndash; and several hooks can chain &ndash; so even deep behaviour can be adapted without editing core files.</p>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>06 &middot; Everywhere and open</h3>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>Web, mobile and API</h4>
+                <p>Pages are responsive on the web, and every style also renders JSON for the mobile app. Push notifications reach participants on their phones.</p>
+                <p>The REST API plugin exposes data tables to apps and external systems with API keys.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/17_mobile.jpg" data-toggle="lightbox" data-title="Web, mobile and API" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/17_mobile.jpg" class='w-100 img-thumbnail' alt="Three phone screens: welcome page, daily check-in and progress" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class='row my-5'>
+            <div class="col-md m-3 order-2 order-md-1">
+                <a href="/storage/app/media/projectImgs/selfhelp/18_architecture.jpg" data-toggle="lightbox" data-title="A small core, built to be extended" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/18_architecture.jpg" class='w-100 img-thumbnail' alt="Architecture: clients, request pipeline, services, database and plugins" loading="lazy">
+                </a>
+            </div>
+            <div class='col-md m-3 order-1 order-md-2'>
+                <h4 class='projectTitle'>A small core, built to be extended</h4>
+                <p>SelfHelp is vanilla PHP 8.2+ and MySQL 8 on Apache, with jQuery and Bootstrap 4.6 in the browser, APCu caching and Clockwork profiling. A service container hands out the database, router, access control, user input, job scheduler and condition services.</p>
+                <p>The database is the application contract: pages, styles, fields, hooks and permissions live in it and are versioned by SQL migrations. SelfHelp is open source under the Mozilla Public License 2.0.</p>
+            </div>            
+        </div>
+
+        <h3 class='selfhelpSection'>07 &middot; Research</h3>
+        <div class='row my-5'>
+            <div class='col-md m-3'>
+                <h4 class='projectTitle'>Research built with SelfHelp</h4>
+                <p>SelfHelp was built for research experiments and intervention studies &ndash; and research is where it shows its strength. The journal articles below report studies and study protocols that were built with SelfHelp: randomised controlled trials of internet interventions, micro-randomised and full factorial designs, co-design projects and field studies in schools.</p>
+                <p>They cover <b>clinical psychology and internet interventions</b> (7), <b>health behaviour and digital interventions</b> (4) and <b>education and learning</b> (4), and every entry links to its DOI.</p>
+            </div>
+            <div class="col-md m-3">
+                <a href="/storage/app/media/projectImgs/selfhelp/19_publications.jpg" data-toggle="lightbox" data-title="Research built with SelfHelp" data-footer="">
+                    <img src="/storage/app/media/projectImgs/selfhelp/19_publications.jpg" class='w-100 img-thumbnail' alt="15 journal articles by year and research area" loading="lazy">
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-5">
+            <div class="card-header primary-color lighten-1 white-text">
+              <h3>Publications</h3>
+            </div>
+            <div class="card-body">
+               <h5 class="mt-2 mb-2"><span class="badge badge-pill TPFBGColor text-white mr-2">7</span>Clinical psychology and internet interventions</h5>
+               <a href="https://doi.org/10.1016/j.invent.2026.100988" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Stefanie Arnold, Michael Vogt, Dajana &#352;ipka, Johanna B&#246;ttcher, Friederike Fenski, Malte Elson, Thomas Berger, "404: Personal data not found &#8212; Anonymous vs. account-based internet self-help for social anxiety in a partially randomized patient preference trial," <em>Internet Interventions</em> vol. 45:100988, September 2026</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.3389/fpsyg.2026.1684231" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Kirstin Schuerch, Thomas Koenig, Alessandra Guarriello, Leila Soravia, Thomas Berger, Kristina Adorjan, Franz Moggi, Maria Stein, "Mobile alcohol-specific inhibition training in adolescents and young adults with alcohol use disorder: study protocol for a randomized controlled feasibility trial," <em>Frontiers in Psychology</em> vol. 17:1684231, 22. April 2026</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1016/j.brat.2025.104816" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Rodrigo C.T. Lopes, Dajana &#352;ipka, Jillian C. Strayhorn, Javier Fern&#225;ndez &#193;lvarez, Tobias Krieger, Jan Philipp Klein, Thomas Berger, "Explaining the effects of treatment components in internet-based cognitive-behavioral treatment for social anxiety disorder: A factorial mediation analysis," <em>Behaviour Research and Therapy</em> vol. 193:104816, October 2025</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1038/s41598-025-10193-w" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Noemi Walder, Thomas Berger, Dominique H&#252;rzeler, Emily McDougal, Julian Edbrook-Childs, Stefanie J. Schmidt, "Prevention and treatment of social anxiety disorder in adolescents: mixed method randomised controlled trial of the guided online intervention SOPHIE," <em>Scientific Reports</em> vol. 15(1):25141, 11. July 2025</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.2196/46860" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Oliver Thomas Bur, Thomas Berger, "Participant Adherence and Contact Behavior in a Guided Internet Intervention for Depressive Symptoms: Exploratory Study," <em>JMIR Formative Research</em> vol. 8:e46860, 16. December 2024</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.2196/36358" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">No&#235;mi Seewer, Andrej Skoko, Anton K&#228;ll, Gerhard Andersson, Maike Luhmann, Thomas Berger, Tobias Krieger, "Evaluating the Efficacy of a Guided and Unguided Internet-Based Self-help Intervention for Chronic Loneliness: Protocol for a 3-Arm Randomized Controlled Trial," <em>JMIR Research Protocols</em> vol. 11(7):e36358, 22. July 2022</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1016/j.brat.2022.104070" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Oliver Thomas Bur, Tobias Krieger, Steffen Moritz, Jan Philipp Klein, Thomas Berger, "Optimizing the context of support of web-based self-help in individuals with mild to moderate depressive symptoms: A randomized full factorial trial," <em>Behaviour Research and Therapy</em> vol. 152:104070, May 2022</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <h5 class="mt-4 mb-2"><span class="badge badge-pill TPFBGColor text-white mr-2">4</span>Health behaviour and digital interventions</h5>
+               <a href="https://doi.org/10.1111/aphw.70161" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Dario Baretta, Carole Lynn R&#252;ttimann, Jennifer Inauen, "Theory-based promotion of diet and transportation behavior change to reduce carbon footprint among students: Randomized parallel trial of the GROW app," <em>Applied Psychology: Health and Well-Being</em> vol. 18(3):e70161, June 2026</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1111/bcpt.70091" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Kristie Rebecca Weir, Cl&#233;mentine Tombez, Yvonne Mattmann, Sofia C. Zambrano, Eliza Ferguson, Katharina Tabea Jungo, Martina Zangger, Shana Volken, Enriqueta Vallejo-Yag&#252;e, Renata Vidonscky L&#252;thold, Angela Edith Schulthess-Lisibach, Christof Bieri, Michaela Barbier, Pascal Juillerat, Sven Streit, Jennifer Inauen, "Development of a Deprescribing Intervention for Proton Pump Inhibitors in Primary Care: A Co-Design Approach With General Practitioners and Patients," <em>Basic &amp; Clinical Pharmacology &amp; Toxicology</em> vol. 137(3):e70091, September 2025</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1111/aphw.12605" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Dario Baretta, Noemi Gillmann, Robert Edgren, Jennifer Inauen, "HabitWalk: A micro-randomized trial to understand and promote habit formation in physical activity," <em>Applied Psychology: Health and Well-Being</em> vol. 17(1):e12605, February 2025</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.2196/43241" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Dario Baretta, Melanie Alexandra Amrein, Carole B&#228;der, Gian Giacomo Ruschetti, Carole R&#252;ttimann, Maria Del Rio Carral, Carlo Fabian, Jennifer Inauen, "Promoting Hand Hygiene During the COVID-19 Pandemic: Parallel Randomized Trial for the Optimization of the Soapp App," <em>JMIR mHealth and uHealth</em> vol. 11:e43241, 3. February 2023</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <h5 class="mt-4 mb-2"><span class="badge badge-pill TPFBGColor text-white mr-2">4</span>Education and learning</h5>
+               <a href="https://doi.org/10.1016/j.learninstruc.2026.102394" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Mathias Mejeh, Yvonne M. Fromm, "Fostering self-regulated learning through adaptive learning technology: A differentiated perspective on the role of feedback," <em>Learning and Instruction</em> vol. 105:102394, October 2026</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1111/bjep.70100" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Julia Mori, Melanie Nuoffer, Katja Saxer, Jakob Schnell, Tina Hascher, "Promoting student well-being in schools: Intervention effects and the role of student&#8211;student relationships and intrinsic motivation," <em>British Journal of Educational Psychology</em>, 3. June 2026</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1007/s10639-024-12510-8" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Mathias Mejeh, Livia Sarbach, Tina Hascher, "Effects of adaptive feedback through a digital tool &#8211; a mixed-methods study on the course of self-regulated learning," <em>Education and Information Technologies</em> vol. 29(14):17763&ndash;17805, October 2024</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+               <a href="https://doi.org/10.1007/s12186-022-09298-4" class="linkObject rounded border mt-1" target="_blank">
+                   <span>
+                       <span class="mb-0">Mathias Mejeh, Tanja Held, "Understanding the Development of Self-Regulated Learning: An Intervention Study to Promote Self-Regulated Learning in Vocational Schools," <em>Vocations and Learning</em> vol. 15(3):531&ndash;568, October 2022</span>
+                       <i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </span>
+               </a>
+            </div>
+        </div>
+        <div class="card mt-5">
+            <div class="card-header primary-color lighten-1 white-text">
+              <h3>Links</h3>
+            </div>
+            <div class="card-body">        
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-selfhelp" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">GitHub: <b><em>SelfHelp &ndash; source code, issues and installation</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-selfhelp/tags" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">GitHub: <b><em>SelfHelp releases</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://demo-selfhelp.psy.unibe.ch/styles" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">SelfHelp Demo: <b><em>All styles at a glance</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://demo-selfhelp.psy.unibe.ch/extend" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">SelfHelp Demo: <b><em>How to extend SelfHelp with new styles and components</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-selfhelp/blob/main/doc/documentation/README.md" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Docs: <b><em>SelfHelp CMS User Guide</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+            </div>
+        </div>
+        <div class="card mt-5">
+            <div class="card-header primary-color lighten-1 white-text">
+              <h3>Plugins on GitHub</h3>
+            </div>
+            <div class="card-body">        
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-survey_js" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">SurveyJS designer, themes and dashboard: <b><em>sh-shp-survey_js</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-lab_js" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">lab.js experiments in the browser: <b><em>sh-shp-lab_js</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-qualtrics" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Qualtrics survey management and responses: <b><em>sh-shp-qualtrics</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-llm" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">AI chat, scripts and AI-enhanced forms: <b><em>sh-shp-llm</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-llm_agentic_chat" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Multi-persona agent chat: <b><em>sh-shp-llm_agentic_chat</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-llm_therapy_chat" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Therapist and patient chat with AI drafts: <b><em>sh-shp-llm_therapy_chat</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-chat" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Therapist and subject messaging: <b><em>sh-shp-chat</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-formula_parser" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Formulas in configuration: <b><em>sh-shp-formula_parser</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-plotly_graphs" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Interactive Plotly charts: <b><em>sh-shp-plotly_graphs</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-r_serve" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Statistics with R via Rserve: <b><em>sh-shp-r_serve</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-api" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">REST API with API keys: <b><em>sh-shp-api</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-auth_external" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Single sign-on (Azure AD): <b><em>sh-shp-auth_external</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-fitrockr" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Wearable data via Fitrockr: <b><em>sh-shp-fitrockr</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-mobisense" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Mobile sensing via Mobisense: <b><em>sh-shp-mobisense</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+               <div class="mt-2 mb-2">
+                   <a href="https://github.com/humdek-unibe-ch/sh-shp-mobile_styles" class="linkObject rounded border" target="_blank">
+                       <span class="h5 mb-0">Styles for the mobile app: <b><em>sh-shp-mobile_styles</em></b></span><i class="fa fa-link float-right" aria-hidden="true"></i>
+                   </a>
+               </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
