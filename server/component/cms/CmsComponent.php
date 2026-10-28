@@ -67,13 +67,19 @@ class CmsComponent extends BaseComponent
         $nav_sections = array();
         if($params["type"] == RELATION_SECTION_NAV || $params["type"] == RELATION_PAGE_NAV)
             $nav_sections = $this->model->get_navigation_hierarchy();
+        // A section may be missing from the hierarchical list right after it was
+        // added (stale cache) or when the url points at a nested section. The
+        // lineage check accepts any section that belongs to the page.
+        $section_ok = function ($id) use ($sections) {
+            return $id == null
+                || $this->is_in_list($id, $sections)
+                || $this->model->section_belongs_to_active_page($id);
+        };
         if(!$skip_ids
             && ((($params['pid'] != null && count($pages) > 0)
                 && !$this->is_in_list($params['pid'], $pages))
-            || (($params['ssid'] != null)
-                && !$this->is_in_list($params['ssid'], $sections))
-            || ($params['sid'] != null
-                && !$this->is_in_list($params['sid'], $sections))
+            || !$section_ok($params['ssid'])
+            || !$section_ok($params['sid'])
             || ($params['did'] != null
                 && !$this->is_in_list($params['did'], $sections)
                 && !$this->is_in_list($params['did'], $nav_sections))))

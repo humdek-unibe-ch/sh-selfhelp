@@ -34,6 +34,16 @@ class CmsUpdateController extends BaseController
     private $insert_fail;
 
     /**
+     * Success flag for moving a section to another list.
+     */
+    private $move_success;
+
+    /**
+     * Fail flag for moving a section to another list.
+     */
+    private $move_fail;
+
+    /**
      * Success flag for removing items.
      */
     private $remove_success;
@@ -64,6 +74,8 @@ class CmsUpdateController extends BaseController
         $this->update_fail_count = 0;
         $this->insert_success = false;
         $this->insert_fail= false;
+        $this->move_success = false;
+        $this->move_fail = false;
         $this->remove_success = false;
         $this->remove_fail= false;
         $this->bad_fields = array();
@@ -95,8 +107,6 @@ class CmsUpdateController extends BaseController
         } else if ($_POST['mode'] == "insert" && isset($_POST['relation']) && $_POST['relation'] != "") {
             $this->insert();
             $this->delete();
-        } else if ($_POST['mode'] == "change_parent" && isset($_POST['relation']) && $_POST['relation'] != "") {
-            $this->insert();
         } else if ($_POST['mode'] == "delete" && isset($_POST['delete_all_unassigned_sections'])) {
             if ($_POST['delete_all_unassigned_sections'] == 'DELETE_ALL') {
                 if ($this->model->delete_all_unassigned_sections()) {
@@ -118,69 +128,6 @@ class CmsUpdateController extends BaseController
     /* Private Methods ********************************************************/
 
     /**
-     * Check if a JSON value is dynamically set with {{}} and if it is accept it
-     * @return boolean
-     */
-    private function check_json_for_dynamic_content($value){
-        preg_match('~{{.*?}}~s', $value, $matches, PREG_OFFSET_CAPTURE);
-        return isset($matches[0]) && $matches[0][0];
-    }
-
-    /**
-     * Checks whether the content of a input field corresponds to the xpected
-     * type.
-     *
-     * @param string $type
-     *  The type of the input field.
-     * @param string $value
-     *  The value of the input field.
-     */
-    private function check_content($type, $value)
-    {
-        if($type === "json")
-        {
-            if($value === "" || $value == "    ") return true;
-            json_decode($value, true);
-            return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
-        }
-        if($type === "number")
-            return is_numeric($value);
-        if($type === "style-bootstrap")
-            return in_array($value, array(
-                "primary",
-                "secondary",
-                "success",
-                "danger",
-                "warning",
-                "info",
-                "light",
-                "dark",
-                "none",
-            ));
-        if($type === "type-input")
-            return in_array($value, array(
-                "text",
-                "checkbox",
-                "color",
-                "date",
-                "datetime-local",
-                "datetime",
-                "email",
-                "month",
-                "number",
-                "password",
-                "range",
-                "search",
-                "tel",
-                "time",
-                "url",
-                "week",
-                "anonymous-holder"
-            ));
-        return true;
-    }
-
-    /**
      * Performs delete operations:
      *  - Remove section links.
      */
@@ -195,20 +142,26 @@ class CmsUpdateController extends BaseController
      * Performs insert operations:
      *  - Create new sections.
      *  - Add new section links.
+     *  - Move a section to another list.
      */
     private function insert()
     {
-        if (
+        if (isset($_POST['move-section-link']) && $_POST['move-section-link'] != "") {
+            $this->move_section_link(
+                intval($_POST['move-section-link']),
+                isset($_POST['from-relation']) ? $_POST['from-relation'] : "",
+                isset($_POST['from-parent']) ? intval($_POST['from-parent']) : 0,
+                $_POST['relation'],
+                isset($_POST['position']) ? $_POST['position'] : null
+            );
+        } else if (
             isset($_POST['add-section-link']) && $_POST['add-section-link'] != ""
         ) {
             $this->insert_section_link(intval($_POST['add-section-link']), $_POST['relation'], isset($_POST['position']) ? $_POST['position'] : null);
-            header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
-                "type" => "prop",
-                "mode" => "update",
-                "pid" => $this->model->get_active_page_id(),
-                "sid" => $_POST['add-section-link'],
-                "ssid" => null
-            )));
+            // The redirect tells the caller that the link was added. A refused link must not redirect.
+            if ($this->insert_success) {
+                $this->redirect_to_section(intval($_POST['add-section-link']), $_POST['relation']);
+            }
             return $_POST['add-section-link'];
         } else if (isset($_POST['section-name']) && isset($_POST['section-style'])) {
             $section_name = htmlspecialchars($_POST['section-name']);
@@ -248,6 +201,31 @@ class CmsUpdateController extends BaseController
     }
 
     /**
+     * Moves a section from one list of children to another list in one step.
+     *
+     * @param int $id
+     *  The id of the section to move.
+     * @param string $from_relation
+     *  The relation of the old list.
+     * @param int $from_parent
+     *  The id of the section which has the old list (the page for a page list).
+     * @param string $relation
+     *  The relation of the new list.
+     * @param int position
+     *  The position where the section should be inserted. If not set we assign the last position
+     */
+    private function move_section_link($id, $from_relation, $from_parent, $relation, $position = null)
+    {
+        if($this->model->move_section_link($id, $from_relation, $from_parent, $relation, $position))
+        {
+            $this->move_success = true;
+            $this->model->set_mode("select");
+        }
+        else
+            $this->move_fail = true;
+    }
+
+    /**
      * Creates a new section and adds a link of the newly created section to the
      * current page or section.
      *
@@ -265,30 +243,49 @@ class CmsUpdateController extends BaseController
     private function insert_new_section($name, $id_style, $relation, $position = null)
     {
         $new_id = $this->model->insert_new_section($name, $id_style, $relation, $position);
-        if($new_id != null) {
+        if($new_id) {
             $style = new StyleComponent($this->model->get_services(), $new_id);
             $style->cms_post_create_callback($this->model, $name,
                 $id_style, $relation, $new_id);
-        }
-        if($new_id)
-        {
             $this->insert_success = true;
-            $sid = $this->model->get_active_root_section_id();
-            if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
-            {
-                $sid = $new_id;
-                $new_id = null;
-            }
-            header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
-                "type" => "prop",
-                "mode" => "update",
-                "pid" => $this->model->get_active_page_id(),
-                "sid" => ($sid == null) ? $new_id : $sid,
-                "ssid" => $new_id
-            )));
+            $this->redirect_to_section(intval($new_id), $relation);
         }
         else
             $this->insert_fail = true;
+    }
+
+    /**
+     * Redirect to the CMS editor of a section after it was added. The cache is
+     * cleared before the redirect so the next request sees the new link
+     * (otherwise CmsComponent::has_access can still use the old section tree
+     * and show "Page not Found"). On a navigation page the root of the url
+     * stays the navigation item and the new section is selected as ssid.
+     *
+     * @param int $section_id
+     *  The id of the section to select.
+     * @param string $relation
+     *  The relation used for the insert (navigation items become the root).
+     */
+    private function redirect_to_section($section_id, $relation)
+    {
+        $this->model->get_db()->clear_cache();
+        $sid = $this->model->get_active_root_section_id();
+        $ssid = null;
+        if ($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV) {
+            $sid = $section_id;
+        } else if ($sid == null) {
+            $sid = $section_id;
+        } else {
+            $ssid = $section_id;
+        }
+        header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
+            "type" => "prop",
+            "mode" => "update",
+            "pid" => $this->model->get_active_page_id(),
+            "sid" => $sid,
+            "ssid" => $ssid,
+        )));
+        exit();
     }
 
     /**
@@ -362,9 +359,9 @@ class CmsUpdateController extends BaseController
                         $id = intval($info['id']);
                     }
                     $res = false;
-                    if($this->check_content($type, $content))
+                    if($this->model->check_field_content($type, $content))
                     {
-                        $content = $this->secure_field($type, $content);
+                        $content = $this->model->secure_field_content($type, $content);
                         if(is_array($content)){
                             $content = implode(',', $content);
                         }
@@ -435,26 +432,6 @@ class CmsUpdateController extends BaseController
         return false;
     }
 
-    /**
-     * Sanitice input fields in order to prevent unwanted injection.
-     *
-     * @param string $type
-     *  The type of the input field.
-     * @param string $content
-     *  The content of the input field.
-     * @retval string
-     *  The sanitized content.
-     */
-    private function secure_field($type, $content)
-    {
-        if(in_array($type, array("text", "textarea", "style-list",
-            "style-bootstrap", "type-input", "checkbox")))
-            return htmlspecialchars($content);
-        if($type === "number")
-            return intval($content);
-        return $content;
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -512,6 +489,40 @@ class CmsUpdateController extends BaseController
     public function has_insert_failed()
     {
         return $this->insert_fail;
+    }
+
+    /**
+     * Gets the move success flag.
+     *
+     * @retval bool
+     *  True if a section was moved to another list.
+     */
+    public function has_move_succeeded()
+    {
+        return $this->move_success;
+    }
+
+    /**
+     * Gets the move fail flag.
+     *
+     * @retval bool
+     *  True if moving a section to another list failed.
+     */
+    public function has_move_failed()
+    {
+        return $this->move_fail;
+    }
+
+    /**
+     * Get the reason why adding, removing or moving a section link was
+     * refused.
+     *
+     * @retval string
+     *  The reason or an empty string if there is none.
+     */
+    public function get_link_error()
+    {
+        return $this->model->get_link_error();
     }
 
     /**
