@@ -67,8 +67,39 @@ class ModuleFormsActionView extends BaseView
         return $arr;
     }
 
+    /**
+     * The lookup ids of the trigger types a form cannot use (started,
+     * updated). The editor hides them when a form data table is selected.
+     *
+     *  @retval array
+     */
+    private function get_form_blocked_trigger_ids()
+    {
+        $db = $this->model->get_services()->get_db();
+        return array(
+            intval($db->get_lookup_id_by_code(actionTriggerTypes, actionTriggerTypes_started)),
+            intval($db->get_lookup_id_by_code(actionTriggerTypes, actionTriggerTypes_updated)),
+        );
+    }
+
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Get js include files required for this component.
+     *
+     * @param array $local
+     *  An array of include files that can be passed from a class implementing
+     *  this base class.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $local = array(__DIR__ . "/js/formAction.js");
+        return parent::get_js_includes($local);
+    }
 
     /**
      * Render the footer view.
