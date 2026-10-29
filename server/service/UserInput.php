@@ -1342,6 +1342,37 @@ class UserInput
     }
 
     /**
+     * Whether a data table belongs to a form style (formUserInput*): its name
+     * is the zero-padded id of an existing section. Surveys and external
+     * tables use their own names.
+     * @param int $id_dataTables
+     * The id of the data table
+     * @return bool
+     */
+    public function is_form_dataTable($id_dataTables)
+    {
+        $name = $this->get_dataTable_name($id_dataTables);
+        if (!$name || !preg_match('/^\d{10}$/', $name)) {
+            return false;
+        }
+        return (bool)$this->db->query_db_first("SELECT id FROM sections WHERE id = :id", array(":id" => intval($name)));
+    }
+
+    /**
+     * The ids of all data tables of form styles, see is_form_dataTable().
+     * @return array
+     */
+    public function get_form_dataTable_ids()
+    {
+        $rows = $this->db->query_db(
+            "SELECT dt.id FROM dataTables AS dt
+            INNER JOIN sections AS s ON s.id = CAST(dt.`name` AS UNSIGNED)
+            WHERE dt.`name` REGEXP '^[0-9]{10}$'"
+        );
+        return $rows ? array_map('intval', array_column($rows, 'id')) : array();
+    }
+
+    /**
      * Check if any job should be queued based on the registered actions
      * @param array $form_data
      * The form data
@@ -1350,6 +1381,16 @@ class UserInput
      */
     public function queue_job_from_actions($form_data)
     {
+        // Forms only fire on finished and deleted; started and updated are survey triggers.
+        if (
+            in_array($form_data['trigger_type'], array(actionTriggerTypes_started, actionTriggerTypes_updated), true)
+            && $this->is_form_dataTable($form_data['form_id'])
+        ) {
+            return array(
+                "form_data" => $form_data,
+                "skipped" => "Forms do not trigger actions on " . $form_data['trigger_type']
+            );
+        }
         try {
             $this->db->begin_transaction();
             $result = array(

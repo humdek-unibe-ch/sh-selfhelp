@@ -288,24 +288,6 @@ class FormUserInputModel extends StyleModel
         $this->entry_data = $entry_data;
     }   
 
-    /**
-     * Prepare the form data and call the queue_job_from_actions
-     * @param string $trigger_type
-     * Form started or finished
-     */
-    public function queue_job_from_actions($trigger_type, $record_id = null)
-    {
-        // formActions are keyed by dataTables id (same as save_data), not section id.
-        $data_table_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
-        $form_data = array(
-            "trigger_type" => $trigger_type,
-            "form_name" => $this->get_db_field("name"),
-            "form_id" => $data_table_id ? $data_table_id : $this->section_id,
-            "form_fields" => ($record_id ? array_merge($_POST, array('record_id' => $record_id)) : $_POST)
-        );
-        $this->user_input->queue_job_from_actions($form_data);
-    }
-
     public function reload_children()
     {
         $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());

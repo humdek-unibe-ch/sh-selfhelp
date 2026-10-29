@@ -208,7 +208,8 @@ class FormUserInputController extends BaseController
 
     /**
      * Trigger type stored on the row / passed to formActions for this write.
-     * Subclasses (e.g. quick actions) may return actionTriggerTypes_updated.
+     * Forms only use finished here (deleted goes through UserInput::delete_data);
+     * started/updated are survey triggers and are never queued for forms.
      *
      * @param int $selected_record_id
      * @param int $delete_record_id
@@ -247,7 +248,7 @@ class FormUserInputController extends BaseController
     public function execute()
     {
         if (count($_POST) === 0) {
-            $this->model->queue_job_from_actions(actionTriggerTypes_started);
+            // Forms only fire formActions on finished (submit) and deleted, never on page view.
             return;
         }
         if (
