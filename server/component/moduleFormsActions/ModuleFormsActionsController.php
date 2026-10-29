@@ -72,6 +72,28 @@ class ModuleFormsActionsController extends BaseController
     }
 
     /**
+     * Forms (formUserInput* data tables) only fire on finished and deleted:
+     * refuse an action with the trigger started or updated on such a table.
+     * @param array $data
+     * id_dataTables, id_formProjectActionTriggerTypes
+     * @retval bool
+     * true if the trigger is allowed for the selected data table
+     */
+    private function check_trigger_for_form($data)
+    {
+        $trigger = $this->model->get_db()->get_lookup_code_by_id($data['id_formProjectActionTriggerTypes']);
+        if (
+            in_array($trigger, array(actionTriggerTypes_started, actionTriggerTypes_updated), true)
+            && $this->model->get_user_input()->is_form_dataTable($data['id_dataTables'])
+        ) {
+            $this->fail = true;
+            $this->error_msgs[] = "A form triggers actions only when it is finished or deleted. Use the trigger type Finished or Deleted for this form.";
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Create new action for form
      * @param array $data
      * name,
@@ -84,6 +106,9 @@ class ModuleFormsActionsController extends BaseController
      */
     private function insert_action($data)
     {
+        if (!$this->check_trigger_for_form($data)) {
+            return;
+        }
         $pid = $this->model->insert_new_action($data);
         if ($pid > 0) {
             $this->success = true;
@@ -131,6 +156,9 @@ class ModuleFormsActionsController extends BaseController
      */
     private function update_action($data)
     {
+        if (!$this->check_trigger_for_form($data)) {
+            return;
+        }
         if ($this->model->update_action($data) !== false) {
             $this->success = true;
             $this->success_msgs[] = "Action " . $data['name'] . " was successfully updated";
