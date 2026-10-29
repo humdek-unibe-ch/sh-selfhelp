@@ -37,6 +37,9 @@ define('BASE_PATH', '/selfhelp');
 
 // Feature Flags
 define('CORS', true);
+// Origins that may call across origins when CORS is true (exact scheme, host and port;
+// the default list is in globals.php, override it here)
+// define('CORS_ALLOWED_ORIGINS', array('https://localhost:8100'));
 define('SHOW_PHP_INFO', false);
 define('REDIRECT_ON_LOGIN', true);
 ```

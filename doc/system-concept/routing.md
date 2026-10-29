@@ -405,10 +405,10 @@ Mobile apps may require different URL structures:
 
 ### CORS Configuration
 
-Mobile development requires CORS headers:
+Mobile development requires CORS headers. With `define('CORS', true)` the request origin is answered only when it is exactly one entry of `CORS_ALLOWED_ORIGINS` (default in `server/service/globals.php`, override in `globals_untracked.php`); it is reflected, never `*`, because credentials are allowed:
 
 ```php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: {$origin}"); // the listed origin
 header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Credentials: true");
 ```
