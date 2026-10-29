@@ -9,6 +9,9 @@ define('PROJECT_NAME', '__project_name__');
 define('DEBUG', 0);
 define('CLOCKWORK_PROFILE', 0);
 define('CORS', true);
+// Origins that may call across origins when CORS is true (exact match: scheme, host, port).
+// The default list is in globals.php; to replace it for this installation define it here:
+// define('CORS_ALLOWED_ORIGINS', array('https://localhost:8100', 'https://app.example.org'));
 define('LANGUAGE', 2); // German
 #define('BASE_PATH', '/' . PROJECT_NAME);
 define('BASE_PATH', '');

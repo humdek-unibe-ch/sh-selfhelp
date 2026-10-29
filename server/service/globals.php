@@ -6,6 +6,25 @@
 <?php
 require_once __DIR__ . "/globals_untracked.php";
 
+// Origins that may call this installation from another origin (mobile preview, test hosts).
+// Needs CORS = true. An entry is an exact origin: scheme, host and, unless it is the default
+// port of the scheme, the port ("https://host", "http://localhost:8100"; no path, no wildcard).
+// Selfhelp::cors() approves only these, and plugins read the same list to decide which
+// cross-origin clients they trust. Override it for an installation with
+// define('CORS_ALLOWED_ORIGINS', array(...)) in globals_untracked.php.
+if (!defined('CORS_ALLOWED_ORIGINS')) {
+    define('CORS_ALLOWED_ORIGINS', array(
+        'https://localhost:8100', // used for testing
+        'http://localhost:8100', // used for testing
+        'http://192.168.0.58', // used for testing
+        'https://192.168.0.58', // used for testing
+        'http://192.168.0.58:8100', // used for testing
+        'https://192.168.0.58:8100', // used for testing
+        'https://tpf-test.humdek.unibe.ch',
+        'https://selfhelp.philhum.unibe.ch',
+    ));
+}
+
 define('CSS_FOLDER', 'css');
 define('CSS_PATH', BASE_PATH . '/' . CSS_FOLDER);
 define('CSS_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . CSS_FOLDER);
