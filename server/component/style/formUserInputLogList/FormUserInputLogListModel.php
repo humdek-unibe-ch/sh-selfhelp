@@ -19,17 +19,20 @@ class FormUserInputLogListModel extends FormUserInputModel
     const QUICK_ACTION_RESERVED = array('edit' => true, 'delete' => true);
 
     /**
-     * System keys from get_data rows that must not become writable dataCols.
-     * id_users is kept on purpose so quick-action updates preserve row ownership.
+     * Keys of a get_data row that are not form values: the system columns and
+     * the internal history. Left out of history snapshots and of quick-action
+     * writes. id_users and entry_date are not listed: a snapshot keeps both,
+     * and a quick-action write keeps id_users so row ownership is preserved
+     * (it drops entry_date itself).
      */
-    const QUICK_ACTION_WRITE_EXCLUDE = array(
-        'record_id' => true,
+    const ROW_SYSTEM_KEYS = array(
+        ENTRY_RECORD_ID => true,
         'user_name' => true,
         'user_code' => true,
         'id_actionTriggerTypes' => true,
         'triggerType' => true,
         'trigger_type' => true,
-        'entry_date' => true,
+        USER_INPUT_HISTORY_LOG_COL => true,
     );
 
     /**
@@ -194,18 +197,9 @@ class FormUserInputLogListModel extends FormUserInputModel
      */
     private function build_history_snapshot($row)
     {
-        $exclude = array(
-            ENTRY_RECORD_ID => true,
-            'user_name' => true,
-            'user_code' => true,
-            'id_actionTriggerTypes' => true,
-            'triggerType' => true,
-            'trigger_type' => true,
-            USER_INPUT_HISTORY_LOG_COL => true,
-        );
         $snapshot = array();
         foreach ($row as $key => $value) {
-            if (isset($exclude[$key])) {
+            if (isset(self::ROW_SYSTEM_KEYS[$key])) {
                 continue;
             }
             $snapshot[$key] = $value;
@@ -904,10 +898,7 @@ class FormUserInputLogListModel extends FormUserInputModel
         $merged = array();
         if (is_array($current)) {
             foreach ($current as $key => $value) {
-                if (isset(self::QUICK_ACTION_WRITE_EXCLUDE[$key])) {
-                    continue;
-                }
-                if ($key === ENTRY_RECORD_ID || $key === USER_INPUT_HISTORY_LOG_COL) {
+                if (isset(self::ROW_SYSTEM_KEYS[$key]) || $key === 'entry_date') {
                     continue;
                 }
                 if (is_array($value) || is_object($value)) {
