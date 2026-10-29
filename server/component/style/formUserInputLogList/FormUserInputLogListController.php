@@ -13,8 +13,8 @@ require_once __DIR__ . "/../formUserInput/FormUserInputController.php";
  * after_successful_write → redirect_at_end). Quick actions only prepare POST
  * and supply a merged CMS write payload via prepare_write_data (no client field
  * patches, no GUMP on form children, no entity-decode of stored values).
- * Quick-action writes use trigger `updated` so `finished` formActions do not
- * re-fire on toggles. Overrides after_successful_write to return to the list
+ * Quick-action writes use trigger `finished` like every form save (forms only
+ * fire finished and deleted). Overrides after_successful_write to return to the list
  * when redirect_at_end is empty.
  */
 class FormUserInputLogListController extends FormUserInputController
@@ -81,7 +81,7 @@ class FormUserInputLogListController extends FormUserInputController
 
     /**
      * Quick actions: return the CMS-prepared payload once via the base write
-     * hook (updated trigger, skip entity-decode of already-stored values).
+     * hook (finished trigger, skip entity-decode of already-stored values).
      *
      * @param object $gump
      * @param int $selected_record_id
@@ -95,7 +95,7 @@ class FormUserInputLogListController extends FormUserInputController
             $this->pending_quick_action_payload = null;
             return array(
                 'fields' => is_array($fields) ? $fields : array(),
-                'trigger_type' => actionTriggerTypes_updated,
+                'trigger_type' => actionTriggerTypes_finished,
                 'decode' => false,
             );
         }
