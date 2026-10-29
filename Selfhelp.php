@@ -85,26 +85,17 @@ class Selfhelp
 
     /**
      * Enable calls with cors for mobile and mobile preview
+     *
+     * Only an origin that is exactly one of CORS_ALLOWED_ORIGINS is answered. The response
+     * reflects the request origin together with credentials, so a looser test lets a hostile
+     * page read what a logged-in user is served (a substring match approved
+     * "https://selfhelp.philhum.unibe.ch.evil.example" as well).
      */
     private function cors()
     {
-
-        // Allow from any origin
-        if (
-            isset($_SERVER['HTTP_ORIGIN']) &&
-            (
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
-        ) {
-            // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
-            // you want to allow, and if so:
-            header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        $origin = isset($_SERVER['HTTP_ORIGIN']) && is_string($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        if ($origin !== '' && is_array(CORS_ALLOWED_ORIGINS) && in_array($origin, CORS_ALLOWED_ORIGINS, true)) {
+            header("Access-Control-Allow-Origin: {$origin}");
             header('Access-Control-Allow-Methods: GET, POST');
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Max-Age: 86400');    // cache for 1 day
