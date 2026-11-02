@@ -16,6 +16,7 @@ js/*
 server/plugins/*
 !server/plugins/README.md
 !server/plugins/AGENTS.md
+!server/plugins/CLAUDE.md
 server/db/install_selfhelp.sql
 composer.json
 composer.lock
