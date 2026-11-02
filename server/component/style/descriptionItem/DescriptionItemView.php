@@ -56,6 +56,12 @@ class DescriptionItemView extends StyleView
      */
     private $display;
 
+    /**
+     * The history link of a versioned CMS field (url and version_no, see
+     * CmsView::get_field_versions), otherwise an empty string.
+     */
+    private $versions;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -73,7 +79,8 @@ class DescriptionItemView extends StyleView
         $this->alt = $this->model->get_db_field("alt");
         $this->type = $this->model->get_db_field("type_input");
         $this->display = $this->model->get_db_field("display");
-        $this->help = $this->model->get_db_field("help");        
+        $this->help = $this->model->get_db_field("help");
+        $this->versions = $this->model->get_db_field("versions");
     }
 
     /* Private Methods ********************************************************/
@@ -99,6 +106,16 @@ class DescriptionItemView extends StyleView
     {
         if($this->help == "") return;
         require __DIR__ . "/tpl_help.php";
+    }
+
+    /**
+     * Render the history link of a versioned CMS field (opened in a modal by
+     * cmsFieldVersions/js/field_versions.js).
+     */
+    private function output_versions()
+    {
+        if(!is_array($this->versions)) return;
+        require __DIR__ . "/tpl_versions.php";
     }
 
     /**

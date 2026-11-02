@@ -9,6 +9,7 @@
         <?php $this->output_help(); ?>
         <?php $this->output_type(); ?>
         <?php $this->output_small_text(); ?>
+        <?php $this->output_versions(); ?>
     </div>
     <div><?php $this->output_field_content(); ?></div>
 </div>

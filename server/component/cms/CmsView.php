@@ -1183,8 +1183,45 @@ class CmsView extends BaseView
             "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
+            "versions" => $this->get_field_versions($field),
             "children" => $children
         ));
+    }
+
+    /**
+     * The history link of a versioned field: the url of the history page
+     * (cmsFieldVersions, opened in a modal) and the number of the current
+     * version.
+     *
+     * @param array $field
+     *  the field array with keys as definde in CmsModel::add_property_item.
+     * @retval array|string
+     *  url and version_no, or an empty string if the field is not versioned
+     *  (no link). Only the default gender of a section field is versioned.
+     */
+    private function get_field_versions($field)
+    {
+        if ($field['relation'] === RELATION_PAGE_FIELD) {
+            $owner_id = $this->model->get_active_page_id();
+        } else if ($field['relation'] === RELATION_SECTION_FIELD && intval($field['id_gender']) === 1) {
+            $owner_id = $this->model->get_active_section_id();
+        } else {
+            return '';
+        }
+        $field_versions = $this->model->get_services()->get_field_versions();
+        if (!$owner_id || !$field_versions->is_versioned($field['id'])) {
+            return '';
+        }
+        return array(
+            "url" => $this->model->get_link_url("cmsFieldVersions", array(
+                "relation" => $field['relation'],
+                "owner_id" => intval($owner_id),
+                "id_fields" => intval($field['id']),
+                "id_languages" => intval($field['id_language'])
+            )),
+            "version_no" => $field_versions->get_current_version_no($field['relation'], $owner_id,
+                $field['id'], $field['id_language'])
+        );
     }
 
     /**
@@ -1348,6 +1385,7 @@ class CmsView extends BaseView
             "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
+            "versions" => $this->get_field_versions($field),
             "children" => $children
         );
         return new BaseStyleComponent("descriptionItem", $ar);
@@ -1740,7 +1778,7 @@ class CmsView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms.css");
+        $local = array(__DIR__ . "/cms.css", __DIR__ . "/../cmsFieldVersions/css/field_versions.css");
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
             array_push($local, __DIR__ . "/cms_ui.css");
         }
@@ -1756,7 +1794,7 @@ class CmsView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms.js");
+        $local = array(__DIR__ . "/cms.js", __DIR__ . "/../cmsFieldVersions/js/field_versions.js");
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
             array_push($local, __DIR__ . "/../cmsImport/js/import.js");
             array_push($local, __DIR__ . "/cms_ui.js");
@@ -1775,8 +1813,11 @@ class CmsView extends BaseView
         } else {
             require __DIR__ . "/tpl_main.php";
         }
+        // The version history of a versioned field opens in this modal
+        // (cmsFieldVersions/js/field_versions.js).
+        require __DIR__ . "/../cmsFieldVersions/tpl_modal.php";
     }
-	
+
 	public function output_content_mobile()
     {
         echo 'mobile';
