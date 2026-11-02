@@ -1,0 +1,226 @@
+/* Version history of a CMS field (page cmsFieldVersions and its modal in the CMS) */
+
+/* History link next to the title of a versioned field */
+.field-versions-link {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    align-self: center;
+    color: #6c757d;
+}
+/* After the locale of the field (which is pushed right already) */
+.ml-auto + .field-versions-link.ml-auto {
+    margin-left: 0.75rem !important;
+}
+.field-versions-link:hover {
+    color: #007bff;
+    text-decoration: none;
+}
+.field-versions-badge {
+    display: inline-block;
+    margin-left: 0.25rem;
+    padding: 0 0.4rem;
+    border: 1px solid #ced4da;
+    border-radius: 1rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #495057;
+    background: #f8f9fa;
+}
+.field-versions-link:hover .field-versions-badge {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+/* Layout: list of versions on the left, the selected version on the right */
+.cms-field-versions {
+    overflow: hidden;
+}
+.cms-fv-alerts .alert {
+    margin: 0.75rem 0.75rem 0;
+}
+.cms-fv-layout {
+    display: flex;
+    min-height: 60vh;
+    max-height: 75vh;
+}
+.cms-fv-list {
+    flex: 0 0 290px;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+.cms-fv-list-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+}
+.cms-fv-detail {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.cms-fv-min0 {
+    min-width: 0;
+}
+@media (max-width: 767.98px) {
+    .cms-fv-layout {
+        flex-direction: column;
+        max-height: none;
+    }
+    .cms-fv-list {
+        flex-basis: auto;
+        max-height: 35vh;
+        border-right: 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+}
+
+/* Version list */
+.cms-fv-version {
+    padding: 0.6rem 1rem;
+    border-left: 3px solid transparent;
+    background: transparent;
+}
+.cms-fv-version.active {
+    background: #fff;
+    color: #212529;
+    border-color: rgba(0, 0, 0, 0.125);
+    border-left-color: #007bff;
+}
+.cms-fv-version-no {
+    font-weight: 600;
+}
+.cms-fv-version-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+.cms-fv-version-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Selected version */
+.cms-fv-detail-header {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+.cms-fv-tabs {
+    padding: 0.5rem 1rem 0;
+}
+.cms-fv-tabs .nav-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+}
+.cms-fv-detail .tab-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+}
+.cms-fv-stat {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.cms-fv-stat-add {
+    color: #1a7f37;
+}
+.cms-fv-stat-del {
+    color: #cf222e;
+}
+.cms-fv-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+.cms-fv-content {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Line diff */
+.cms-fv-diff {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+.cms-fv-diff td {
+    padding: 0 0.5rem;
+    vertical-align: top;
+}
+.cms-fv-ln {
+    width: 1%;
+    min-width: 2.5rem;
+    text-align: right;
+    color: #8c959f;
+    user-select: none;
+    border-right: 1px solid #eaeef2;
+}
+.cms-fv-sign {
+    width: 1%;
+    text-align: center;
+    user-select: none;
+}
+.cms-fv-code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.cms-fv-add {
+    background: #e6ffec;
+}
+.cms-fv-add .cms-fv-ln {
+    background: #ccffd8;
+}
+.cms-fv-add .cms-fv-sign {
+    color: #1a7f37;
+}
+.cms-fv-del {
+    background: #ffebe9;
+}
+.cms-fv-del .cms-fv-ln {
+    background: #ffd7d5;
+}
+.cms-fv-del .cms-fv-sign {
+    color: #cf222e;
+}
+.cms-fv-skip td {
+    padding: 0.15rem 0.5rem;
+    background: #f6f8fa;
+    color: #6c757d;
+    text-align: center;
+    font-family: inherit;
+}
+
+/* Modal in the CMS */
+#cms-field-versions-modal .modal-body {
+    padding: 0;
+}
+#cms-field-versions-modal .cms-field-versions {
+    border: 0;
+    border-radius: 0;
+}
+#cms-field-versions-modal .cms-fv-loading {
+    padding: 4rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
