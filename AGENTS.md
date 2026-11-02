@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Print at start of chat "SELFHELP RULES" so that I know they are loaded
+
 ## Project Shape
 
 SelfHelp is a vanilla PHP application with no framework. Requests enter through `index.php`, bootstrap in `Selfhelp.php`, create `Services`, then route to a page, component, AJAX request, callback, or backend action.
