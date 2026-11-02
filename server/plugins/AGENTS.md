@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Print at start of chat "PLUGINS RULES" so that I know they are loaded
+
 ## Scope
 
 This file applies to plugins under `server/plugins`. Most plugin folders are separate nested Git repositories and are ignored by the parent repo, so check `git status` inside the plugin you are changing, not only at the root.
