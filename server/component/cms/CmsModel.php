@@ -1158,7 +1158,12 @@ class CmsModel extends BaseModel
             "id_languages" => $id_language,
             "id_pages" => $this->id_page
         );
-        return $this->db->insert("pages_fields_translation", $insert, $update);
+        $res = $this->db->insert("pages_fields_translation", $insert, $update);
+        $field_versions = $this->services->get_field_versions();
+        if ($res !== false && $field_versions->is_versioned($id)) {
+            $field_versions->snapshot(RELATION_PAGE_FIELD, $this->id_page, $id, $id_language, $content);
+        }
+        return $res;
     }
 
     /**
@@ -2827,8 +2832,15 @@ class CmsModel extends BaseModel
             $update['meta'] = $meta;
             $insert['meta'] = $meta;
         }
-        return $this->db->insert("sections_fields_translation", $insert, $update);
-    }    
+        $res = $this->db->insert("sections_fields_translation", $insert, $update);
+        $field_versions = $this->services->get_field_versions();
+        // Only the default gender of a section field is versioned.
+        if ($res !== false && intval($id_gender) === 1 && $field_versions->is_versioned($id)) {
+            $field_versions->snapshot(RELATION_SECTION_FIELD, $id_section, $id, $id_language,
+                $content, $meta);
+        }
+        return $res;
+    }
 
     /**
      * Update the page table
