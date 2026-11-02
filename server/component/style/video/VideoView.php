@@ -142,9 +142,7 @@ class VideoView extends StyleView
         }
         $style['sources']['content'] = $sources;
 
-        // TODO(mobile): mobile clients should POST the same payload as web
-        // to /request/AjaxVideoTrack/track when track_interval_seconds > 0
-        // for logged-in users (play/heartbeat/ended lifecycle).
+        // Read by the mobile video style to log the same events as web.
         $style['track_interval_seconds'] = array(
             'content' => $this->track_interval_seconds,
             'type' => 'number',
