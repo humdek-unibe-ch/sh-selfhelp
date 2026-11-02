@@ -552,9 +552,30 @@ function initSaveBtn() {
                     null, function () {
                         outlineApplyCardState(cardState);
                     });
+                refreshFieldVersionLinks(data);
             }
         });
 
+    });
+}
+
+/**
+ * The properties form is not replaced after a save (it keeps the editors), so
+ * the History links of versioned fields are taken from the saved page: a save
+ * can create a new version.
+ * @param {string} data
+ *  The html of the page after the save.
+ */
+function refreshFieldVersionLinks(data) {
+    var $saved = $(data).find('.field-versions-link');
+    $('.field-versions-link').each(function () {
+        var href = $(this).attr('href');
+        var $link = $saved.filter(function () {
+            return $(this).attr('href') === href;
+        }).first();
+        if ($link.length > 0) {
+            $(this).replaceWith($link);
+        }
     });
 }
 
