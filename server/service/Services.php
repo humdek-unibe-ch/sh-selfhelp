@@ -18,6 +18,7 @@ require_once __DIR__ . "/JobScheduler.php";
 require_once __DIR__ . "/conditions/Condition.php";
 require_once __DIR__ . "/Hooks.php";
 require_once __DIR__ . "/Clockwork.php";
+require_once __DIR__ . "/FieldVersions.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -89,6 +90,11 @@ class Services
     private $clockwork;
 
     /**
+     * The FieldVersions service instance to handle the version history of CMS fields.
+     */
+    private $field_versions;
+
+    /**
      * @param bool $fullMode
      * By default it is full mode and load all services. In some cases for cronjobs we do not need all the services and then we can select $fullMode false
      * The constructor.
@@ -102,7 +108,8 @@ class Services
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $this->init_router_routes();
 
-        $this->transaction = new Transaction($this->db);                
+        $this->transaction = new Transaction($this->db);
+        $this->field_versions = new FieldVersions($this->db);
         
 
         $this->user_input = new UserInput($this->db, $this->transaction);
@@ -398,6 +405,17 @@ class Services
     public function get_clockwork()
     {
         return $this->clockwork;
+    }
+
+    /**
+     * Get the service class FieldVersions.
+     *
+     * @retval object
+     *  The FieldVersions service class.
+     */
+    public function get_field_versions()
+    {
+        return $this->field_versions;
     }
 }
 ?>
