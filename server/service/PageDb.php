@@ -14,6 +14,15 @@ require_once __DIR__ . '/BaseDb.php';
 class PageDb extends BaseDb
 {
 
+    /* Constants **************************************************************/
+
+    /**
+     * Stand-ins (Unicode private use characters) for the characters of
+     * placeholders ({{name}}, @user) in values entered by users. See
+     * mark_interpolation_values().
+     */
+    const INTERPOLATION_MARKS = array('{' => "\u{E000}", '}' => "\u{E001}", '@' => "\u{E002}");
+
     /* Private Properties *****************************************************/
 
     /**
@@ -803,6 +812,65 @@ class PageDb extends BaseDb
             $this->global_values = array();
         }
         return $this->global_values;
+    }
+
+    /**
+     * Mark the characters of placeholders in values before they are inserted
+     * into a template with replace_calced_values(). A template is interpolated
+     * in several passes (entry values, global vars, @user, Global Values,
+     * data_config); with the marks a value entered by a user (e.g. the text
+     * `{{secret}}`) is never resolved by a later pass. Remove the marks with
+     * unmark_interpolation_values() when all passes are done.
+     *
+     * @param array $values
+     *  The values by their names, e.g. an entry record. Array values are
+     *  JSON-encoded, like replace_calced_values() inserts them.
+     * @retval array
+     *  The values with marked placeholder characters.
+     */
+    public function mark_interpolation_values($values)
+    {
+        if (!is_array($values)) {
+            return $values;
+        }
+        foreach ($values as $name => $value) {
+            if (is_array($value)) {
+                $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+            if (is_string($value)) {
+                $values[$name] = strtr($value, self::INTERPOLATION_MARKS);
+            }
+        }
+        return $values;
+    }
+
+    /**
+     * Turn the marks of mark_interpolation_values() back into the characters
+     * the user entered.
+     *
+     * @param string|array $content
+     *  The interpolated content.
+     * @param array $chars
+     *  The characters to restore, all if null.
+     * @retval string|array
+     *  The content with the original characters.
+     */
+    public function unmark_interpolation_values($content, $chars = null)
+    {
+        $marks = self::INTERPOLATION_MARKS;
+        if ($chars !== null) {
+            $marks = array_intersect_key($marks, array_flip($chars));
+        }
+        $marks = array_flip($marks);
+        if (is_array($content)) {
+            array_walk_recursive($content, function (&$value) use ($marks) {
+                if (is_string($value)) {
+                    $value = strtr($value, $marks);
+                }
+            });
+            return $content;
+        }
+        return is_string($content) ? strtr($content, $marks) : $content;
     }
 
     /**

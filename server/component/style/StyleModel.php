@@ -298,9 +298,10 @@ class StyleModel extends BaseModel implements IStyleModel
                     $default = trim($parts[1] ?? '');
                     if (strpos($default, '{{') !== false) {
                         if ($this->entry_record) {
-                            $default = $this->get_entry_value($this->entry_record, $default);
+                            $default = $this->get_entry_value($this->entry_record, $default, true);
                         }
                         $default = $this->db->replace_calced_values($default, $this->get_global_vars());
+                        $default = $this->db->unmark_interpolation_values($default);
                     }
                     $value = $this->url_param_value($default);
                 }
@@ -386,8 +387,8 @@ class StyleModel extends BaseModel implements IStyleModel
         $user_code = $this->db->get_user_code();
         $user_email = $this->db->fetch_user_email();
         if ($this->entry_record) {
-            //adjust entry value
-            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
+            //adjust entry value; the marks keep the entered text out of the passes below
+            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key], true);
             $this->debug_data['entry_record'] = $this->entry_record;
             $this->interpolation_data['entry_record'] = $this->entry_record;
         }
@@ -420,15 +421,17 @@ class StyleModel extends BaseModel implements IStyleModel
                 } else {
                     $fields = $this->interpolation_data['data_config_retrieved'];
                 }
-                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $fields);
+                $marked_fields = $this->db->mark_interpolation_values($fields);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $marked_fields);
                 if ($fields) {
-                    foreach ($fields as $field_name => $field_value) {
+                    foreach ($marked_fields as $field_name => $field_value) {
                         if (isset($field_name[0]) && $field_name[0] == '@') {
                             $field[$field_key] = str_replace($field_name, $field_value, $field[$field_key]);
                         }
                     }
                 }
             }
+            $field[$field_key] = $this->db->unmark_interpolation_values($field[$field_key]);
         }
         $this->debug_data['new_field_' . $field_key] = $field[$field_key];
         $this->debug_data['new_field_' . $field_key . '_object'] = $field[$field_key] ? json_decode($field[$field_key]) : false;
@@ -522,8 +525,8 @@ class StyleModel extends BaseModel implements IStyleModel
             $data_config = $data_config_key !== false ? $fields[$data_config_key]['content'] : null;
             if ($data_config) {
                 if ($this->entry_record) {
-                    //adjust entry value
-                    $data_config = $this->get_entry_value($this->entry_record, $data_config);
+                    //adjust entry value; the marks keep the entered text out of the passes below
+                    $data_config = $this->get_entry_value($this->entry_record, $data_config, true);
                 }
                 // if data_config is set replace if there are any globals
                 $global_vars = $this->get_global_vars();
@@ -541,6 +544,9 @@ class StyleModel extends BaseModel implements IStyleModel
                 if($global_values){
                     $data_config = $this->db->replace_calced_values($data_config,  $global_values);
                 }
+                // An entered @ is restored (e.g. an email in a filter); entered braces stay
+                // marked, so a filter never contains a {{placeholder}} typed by a user
+                $data_config = $this->db->unmark_interpolation_values($data_config, array('@'));
                 $data_config = json_decode($data_config, true);
             }
         }
@@ -851,16 +857,21 @@ class StyleModel extends BaseModel implements IStyleModel
      * Array with the entry row
      * @param string value
      * The field value
+     * @param bool $keep_marks
+     * The placeholder characters of the inserted entry values stay marked
+     * (see PageDb::mark_interpolation_values()), for a caller that
+     * interpolates the result again and removes the marks afterwards.
      * @retval string
      * Return the value replaced with the params
      */
-    public function get_entry_value($entry_data, $value)
+    public function get_entry_value($entry_data, $value, $keep_marks = false)
     {
         if(!$value){
             return $value;
-        }        
-            
-        $value = $this->db->replace_calced_values($value, $entry_data);
+        }
+
+        // Entry values are entered by users: their {{...}} and @... are text, never placeholders
+        $value = $this->db->replace_calced_values($value, $this->db->mark_interpolation_values($entry_data));
         $user_name = $this->db->fetch_user_name();
         $user_code = $this->db->get_user_code();
         $value = $this->db->replace_calced_values($value, array(
@@ -868,8 +879,8 @@ class StyleModel extends BaseModel implements IStyleModel
             '@project' => $_SESSION['project'],
             '@user' => $user_name
         ));
-        return $value;
-    }  
+        return $keep_marks ? $value : $this->db->unmark_interpolation_values($value);
+    }
 
     /**
      * Check if the style can have children
