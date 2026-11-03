@@ -1,4 +1,4 @@
-# v7.13.0 (work in progress)
+# v7.13.0
 ### New Feature
  - **Version history for CMS fields**: fields can keep a history of their content (opt-in per field, `fields.versioned`). Enabled for **Global Values** (`global_values`) and **Global CSS** (`custom_css`); plugins can enable their own fields.
    - A version is stored when a field is saved with changed content. Content changed outside the CMS (e.g. an SQL import) is stored as a system version when the field is shown in the CMS.
