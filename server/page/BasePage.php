@@ -172,8 +172,12 @@ abstract class BasePage
             $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version(__DIR__);
             $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version(__DIR__);
         }
-        $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
-            $this->css_includes);
+        // page info is needed before the includes: is_admin_page() reads the page url
+        $this->fetch_page_info($keyword);
+        // uploaded user css (root of /css) must not restyle the admin pages
+        if(!$this->is_admin_page())
+            $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
+                $this->css_includes);
         $this->add_main_include_files(JS_SERVER_PATH, "/js/", "js",
             $this->js_includes);
         if(DEBUG == 1) {
@@ -181,8 +185,7 @@ abstract class BasePage
         }
         if($this->is_cms_page()){
             $this->collect_plugin_includes();
-        }        
-        $this->fetch_page_info($keyword);
+        }
         if($this->id_navigation_section != null)
             $this->services->set_nav(new Navigation(
                 $this->services->get_router(), $this->services->get_db(),
@@ -502,7 +505,8 @@ abstract class BasePage
 
     private function get_external_css_for_mobile(){
         $css_content = '';
-        $css_content .= $this->read_css_from_directory(CSS_SERVER_PATH);
+        if(!$this->is_admin_page())
+            $css_content .= $this->read_css_from_directory(CSS_SERVER_PATH);
         $css_content .= $this->read_plugin_css_for_mobile();
         return $css_content;
     }
@@ -832,7 +836,21 @@ abstract class BasePage
 
     }
 
+    /**
+     * Checks whether the current page is an admin page (its url starts with
+     * /admin/, core and plugin admin pages). User css (uploaded css files and
+     * the global custom css) is not loaded there, so it cannot break the admin.
+     *
+     * @retval bool
+     *  true if the current page is an admin page, false otherwise.
+     */
+    public function is_admin_page()
+    {
+        return is_string($this->url) && strpos($this->url, '/admin/') === 0;
+    }
+
     public function get_global_custom_css(){
+        if($this->is_admin_page()) return '';
         $global_css_page = $this->services->get_db()->fetch_page_info(SH_GLOBAL_CSS);
         return isset($global_css_page[PF_GLOBAL_CUSTOM_CSS]) ? $global_css_page[PF_GLOBAL_CUSTOM_CSS] : '';
     }

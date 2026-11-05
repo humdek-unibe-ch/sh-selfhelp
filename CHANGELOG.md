@@ -1,3 +1,11 @@
+# v7.13.1 (work in progress)
+### Bug Fix
+ - **User CSS is no longer loaded on admin pages**: uploaded CSS files and the *Global CSS* could restyle or hide the admin (e.g. `body { display: none }`) and lock editors out of the CMS they need to fix it.
+   - Skipped on every page whose URL starts with `/admin/` (core and plugin admin pages), web and mobile: the uploaded CSS files (root of `/css`, asset upload of type *css*) and *Global CSS* (`custom_css` of `sh_global_css`).
+   - Frontend pages and *Page Preview* are unchanged; core and plugin CSS still load everywhere. The inline preview of the old CMS UI is an admin page, so it shows the content without the user CSS.
+   - For developers: `BasePage::is_admin_page()`.
+   - No database change.
+
 # v7.13.0
 ### New Feature
  - **Version history for CMS fields**: fields can keep a history of their content (opt-in per field, `fields.versioned`). Enabled for **Global Values** (`global_values`) and **Global CSS** (`custom_css`); plugins can enable their own fields.
