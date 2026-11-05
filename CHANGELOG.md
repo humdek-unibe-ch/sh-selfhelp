@@ -1,4 +1,4 @@
-# v7.13.1 (work in progress)
+# v7.13.1
 ### Bug Fix
  - **User CSS is no longer loaded on admin pages**: uploaded CSS files and the *Global CSS* could restyle or hide the admin (e.g. `body { display: none }`) and lock editors out of the CMS they need to fix it.
    - Skipped on every page whose URL starts with `/admin/` (core and plugin admin pages), web and mobile: the uploaded CSS files (root of `/css`, asset upload of type *css*) and *Global CSS* (`custom_css` of `sh_global_css`).
