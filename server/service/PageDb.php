@@ -93,6 +93,27 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch the child pages of a page which can be exported (pages with
+     * sections), in the order of the header menu (pages which are not in the
+     * menu last, by keyword). The access rights are not checked.
+     *
+     * @param int $id
+     *  The id of the parent page.
+     * @retval array
+     *  The db result array with the keys 'id', 'keyword' and 'nav_position'.
+     */
+    public function fetch_exportable_child_pages($id)
+    {
+        $sql = "SELECT p.id, p.keyword, p.nav_position
+            FROM pages AS p
+            INNER JOIN actions AS a ON a.id = p.id_actions
+            WHERE p.parent = :id AND a.`name` = 'sections'
+            ORDER BY p.nav_position IS NULL, p.nav_position, p.keyword";
+        $res = $this->query_db($sql, array(':id' => $id));
+        return $res ? $res : array();
+    }
+
+    /**
      * Fetch the id of a field given the nam eof the field
      *
      * @param string $name

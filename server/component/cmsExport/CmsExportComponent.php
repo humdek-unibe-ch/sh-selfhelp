@@ -28,7 +28,9 @@ class CmsExportComponent extends BaseComponent
     {
         $id = intval($params['id']);
         $type = isset($params['type']) ? $params['type'] : '';
-        $model = new CmsExportModel($services, $type, $id);
+        // ?children=1: a page is exported with its child pages
+        $with_children = isset($_GET['children']) && $_GET['children'] == '1';
+        $model = new CmsExportModel($services, $type, $id, $with_children);
         $controller = new CmsExportController($model);
         $view = new CmsExportView($model, $controller);        
         parent::__construct($model, $view);

@@ -34,6 +34,11 @@ class CmsExportModel extends BaseModel
      */
     public $json;
 
+    /**
+     * If true a page is exported with its child pages (`page.children`).
+     */
+    public $with_children = false;
+
     /* Private Properties *****************************************************/
 
     /**
@@ -52,11 +57,12 @@ class CmsExportModel extends BaseModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $type, $id)
+    public function __construct($services, $type, $id, $with_children = false)
     {
         parent::__construct($services);
         $this->type = $type;
         $this->id = $id;
+        $this->with_children = $with_children;
     }
 
     /* Private Methods ********************************************************/
@@ -233,10 +239,15 @@ class CmsExportModel extends BaseModel
      * (including their children) which are assigned to the page. Navigation
      * pages also contain the navigation container and its items.
      * @param int $id page id that we want to export
+     * @param bool $with_children
+     * If true the child pages with sections which the user may see are added
+     * as `children`, each with its position in the header menu
+     * (`nav_position`, null if it is not in the menu). The page tree has two
+     * levels, a child page has no children.
      * @retval array
      * Array with the page information or false if the page does not exist
      */
-    private function fetch_page($id)
+    private function fetch_page($id, $with_children = false)
     {
         $page = $this->db->query_db_first(
             "SELECT p.id, p.keyword, p.url, p.protocol, p.is_headless, p.id_navigation_section,
@@ -301,6 +312,19 @@ class CmsExportModel extends BaseModel
                 $json['page']['navigation_section'] = $nav_section;
             }
         }
+        if ($with_children) {
+            foreach ($this->db->fetch_exportable_child_pages($id) as $child) {
+                if (!$this->acl->has_access_select($_SESSION['id_user'], intval($child['id']))) {
+                    continue;
+                }
+                $child_json = $this->fetch_page(intval($child['id']));
+                if ($child_json) {
+                    $child_page = $child_json['page'];
+                    $child_page['nav_position'] = $child['nav_position'] === null ? null : intval($child['nav_position']);
+                    $json['page']['children'][] = $child_page;
+                }
+            }
+        }
         return $json;
     }
 
@@ -328,7 +352,7 @@ class CmsExportModel extends BaseModel
                     $this->json = 'Error: You do not have access to this page.';
                     return false;
                 }
-                $this->json = $this->fetch_page($this->id);
+                $this->json = $this->fetch_page($this->id, $this->with_children);
                 $schema_file = 'page.json';
                 if ($this->json) {
                     $file_name = PROJECT_NAME . '_page_' . $this->json['page']['keyword'];

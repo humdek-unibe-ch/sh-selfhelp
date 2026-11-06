@@ -137,6 +137,17 @@
                 },
                 "navigation_section": {
                     "$ref": "#/definitions/section"
+                },
+                "nav_position": {
+                    "description": "Only for child pages: the position in the header menu of the parent, null if the page is not in the menu.",
+                    "type": ["integer", "null"]
+                },
+                "children": {
+                    "description": "The child pages (optional). The page tree has two levels: a child page has no children.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/page"
+                    }
                 }
             },
             "required": [
