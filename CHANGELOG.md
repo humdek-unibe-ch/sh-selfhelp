@@ -1,4 +1,4 @@
-# v7.13.2 (work in progress)
+# v7.13.2
 ### New Feature
  - **CMS (new UI): *Move Page* changes the parent of a page and its place in the header menu.**
    - The *Move Page* button of the page properties opens a modal: pick the new parent (with search; *Root* makes it a root page) and, with *Show in the header menu*, drag the page (or use the arrows) to its position in the main menu or the dropdown of the parent. Menu pages the modal does not list (e.g. `logout`) keep their places.
