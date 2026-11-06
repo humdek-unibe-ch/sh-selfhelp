@@ -1,3 +1,51 @@
+# v7.13.2 (work in progress)
+### New Feature
+ - **CMS (new UI): *Move Page* changes the parent of a page and its place in the header menu.**
+   - The *Move Page* button of the page properties opens a modal: pick the new parent (with search; *Root* makes it a root page) and, with *Show in the header menu*, drag the page (or use the arrows) to its position in the main menu or the dropdown of the parent. Menu pages the modal does not list (e.g. `logout`) keep their places.
+   - The page tree has two levels, as the *Page Index* and the header menu show it: a parent is a content page (experiment or open) on the first level or `profile-link`; a page with child pages stays a root page.
+   - Only content pages can be moved. Needs *update* access to the page and *select* access to the parent; a refused move shows the reason and changes nothing.
+   - For developers: `CmsModel::move_page()`; POST `move-page` with `parent`, `in-menu` and `menu-order` to `cmsUpdate` (mode `update`).
+   - No database change.
+ - **CMS (new UI): *Export page* can include the child pages.**
+   - On a page with child pages the export asks *Export with child pages* / *Only this page*. Included are the child pages with sections which the user may see, each with its position in the dropdown of the parent.
+   - For developers: optional `page.children` and `nav_position` in `schemas/page.json` (files without them stay valid); export route parameter `?children=1`.
+   - No database change.
+ - **CMS (new UI): *Import Page* imports the child pages too, and can import a page as a child page.**
+   - The modal lists every page of the file with an editable keyword; a keyword which is not valid, already used or used twice in the import is marked before the import.
+   - The child pages become children of the new page, in the dropdown order of the file. Navigation pages keep their navigation items. All pages are imported or none.
+   - *Parent page* imports the page as a child page (not added to the header menu of the parent). A file with child pages can only be imported as a root page; a file whose child pages have children is refused.
+   - The stand-alone import page (`/admin/cms_import/page`) imports the child pages with the keywords of the file.
+   - For developers: POST `child_keywords[i]` and `parent` to `cmsImport`.
+   - No database change. The old UI (user preference *Enable old UI*) has none of these three features.
+
+### Bug Fix
+ - **CMS: a failed *Create New Page* no longer blocks its keyword.**
+   - A request which failed after the navigation section was created (e.g. without an access type) left the section `<keyword>-navigation` behind, and every later attempt with that keyword failed. The page, its navigation section and its access rights are now created together or not at all.
+   - Leftovers of earlier failures stay. A navigation page whose section `<keyword>-navigation` exists already is refused with a message which names the section: delete it under *Unassigned Section* or choose another keyword.
+   - For developers: `CmsModel::create_new_page()` returns false if a step fails; run it inside a transaction.
+   - No database change.
+ - **CMS (new UI): a refused section move or *Add section* shows why.**
+   - Moving a section to another list (drag and drop) or adding an existing section was refused without a message (e.g. a circular reference) and the page reloaded. The reason is now shown as an alert and the outline shows the real state.
+   - A successful move to another list updates the outline without reloading the page.
+   - No database change.
+ - **The language picker, the 2FA form and `rawText` load their files once.**
+   - `languagePicker` and `twoFactorAuth` added their JS and CSS a second time although it is part of `styles.min.js` / `styles.min.css`, so the handlers were bound twice (one language change sent two requests and reloaded twice). `rawText` requested a CSS file which does not exist (404).
+   - No database change, no rebuild of the bundles.
+
+### Improvement
+ - **CMS: the position in the header menu looks and works the same everywhere.**
+   - *Header Position* of the page properties (old and new UI) and of *Create New Page* show the menu like *Move Page*: the page is highlighted and is dragged or moved with the arrows, the other menu pages are fixed and muted (no number badges anymore). The saved order is unchanged.
+   - No database change.
+ - **Build: `gulp` builds the same bundles on every machine.**
+   - The files of `styles.min.js` / `styles.min.css` are put together in a fixed order: the shared folder (`style/js`, `style/css`) first, then the style folders, case-insensitive by path. The order no longer depends on the file system (Windows, Linux, Mac), so a rebuild without changed sources gives no diff and CSS rules of equal specificity always win in the same order.
+   - The current bundles already have this order; they are unchanged.
+   - No database change.
+ - **Include files: every file once, and the files of components carry the version.**
+   - A JS or CSS file is included once per page, also when it is added with different paths (server path and url, `\`, `x/../`); e.g. two files of the LLM plugin were loaded twice on CMS pages.
+   - The files which components add themselves (e.g. the CMS: `cms.js`, `cms_ui.js`, `cms_outline.js`) get `?v=<version>` like `styles.min.js`, so browsers load them again after an update instead of running old code. Files with a query (e.g. the `?v=` of a plugin) are not changed.
+   - For developers: a style's own `js/` and `css/` are loaded by the bundles (or one by one with `DEBUG`); don't return them from `get_js_includes()` / `get_css_includes()`. `BasePage::get_include_urls()`.
+   - No database change.
+
 # v7.13.1
 ### Bug Fix
  - **User CSS is no longer loaded on admin pages**: uploaded CSS files and the *Global CSS* could restyle or hide the admin (e.g. `body { display: none }`) and lock editors out of the CMS they need to fix it.
