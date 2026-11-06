@@ -44,10 +44,9 @@ class CmsInsertView extends BaseView
         foreach($this->pages as $idx => $page)
         {
             $this->position_value .= (string)($idx * 10) . ",";
-            $this->pages[$idx]["css"] = "fixed text-muted";
         }
 
-        $this->pages[] = array("id" => "new", "title" => "New Page");
+        $this->pages[] = array("id" => "new", "title" => "New Page", "is_self" => true);
         $this->position_value .= (string)(count($this->pages) * 10);
     }
 
@@ -66,12 +65,8 @@ class CmsInsertView extends BaseView
      */
     private function output_page_order()
     {
-        $list = new BaseStyleComponent("sortableList", array(
-            "is_sortable" => true,
-            "is_editable" => true,
-            "items" => $this->pages,
-        ));
-        $list->output_content();
+        $menu_items = $this->pages;
+        require __DIR__ . "/../cms/tpl_menu_position_list.php";
     }
 
     /**

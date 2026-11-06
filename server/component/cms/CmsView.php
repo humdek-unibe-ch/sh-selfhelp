@@ -391,9 +391,7 @@ class CmsView extends BaseView
         $position_value = "";
         foreach ($pages as $idx => $page) {
             $position_value .= (string)($idx * 10) . ",";
-            if ($current_page != intval($page["id"])) {
-                $pages[$idx]["css"] = "fixed text-muted";
-            }
+            $pages[$idx]["is_self"] = $current_page == intval($page["id"]);
         }
         $position_value = rtrim($position_value, ",");
         $page_header = array();
@@ -407,16 +405,15 @@ class CmsView extends BaseView
         ));
         if ($page_info && $page_info['nav_position'] == "") {
             // the page is not in nav, add it to the list
-            $pages[] = array("id" => $current_page, "title" => $page_info['keyword']);
+            $pages[] = array("id" => $current_page, "title" => $page_info['keyword'], "is_self" => true);
         }
         $page_header[] = new BaseStyleComponent("div", array(
             "css" => "d-none",
             "id" => "page-order-wrapper",
             "children" => array(
-                new BaseStyleComponent("sortableList", array(
-                    "is_sortable" => true,
-                    "is_editable" => true,
-                    "items" => $pages,
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_menu_position_list.php",
+                    "items" => array("items" => $pages),
                 )),
                 new BaseStyleComponent("input", array(
                     "value" => $page_info ? $page_info['nav_position'] : '',

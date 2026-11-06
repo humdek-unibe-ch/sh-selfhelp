@@ -94,7 +94,7 @@ function initPageOrder() {
     function setOrder(list) {
         var order = [];
         list.children('li').each(function (idx) {
-            order[$(this).children('.badge').text()] = idx * 10;
+            order[$(this).attr('data-index')] = idx * 10; // the key is the position when the list was rendered
         });
         check_pos_list.val(order.toString());
     }
@@ -129,6 +129,23 @@ function initPageOrder() {
                 }
             },
             filter: ".fixed",
+        });
+        // the arrows move the page one position up or down, like a drag
+        list.off('click.menuPosition').on('click.menuPosition', '.ui-menu-position-step', function () {
+            var $self = list.children('.ui-menu-position-self');
+            var step = parseInt($(this).attr('data-step'), 10);
+            if (step < 0 && $self.prev().length) {
+                $self.insertBefore($self.prev());
+            } else if (step > 0 && $self.next().length) {
+                $self.insertAfter($self.next());
+            } else {
+                return;
+            }
+            $self.find('.ui-menu-position-step[data-step="' + step + '"]').trigger('focus');
+            setOrder(list);
+            if (typeof unsavedChanges !== 'undefined') {
+                unsavedChanges.push(this);
+            }
         });
     });
 }

@@ -48,3 +48,8 @@ textarea
 .fieldsOnTop {
     z-index: 100;
 }
+
+/* the position of a page in the header menu (tpl_menu_position_list.php, Move page modal): only the page can be dragged */
+.ui-menu-position-self {
+    cursor: grab;
+}
