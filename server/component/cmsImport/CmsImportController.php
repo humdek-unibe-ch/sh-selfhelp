@@ -36,7 +36,12 @@ class CmsImportController extends BaseController
                     );
                     $label = "Section: " . $model->json['section']['section_name'];
                 } else {
-                    $res = $model->import_page(isset($_POST['page_keyword']) ? trim($_POST['page_keyword']) : null);
+                    // child_keywords[i]: the keyword of the i-th child page of the file; parent: import as child page
+                    $res = $model->import_page(
+                        isset($_POST['page_keyword']) ? trim($_POST['page_keyword']) : null,
+                        isset($_POST['child_keywords']) && is_array($_POST['child_keywords']) ? $_POST['child_keywords'] : array(),
+                        isset($_POST['parent']) && intval($_POST['parent']) > 0 ? intval($_POST['parent']) : null
+                    );
                     $label = "Page: " . $model->json['page']['keyword'];
                 }
                 if ($res === true) {

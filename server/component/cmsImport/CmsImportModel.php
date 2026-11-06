@@ -101,6 +101,12 @@ class CmsImportModel extends CmsModel
      */
     private $plan_nav = false;
 
+    /**
+     * The index of the page whose sections are planned at the moment (page
+     * imports): the navigation items are linked to this page.
+     */
+    private $plan_page_idx = 0;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -222,7 +228,7 @@ class CmsImportModel extends CmsModel
     {
         $key = $table . "|" . $parent . "|" . $child;
         if (!isset($this->links[$key])) {
-            $this->links[$key] = array("table" => $table, "parent" => $parent, "child" => $child, "position" => intval($position));
+            $this->links[$key] = array("table" => $table, "parent" => $parent, "child" => $child, "position" => intval($position), "page" => $this->plan_page_idx);
         }
     }
 
@@ -297,6 +303,7 @@ class CmsImportModel extends CmsModel
         $this->shared = array();
         $this->plan_path = array();
         $this->plan_nav = $plan_nav;
+        $this->plan_page_idx = 0;
         $this->imported_section_id = null;
         $this->imported_page_id = null;
         $this->load_lookups();
@@ -404,9 +411,10 @@ class CmsImportModel extends CmsModel
     /**
      * Write the plan to the database: the new sections, their fields and the
      * links between the sections. This must run inside a transaction.
-     * @param int $id_page the id of the page the navigation items belong to
+     * @param array $page_ids the ids of the imported pages by their index in
+     * the import, the navigation items are linked to them (page imports)
      */
-    private function write_plan($id_page = null)
+    private function write_plan($page_ids = array())
     {
         $new = array();
         foreach ($this->sections as $idx => $section) {
@@ -452,7 +460,7 @@ class CmsImportModel extends CmsModel
             if ($link['table'] == "sections_hierarchy") {
                 $children[] = array($parent, $child, $link['position']);
             } else {
-                $navigation[] = array($parent, $child, $id_page, $link['position']);
+                $navigation[] = array($parent, $child, $page_ids[$link['page']], $link['position']);
             }
         }
         $this->insert_rows("sections_hierarchy", array("parent", "child", "position"), $children);
@@ -602,26 +610,20 @@ class CmsImportModel extends CmsModel
     }
 
     /**
-     * Import a complete page based on the json input file. The page gets its
-     * own copy of all sections.
-     * @param string $keyword = null
-     * The keyword of the new page. If it is empty the keyword from the json is used
-     * @retval mixed
-     * true on success otherwise the error message
+     * Check the properties of a page of the file and add its fields and
+     * sections to the plan. Nothing is written.
+     * @param array $page the exported page
+     * @param string $keyword the keyword of the new page (already checked)
+     * @param int $idx the index of the page in the import (0 is the imported page, then its children)
+     * @retval array
+     * The planned page with the keys 'keyword', 'url', 'protocol', 'is_navigation', 'is_headless',
+     * 'is_open', 'access_type', 'fields' (rows for pages_fields_translation without the page id),
+     * 'roots' (section index => position) and 'navigation' (the index of the navigation section or null).
      */
-    public function import_page($keyword = null)
+    private function plan_page($page, $keyword, $idx)
     {
-        if (!$this->can_create_new_page()) {
-            return "You do not have the rights to create pages.";
-        }
-        $page = $this->json['page'];
         if ($page['action'] != 'sections') {
-            return "Only pages with sections can be imported. The action of this page is '" . $page['action'] . "'.";
-        }
-        $keyword = $keyword ? $keyword : $page['keyword'];
-        $keyword_error = $this->get_keyword_error($keyword);
-        if ($keyword_error) {
-            return $keyword_error;
+            throw new Exception("Only pages with sections can be imported. The action of the page '" . $page['keyword'] . "' is '" . $page['action'] . "'.");
         }
         $is_navigation = isset($page['navigation_section']);
         $protocols = array_intersect(explode('|', isset($page['protocol']) ? $page['protocol'] : ''), CmsModel::PAGE_PROTOCOLS);
@@ -629,53 +631,144 @@ class CmsImportModel extends CmsModel
         if (!$access_type) {
             $access_type = $this->db->get_lookup_id_by_code(pageAccessTypes, pageAccessTypes_mobile_and_web);
         }
+        $planned = array(
+            "keyword" => $keyword,
+            "url" => '/' . $keyword . ($is_navigation ? '/[i:nav]' : ''),
+            "protocol" => count($protocols) > 0 ? implode('|', $protocols) : 'GET|POST',
+            "is_navigation" => $is_navigation,
+            "is_headless" => isset($page['is_headless']) && $page['is_headless'],
+            "is_open" => isset($page['page_type']) && $page['page_type'] == 'open',
+            "access_type" => $access_type,
+            "fields" => array(),
+            "roots" => array(), // a section which is listed twice is linked once
+            "navigation" => null,
+        );
+        foreach ($this->plan_fields($page['keyword'], $page['fields'], true) as $field) {
+            $planned['fields'][] = array($field[0], $field[1], $field[3]);
+        }
+        $this->plan_page_idx = $idx; // the navigation items which are planned now belong to this page
+        foreach ($page['sections'] as $section) {
+            $planned['roots'][$this->plan_section($section)] = intval($section['position']);
+        }
+        if ($is_navigation) {
+            $planned['navigation'] = $this->plan_section($page['navigation_section'], true);
+        }
+        return $planned;
+    }
+
+    /**
+     * Import a complete page based on the json input file. The page gets its
+     * own copy of all sections. If the file contains child pages
+     * (`page.children`) they are imported too, as child pages of the new page;
+     * the child pages which were in the header menu of the parent are put
+     * into the menu of the new page in the same order. Everything is imported
+     * in one transaction: all pages or none.
+     * The page tree has two levels: a child page of the file cannot have
+     * children and a file with child pages can only be imported as a root
+     * page.
+     * @param string $keyword = null
+     * The keyword of the new page. If it is empty the keyword from the json is used
+     * @param array $child_keywords = array()
+     * The keywords of the child pages by their index in `page.children`. A
+     * missing or empty keyword is taken from the json.
+     * @param int $id_parent = null
+     * The parent of the new page or null for a root page, see
+     * CmsModel::get_parent_page_error(). The new page is not added to the
+     * header menu of the parent.
+     * @retval mixed
+     * true on success otherwise the error message
+     */
+    public function import_page($keyword = null, $child_keywords = array(), $id_parent = null)
+    {
+        if (!$this->can_create_new_page()) {
+            return "You do not have the rights to create pages.";
+        }
+        $page = $this->json['page'];
+        $children = isset($page['children']) ? $page['children'] : array();
+        foreach ($children as $child) {
+            if (isset($child['children']) && count($child['children']) > 0) {
+                return "The child page '" . $child['keyword'] . "' has child pages itself. The page tree has two levels, such a file cannot be imported.";
+            }
+        }
+        if ($id_parent !== null && count($children) > 0) {
+            return "This file contains child pages, so it can only be imported as a root page: the page tree has two levels.";
+        }
+        $parent_error = $this->get_parent_page_error($id_parent);
+        if ($parent_error) {
+            return $parent_error;
+        }
+        // the keywords of all pages: they must be valid, unused and different from each other
+        $keywords = array($keyword ? $keyword : $page['keyword']);
+        foreach ($children as $idx => $child) {
+            $keywords[] = isset($child_keywords[$idx]) && trim((string)$child_keywords[$idx]) !== '' ? trim((string)$child_keywords[$idx]) : $child['keyword'];
+        }
+        $seen = array();
+        foreach ($keywords as $value) {
+            $keyword_error = $this->get_keyword_error($value);
+            if ($keyword_error) {
+                return $keyword_error;
+            }
+            if (isset($seen[strtolower($value)])) {
+                return "The keyword '" . $value . "' is used for two pages of the import. Choose another keyword.";
+            }
+            $seen[strtolower($value)] = true;
+        }
         $started = false;
         try {
             $this->reset_plan(true);
-            $page_fields = array();
-            foreach ($this->plan_fields($page['keyword'], $page['fields'], true) as $field) {
-                $page_fields[] = array($field[0], $field[1], $field[3]);
+            $pages = array($this->plan_page($page, $keywords[0], 0));
+            foreach ($children as $idx => $child) {
+                $pages[] = $this->plan_page($child, $keywords[$idx + 1], $idx + 1);
             }
-            $roots = array(); // a section which is listed twice is linked once
-            foreach ($page['sections'] as $section) {
-                $roots[$this->plan_section($section)] = intval($section['position']);
-            }
-            $navigation = $is_navigation ? $this->plan_section($page['navigation_section'], true) : null;
             $this->assign_names();
             $this->db->begin_transaction();
             $started = true;
-            $pid = $this->create_new_page(
-                $keyword,
-                '/' . $keyword . ($is_navigation ? '/[i:nav]' : ''),
-                count($protocols) > 0 ? implode('|', $protocols) : 'GET|POST',
-                $is_navigation ? 4 : 3, // 4 creates a navigation page, 3 a page with sections
-                null,
-                isset($page['is_headless']) && $page['is_headless'],
-                isset($page['page_type']) && $page['page_type'] == 'open',
-                null,
-                $access_type
-            );
-            if (!$pid) {
-                throw new Exception('The page could not be created');
+            $page_ids = array();
+            $menu_position = 0;
+            foreach ($pages as $idx => $planned) {
+                $pid = $this->create_new_page(
+                    $planned['keyword'],
+                    $planned['url'],
+                    $planned['protocol'],
+                    $planned['is_navigation'] ? 4 : 3, // 4 creates a navigation page, 3 a page with sections
+                    null,
+                    $planned['is_headless'],
+                    $planned['is_open'],
+                    $idx == 0 ? $id_parent : $page_ids[0],
+                    $planned['access_type']
+                );
+                if (!$pid) {
+                    throw new Exception("The page '" . $planned['keyword'] . "' could not be created");
+                }
+                $page_ids[$idx] = $pid;
+                if ($planned['is_navigation']) {
+                    // create_new_page already created an empty navigation section; fill it with the imported content
+                    $nav = $this->db->query_db_first("SELECT id_navigation_section FROM pages WHERE id = :id", array(":id" => $pid));
+                    $this->sections[$planned['navigation']]['id'] = intval($nav['id_navigation_section']);
+                }
+                if ($idx > 0 && isset($children[$idx - 1]['nav_position']) && $children[$idx - 1]['nav_position'] !== null) {
+                    // the children are exported in the order of the menu
+                    $menu_position += 10;
+                    if ($this->db->update_by_ids("pages", array("nav_position" => $menu_position), array("id" => $pid)) === false) {
+                        throw new Exception("The page '" . $planned['keyword'] . "' could not be added to the menu.");
+                    }
+                }
             }
-            if ($is_navigation) {
-                // create_new_page already created an empty navigation section; fill it with the imported content
-                $nav = $this->db->query_db_first("SELECT id_navigation_section FROM pages WHERE id = :id", array(":id" => $pid));
-                $this->sections[$navigation]['id'] = intval($nav['id_navigation_section']);
+            $this->write_plan($page_ids);
+            $fields = array();
+            $roots = array();
+            foreach ($pages as $idx => $planned) {
+                foreach ($planned['fields'] as $field) {
+                    $fields[] = array_merge(array($page_ids[$idx]), $field);
+                }
+                foreach ($planned['roots'] as $section => $position) {
+                    $roots[] = array($page_ids[$idx], $this->sections[$section]['id'], $position);
+                }
             }
-            $this->write_plan($pid);
-            $rows = array();
-            foreach ($page_fields as $field) {
-                $rows[] = array_merge(array($pid), $field);
-            }
-            $this->insert_rows("pages_fields_translation", array("id_pages", "id_fields", "id_languages", "content"), $rows);
-            $rows = array();
-            foreach ($roots as $idx => $position) {
-                $rows[] = array($pid, $this->sections[$idx]['id'], $position);
-            }
-            $this->insert_rows("pages_sections", array("id_pages", "id_sections", "position"), $rows);
+            $this->insert_rows("pages_fields_translation", array("id_pages", "id_fields", "id_languages", "content"), $fields);
+            $this->insert_rows("pages_sections", array("id_pages", "id_sections", "position"), $roots);
             $this->db->commit();
-            $this->imported_page_id = $pid;
+            $this->imported_page_id = $page_ids[0];
             return true;
         } catch (Exception $e) {
             if ($started) {
