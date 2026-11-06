@@ -34,6 +34,12 @@ abstract class BasePage
     private $js_includes_after;
 
     /**
+     * The version of the application for the include urls (`?v=`), see
+     * BasePage::get_app_version().
+     */
+    private $app_version = null;
+
+    /**
      * An array of components assigned to this page.
      */
     private $components;
@@ -169,8 +175,8 @@ abstract class BasePage
         );
         if(DEBUG == 0)
         {
-            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version(__DIR__);
-            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version(__DIR__);
+            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->get_app_version();
+            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->get_app_version();
         }
         // page info is needed before the includes: is_admin_page() reads the page url
         $this->fetch_page_info($keyword);
@@ -414,16 +420,72 @@ abstract class BasePage
     }
 
     /**
+     * The version of the application (git tag), read once per request: it
+     * runs a git command.
+     *
+     * @retval string
+     *  The version, "unknown" without git.
+     */
+    private function get_app_version()
+    {
+        if($this->app_version === null)
+            $this->app_version = $this->services->get_db()->get_git_version(__DIR__);
+        return $this->app_version;
+    }
+
+    /**
+     * Turn the include files into the urls of the include directives. A file
+     * is included once, also if it was added as server path (a component,
+     * e.g. `__DIR__ . "/js/x.js"`) and as url (e.g. the DEBUG collection of
+     * the styles). The files of components (server paths) get the version of
+     * the application, so browsers load them again after an update; a file
+     * which has a query already (e.g. `?v=` of a plugin) is not changed.
+     *
+     * @param array $includes
+     *  The include files: urls or server paths.
+     * @retval array
+     *  The urls in the order of their first occurrence.
+     */
+    private function get_include_urls($includes)
+    {
+        $router = $this->services->get_router();
+        $urls = array();
+        foreach($includes as $include)
+        {
+            $url = $router->get_asset_path($include);
+            $parts = explode('?', $url, 2);
+            $file = $parts[0];
+            if(!preg_match('#^([a-z][a-z0-9+.-]*:)?//#i', $file))
+            {
+                // a local file can be written differently (`\` on Windows, `x/../`): use the resolved path
+                $segments = array();
+                foreach(explode('/', str_replace('\\', '/', $file)) as $segment)
+                {
+                    if($segment === '..')
+                        array_pop($segments);
+                    else if($segment !== '.' && ($segment !== '' || count($segments) === 0))
+                        $segments[] = $segment;
+                }
+                $file = implode('/', $segments);
+                $url = $file . (isset($parts[1]) ? '?' . $parts[1] : '');
+            }
+            if(isset($urls[$file]))
+                continue;
+            if(strpos($include, $_SERVER['DOCUMENT_ROOT']) === 0 && strpos($url, '?') === false)
+                $url .= '?v=' . urlencode($this->get_app_version());
+            $urls[$file] = $url;
+        }
+        return array_values($urls);
+    }
+
+    /**
      * Add page include files and render the css include directives.
      */
     private function output_css_includes()
     {
-        $this->css_includes = array_unique(array_merge($this->css_includes,
-            $this->get_css_includes()));
-        foreach($this->css_includes as $css_include)
+        $includes = array_merge($this->css_includes, $this->get_css_includes());
+        foreach($this->get_include_urls($includes) as $include_path)
         {
-            $router = $this->services->get_router();
-            $include_path = $router->get_asset_path($css_include);
             require __DIR__ . '/tpl_css_include.php';
         }
     }
@@ -433,13 +495,9 @@ abstract class BasePage
      */
     private function output_js_includes()
     {
-        $this->js_includes = array_unique(array_merge($this->js_includes,
-            $this->get_js_includes()));
-        /* sort($this->js_includes); */
-        foreach($this->js_includes as $js_include)
+        $includes = array_merge($this->js_includes, $this->get_js_includes());
+        foreach($this->get_include_urls($includes) as $include_path)
         {
-            $router = $this->services->get_router();
-            $include_path = $router->get_asset_path($js_include);
             require __DIR__ . '/tpl_js_include.php';
         }
     }
