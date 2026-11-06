@@ -69,6 +69,12 @@ class CmsInsertController extends BaseController
                 $this->error_msgs[] = "Failed to create new page: Insufficient parameters provided.";
                 return;
             }
+            $navigation_error = intval($type) == 4 ? $this->model->get_navigation_section_error($this->name) : null;
+            if ($navigation_error) {
+                $this->fail = true;
+                $this->error_msgs[] = $navigation_error; // the keyword is valid, it has no characters to escape
+                return;
+            }
             $position = null;
             if(isset($_POST['set-position']))
             {
@@ -83,13 +89,20 @@ class CmsInsertController extends BaseController
             if(isset($_POST['set-open']))
                 $is_open = true;
 
+            // all or nothing: a failed page must not leave its navigation section or rights behind
+            $db = $this->model->get_db();
+            $db->begin_transaction();
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
                 intval($type), $position, $is_headless, $is_open,
                 $this->model->get_active_page_id(), $_POST['id_pageAccessTypes']);
             if($this->pid)
+            {
+                $db->commit();
                 $this->success = true;
+            }
             else
             {
+                $db->rollback();
                 $this->fail = true;
                 $this->error_msgs[] = "Failed to create new page.";
             }

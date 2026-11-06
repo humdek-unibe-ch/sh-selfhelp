@@ -948,16 +948,19 @@ class CmsModel extends BaseModel
      *  The id of the page.
      * @param bool $is_open
      *  If set select access to the guest user is granted.
+     * @retval bool
+     *  True if all rights were saved.
      */
     private function set_new_page_acl($pid, $is_open = false)
     {
-        $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
-        $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
-        $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
-        $this->acl->grant_access_levels($_SESSION['id_user'], $pid, 4, false);
+        $res = $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
+        $res = $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true) && $res;
+        $res = $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true) && $res;
+        $res = $this->acl->grant_access_levels($_SESSION['id_user'], $pid, 4, false) && $res;
         //TO DO grant access to creator
         if($is_open)
-            $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
+            $res = $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false) && $res;
+        return $res;
     }
 
     /**
@@ -1335,7 +1338,10 @@ class CmsModel extends BaseModel
      * @param int $id_pageAccessTypes
      *  Page type access. It could be mobile, web or mobile_web
      * @retval int
-     *  The id of the created page.
+     *  The id of the created page or false if a step failed. The steps are
+     *  not undone here: the caller runs this inside a transaction and rolls
+     *  it back on false (otherwise e.g. the navigation section of a failed
+     *  page stays and blocks the keyword).
      */
     public function create_new_page($keyword, $url, $protocol, $action,
         $position, $is_headless, $is_open, $parent, $id_pageAccessTypes)
@@ -1346,6 +1352,8 @@ class CmsModel extends BaseModel
         {
             $action = 3;
             $nav_id = $this->create_new_navigation_section($keyword);
+            if(!$nav_id || $nav_id === true)
+                return false; // insert returns true if no id is available
         }
         $pid = $this->db->insert("pages", array(
             "keyword" => $keyword,
@@ -1359,9 +1367,12 @@ class CmsModel extends BaseModel
             "is_headless" => $is_headless ? 1 : 0,
             "id_pageAccessTypes" => $id_pageAccessTypes
         ));
-        $this->set_new_page_acl($pid, $is_open);
+        if(!$pid || $pid === true)
+            return false;
+        if(!$this->set_new_page_acl($pid, $is_open))
+            return false;
         if($position)
-            $this->update_page_order($position, $parent);
+            $this->update_page_order($position, $parent); // its result counts changed rows, an unchanged position is not an error
         return $pid;
     }
 
