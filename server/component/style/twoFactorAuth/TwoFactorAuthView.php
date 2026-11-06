@@ -31,33 +31,10 @@ class TwoFactorAuthView extends StyleView
 
     /* Public Methods *********************************************************/
 
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/css/twoFactorAuth.css");
-        return parent::get_css_includes($local);
-    }
+    // css/ and js/ are loaded like the files of every style: styles.min.css / styles.min.js, or one by one with
+    // DEBUG (BasePage::collect_style_includes). Returning them from get_css_includes() / get_js_includes() would
+    // load them twice.
 
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {   
-        if(empty($local)){
-            $local = array(__DIR__ . "/js/twoFactorAuth.js");
-        }
-        return parent::get_js_includes($local);
-    }
     /**
      * Render the component view.
      */

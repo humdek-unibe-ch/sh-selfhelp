@@ -142,32 +142,8 @@ class LanguagePickerView extends StyleView
         require __DIR__ . "/tpl_language_picker.php";
     }
 
-    /**
-     * Get css include files required for this component.
-     *
-     * @return array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        if (empty($local)) {
-            $local = array(__DIR__ . "/css/language-picker.css");
-        }
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component.
-     *
-     * @return array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        if (empty($local)) {
-            $local = array(__DIR__ . "/js/language-picker.js");
-        }
-        return parent::get_js_includes($local);
-    }
+    // css/ and js/ are loaded like the files of every style: styles.min.css / styles.min.js, or one by one with
+    // DEBUG (BasePage::collect_style_includes). Returning them from get_css_includes() / get_js_includes() would
+    // load them twice (and bind the handlers twice).
 }
 ?>

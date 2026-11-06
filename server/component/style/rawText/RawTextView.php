@@ -39,18 +39,8 @@ class RawTextView extends StyleView
 
     /* Public Methods *********************************************************/
 
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/rawText.css");
-        return parent::get_css_includes($local);
-    }
+    // css/rawText.css is loaded like the css of every style: styles.min.css, or one by one with DEBUG
+    // (BasePage::collect_style_includes).
 
     /**
      * Render the style view.
