@@ -584,3 +584,57 @@ body.cms-busy #properties {
     flex: 1 1 auto;
     width: auto !important;
 }
+
+/* parent picker of the modals Move page and Import page: search + list of the possible parents */
+.ui-parent-picker-search {
+    position: relative;
+    margin-bottom: .5rem;
+}
+
+.ui-parent-picker-search>input {
+    padding-left: 1.75rem;
+}
+
+.ui-parent-picker-search>i {
+    position: absolute;
+    left: .55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: .8rem;
+    pointer-events: none;
+}
+
+.ui-parent-picker-list {
+    max-height: 15rem;
+    overflow-y: auto;
+}
+
+.ui-parent-picker-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    padding-top: .35rem;
+    padding-bottom: .35rem;
+    cursor: pointer;
+}
+
+.ui-parent-picker-item:has(input:checked) {
+    background-color: #e7f1ff;
+}
+
+.ui-parent-picker.is-disabled .ui-parent-picker-item:not(:first-child) {
+    opacity: .5;
+    pointer-events: none;
+}
+
+/* Move page modal: the header menu of the new parent, only the moved page can be dragged */
+.ui-move-page-menu-list {
+    max-height: 14rem;
+    overflow-y: auto;
+}
+
+/* Import page modal: the pages of the file with their keywords */
+.ui-import-page-list .ui-import-page-child {
+    padding-left: 1.5rem;
+}

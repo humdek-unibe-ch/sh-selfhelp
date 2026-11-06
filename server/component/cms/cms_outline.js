@@ -139,10 +139,38 @@ function outlineBindEvents() {
             if (!$keyword.val() && json && json.page && json.page.keyword) {
                 $keyword.val(json.page.keyword);
             }
+            outlineRenderImportChildren(json && json.page && $.isArray(json.page.children) ? json.page.children : []);
+        })
+        .on('input.outline', '#ui-import-page-form .ui-import-page-keyword', function () {
+            outlineCheckImportKeywords();
         })
         .on('submit.outline', '#ui-import-page-form', function (e) {
             e.preventDefault();
             outlineImportPage($(this));
+        })
+        // the parent picker of the modals Move page and Import page
+        .on('input.outline', '.ui-parent-picker-filter', function () {
+            outlineFilterParentPicker($(this).closest('.ui-parent-picker'), $(this).val());
+        })
+        .on('keydown.outline', '.ui-parent-picker-filter', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // enter must not submit the form
+            }
+        })
+        // the modal which moves a page below another parent
+        .on('click.outline', '#new-ui-move-page', function (e) {
+            e.preventDefault();
+            outlineOpenMovePage();
+        })
+        .on('change.outline', '#ui-move-page-form input[name="parent"], #ui-move-page-in-menu', function () {
+            outlineRenderMoveMenu();
+        })
+        .on('click.outline', '#ui-move-page-menu-list .ui-menu-position-step', function () {
+            outlineStepMovePage(parseInt($(this).attr('data-step'), 10));
+        })
+        .on('submit.outline', '#ui-move-page-form', function (e) {
+            e.preventDefault();
+            outlineMovePage($(this));
         });
     $(window).on('popstate.outline', function () {
         if ($('#ui-outline').length === 0 || location.href.split('#')[0] === outlineLastUrl) {
@@ -255,7 +283,8 @@ function outlineError(message) {
  */
 function outlineShowServerErrors($data) {
     var messages = [];
-    outlineFind($data, '#cms-alerts .alert-danger').each(function () {
+    // the CMS shows its alerts in #cms-alerts; the answers of the insert url (CmsUpdateView) show the errors of the controller
+    outlineFind($data, '#cms-alerts .alert-danger, .alert-danger[id^="section-controller-fail-"]').each(function () {
         messages.push(outlineEsc($(this).text().replace(/\s+/g, ' ').replace(/^\s*×\s*/, '').trim()));
     });
     if (messages.length > 0) {
@@ -459,9 +488,18 @@ function outlineApplyPage(html, url, opts) {
  * @param {String} html the html of the page
  * @param {Number} flashId the section which is highlighted
  */
-function outlineApplyOutline(html, flashId) {
+function outlineApplyOutline(html, flashId, isRefresh) {
     var $data = $(html);
     var $newOutline = outlineFind($data, '#ui-outline');
+    if ($newOutline.length === 0 && $('#ui-outline').length > 0 && !isRefresh) {
+        // e.g. the answer of the insert url has no outline: load it, a reload would close an error message
+        outlineRefresh(function () {
+            if (flashId) {
+                outlineFlash(flashId);
+            }
+        });
+        return;
+    }
     if ($newOutline.length === 0 || $('#ui-outline').length === 0) {
         window.location.reload();
         return;
@@ -487,7 +525,7 @@ function outlineApplyOutline(html, flashId) {
 function outlineRefresh(callback) {
     outlineSetBusy(true);
     outlineRequest('GET', location.href).done(function (res) {
-        outlineApplyOutline(res.html);
+        outlineApplyOutline(res.html, undefined, true);
         if (callback) {
             callback();
         }
@@ -1086,6 +1124,7 @@ function outlineOpenImportPage() {
         $form.find('input[name="json"]').val('');
         $form.data('versionMessage', null).data('versionConfirmed', false);
         $('#ui-import-page-error').addClass('d-none').empty();
+        outlineRenderImportChildren([]);
         $modal.modal('show');
     });
 }
@@ -1100,12 +1139,21 @@ function outlineImportPage($form) {
         $error.text('Please select a valid JSON file.').removeClass('d-none');
         return;
     }
+    if (!outlineCheckImportKeywords()) {
+        $error.text('Please correct the keywords of the new pages.').removeClass('d-none');
+        return;
+    }
     confirmImportVersion($form, function () {
         $('#ui-import-page-submit').prop('disabled', true);
-        outlineRequest('POST', $form.attr('action'), {
+        var params = {
             json: $form.find('input[name="json"]').val(),
-            page_keyword: $.trim($('#ui-import-page-keyword').val())
-        }).done(function (res) {
+            page_keyword: $.trim($('#ui-import-page-keyword').val()),
+            parent: parseInt($form.find('input[name="parent"]:checked').val(), 10) || 0
+        };
+        $('#ui-import-page-children .ui-import-page-keyword').each(function () {
+            params['child_keywords[' + $(this).attr('data-index') + ']'] = $.trim($(this).val());
+        });
+        outlineRequest('POST', $form.attr('action'), params).done(function (res) {
             var $data = $(res.html);
             var $result = outlineFind($data, '#cms-import-result');
             if ($result.length && $result.attr('data-url')) {
@@ -1123,6 +1171,249 @@ function outlineImportPage($form) {
         }).always(function () {
             $('#ui-import-page-submit').prop('disabled', false);
         });
+    });
+}
+
+/**
+ * Show a keyword field for each child page of the import file. A file with
+ * child pages can only be imported as a root page (the page tree has two
+ * levels): the parent picker is locked to the root.
+ * @param {Array} children the child pages of the file
+ */
+function outlineRenderImportChildren(children) {
+    var $list = $('#ui-import-page-children').empty();
+    children.forEach(function (child, idx) {
+        var $group = $('<div class="input-group input-group-sm mb-1 ui-import-page-child"></div>');
+        $group.append('<div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-level-up-alt fa-rotate-90 fa-fw"></i></span></div>');
+        $group.append($('<input type="text" class="form-control ui-import-page-keyword" pattern="[a-zA-Z0-9_\\-]+" maxlength="100" required autocomplete="off">')
+            .attr('data-index', idx)
+            .attr('aria-label', 'Keyword of the child page ' + (child.keyword || ''))
+            .val(child.keyword || ''));
+        $group.append('<div class="invalid-feedback"></div>');
+        $list.append($group);
+    });
+    var $picker = $('#ui-import-page-parent');
+    var locked = children.length > 0;
+    if (locked) {
+        outlineResetParentPicker($picker, 0);
+    }
+    $picker.toggleClass('is-disabled', locked).find('input').not('[value="0"]').prop('disabled', locked);
+    $picker.find('.ui-parent-picker-filter').prop('disabled', locked);
+    $('#ui-import-page-parent-note').toggleClass('d-none', !locked);
+    outlineCheckImportKeywords();
+}
+
+/**
+ * Check the keywords of the import modal: valid, not used by a page and not
+ * used twice. A keyword with a problem is marked with the reason.
+ * @returns {Boolean} true if all keywords can be used
+ */
+function outlineCheckImportKeywords() {
+    var $form = $('#ui-import-page-form');
+    var taken = JSON.parse($form.attr('data-taken-keywords') || '[]');
+    var $inputs = $form.find('.ui-import-page-keyword');
+    var counts = {};
+    $inputs.each(function () {
+        var value = $.trim($(this).val()).toLowerCase();
+        counts[value] = (counts[value] || 0) + 1;
+    });
+    var valid = true;
+    $inputs.each(function () {
+        var $input = $(this);
+        var value = $.trim($input.val());
+        var reason = '';
+        if (value === '' && !$input.is('#ui-import-page-keyword')) {
+            reason = 'Enter a keyword.';
+        } else if (value !== '' && !/^[a-zA-Z0-9_\-]+$/.test(value)) {
+            reason = 'Use only letters, numbers, - and _.';
+        } else if (value !== '' && taken.indexOf(value.toLowerCase()) >= 0) {
+            reason = 'A page with this keyword exists already.';
+        } else if (value !== '' && counts[value.toLowerCase()] > 1) {
+            reason = 'This keyword is used twice in this import.';
+        }
+        $input.toggleClass('is-invalid', reason !== '');
+        $input.siblings('.invalid-feedback').text(reason);
+        valid = valid && reason === '';
+    });
+    return valid;
+}
+
+//******************************************* Parent picker ***********************************************
+
+/**
+ * Show only the pages of a parent picker whose keyword contains the text.
+ * The root and the checked page are always shown.
+ * @param {jQuery} $picker the picker
+ * @param {String} text the search text
+ */
+function outlineFilterParentPicker($picker, text) {
+    var search = $.trim(text || '').toLowerCase();
+    var shown = 0;
+    $picker.find('.ui-parent-picker-item').each(function () {
+        var $item = $(this);
+        var keyword = $item.attr('data-keyword');
+        var show = keyword === '' || search === '' || keyword.indexOf(search) >= 0 || $item.find('input').prop('checked');
+        $item.toggleClass('d-none', !show);
+        if (show && keyword !== '') {
+            shown++;
+        }
+    });
+    $picker.find('.ui-parent-picker-empty').toggleClass('d-none', search === '' || shown > 0);
+}
+
+/**
+ * Reset a parent picker: clear the search and check a parent.
+ * @param {jQuery} $picker the picker
+ * @param {Number} parentId the id of the checked parent, 0 for the root
+ */
+function outlineResetParentPicker($picker, parentId) {
+    $picker.find('.ui-parent-picker-filter').val('');
+    var $radio = $picker.find('input[type="radio"][value="' + parentId + '"]');
+    if ($radio.length === 0) {
+        $radio = $picker.find('input[type="radio"][value="0"]');
+    }
+    $radio.prop('checked', true);
+    outlineFilterParentPicker($picker, '');
+}
+
+//******************************************* Move page ***********************************************
+
+/**
+ * Open the modal which moves the page. The modal is rendered inside the
+ * properties (it belongs to the page which is shown, the properties are
+ * replaced when another page is loaded) and moved to the body when it is
+ * opened.
+ */
+function outlineOpenMovePage() {
+    var $fresh = $('#properties #ui-move-page-modal');
+    if ($fresh.length) {
+        $('body > #ui-move-page-modal').remove();
+        $fresh.appendTo('body');
+    }
+    var $modal = $('body > #ui-move-page-modal');
+    if ($modal.length === 0) {
+        return;
+    }
+    outlineConfirmDiscard(function () {
+        var $form = $('#ui-move-page-form');
+        outlineResetParentPicker($form.find('.ui-parent-picker'), parseInt($form.attr('data-parent'), 10) || 0);
+        $('#ui-move-page-in-menu').prop('checked', $form.attr('data-in-menu') === '1');
+        $('#ui-move-page-error').addClass('d-none').empty();
+        $('#ui-move-page-submit').prop('disabled', false);
+        outlineRenderMoveMenu();
+        $modal.modal('show');
+    });
+}
+
+/**
+ * The id of the parent which is checked in the Move page modal, 0 for the root.
+ * @returns {Number}
+ */
+function outlineMoveParent() {
+    return parseInt($('#ui-move-page-form input[name="parent"]:checked').val(), 10) || 0;
+}
+
+/**
+ * Show the header menu of the chosen parent with the page in it. The page can
+ * be dragged (or moved with the arrows) to its position, the other pages are
+ * fixed. The page starts at its current position if it is in that menu
+ * already, otherwise at the end.
+ */
+function outlineRenderMoveMenu() {
+    var $form = $('#ui-move-page-form');
+    var inMenu = $('#ui-move-page-in-menu').prop('checked');
+    var $wrapper = $('#ui-move-page-menu').toggleClass('d-none', !inMenu);
+    if (!inMenu) {
+        return;
+    }
+    var pageId = parseInt($form.attr('data-page-id'), 10);
+    var parent = outlineMoveParent();
+    var menus = JSON.parse($form.attr('data-menus') || '{}');
+    var ids = [];
+    var titles = {};
+    (menus[parent] || []).forEach(function (page) {
+        ids.push(page.id);
+        titles[page.id] = page.title;
+    });
+    if (ids.indexOf(pageId) < 0) {
+        ids.push(pageId);
+    }
+    titles[pageId] = $form.attr('data-page-keyword');
+    var parentName = parent === 0 ? 'the main menu' : 'the dropdown of ' + $.trim($form.find('input[name="parent"]:checked').closest('label').text());
+    $('#ui-move-page-menu-help').text('Position in ' + parentName + ': drag the page or use the arrows.');
+    var $list = $('#ui-move-page-menu-list').empty();
+    ids.forEach(function (id) {
+        var $item = $('<li class="list-group-item py-1 d-flex align-items-center"></li>').attr('data-id', id);
+        if (id === pageId) {
+            $item.addClass('ui-menu-position-self list-group-item-primary')
+                .append('<i class="fas fa-grip-vertical mr-2"></i>')
+                .append($('<strong class="flex-grow-1"></strong>').text(titles[id]))
+                .append('<button type="button" class="btn btn-sm btn-link py-0 ui-menu-position-step" data-step="-1" aria-label="Move up"><i class="fas fa-arrow-up"></i></button>')
+                .append('<button type="button" class="btn btn-sm btn-link py-0 ui-menu-position-step" data-step="1" aria-label="Move down"><i class="fas fa-arrow-down"></i></button>');
+        } else {
+            $item.addClass('fixed text-muted').append($('<span></span>').text(titles[id]));
+        }
+        $list.append($item);
+    });
+    if (typeof Sortable !== 'undefined' && !$list.data('moveSortable')) {
+        $list.data('moveSortable', new Sortable($list[0], {
+            animation: 150,
+            filter: '.fixed',
+            preventOnFilter: false
+        }));
+    }
+}
+
+/**
+ * Move the page one position up (-1) or down (1) in the menu of the modal.
+ * @param {Number} step
+ */
+function outlineStepMovePage(step) {
+    var $self = $('#ui-move-page-menu-list .ui-menu-position-self');
+    if (step < 0 && $self.prev().length) {
+        $self.insertBefore($self.prev());
+    } else if (step > 0 && $self.next().length) {
+        $self.insertAfter($self.next());
+    }
+    $self.find('.ui-menu-position-step[data-step="' + step + '"]').trigger('focus');
+}
+
+/**
+ * Move the page. If it succeeds the CMS is reloaded: the Page Index shows the new place of the page.
+ * @param {jQuery} $form the form of the modal
+ */
+function outlineMovePage($form) {
+    var $error = $('#ui-move-page-error').addClass('d-none').empty();
+    var inMenu = $('#ui-move-page-in-menu').prop('checked');
+    var order = [];
+    if (inMenu) {
+        $('#ui-move-page-menu-list > li').each(function () {
+            order.push($(this).attr('data-id'));
+        });
+    }
+    $('#ui-move-page-submit').prop('disabled', true);
+    outlineRequest('POST', $form.attr('action'), {
+        mode: 'update',
+        'move-page': 1,
+        parent: outlineMoveParent(),
+        'in-menu': inMenu ? 1 : 0,
+        'menu-order': order.join(',')
+    }).done(function (res) {
+        var $data = $(res.html);
+        var messages = [];
+        outlineFind($data, '#cms-alerts .alert-danger').each(function () {
+            messages.push(outlineEsc($(this).text().replace(/\s+/g, ' ').replace(/^\s*×\s*/, '').trim()));
+        });
+        if (messages.length > 0 || outlineFind($data, '#cms-alerts .alert-success').length === 0) {
+            $error.html(messages.length ? messages.join('<br>') : 'The page was not moved.').removeClass('d-none');
+            $('#ui-move-page-submit').prop('disabled', false);
+            return;
+        }
+        unsavedChanges = [];
+        window.location.reload();
+    }).fail(function () {
+        $error.text('The page was not moved.').removeClass('d-none');
+        $('#ui-move-page-submit').prop('disabled', false);
     });
 }
 

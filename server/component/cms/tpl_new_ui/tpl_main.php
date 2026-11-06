@@ -44,6 +44,7 @@
                     </div>
                 </div>
                 <?php $this->output_fields(); ?>
+                <?php $this->output_modal_move_page(); // inside #properties: it is replaced with the page, the JS moves it to the body when it is opened ?>
             </ul>
             <!-- <div class="flex-grow-1"></div> -->
         </div>

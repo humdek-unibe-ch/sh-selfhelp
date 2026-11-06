@@ -34,16 +34,6 @@ class CmsUpdateController extends BaseController
     private $insert_fail;
 
     /**
-     * Success flag for moving a section to another list.
-     */
-    private $move_success;
-
-    /**
-     * Fail flag for moving a section to another list.
-     */
-    private $move_fail;
-
-    /**
      * Success flag for removing items.
      */
     private $remove_success;
@@ -52,6 +42,16 @@ class CmsUpdateController extends BaseController
      * Fail flag for removing items.
      */
     private $remove_fail;
+
+    /**
+     * If true the page was moved to another parent (Move page).
+     */
+    private $page_move_success = false;
+
+    /**
+     * If true the page could not be moved (Move page).
+     */
+    private $page_move_fail = false;
 
     /**
      * A list of fields where the update failed.
@@ -74,13 +74,15 @@ class CmsUpdateController extends BaseController
         $this->update_fail_count = 0;
         $this->insert_success = false;
         $this->insert_fail= false;
-        $this->move_success = false;
-        $this->move_fail = false;
         $this->remove_success = false;
         $this->remove_fail= false;
         $this->bad_fields = array();
         if(!isset($_POST['mode'])) return;
-        if($_POST['mode'] == "update" && isset($_POST["fields"]))
+        if($_POST['mode'] == "update" && isset($_POST['move-page']))
+        {
+            $this->move_page();
+        }
+        else if($_POST['mode'] == "update" && isset($_POST["fields"]))
         {
             $style = null;
             $section_id = $this->model->get_active_section_id();
@@ -197,7 +199,25 @@ class CmsUpdateController extends BaseController
             $this->model->set_mode("select");
         }
         else
+        {
             $this->insert_fail = true;
+            $this->report_link_error("Failed to add the section");
+        }
+    }
+
+    /**
+     * Report why adding or moving a section was refused. These requests are
+     * rendered by CmsUpdateView (insert mode), which shows the error messages
+     * of the controller; the outline reads them from the answer.
+     *
+     * @param string $msg
+     *  What failed.
+     */
+    private function report_link_error($msg)
+    {
+        $reason = $this->model->get_link_error();
+        $this->fail = true;
+        $this->error_msgs[] = htmlspecialchars($msg . ($reason != "" ? ": " . $reason : "."));
     }
 
     /**
@@ -218,11 +238,31 @@ class CmsUpdateController extends BaseController
     {
         if($this->model->move_section_link($id, $from_relation, $from_parent, $relation, $position))
         {
-            $this->move_success = true;
             $this->model->set_mode("select");
         }
         else
-            $this->move_fail = true;
+        {
+            $this->report_link_error("Failed to move the section");
+        }
+    }
+
+    /**
+     * Move the active page below another parent (Move page). The request has
+     * the keys 'parent' (the id of the new parent, empty for a root page),
+     * 'in-menu' (1 if the page is in the header menu of the new parent) and
+     * 'menu-order' (comma separated ids of the menu pages in the new order).
+     */
+    private function move_page()
+    {
+        $id_parent = isset($_POST['parent']) && intval($_POST['parent']) > 0 ? intval($_POST['parent']) : null;
+        $in_menu = isset($_POST['in-menu']) && $_POST['in-menu'] == "1";
+        $order = isset($_POST['menu-order']) && $_POST['menu-order'] !== "" ? array_map('intval', explode(',', $_POST['menu-order'])) : array();
+        if ($this->model->move_page($id_parent, $in_menu, $order)) {
+            $this->page_move_success = true;
+            $this->model->set_mode("select");
+        } else {
+            $this->page_move_fail = true;
+        }
     }
 
     /**
@@ -492,25 +532,25 @@ class CmsUpdateController extends BaseController
     }
 
     /**
-     * Gets the move success flag.
+     * Checks whether the page was moved to another parent.
      *
      * @retval bool
-     *  True if a section was moved to another list.
+     *  True if the page was moved, false otherwise.
      */
-    public function has_move_succeeded()
+    public function has_page_move_succeeded()
     {
-        return $this->move_success;
+        return $this->page_move_success;
     }
 
     /**
-     * Gets the move fail flag.
+     * Checks whether moving the page failed.
      *
      * @retval bool
-     *  True if moving a section to another list failed.
+     *  True if the page was not moved, false otherwise.
      */
-    public function has_move_failed()
+    public function has_page_move_failed()
     {
-        return $this->move_fail;
+        return $this->page_move_fail;
     }
 
     /**

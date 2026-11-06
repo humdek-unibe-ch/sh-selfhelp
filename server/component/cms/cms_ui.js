@@ -586,7 +586,8 @@ function initSaveBtn() {
             success: function (data) {
                 var cardState = outlineCaptureCardState(OUTLINE_SIDEBAR_CARDS); // the menus of the sidebar are replaced, keep them as the user left them
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu',
-                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper", "#section-ui-page-list", '#section-ui-global-page-list', "#cms-alerts"],
+                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper", "#section-ui-page-list", '#section-ui-global-page-list', "#cms-alerts",
+                    "#ui-move-page-modal"], // the Move Page modal shows the menus, which a saved Header Position changes
                     null, function () {
                         outlineApplyCardState(cardState);
                     });

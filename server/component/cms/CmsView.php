@@ -230,17 +230,15 @@ class CmsView extends BaseView
                 $this->add_alert_component("alert_insert_failed", "danger",
                     $msg);
             }
-            if($controller->has_move_succeeded())
+            if($controller->has_page_move_succeeded())
             {
-                $msg = "Successfully moved the section.";
-                $this->add_alert_component("alert_move_success", "success",
-                    $msg);
+                $this->add_alert_component("alert_page_move_success", "success",
+                    "Successfully moved the page.");
             }
-            if($controller->has_move_failed())
+            if($controller->has_page_move_failed())
             {
-                $msg = "Failed to move the section" . $reason;
-                $this->add_alert_component("alert_move_failed", "danger",
-                    $msg);
+                $this->add_alert_component("alert_page_move_failed", "danger",
+                    "Failed to move the page" . $reason);
             }
             if($controller->has_remove_succeeded())
             {
@@ -852,6 +850,14 @@ class CmsView extends BaseView
                     "id" => "new-ui-create-child-page"
                 )),
             );
+            if (!$this->model->get_id_root_section() && $this->model->can_move_page()) {
+                $buttons[] = new BaseStyleComponent("button", array(
+                    "label" => "Move Page",
+                    "url" => "#",
+                    "css" => "w-100 mb-2 btn-sm",
+                    "id" => "new-ui-move-page"
+                ));
+            }
             if ($export_url) {
                 $buttons[] = $export_btn;
             }
@@ -1470,6 +1476,8 @@ class CmsView extends BaseView
         $this->output_local_component("alert_update_failed");
         $this->output_local_component("alert_remove_success");
         $this->output_local_component("alert_remove_failed");
+        $this->output_local_component("alert_page_move_success");
+        $this->output_local_component("alert_page_move_failed");
     }
 
     /**
@@ -1539,8 +1547,28 @@ class CmsView extends BaseView
     {
         if ($this->model->can_import_section() && $this->model->can_create_new_page()) {
             $import_url = $this->model->get_link_url("cmsImport", array("type" => "page"));
+            $candidates = $this->model->get_parent_page_candidates();
+            $taken_keywords = $this->model->get_page_keywords();
             require __DIR__ . "/tpl_new_ui/tpl_modal_import_page.php";
         }
+    }
+
+    /**
+     * Render the modal which moves the active page below another parent (new UI)
+     */
+    private function output_modal_move_page()
+    {
+        if (!$this->model->can_move_page()) {
+            return;
+        }
+        $page = $this->model->get_page_info();
+        $page['id'] = $this->model->get_active_page_id();
+        $has_children = $this->model->count_child_pages($page['id']) > 0;
+        // a page with child pages stays a root page (two levels), only the root is offered
+        $candidates = $has_children ? array() : $this->model->get_parent_page_candidates($page['id']);
+        $menus = $this->model->get_page_menus($candidates);
+        $move_url = $this->model->get_link_url("cmsUpdate", array("pid" => $page['id'], "mode" => UPDATE, "type" => "prop"));
+        require __DIR__ . "/tpl_new_ui/tpl_modal_move_page.php";
     }
 
     /**
