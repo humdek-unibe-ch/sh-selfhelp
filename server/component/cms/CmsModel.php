@@ -2420,6 +2420,290 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the navigation section of a new navigation page can be
+     * created: it is named `<keyword>-navigation` and section names are
+     * unique. Such a section is usually left by an earlier failed attempt.
+     * The keyword is not escaped in the reason.
+     *
+     * @param string $keyword
+     *  The keyword of the new navigation page.
+     * @retval mixed
+     *  Null if the section can be created, otherwise the reason why not.
+     */
+    public function get_navigation_section_error($keyword)
+    {
+        $name = $keyword . "-navigation";
+        if ($this->db->query_db_first("SELECT id FROM sections WHERE name = :name", array(":name" => $name))) {
+            return "A section with the name '" . $name . "' already exists (probably left by an earlier failed attempt). Delete it under *Unassigned Section* or choose another keyword.";
+        }
+        return null;
+    }
+
+    /**
+     * The pages which can become the parent of a page (Move page, Import
+     * page as child). The page tree has two levels, like the Page Index and
+     * the header menu show it: a parent is a content page (experiment or
+     * open) on the first level or `profile-link` (its children form the
+     * profile menu). The user needs select access to the parent.
+     *
+     * @param int $id_page
+     *  The page which gets a new parent, it cannot be its own parent. Null
+     *  for an import.
+     * @retval array
+     *  The pages with the keys 'id' and 'keyword', ordered by keyword.
+     */
+    public function get_parent_page_candidates($id_page = null)
+    {
+        $rows = $this->db->query_db(
+            "SELECT id, keyword FROM pages
+            WHERE parent IS NULL AND (id_type IN (:experiment, :open) OR keyword = 'profile-link')
+            ORDER BY keyword",
+            array(":experiment" => EXPERIMENT_PAGE_ID, ":open" => OPEN_PAGE_ID)
+        );
+        $res = array();
+        foreach ($rows ? $rows : array() as $row) {
+            $id = intval($row['id']);
+            if ($id !== intval($id_page) && $this->acl->has_access_select($_SESSION['id_user'], $id)) {
+                $res[] = array("id" => $id, "keyword" => $row['keyword']);
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * The keywords of all pages (lower case), the import modal flags a
+     * keyword which is used already before the file is imported.
+     *
+     * @retval array
+     *  The keywords.
+     */
+    public function get_page_keywords()
+    {
+        $rows = $this->db->query_db("SELECT keyword FROM pages");
+        return array_map(function ($row) {
+            return strtolower($row['keyword']);
+        }, $rows ? $rows : array());
+    }
+
+    /**
+     * Checks whether a page can become the parent of another page, see
+     * CmsModel::get_parent_page_candidates().
+     *
+     * @param int $id_parent
+     *  The id of the new parent or null for a root page (always possible).
+     * @param int $id_page
+     *  The page which gets the new parent, null for an import.
+     * @retval mixed
+     *  Null if the parent can be used, otherwise the reason why not.
+     */
+    public function get_parent_page_error($id_parent, $id_page = null)
+    {
+        if ($id_parent === null) {
+            return null;
+        }
+        foreach ($this->get_parent_page_candidates($id_page) as $candidate) {
+            if ($candidate['id'] === intval($id_parent)) {
+                return null;
+            }
+        }
+        return "This page cannot be the parent: a parent must be a content page on the first level (or profile-link) which you can access, and a page cannot be its own parent.";
+    }
+
+    /**
+     * The pages of the header menu below each possible parent: the root menu
+     * (key 0) and the dropdown of each page of
+     * CmsModel::get_parent_page_candidates(). The Move page modal shows them
+     * to place the page in the menu of its new parent.
+     *
+     * @param array $candidates
+     *  The possible parents.
+     * @retval array
+     *  The parent id as key, the menu pages (keys 'id' and 'title', in menu
+     *  order) as value.
+     */
+    public function get_page_menus($candidates)
+    {
+        $menus = array(0 => array());
+        foreach ($candidates as $candidate) {
+            $menus[intval($candidate['id'])] = array();
+        }
+        // one query for all menus, same filter and order as CmsModel::get_pages_header()
+        $ids = array_keys($menus);
+        $rows = $this->db->query_db(
+            "SELECT id, keyword AS title, parent FROM pages
+            WHERE nav_position IS NOT NULL AND id_actions <> " . INTERNAL_PAGE_ID . " AND id_type <> 1
+            AND (parent IS NULL OR parent IN (" . implode(",", array_fill(0, count($ids), "?")) . "))
+            ORDER BY nav_position",
+            $ids
+        );
+        foreach ($rows ? $rows : array() as $row) {
+            $menus[intval($row['parent'])][] = array("id" => intval($row['id']), "title" => $row['title']);
+        }
+        return $menus;
+    }
+
+    /**
+     * Checks whether the active page can be moved to another parent. Only
+     * content pages (experiment or open) can be moved and the user needs
+     * update access to the page.
+     *
+     * @retval bool
+     *  True if the page can be moved.
+     */
+    public function can_move_page()
+    {
+        return $this->page_info && $this->get_active_section_id() == null
+            && in_array(intval($this->page_info['id_type']), array(EXPERIMENT_PAGE_ID, OPEN_PAGE_ID))
+            && $this->acl->has_access_update($_SESSION['id_user'], $this->id_page);
+    }
+
+    /**
+     * Count the child pages of the active page which are exported with it
+     * (pages with sections which the user may see), see
+     * CmsExportModel::fetch_page().
+     *
+     * @retval int
+     *  The number of child pages which can be exported.
+     */
+    public function count_exportable_child_pages()
+    {
+        $count = 0;
+        foreach ($this->db->fetch_exportable_child_pages($this->id_page) as $child) {
+            if ($this->acl->has_access_select($_SESSION['id_user'], intval($child['id']))) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * Count the child pages of a page.
+     *
+     * @param int $id_page
+     *  The id of the page.
+     * @retval int
+     *  The number of child pages.
+     */
+    public function count_child_pages($id_page)
+    {
+        $res = $this->db->query_db_first("SELECT COUNT(*) AS cnt FROM pages WHERE parent = :id", array(":id" => $id_page));
+        return $res ? intval($res['cnt']) : 0;
+    }
+
+    /**
+     * The new order of a menu after a page was placed in it (Move page). The
+     * modal lists only some menu pages (CmsModel::get_pages_header()); the
+     * pages it does not list keep their places.
+     *
+     * @param array $menu
+     *  The ids of all menu pages in their current order, the moved page
+     *  included (anywhere, usually last).
+     * @param array $order
+     *  The ids in the order of the modal, the moved page included. Ids which
+     *  are not in the menu are ignored.
+     * @param int $id_page
+     *  The id of the moved page.
+     * @retval array
+     *  The ids of all menu pages in the new order.
+     */
+    private static function merge_menu_order($menu, $order, $id_page)
+    {
+        $id_page = intval($id_page);
+        $menu = array_map('intval', $menu);
+        // 1. the listed pages which are in the menu, in the order of the modal
+        $listed = array_values(array_unique(array_intersect(array_map('intval', $order), $menu)));
+        // 2. the other listed pages take the places of the listed pages in the listed order; the pages which are not
+        //    listed keep their places
+        $others = array_values(array_diff($listed, array($id_page)));
+        $is_listed = array_flip($others); // the queue below shrinks, the membership must not
+        $ids = array();
+        foreach ($menu as $id) {
+            if ($id !== $id_page) {
+                $ids[] = isset($is_listed[$id]) ? array_shift($others) : $id;
+            }
+        }
+        // 3. the moved page comes right after the listed page before it, or before the listed page after it if it
+        //    is first, or at the end if it is not listed
+        $pos = array_search($id_page, $listed, true);
+        if ($pos === false) {
+            $at = count($ids);
+        } else if ($pos > 0) {
+            $at = array_search($listed[$pos - 1], $ids, true) + 1;
+        } else if (count($listed) > 1) {
+            $at = array_search($listed[1], $ids, true);
+        } else {
+            $at = 0; // the only listed page: first
+        }
+        array_splice($ids, $at, 0, array($id_page));
+        return $ids;
+    }
+
+    /**
+     * Move the active page below another parent page (or to the root) and
+     * place it in the header menu of its new parent. Everything is changed in
+     * one transaction. A refused move tells the reason in
+     * CmsModel::get_link_error().
+     *
+     * @param int $id_parent
+     *  The id of the new parent page or null to make the page a root page.
+     * @param bool $in_menu
+     *  True if the page is shown in the header menu of its new parent.
+     * @param array $order
+     *  The ids of the menu pages of the new parent in the new order, the
+     *  moved page included. Ids which are not in that menu are ignored, menu
+     *  pages which are not listed (e.g. pages without action, which the
+     *  modal does not show) keep their places.
+     * @retval bool
+     *  True if the page was moved.
+     */
+    public function move_page($id_parent, $in_menu, $order)
+    {
+        $this->link_error = null;
+        if (!$this->can_move_page()) {
+            return $this->refuse_link("You cannot move this page: only content pages can be moved and you need the right to change the page.");
+        }
+        $id_page = intval($this->id_page);
+        $error = $this->get_parent_page_error($id_parent, $id_page);
+        if ($error) {
+            return $this->refuse_link($error);
+        }
+        if ($id_parent !== null && $this->count_child_pages($id_page) > 0) {
+            return $this->refuse_link("A page with child pages cannot become a child page: the page tree has two levels.");
+        }
+        try {
+            $this->db->begin_transaction();
+            $moved = $this->db->update_by_ids("pages",
+                array("parent" => $id_parent, "nav_position" => $in_menu ? 999 : null),
+                array("id" => $id_page)
+            );
+            if ($moved === false) {
+                throw new Exception("The page was not moved.");
+            }
+            if ($in_menu) {
+                // all menu pages of the parent, also the ones the modal does not list (e.g. `logout` has no action)
+                $menu = array();
+                $siblings = $this->db->query_db(
+                    "SELECT id FROM pages WHERE parent <=> :parent AND nav_position IS NOT NULL ORDER BY nav_position, keyword",
+                    array(":parent" => $id_parent)
+                );
+                foreach ($siblings ? $siblings : array() as $page) {
+                    $menu[] = intval($page['id']);
+                }
+                foreach (self::merge_menu_order($menu, $order, $id_page) as $idx => $id) {
+                    if ($this->db->update_by_ids("pages", array("nav_position" => ($idx + 1) * 10), array("id" => $id)) === false) {
+                        throw new Exception("The menu order was not saved.");
+                    }
+                }
+            }
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return $this->refuse_link("The page was not moved.");
+        }
+        return true;
+    }
+
+    /**
      * Check if a JSON value is dynamically set with {{}} and if it is accept it.
      *
      * @param string $value
