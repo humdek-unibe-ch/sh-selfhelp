@@ -826,7 +826,9 @@ class CmsView extends BaseView
                 "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
                 "url" => $export_url,
                 "css" => "w-100 mb-2 btn-sm",
-                "id" => "new-ui-export"
+                "id" => "new-ui-export",
+                // a page with child pages asks whether they are exported too (cms_ui.js)
+                "data" => array("child_pages" => $this->model->get_id_root_section() || !$export_url ? 0 : $this->model->count_exportable_child_pages())
             ));
             $delete_btn = new BaseStyleComponent("button", array(
                 "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),

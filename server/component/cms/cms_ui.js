@@ -487,9 +487,48 @@ function initDeleteBtn() {
 function initExportBtn() {
     $('#new-ui-export').off('click').on('click', function (e) {
         e.preventDefault();
+        var url = $('#new-ui-export').attr('href');
+        var childPages = parseInt(($('#new-ui-export').data('data') || {})['child_pages'], 10) || 0;
+        if (childPages === 0) {
+            exportJsonFile(url);
+            return;
+        }
+        $.confirm({
+            title: 'Export page',
+            content: 'This page has <b>' + childPages + '</b> child page' + (childPages === 1 ? '' : 's') + ' with sections. Do you want to export ' + (childPages === 1 ? 'it' : 'them') + ' too?' +
+                '<p class="small text-muted mt-2 mb-0">The child pages are saved in the same file and are imported with the page.</p>',
+            type: 'blue',
+            columnClass: 'medium',
+            buttons: {
+                withChildren: {
+                    text: 'Export with child pages',
+                    btnClass: 'btn-primary',
+                    action: function () {
+                        exportJsonFile(url + (url.indexOf('?') >= 0 ? '&' : '?') + 'children=1');
+                    }
+                },
+                onlyPage: {
+                    text: 'Only this page',
+                    action: function () {
+                        exportJsonFile(url);
+                    }
+                },
+                cancel: {
+                    text: 'Cancel'
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Export a section or page and download it as json file.
+ * @param {String} url the url of the export
+ */
+function exportJsonFile(url) {
         executeAjaxCall(
             'post',
-            $('#new-ui-export').attr('href'),
+            url,
             {},
             (data) => {
                 const jsonExportData = $(data).find('#jsonExportData').val();
@@ -518,7 +557,6 @@ function initExportBtn() {
                     content: 'Error while exporting!',
                 });
             });
-    })
 }
 
 /**
