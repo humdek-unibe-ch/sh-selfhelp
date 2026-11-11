@@ -1,3 +1,9 @@
+# v7.13.3
+### Bug Fix
+ - **Form-action transaction logs no longer store answer payloads**: `UserInput::queue_job_from_actions()` wrote the full `form_fields` (including SurveyJS `_json` and base64 file content) into `transactions.transaction_log` on every trigger. The log now keeps only `trigger_type`, `form_name`, `form_id`, and when present `record_id` / `id_users`. Actions, conditions, mail, notifications and tasks still receive the full form data in memory.
+   - For developers: `UserInput::get_form_action_transaction_log()`.
+   - No database change.
+
 # v7.13.2
 ### New Feature
  - **CMS (new UI): *Move Page* changes the parent of a page and its place in the header menu.**

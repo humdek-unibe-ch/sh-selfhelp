@@ -1373,6 +1373,37 @@ class UserInput
     }
 
     /**
+     * Build the verbal log for form-action scheduling without answer payloads.
+     * Actions still use the full $form_data in memory; only the transactions row is slimmed.
+     *
+     * @param array $result
+     * @return array
+     */
+    private function get_form_action_transaction_log($result)
+    {
+        $log = $result;
+        if (!isset($log['form_data']) || !is_array($log['form_data'])) {
+            return $log;
+        }
+        $form_data = $log['form_data'];
+        $form_data_log = array(
+            'trigger_type' => isset($form_data['trigger_type']) ? $form_data['trigger_type'] : null,
+            'form_name' => isset($form_data['form_name']) ? $form_data['form_name'] : null,
+            'form_id' => isset($form_data['form_id']) ? $form_data['form_id'] : null,
+        );
+        if (isset($form_data['form_fields']) && is_array($form_data['form_fields'])) {
+            if (isset($form_data['form_fields'][ENTRY_RECORD_ID])) {
+                $form_data_log[ENTRY_RECORD_ID] = $form_data['form_fields'][ENTRY_RECORD_ID];
+            }
+            if (isset($form_data['form_fields']['id_users'])) {
+                $form_data_log['id_users'] = $form_data['form_fields']['id_users'];
+            }
+        }
+        $log['form_data'] = $form_data_log;
+        return $log;
+    }
+
+    /**
      * Check if any job should be queued based on the registered actions
      * @param array $form_data
      * The form data
@@ -1493,7 +1524,7 @@ class UserInput
                                 $this->transaction::TABLE_dataTables,
                                 $form_data['form_id'],
                                 false,
-                                $result
+                                $this->get_form_action_transaction_log($result)
                             );
                             $this->db->commit();
                             return false;
@@ -1616,7 +1647,7 @@ class UserInput
                 $this->transaction::TABLE_dataTables,
                 $form_data['form_id'],
                 false,
-                $result
+                $this->get_form_action_transaction_log($result)
             );
             $this->db->commit();
             return $result;
