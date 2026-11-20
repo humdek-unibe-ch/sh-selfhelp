@@ -138,10 +138,35 @@ class CmsPreferencesView extends BaseView
                     "checkbox_value" => "1",
                     "name" => "anonymous_users",
                     "value" => isset($this->model->get_cmsPreferences()['anonymous_users']) ? $this->model->get_cmsPreferences()['anonymous_users'] : 0,
-                    
+
                 )),),
             ))
         );
+        foreach ($this->get_landing_page_settings() as $name => $setting) {
+            $cmsPreferencesChildren[] = new BaseStyleComponent("descriptionItem", array(
+                "title" => $setting['title'],
+                "help" => $setting['help'],
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("select", array(
+                    "value" => intval($this->model->get_cmsPreferences()[$name] ?? 0),
+                    "name" => $name,
+                    "items" => $this->model->get_landing_page_options($name),
+                    "live_search" => 1,
+                    "css" => "mb-3",
+                )),),
+            ));
+        }
+        $cmsPreferencesChildren[] = new BaseStyleComponent("descriptionItem", array(
+            "title" => "Return to Last Page after Login",
+            "locale" => "",
+            "help" => "If enabled a user returns to the page visited last before the logout. If disabled every login opens the <code>Page after Login</code>. A link which led to the login page is followed in both cases.",
+            "children" => array(new BaseStyleComponent("input", array(
+                "type_input" => "checkbox",
+                "checkbox_value" => "1",
+                "name" => "login_return_last_page",
+                "value" => $this->model->get_cmsPreferences()['login_return_last_page'] ?? 1,
+            )),),
+        ));
         $cmsPreferences = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
@@ -172,12 +197,7 @@ class CmsPreferencesView extends BaseView
                 "value" => $language['id'],
                 "text" => $language['title']
             ));
-        $cmsPreferences = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
-            "is_expanded" => true,
-            "is_collapsible" => false,
-            "title" => "CMS Preferences",
-            "children" => array(
+        $children = array(
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "CMS Content Language",
                     "help" => "The default content language",
@@ -211,10 +231,66 @@ class CmsPreferencesView extends BaseView
                         "text" => $this->model->get_cmsPreferences()['anonymous_users'] == 1 ? "true" : "false"
                     ))),
                 ))
-            ),
+        );
+        foreach ($this->get_landing_page_settings() as $setting) {
+            $children[] = new BaseStyleComponent("descriptionItem", array(
+                "title" => $setting['title'],
+                "help" => $setting['help'],
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("rawText", array(
+                    "text" => $this->model->get_cmsPreferences()[$setting['keyword']] ?? "Default (" . $setting['default'] . ")"
+                ))),
+            ));
+        }
+        $children[] = new BaseStyleComponent("descriptionItem", array(
+            "title" => "Return to Last Page after Login",
+            "locale" => "",
+            "help" => "If enabled a user returns to the page visited last before the logout. If disabled every login opens the <code>Page after Login</code>. A link which led to the login page is followed in both cases.",
+            "children" => array(new BaseStyleComponent("rawText", array(
+                "text" => ($this->model->get_cmsPreferences()['login_return_last_page'] ?? 1) == 1 ? "true" : "false"
+            ))),
+        ));
+        $cmsPreferences = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "CMS Preferences",
+            "children" => $children,
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));
         $cmsPreferences->output_content();
+    }
+
+    /**
+     * The landing page settings shown in the preferences.
+     *
+     * @retval array
+     *  The settings keyed by the column name, each with 'title', 'help',
+     *  'keyword' (the view column holding the keyword of the chosen page) and
+     *  'default' (what an empty setting means).
+     */
+    private function get_landing_page_settings()
+    {
+        return array(
+            "id_pages_landing_user" => array(
+                "title" => "Landing Page (logged in)",
+                "help" => "The page a logged-in user gets when the website is called without a page (the site root <code>/</code>) or the logo in the header is clicked. A user without access to it gets the <code>Landing Page (guest)</code>, or <code>" . SH_HOME . "</code> if that is <code>" . SH_LOGIN . "</code> or empty.",
+                "keyword" => "landing_user_page_keyword",
+                "default" => SH_HOME
+            ),
+            "id_pages_landing_guest" => array(
+                "title" => "Landing Page (guest)",
+                "help" => "The page a guest gets at the site root <code>/</code> or from the logo in the header. Only open pages and <code>" . SH_LOGIN . "</code> can be chosen.",
+                "keyword" => "landing_guest_page_keyword",
+                "default" => SH_HOME
+            ),
+            "id_pages_after_login" => array(
+                "title" => "Page after Login",
+                "help" => "The page a user lands on after the login (see <code>Return to Last Page after Login</code>). Empty: the <code>Landing Page (logged in)</code>.",
+                "keyword" => "after_login_page_keyword",
+                "default" => "Landing Page (logged in)"
+            )
+        );
     }
 
     /* Public Methods *********************************************************/

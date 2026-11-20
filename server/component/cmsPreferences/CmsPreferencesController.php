@@ -29,7 +29,11 @@ class CmsPreferencesController extends BaseController
                 'default_language_id' => $_POST['default_language_id'],
                 'callback_api_key' => $_POST['callback_api_key'],
                 'firebase_config' => $_POST['firebase_config'],
-                'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0
+                'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0,
+                'id_pages_landing_user' => $this->model->get_valid_landing_page_id('id_pages_landing_user', $_POST['id_pages_landing_user'] ?? 0),
+                'id_pages_landing_guest' => $this->model->get_valid_landing_page_id('id_pages_landing_guest', $_POST['id_pages_landing_guest'] ?? 0),
+                'id_pages_after_login' => $this->model->get_valid_landing_page_id('id_pages_after_login', $_POST['id_pages_after_login'] ?? 0),
+                'login_return_last_page' => isset($_POST['login_return_last_page']) ? 1 : 0
             )) !== false) {
                 $this->success = true;
                 $this->model->pull_cmsPreferences();

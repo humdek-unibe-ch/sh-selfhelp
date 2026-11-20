@@ -83,6 +83,63 @@ class CmsPreferencesModel extends BaseModel
         return $res;
     }
 
+    /**
+     * Get the pages which can be chosen for a landing page setting: pages with
+     * a route that needs no parameter, for `guest` the open pages and the login
+     * page, otherwise the content pages (experiment or open).
+     *
+     * @param string $setting
+     *  One of `id_pages_landing_user`, `id_pages_landing_guest` or
+     *  `id_pages_after_login`.
+     * @retval array
+     *  An array of items with the keys 'value' (page id) and 'text' (keyword),
+     *  the first item (value 0) is the default.
+     */
+    public function get_landing_page_options($setting)
+    {
+        $guest = $setting === 'id_pages_landing_guest';
+        $default = $setting === 'id_pages_after_login' ? "Landing Page (logged in)" : SH_HOME;
+        $res = array(array("value" => 0, "text" => "Default (" . $default . ")"));
+        $sql = "SELECT id, keyword, url FROM pages
+            WHERE (id_type IN (:experiment, :open) OR keyword = :login) AND url IS NOT NULL AND protocol IS NOT NULL
+            ORDER BY keyword";
+        $pages = $this->db->query_db($sql, array(
+            ':experiment' => $guest ? OPEN_PAGE_ID : EXPERIMENT_PAGE_ID,
+            ':open' => OPEN_PAGE_ID,
+            ':login' => $guest ? SH_LOGIN : ''
+        ));
+        foreach ($pages as $page) {
+            // a required route parameter (`[i:id]` without `?`) cannot be generated
+            if (preg_match('/\[[^\]]*\](?!\?)/', $page['url'])) {
+                continue;
+            }
+            $res[] = array("value" => intval($page['id']), "text" => $page['keyword']);
+        }
+        return $res;
+    }
+
+    /**
+     * Get the id of a page if it can be chosen for a landing page setting.
+     *
+     * @param string $setting
+     *  The setting, see get_landing_page_options().
+     * @param mixed $id
+     *  The posted page id.
+     * @retval mixed
+     *  The posted page id or null for the default (also for an id which is
+     *  not in the list of the setting).
+     */
+    public function get_valid_landing_page_id($setting, $id)
+    {
+        $id = intval($id);
+        foreach ($this->get_landing_page_options($setting) as $option) {
+            if ($id > 0 && $option['value'] === $id) {
+                return $id;
+            }
+        }
+        return null;
+    }
+
     public function update_cmsPreferences($arr)
     {
         return $this->db->update_by_ids(
