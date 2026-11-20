@@ -1,3 +1,18 @@
+# v7.14.0 (work in progress)
+### New Feature
+ - **CMS Preferences: landing pages for logged-in users and guests, and the page after login.**
+   - The site root (`/`) opens a landing page. Before, it showed the `missing` page unless a page used the url `/` (such a page still wins).
+   - *Landing Page (logged in)*: for a logged-in user with access to it. A user without access gets the guest landing page, or `home` if that is `login` (the login page logs out) or empty.
+   - *Landing Page (guest)*: for guests. Only open pages and `login` can be chosen.
+   - The logo and the platform name in the header link to the site root, so they open the landing page for the current user (old and new UI). The fallback of `#back` and `#last_user_page` (no previous page) is the site root too.
+   - *Page after Login*: the page after the login and the 2FA verification. Empty means the logged-in landing page.
+   - *Return to Last Page after Login* (enabled by default): a returning user goes back to the page visited last, as before. Disabled, every login opens the *Page after Login*.
+   - A guest who opens a page that needs a login (the `no_access_guest` page is shown, e.g. from a link in an email) is sent back to that page after the login, whatever the settings above. Pages a guest can see no longer count: before, viewing e.g. `home` as a guest sent the user back to `home` after the login.
+   - **Removed the global `REDIRECT_ON_LOGIN`** (`globals_untracked.php`); *Return to Last Page after Login* replaces it. A project which set it to `false` should untick that setting. A leftover `define` is ignored.
+   - Only pages with a route which needs no parameter can be chosen. An empty landing page means `home`, so nothing changes until a page is chosen. Deleting a chosen page empties the setting.
+   - For developers: `Router::get_root_url()`, `get_landing_url($acl)` and `get_after_login_url()`; new columns `cmsPreferences.id_pages_landing_user`, `id_pages_landing_guest`, `id_pages_after_login` and `login_return_last_page`, also in `view_cmsPreferences`.
+   - Database change: run `46_update_v7.13.0_v7.14.0.sql`, then clear the cache (Admin → Cache → clear all).
+
 # v7.13.3
 ### Bug Fix
  - **Form-action transaction logs no longer store answer payloads**: `UserInput::queue_job_from_actions()` wrote the full `form_fields` (including SurveyJS `_json` and base64 file content) into `transactions.transaction_log` on every trigger. The log now keeps only `trigger_type`, `form_name`, `form_id`, and when present `record_id` / `id_users`. Actions, conditions, mail, notifications and tasks still receive the full form data in memory.
