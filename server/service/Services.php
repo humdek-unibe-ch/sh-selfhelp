@@ -150,8 +150,6 @@ class Services
      */
     private function does_redirect($keyword)
     {
-        if(defined('REDIRECT_ON_LOGIN') && !REDIRECT_ON_LOGIN)
-            return false;
         if (!$keyword || substr($keyword, 0, 5) === "ajax_") {
             // if the keyword start with `ajax_` it is not a page, do not redirect there
             return false;

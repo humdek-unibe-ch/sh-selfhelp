@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-define('REDIRECT_ON_LOGIN', true);
 define('PROJECT_NAME', '__project_name__');
 define('DEBUG', 0);
 define('CLOCKWORK_PROFILE', 0);

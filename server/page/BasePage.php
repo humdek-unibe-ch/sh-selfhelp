@@ -669,6 +669,9 @@ abstract class BasePage
         }
         else
         {
+            // the deep link: a guest who needs to log in for this page is
+            // sent back to it after the login (Login::get_target_url())
+            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
             $page = new InternalPage($this, "no_access_guest");
             $page->output_content();
         }

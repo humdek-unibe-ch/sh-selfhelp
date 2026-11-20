@@ -25,7 +25,9 @@ class Login
     private $store_url;
 
     /**
-     * If true the user is redirected to the current url after login.
+     * True for a page request (not login, script or open page). For a
+     * logged-in user on a page which is not stored as last url, the last url
+     * is reset.
      */
     private $redirect;
 
@@ -51,7 +53,7 @@ class Login
      * @param bool $store_url
      *  If true the current url is stored as last url in the db.
      * @param bool $redirect
-     *  If true the user is redirected to the current url after login.
+     *  True for a page request (not login, script or open page).
      * @param object $services
      *  The services instance to access router for URL validation.
      */
@@ -195,15 +197,11 @@ class Login
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
         $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];
+        // target_url is only set when a guest is refused a page (BasePage), not
+        // for every page a guest views: those must not override the landing
+        // pages of the CMS Preferences after the login.
         if(!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
-        if($this->redirect)
-        {
-            if (strpos($_SERVER['REQUEST_URI'], SH_TWO_FACTOR_AUTHENTICATION) === false) {
-                // Only set target_url if we're not on the 2FA page
-                $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
-            }
-        }
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
@@ -212,7 +210,7 @@ class Login
         else
         {
             if($this->store_url)
-                $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
+                $this->update_last_url($_SESSION['id_user'], $_SERVER['REQUEST_URI']);
             else if($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
@@ -463,8 +461,8 @@ class Login
     /**
      * Get the target URL to redirec after login. This is either
      *  1. a target url specified by a link
-     *  2. the last used url by the user
-     *  3. the home url
+     *  2. the last used url by the user (unless switched off in the CMS Preferences)
+     *  3. the after-login page of the CMS Preferences (passed as $default_url)
      *
      * @retval string
      *  The target URL.
@@ -481,6 +479,12 @@ class Login
         }
 
         if(!$this->is_logged_in())
+            return $default_url;
+
+        // CMS Preferences can switch off the return to the last visited page,
+        // then every login opens the after-login page ($default_url).
+        $prefs = $this->db->fetch_cmsPreferences();
+        if(isset($prefs[0]['login_return_last_page']) && $prefs[0]['login_return_last_page'] == 0)
             return $default_url;
 
         // Priority 2: use last_url from the DB (source of truth for last visited page)

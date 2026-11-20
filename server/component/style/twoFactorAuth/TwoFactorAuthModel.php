@@ -114,7 +114,7 @@ class TwoFactorAuthModel extends StyleModel
      */
     public function get_target_url()
     {
-        return $this->login->get_target_url($this->router->generate('home'));
+        return $this->login->get_target_url($this->router->get_after_login_url());
     }
 }
 ?>

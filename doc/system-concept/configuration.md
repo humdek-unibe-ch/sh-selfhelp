@@ -41,7 +41,6 @@ define('CORS', true);
 // the default list is in globals.php, override it here)
 // define('CORS_ALLOWED_ORIGINS', array('https://localhost:8100'));
 define('SHOW_PHP_INFO', false);
-define('REDIRECT_ON_LOGIN', true);
 ```
 
 #### globals_untracked.php
