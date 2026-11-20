@@ -81,7 +81,7 @@ class Router extends AltoRouter {
 
     /**
      * Returns an url given a router keyword. The keyword \#back will generate
-     * the url of the last visited page or the home page if the last visited
+     * the url of the last visited page or the site root (landing page) if the last visited
      * page is the current page or unknown. The keyword \#self points to the
      * current page.
      *
@@ -98,7 +98,7 @@ class Router extends AltoRouter {
             {
                 return htmlspecialchars($_SERVER['HTTP_REFERER']);
             }
-            return $this->generate("home");
+            return $this->get_root_url();
         }
         else if($url == "#last_user_page"){
             if (isset($_SESSION['id_user'])) {
@@ -112,7 +112,7 @@ class Router extends AltoRouter {
                     return $result['last_url'];
                 }
             }
-            return $this->generate("home");
+            return $this->get_root_url();
         }
         else if($url == "#self")
             return $_SERVER['REQUEST_URI'];
@@ -159,6 +159,71 @@ class Router extends AltoRouter {
         }
         else
             return $url;
+    }
+
+    /**
+     * Returns the url of the site root. The root opens the landing page of the
+     * CMS Preferences (see get_landing_url()), unless a page uses the url `/`.
+     *
+     * @retval string
+     *  The url of the site root.
+     */
+    public function get_root_url()
+    {
+        return rtrim(BASE_PATH, '/') . '/';
+    }
+
+    /**
+     * Returns the url of the landing page the site root opens for the current
+     * user, as chosen in the CMS Preferences:
+     *  - a logged-in user with access to the logged-in landing page: that page
+     *  - a guest, or a logged-in user without that access: the guest landing
+     *    page (a logged-in user never gets `login`, the login page logs out)
+     *  - otherwise the `home` page
+     *
+     * @param object $acl
+     *  The ACL service, built for the current user.
+     * @retval string
+     *  The generated url.
+     */
+    public function get_landing_url($acl)
+    {
+        $prefs = $this->db->fetch_cmsPreferences()[0];
+        $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'];
+        $user_page = $prefs['landing_user_page_keyword'] ?? null;
+        $guest_page = $prefs['landing_guest_page_keyword'] ?? null;
+        if ($logged_in) {
+            if (!$user_page) {
+                $guest_page = null;
+            } else if ($this->has_route($user_page)
+                    && $acl->has_access_select($_SESSION['id_user'], $prefs['id_pages_landing_user'])) {
+                return $this->generate($user_page);
+            }
+            if ($guest_page === SH_LOGIN) {
+                $guest_page = null;
+            }
+        }
+        if ($guest_page && $this->has_route($guest_page)) {
+            return $this->generate($guest_page);
+        }
+        return $this->generate(SH_HOME);
+    }
+
+    /**
+     * Returns the url a user lands on after the login: the page after login of
+     * the CMS Preferences or, when none is chosen, the site root (which then
+     * opens the landing page for the logged-in user).
+     *
+     * @retval string
+     *  The url.
+     */
+    public function get_after_login_url()
+    {
+        $keyword = $this->db->fetch_cmsPreferences()[0]['after_login_page_keyword'] ?? null;
+        if ($keyword && $this->has_route($keyword)) {
+            return $this->generate($keyword);
+        }
+        return $this->get_root_url();
     }
 
     /**
