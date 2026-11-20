@@ -245,7 +245,7 @@ class NavView extends BaseView
      */
     public function output_content()
     {
-        $home_url = $this->model->get_link_url("home");
+        $home_url = $this->model->get_services()->get_router()->get_root_url();
         $home = $this->model->get_home();
         $login_is_active = $this->model->get_login_active();
         $login = $this->model->get_login();

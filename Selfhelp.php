@@ -241,6 +241,14 @@ class Selfhelp
             // log user activity
             $router->log_user_activity();
         } else {
+            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            if (rtrim((string)$path, '/') === rtrim(BASE_PATH, '/')) {
+                // the site root has no page of its own (unless a page uses the url `/`,
+                // then it matched above): open the landing page of the CMS Preferences
+                $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+                header('Location: ' . $router->get_landing_url($services->get_acl()) . ($query ? '?' . $query : ''));
+                return;
+            }
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
             $page->output();
