@@ -160,6 +160,28 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
+     * Fetch the display format (`date_format`) of a date/datetime input.
+     *
+     * @param intval $id_section
+     *  The section id of the form field.
+     * @retval string
+     *  The display format or the empty string if not set.
+     */
+    public function get_field_date_format($id_section)
+    {
+        $sql = "SELECT sft.content
+            FROM sections_fields_translation AS sft
+            LEFT JOIN fields AS f ON f.id = sft.id_fields
+            WHERE f.name = 'date_format' AND sft.id_sections = :id";
+        $format = $this->db->query_db_first(
+            $sql,
+            array(":id" => $id_section)
+        );
+        if ($format) return $format["content"];
+        return "";
+    }
+
+    /**
      * Check the last record_id for the form. Used for the update form which is not is_log
      * @retval int
      *  return record_id, if not return false

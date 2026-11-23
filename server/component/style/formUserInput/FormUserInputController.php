@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/../../BaseController.php";
 require_once __DIR__ . "/../../../service/ext/Gump.php";
+require_once __DIR__ . "/../input/InputDateFormat.php";
 /**
  * The controller class of formUserInput style component.
  */
@@ -82,6 +83,19 @@ class FormUserInputController extends BaseController
                     || $type == "week" || $type == "search" || $type == "tel" || $type == "date"
                 ) {
                     $filter_rules[$name] = "trim|sanitize_string";
+                    if (InputDateFormat::is_date_type($type)) {
+                        // Store dates in the storage format whatever the client
+                        // sent (display format, ISO with seconds from the app).
+                        // A value that cannot be read (e.g. 25:00, 31.02.2026)
+                        // fails: the regex only matches an empty value, which
+                        // GUMP does not validate.
+                        $stored = InputDateFormat::to_storage($type, $this->model->get_field_date_format($id_section), $value);
+                        if ($stored !== null) {
+                            $value = $stored;
+                        } else {
+                            $validation_rules[$name] = "regex,/^$/";
+                        }
+                    }
                 } else if ($type == "color") {
                     $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";
                 } else if ($type == "email") {

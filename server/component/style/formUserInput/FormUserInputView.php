@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
+require_once __DIR__ . "/../input/InputDateFormat.php";
 
 /**
  * The view class of the formUserInput style component.
@@ -212,7 +213,14 @@ class FormUserInputView extends StyleView
     {
         foreach ($style['children'] as $key => &$child) {
             if (isset($child["name"]["content"]) && isset($entry_record[$child["name"]["content"]])) {
-                $child["value"]["content"] = $entry_record[$child["name"]["content"]];
+                $value = $entry_record[$child["name"]["content"]];
+                $type = isset($child["type_input"]["content"]) ? $child["type_input"]["content"] : "";
+                if (InputDateFormat::is_date_type($type)) {
+                    // dates saved in a display format before v7.14.0
+                    $stored = InputDateFormat::to_storage($type, isset($child["date_format"]["content"]) ? $child["date_format"]["content"] : "", $value);
+                    if ($stored !== null) $value = $stored;
+                }
+                $child["value"]["content"] = $value;
             }
     
             if (isset($child['children']) && is_array($child['children'])) {
