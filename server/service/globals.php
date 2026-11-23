@@ -176,6 +176,7 @@ define('userTypes', 'userTypes');
 define('languagePickerDisplayStyles', 'languagePickerDisplayStyles');
 define('formUserInputLogListLayouts', 'formUserInputLogListLayouts');
 define('formUserInputLogListActionsPositions', 'formUserInputLogListActionsPositions');
+define('dateInputFormats', 'dateInputFormats');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/

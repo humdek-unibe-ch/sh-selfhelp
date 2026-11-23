@@ -1104,6 +1104,13 @@ class CmsView extends BaseView
                 "is_required" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => formUserInputLogListLayouts))
             ));
+        } else if ($field['type'] == "select-date-format") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "is_required" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode ORDER BY id', array(":tcode" => dateInputFormats))
+            ));
         } else if ($field['type'] == "select-ful-actions-position") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
@@ -1306,6 +1313,14 @@ class CmsView extends BaseView
                 "name" => $field['name'],
                 "disabled" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => formUserInputLogListLayouts))
+            ));
+        }
+        else if ($field['type'] == "select-date-format") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode ORDER BY id', array(":tcode" => dateInputFormats))
             ));
         }
         else if ($field['type'] == "select-ful-actions-position") {
