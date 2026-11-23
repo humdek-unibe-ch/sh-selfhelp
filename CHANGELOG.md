@@ -12,7 +12,19 @@
    - Only pages with a route which needs no parameter can be chosen. An empty landing page means `home`, so nothing changes until a page is chosen. Deleting a chosen page empties the setting.
    - For developers: `Router::get_root_url()`, `get_landing_url($acl)` and `get_after_login_url()`; new columns `cmsPreferences.id_pages_landing_user`, `id_pages_landing_guest`, `id_pages_after_login` and `login_return_last_page`, also in `view_cmsPreferences`.
    - Database change: run `46_update_v7.13.0_v7.14.0.sql`, then clear the cache (Admin → Cache → clear all).
+ - **Date inputs: choose the format the user sees, the database always stores ISO.**
+   - New select field `date_format` on the `input` style (types `date` and `datetime`): `31.12.2026`, `31/12/2026`, `12/31/2026`, `31. Dezember 2026`, `31 December 2026`, `December 31, 2026` or `2026-12-31` (default). Month names follow the user language. A `datetime` shows the time after the date (`HH:mm`, 24 hours); a `time` is always `HH:mm`.
+   - The stored value is always date `YYYY-MM-DD`, datetime `YYYY-MM-DD HH:mm`, time `HH:mm`, so conditions (e.g. `__current_date__@-2 days`), sorting and exports can rely on it.
+   - Lists (`formUserInputLogList`, also the LLM form list) show a date column in the same format as the form; a sortable column still sorts by date. A `values_map` template gets the shown text as `{{value}}`.
+   - The server converts a posted date to that format (the chosen format with English or German month names, or ISO with seconds / `T` as sent by the mobile app; a `date` drops such a time) and rejects a date it cannot read.
+   - **Changed: the field `format` no longer applies to `date`, `datetime` and `time`.** It set the shown and the stored format at once. The migration copies a `format` of a `date`/`datetime` input into `date_format` when it is one of the options (for `datetime` without ` H:i`); any other format (and every `time` format) falls back to ISO / `HH:mm`. `format` stays the regex pattern of the other input types.
+   - Values saved in the chosen format before (e.g. `20.11.2026`) are read, shown correctly and stored as ISO with the next save. No bulk data change. A value in a format that is not an option cannot be read and shows a wrong date in the picker: check such forms (search the data for the old format) before the update.
+   - For developers: `InputDateFormat` (`server/component/style/input/InputDateFormat.php`), `FormUserInputModel::get_field_date_format()`, `FormUserInputLogListModel::get_list_cell_sort_value()`, lookups `dateInputFormats`, field type `select-date-format`.
+   - Database change: in `46_update_v7.13.0_v7.14.0.sql`; clear the cache after running it.
 
+### Bug Fix
+ - **Date inputs with a `format`**: editing a saved record showed an empty date (the browser drops a non-ISO value of a date input) and saving again deleted it; an ISO value in such a field was read in the wrong order (`2026-11-20` became `20.06.2026`). Fixed by the ISO storage above.
+ - **`locked_after_submit` on `date`, `datetime` and `time` inputs** did nothing: the field could still be changed after it was saved. The date picker now stays closed and the field is read-only once it has a value.
 # v7.13.3
 ### Bug Fix
  - **Form-action transaction logs no longer store answer payloads**: `UserInput::queue_job_from_actions()` wrote the full `form_fields` (including SurveyJS `_json` and base64 file content) into `transactions.transaction_log` on every trigger. The log now keeps only `trigger_type`, `form_name`, `form_id`, and when present `record_id` / `id_users`. Actions, conditions, mail, notifications and tasks still receive the full form data in memory.
