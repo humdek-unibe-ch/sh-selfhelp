@@ -5,7 +5,8 @@
 ?>
 <div class="input-group">
     <input id="selfhelp-input-<?php echo $this->section_id; ?>" class="selfhelpInput selfhelp-input-date <?php echo $css_input; ?>"
-        data-format="<?php echo $this->format; ?>" type="<?php echo $this->type; ?>" name="<?php echo $this->name; ?>"
+        data-locked_after_submit="<?php echo $this->locked_after_submit; ?>"
+        data-format="<?php echo htmlspecialchars(InputDateFormat::display_format($this->type, $this->date_format)); ?>" type="<?php echo $this->type; ?>" name="<?php echo $this->name; ?>"
         data-locale="<?php echo $this->user_language_locale; ?>" value="<?php echo $this->value; ?>" <?php echo $checked; ?>
         <?php echo $this->required; ?> placeholder="<?php echo $this->placeholder; ?>" <?php echo $autocomplete; ?>>
     <div class="input-group-append">

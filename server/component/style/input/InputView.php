@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../formField/FormFieldView.php";
+require_once __DIR__ . "/InputDateFormat.php";
 
 /**
  * The view class of the input item style component.
@@ -44,6 +45,13 @@ class InputView extends FormFieldView
     private $format;
 
     /**
+     * DB field 'date_format' ('Y-m-d').
+     * Display format of the date and datetime inputs. The stored value is
+     * always the storage format, see InputDateFormat.
+     */
+    private $date_format;
+
+    /**
      * DB field 'data_config' ('').
      * Data configuration field for the input
      */
@@ -81,6 +89,7 @@ class InputView extends FormFieldView
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
         $this->format = $this->model->get_db_field("format", "");
+        $this->date_format = $this->model->get_db_field("date_format", InputDateFormat::DEFAULT_DATE_FORMAT);
         $this->disable_autocomplete = $this->model->get_db_field(
             "disable_autocomplete",
             false
@@ -97,6 +106,21 @@ class InputView extends FormFieldView
     }
 
     /** Private Methods */
+
+    /**
+     * Convert a stored value of a date type to the storage format, so values
+     * saved in a display format before v7.14.0 are shown and saved again as
+     * ISO. A value that cannot be read (e.g. `now`) is kept as it is.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private function to_storage_value($value)
+    {
+        if (!InputDateFormat::is_date_type($this->type)) return $value;
+        $stored = InputDateFormat::to_storage($this->type, $this->date_format, $value);
+        return $stored === null ? $value : $stored;
+    }
 
 
     /* Protected Methods ******************************************************/
@@ -130,6 +154,7 @@ class InputView extends FormFieldView
             $this->value = $this->default_value;
         } else if ($this->value === null)
             $this->value = $this->default_value;
+        $this->value = $this->to_storage_value($this->value);
         if (
             $this->type == 'date' || $this->type == 'datetime'
         ) {
@@ -163,6 +188,12 @@ class InputView extends FormFieldView
         }
         if ($style['value']['content']) {
             $style['value']['content'] = html_entity_decode($style['value']['content']);
+        }
+        if (InputDateFormat::is_date_type($this->type)) {
+            $style['value']['content'] = $this->to_storage_value($style['value']['content']);
+            if (isset($style['last_value'])) {
+                $style['last_value'] = $this->to_storage_value($style['last_value']);
+            }
         }
         return $style;
     }
