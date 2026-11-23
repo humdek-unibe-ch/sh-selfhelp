@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../formUserInput/FormUserInputModel.php";
+require_once __DIR__ . "/../input/InputDateFormat.php";
 
 /**
  * Model for formUserInputLogList: log form + list.
@@ -111,6 +112,17 @@ class FormUserInputLogListModel extends FormUserInputModel
      * Header label => fields_map key (built lazily, first label wins).
      */
     private $list_header_fields = null;
+
+    /**
+     * Date/datetime/time inputs of the form: name => [type, date_format].
+     */
+    private $list_date_fields = null;
+
+    /**
+     * Stored (ISO) values of date cells shown in a display format:
+     * record id => header => value. Used to sort the column by date.
+     */
+    private $list_sort_values = array();
 
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
@@ -1030,6 +1042,18 @@ class FormUserInputLogListModel extends FormUserInputModel
      */
     private function map_list_cell_value($field, $header_key, $raw, $row, $values_map)
     {
+        $date_fields = $this->get_list_date_fields();
+        if (isset($date_fields[$field]) && is_scalar($raw)) {
+            // Show dates as the form shows them (field `date_format`).
+            list($type, $date_format) = $date_fields[$field];
+            $language = substr((string)($_SESSION['user_language_locale'] ?? ''), 0, 2);
+            $display = InputDateFormat::to_display($type, $date_format, $raw, $language);
+            if ($display !== null && $display !== '') {
+                $this->list_sort_values[$row[ENTRY_RECORD_ID]][$header_key]
+                    = InputDateFormat::to_storage($type, $date_format, $raw);
+                $raw = $display;
+            }
+        }
         if (
             isset($values_map[$field])
             && is_string($values_map[$field])
@@ -1039,6 +1063,63 @@ class FormUserInputLogListModel extends FormUserInputModel
             return $this->apply_list_value_template($values_map[$field], $raw, $row);
         }
         return $raw;
+    }
+
+    /**
+     * Stored value of a date cell that is shown in a display format, so the
+     * column sorts by date (DataTables `data-order`).
+     *
+     * @param mixed $record_id
+     * @param string $header
+     * @return string|null Null for cells that are not dates.
+     */
+    public function get_list_cell_sort_value($record_id, $header)
+    {
+        return isset($this->list_sort_values[$record_id][$header])
+            ? $this->list_sort_values[$record_id][$header]
+            : null;
+    }
+
+    /**
+     * Date, datetime and time inputs of the form (also nested ones).
+     *
+     * @return array name => [type_input, date_format]
+     */
+    private function get_list_date_fields()
+    {
+        if ($this->list_date_fields === null) {
+            $this->list_date_fields = array();
+            $this->collect_date_fields($this->get_children(), $this->list_date_fields);
+        }
+        return $this->list_date_fields;
+    }
+
+    /**
+     * @param array $children
+     * @param array $fields
+     */
+    private function collect_date_fields($children, &$fields)
+    {
+        if (!is_array($children)) {
+            return;
+        }
+        foreach ($children as $child) {
+            if (!is_object($child) || !method_exists($child, 'get_style_instance')) {
+                continue;
+            }
+            $style = $child->get_style_instance();
+            if (is_a($style, 'FormFieldComponent') && method_exists($style, 'get_model')) {
+                $model = $style->get_model();
+                $type = (string)$model->get_db_field('type_input', '');
+                $name = trim((string)$model->get_db_field('name', ''));
+                if ($name !== '' && InputDateFormat::is_date_type($type) && !isset($fields[$name])) {
+                    $fields[$name] = array($type, (string)$model->get_db_field('date_format', InputDateFormat::DEFAULT_DATE_FORMAT));
+                }
+            }
+            if (method_exists($child, 'get_children')) {
+                $this->collect_date_fields($child->get_children(), $fields);
+            }
+        }
     }
 
     /**

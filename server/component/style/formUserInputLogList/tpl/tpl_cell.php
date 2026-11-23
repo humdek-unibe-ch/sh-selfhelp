@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<td class="formUserInputLogList-cell" data-field="<?php echo htmlspecialchars($this->model->get_list_header_field($header), ENT_QUOTES, 'UTF-8'); ?>"><?php
+<?php $sort_value = $this->model->get_list_cell_sort_value(isset($row[ENTRY_RECORD_ID]) ? $row[ENTRY_RECORD_ID] : null, $header); ?>
+<td class="formUserInputLogList-cell" data-field="<?php echo htmlspecialchars($this->model->get_list_header_field($header), ENT_QUOTES, 'UTF-8'); ?>"<?php if ($sort_value !== null) echo ' data-order="' . htmlspecialchars($sort_value, ENT_QUOTES, 'UTF-8') . '"'; ?>><?php
 if (!empty($is_html)) {
     // values_map template: CMS HTML trusted; row interpolations already escaped.
     echo $value;
