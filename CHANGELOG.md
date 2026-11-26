@@ -23,6 +23,8 @@
    - Database change: in `46_update_v7.13.0_v7.14.0.sql`; clear the cache after running it.
 
 ### Bug Fix
+ - **Markdown with `{{...}}` multi-line values (e.g. LLM memory lists) rendered headings inside list items**: `PageDb::replace_calced_values()` turned every newline into a literal `\n` for JSON safety. It has a new `$escape_controls` parameter (default `true`, unchanged for all other callers); `StyleModel` passes `false` for `markdown` and `markdown-inline` fields, so they keep real newlines.
+ - **AJAX form “Processing…” overlay missing on the second submit**: `formUserInput.js` bound submit directly on the form node; after the first AJAX `replaceWith` that handler was gone, so the next submit was a full page POST and the event-listener overlay was lost. Submit is now delegated on `document`, so forms re-rendered by AJAX or by the event-listener refresh are submitted via AJAX too. The event-listener marker is output before its script, and a section root with the class `event-refresh-loading` now also gets the loading overlay.
  - **Date inputs with a `format`**: editing a saved record showed an empty date (the browser drops a non-ISO value of a date input) and saving again deleted it; an ISO value in such a field was read in the wrong order (`2026-11-20` became `20.06.2026`). Fixed by the ISO storage above.
  - **`locked_after_submit` on `date`, `datetime` and `time` inputs** did nothing: the field could still be changed after it was saved. The date picker now stays closed and the field is read-only once it has a value.
 # v7.13.3
