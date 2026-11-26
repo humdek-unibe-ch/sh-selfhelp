@@ -900,10 +900,14 @@ class PageDb extends BaseDb
      * The value of the field contetn
      * @param array $calc_formula_values
      * the calculated variables with their value
+     * @param bool $escape_controls
+     * Escape newlines/control chars of string values as \n, \t, \uXXXX so the
+     * result stays a valid JSON string literal. Pass false for Markdown, where
+     * real newlines are needed for headings and lists. Array content is always escaped.
      * @return string or array
      * Return the modified value of the field_content
      */
-    public function replace_calced_values($field_content, $calc_formula_values)
+    public function replace_calced_values($field_content, $calc_formula_values, $escape_controls = true)
     {
         $is_array = false;
         if (is_array($field_content)) {
@@ -935,31 +939,29 @@ class PageDb extends BaseDb
                 return '';
             }
         }, $field_content);
+        $escape_controls = $escape_controls || $is_array;
         try {
             foreach ($calc_formula_values as $var => $var_value) {
                 if (is_array($var_value)) {
                     $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)), $field_content);
                 } else if ($var) {
                     if ($var_value !== null) {
-                        // Escape control chars that break JSON string literals (SurveyJS config,
-                        // JSON Mapper meta, etc.). addslashes alone does not handle \t / other C0.
-                        $var_value = preg_replace('/\r|\n/', '\n', trim($var_value));
-                        $var_value = str_replace("\t", '\t', $var_value);
-                        $var_value = preg_replace_callback(
-                            '/[\x00-\x08\x0B\x0C\x0E-\x1F]/',
-                            static function ($m) {
-                                return sprintf('\\u%04x', ord($m[0]));
-                            },
-                            $var_value
-                        );
+                        $var_value = trim($var_value);
+                        if ($escape_controls) {
+                            // Escape control chars that break JSON string literals.
+                            // addslashes alone does not handle \t / other C0.
+                            $var_value = preg_replace('/\r|\n/', '\n', $var_value);
+                            $var_value = str_replace("\t", '\t', $var_value);
+                            $var_value = preg_replace_callback(
+                                '/[\x00-\x08\x0B\x0C\x0E-\x1F]/',
+                                static function ($m) {
+                                    return sprintf('\\u%04x', ord($m[0]));
+                                },
+                                $var_value
+                            );
+                        }
                     }
-                    // if (json_decode($field_content)) {
-                    //     // if the variable is array then do not add slashes
-                    //     $var_value = str_replace('"', "'", $var_value); // all " should be only single in JSON
-                    //     $field_content = preg_replace('#\{\{' . $var . '\}\}#', $var_value, $field_content);
-                    // } else {
                     $field_content = preg_replace('#\{\{' . preg_quote($var, '#') . '\}\}#s', addslashes($var_value ?? ''), $field_content);
-                    // }                    
                 }
             }
         } catch (\Throwable $th) {

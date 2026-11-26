@@ -386,9 +386,12 @@ class StyleModel extends BaseModel implements IStyleModel
         $user_name = $this->db->fetch_user_name();
         $user_code = $this->db->get_user_code();
         $user_email = $this->db->fetch_user_email();
+        // Markdown needs real newlines in multi-line values; every other field type keeps
+        // the JSON-safe escaping (SurveyJS, JSON Mapper, code, ...).
+        $escape_controls = !in_array($field['type'] ?? '', array('markdown', 'markdown-inline'), true);
         if ($this->entry_record) {
             //adjust entry value; the marks keep the entered text out of the passes below
-            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key], true);
+            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key], true, $escape_controls);
             $this->debug_data['entry_record'] = $this->entry_record;
             $this->interpolation_data['entry_record'] = $this->entry_record;
         }
@@ -401,7 +404,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
             }
-            $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $global_vars);
+            $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $global_vars, $escape_controls);
             $field[$field_key] = str_replace('@user_code', $user_code, $field[$field_key]);
             $field[$field_key] = str_replace('@project', $_SESSION['project'], $field[$field_key]);
             $field[$field_key] = str_replace('@user_email', $user_email, $field[$field_key]);
@@ -410,7 +413,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->debug_data['global_values'] = $global_values; 
             $this->interpolation_data['global_values'] = $global_values; 
             if($global_values){
-                $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values, $escape_controls);
             }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is not data_config, try to get dynamic data
@@ -422,7 +425,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     $fields = $this->interpolation_data['data_config_retrieved'];
                 }
                 $marked_fields = $this->db->mark_interpolation_values($fields);
-                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $marked_fields);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $marked_fields, $escape_controls);
                 if ($fields) {
                     foreach ($marked_fields as $field_name => $field_value) {
                         if (isset($field_name[0]) && $field_name[0] == '@') {
@@ -861,17 +864,19 @@ class StyleModel extends BaseModel implements IStyleModel
      * The placeholder characters of the inserted entry values stay marked
      * (see PageDb::mark_interpolation_values()), for a caller that
      * interpolates the result again and removes the marks afterwards.
+     * @param bool $escape_controls
+     * See PageDb::replace_calced_values(); false keeps real newlines (Markdown).
      * @retval string
      * Return the value replaced with the params
      */
-    public function get_entry_value($entry_data, $value, $keep_marks = false)
+    public function get_entry_value($entry_data, $value, $keep_marks = false, $escape_controls = true)
     {
         if(!$value){
             return $value;
         }
 
         // Entry values are entered by users: their {{...}} and @... are text, never placeholders
-        $value = $this->db->replace_calced_values($value, $this->db->mark_interpolation_values($entry_data));
+        $value = $this->db->replace_calced_values($value, $this->db->mark_interpolation_values($entry_data), $escape_controls);
         $user_name = $this->db->fetch_user_name();
         $user_code = $this->db->get_user_code();
         $value = $this->db->replace_calced_values($value, array(
