@@ -27,7 +27,7 @@
     $this->output_js_includes_after();
 ?>   
 </head>
-<body class="ui-cms-body">
+<body class="ui-cms-body d-flex flex-column min-vh-100">
 <?php
     $this->output_warnings();
     $this->output_base_content();

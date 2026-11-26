@@ -6,3 +6,14 @@
     font-size: 80% !important;
     font-weight: 400 !important;
 }
+
+/* Sticky footer: pin to viewport when content is short; follow content when tall */
+body.ui-cms-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.footer-holder {
+    margin-top: auto;
+}
