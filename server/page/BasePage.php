@@ -703,8 +703,10 @@ abstract class BasePage
             $interval = 5;
         }
 
-        echo '<script src="' . BASE_PATH . '/js/ext/event-listener.js"></script>';
+        // Marker div before the script so init() always finds it (script may run
+        // with readyState interactive via setTimeout(0) before a trailing div parses).
         echo '<div data-event-listener="1" data-event-listener-interval="' . $interval . '" style="display:none"></div>';
+        echo '<script src="' . BASE_PATH . '/js/ext/event-listener.js"></script>';
     }
 
     /**

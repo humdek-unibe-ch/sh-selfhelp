@@ -99,11 +99,12 @@
     // ── Form Submit Interception ───────────────────────────────────────
 
     function bindFormSubmitInterception() {
-        if ($('[data-event-listener="1"]').length === 0) {
-            return;
-        }
-
         $(document).on('submit', 'form', function () {
+            // Check at submit time (not only at bind time) so a late marker still works.
+            if ($('[data-event-listener="1"]').length === 0) {
+                return;
+            }
+
             var loadingSections = collectLoadingSectionIds();
             if (loadingSections.length === 0) {
                 return;
@@ -130,7 +131,8 @@
 
     function collectLoadingSectionIds() {
         var ids = [];
-        $('[data-event-refresh-loading="1"]').each(function () {
+        // data-attr (often inside markdown HTML) OR class on the section root itself
+        $('[data-event-refresh-loading="1"], .event-refresh-loading').each(function () {
             var sectionId = extractSectionId($(this));
             if (sectionId && ids.indexOf(sectionId) === -1) {
                 ids.push(sectionId);
