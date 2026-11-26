@@ -11,7 +11,12 @@ $(document).ready(function () {
  * @returns {void}
  */
 function formSubmitEvent() {
-    $('form').on('submit', function (e) {
+    // Delegated binding: after an AJAX success, updateValues() replaceWith()s the
+    // form node. A direct $('form').on('submit') binding dies with that node, so the
+    // next submit becomes a full page POST. The event-listener then sees ajax=1,
+    // paints a loading overlay, and never stores sessionStorage — the overlay is
+    // wiped by navigation and the second update shows no loading state.
+    $(document).on('submit', 'form', function (e) {
         if ($(this).find('input[name="ajax"]').val() == 1) {
             var is_log = $(this).find('input[name="is_log"]').val() == 1;
             var redirect_at_end = $(this).find('input[name="redirect_at_end"]').val();
