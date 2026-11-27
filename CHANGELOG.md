@@ -1,4 +1,4 @@
-# v7.14.0 (work in progress)
+# v7.14.0
 ### New Feature
  - **CMS Preferences: landing pages for logged-in users and guests, and the page after login.**
    - The site root (`/`) opens a landing page. Before, it showed the `missing` page unless a page used the url `/` (such a page still wins).
